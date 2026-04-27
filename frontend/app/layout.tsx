@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import RagChat from "@/components/RagChat";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({
           {/* pt-16 compensa o navbar fixo */}
           <div className="flex-1 pt-16">{children}</div>
           <Footer />
+          <RagChat />
         </ThemeProvider>
       </body>
     </html>

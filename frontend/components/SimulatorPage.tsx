@@ -201,8 +201,7 @@ export function SimulatorPage() {
             {/* Resultado */}
             {result && !loading && <ResultCard result={result} />}
 
-            {/* Cascata — disponível para Visa com debug ativado */}
-            {result && !loading && form.bandeira !== "visa" && form.debug && (
+            {result && !loading && form.debug && cascata.length === 0 && !error && (
               <div
                 style={{
                   border: "1px solid #1e3a5f",
@@ -212,9 +211,7 @@ export function SimulatorPage() {
                 }}
               >
                 <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  💡 Cascata de avaliação disponível apenas para{" "}
-                  <strong style={{ color: "var(--code-text)" }}>Visa</strong>. Suporte
-                  para Mastercard/Maestro em breve.
+                  💡 Cascata vazia. Tente ativar o modo debug ou recarregar as tabelas.
                 </p>
               </div>
             )}

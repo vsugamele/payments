@@ -18,6 +18,7 @@ from .schemas import (
     CalcVisaSimplesRequest,
 )
 from engine.calculator import InterchangeCalculator
+from .routers import rag
 
 app = FastAPI(
     title="Motor de Provisionamento de Intercâmbio",
@@ -27,6 +28,9 @@ app = FastAPI(
     ),
     version="1.1.0",
 )
+
+app.include_router(rag.router, prefix="/api/rag", tags=["RAG"])
+
 
 # CORS — permite que o frontend Next.js (localhost:3000) acesse a API
 app.add_middleware(

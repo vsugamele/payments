@@ -61,7 +61,7 @@ export default function StoredCredentialsClient() {
 
   const citData = credData.find(d => d.id === "cit")!;
   const mitData = credData.find(d => d.id === "mit")!;
-  const mitTypes: MitType[] = mitData.tipos as MitType[];
+  const mitTypes: MitType[] = mitData.tipos as unknown as MitType[];
 
   const reset = () => { setStep(0); setSelectedMit(null); setResult(null); };
 

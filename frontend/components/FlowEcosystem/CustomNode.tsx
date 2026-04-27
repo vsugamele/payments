@@ -1,10 +1,11 @@
 import { Handle, Position } from '@xyflow/react';
 import * as Icons from 'lucide-react';
+import { LucideProps } from 'lucide-react';
+import { ComponentType } from 'react';
 import { NodeData } from './nodes';
 
 export default function CustomNode({ data, selected }: { data: NodeData; selected: boolean }) {
-  // @ts-ignore - dinamic icon loading for demo purposes
-  const IconComponent = Icons[data.icon as keyof typeof Icons] || Icons.HelpCircle;
+  const IconComponent = (Icons[data.icon as keyof typeof Icons] || Icons.HelpCircle) as ComponentType<LucideProps>;
 
   return (
     <div

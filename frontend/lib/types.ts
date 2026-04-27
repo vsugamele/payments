@@ -46,6 +46,7 @@ export interface VisaResult {
 export interface McResult {
   sucesso: boolean;
   bandeira: string;
+  rule_id?: string;
   ird?: string;
   pseudo_ird?: string;
   descricao_regra?: string;
@@ -56,6 +57,7 @@ export interface McResult {
   taxa_intercambio?: number;
   taxa_intercambio_fmt?: string;
   cap_aplicado?: boolean;
+  cascata?: CascataStep[];
   prioridade_regra?: number;
   cap_brl?: number;
   erro?: string;

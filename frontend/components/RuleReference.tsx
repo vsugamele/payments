@@ -5,12 +5,15 @@ import { BookOpen } from "lucide-react";
 
 interface RuleReferenceProps {
   manual: string;
-  chapter: string;
-  label?: string; // Optional custom text to display next to the icon, e.g., "Ver Regra"
+  chapter?: string;   // legacy prop
+  ruleId?: string;    // alias for chapter
+  description?: string; // extra description
+  label?: string;
 }
 
-export default function RuleReference({ manual, chapter, label }: RuleReferenceProps) {
+export default function RuleReference({ manual, chapter, ruleId, description, label }: RuleReferenceProps) {
   const [show, setShow] = useState(false);
+  const chapterText = chapter || ruleId || "";
 
   return (
     <span
@@ -25,7 +28,7 @@ export default function RuleReference({ manual, chapter, label }: RuleReferenceP
 
       {show && (
         <span
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-code-bg border border-border rounded-lg shadow-xl p-3 text-left animate-in fade-in zoom-in-95"
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-code-bg border border-border rounded-lg shadow-xl p-3 text-left animate-in fade-in zoom-in-95"
         >
           <span className="block text-xs font-bold text-white mb-1 border-b border-border pb-1">
             Fonte Documental
@@ -33,9 +36,16 @@ export default function RuleReference({ manual, chapter, label }: RuleReferenceP
           <span className="block text-xs text-muted-foreground font-semibold mb-0.5">
             Manual: <span className="text-blue-400">{manual}</span>
           </span>
-          <span className="block text-[11px] text-muted-foreground leading-snug">
-            Capítulo/Regra: <span className="text-white">{chapter}</span>
-          </span>
+          {chapterText && (
+            <span className="block text-[11px] text-muted-foreground leading-snug">
+              Capítulo/Regra: <span className="text-white">{chapterText}</span>
+            </span>
+          )}
+          {description && (
+            <span className="block text-[11px] text-muted-foreground mt-1 leading-snug italic">
+              {description}
+            </span>
+          )}
           {/* Seta do popover */}
           <span
             className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-code-bg border-r border-b border-border rotate-45"

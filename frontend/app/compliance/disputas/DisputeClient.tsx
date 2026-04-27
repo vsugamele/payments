@@ -252,6 +252,7 @@ export default function DisputeClient() {
 
           {/* Compelling Evidence Card */}
           { (currentStage === "Representment" || currentStage === "Pre-Arbitration") && (
+               <>
                <div className="flex items-center justify-between mb-2 mt-6">
                  <p className="section-eyebrow flex items-center gap-2 m-0">
                    <UploadCloud size={14} /> Required Compelling Evidence
@@ -266,7 +267,7 @@ export default function DisputeClient() {
                </div>
                <div className="border border-border bg-input rounded-xl overflow-hidden p-0">
                   <div className="border-b border-border bg-muted/50 p-3 italic text-xs text-muted-foreground">
-                     "Para vencer a disputa <strong>{selectedCode.code}</strong> na fase representativa, a <TermTooltip term="Mastercom" definition="Plataforma principal de gestão e clearing de disputas da Mastercard" /> exige documentalmente:"
+                     Para vencer a disputa <strong>{selectedCode.code}</strong> na fase representativa, a <TermTooltip term="Mastercom" definition="Plataforma principal de gestão e clearing de disputas da Mastercard" /> exige documentalmente:
                   </div>
                   <div className="p-4 space-y-3">
                      {selectedCode.compelling_evidence?.map((ce, index) => (
@@ -283,7 +284,7 @@ export default function DisputeClient() {
                      ))}
                   </div>
                </div>
-            </div>
+               </>
           )}
 
         </div>

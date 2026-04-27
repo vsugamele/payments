@@ -155,6 +155,7 @@ class VisaCalcResult:
 class CalcResult:
     sucesso: bool
     bandeira: str = ""
+    rule_id: str = ""
     ird: str = ""
     pseudo_ird: str = ""
     descricao_regra: str = ""
@@ -164,8 +165,13 @@ class CalcResult:
     valor_transacao: float = 0.0
     taxa_intercambio: float = 0.0
     cap_aplicado: bool = False
+    cascata: list = None
     detalhe: dict = field(default_factory=dict)
     erro: str = ""
+
+    def __post_init__(self):
+        if self.cascata is None:
+            self.cascata = []
 
     def to_dict(self) -> dict:
         d = {
@@ -174,8 +180,11 @@ class CalcResult:
         }
         if not self.sucesso:
             d["erro"] = self.erro
+            if self.cascata:
+                d["cascata"] = self.cascata
             return d
         d.update({
+            "rule_id": self.rule_id,
             "ird": self.ird or self.pseudo_ird,
             "descricao_regra": self.descricao_regra,
             "segment": self.segment,
@@ -185,6 +194,7 @@ class CalcResult:
             "taxa_intercambio": round(self.taxa_intercambio, 4),
             "taxa_intercambio_fmt": f"R$ {self.taxa_intercambio:.4f}",
             "cap_aplicado": self.cap_aplicado,
+            "cascata": self.cascata,
             **self.detalhe,
         })
         return d
@@ -235,10 +245,11 @@ class InterchangeCalculator:
         ctx = self._build_ctx(params)
 
         # Maestro: CARD_PROGRAM_ID="MSI" ou bandeira="maestro"
+        include_cascata = params.get("debug", False)
         if bandeira == "maestro" or ctx.get("CARD_PROGRAM_ID") == "MSI":
-            return self._calc_maestro(ctx, valor, bandeira)
+            return self._calc_maestro(ctx, valor, bandeira, include_cascata=include_cascata)
         else:
-            return self._calc_mastercard(ctx, valor, bandeira, params)
+            return self._calc_mastercard(ctx, valor, bandeira, params, include_cascata=include_cascata)
 
     # ------------------------------------------------------------------
     # API simplificada: termos humanos → parâmetros técnicos
@@ -297,16 +308,27 @@ class InterchangeCalculator:
         canal_params = CANAL_MAP.get(canal, CANAL_MAP["fisico"])
         tech.update(canal_params)
 
+        tech["debug"] = params.get("debug", False)
         return self.calcular(tech)
 
     # ------------------------------------------------------------------
     # Cálculo interno Mastercard
     # ------------------------------------------------------------------
 
-    def _calc_mastercard(self, ctx: dict, valor: float, bandeira: str, params: dict) -> CalcResult:
+    def _calc_mastercard(self, ctx: dict, valor: float, bandeira: str, params: dict, include_cascata: bool = False) -> CalcResult:
         matched = None
+        cascata = []
         for rule in self.mc_rules:
-            if eval_rule(rule, ctx):
+            hit = eval_rule(rule, ctx)
+            if include_cascata:
+                cascata.append({
+                    "priority": rule.priority,
+                    "rule_id": str(rule.rule_id),
+                    "descriptor": f"IRD: {rule.ird}",
+                    "description": rule.description,
+                    "result": hit,
+                })
+            if hit:
                 matched = rule
                 break
 
@@ -314,7 +336,12 @@ class InterchangeCalculator:
             return CalcResult(
                 sucesso=False,
                 bandeira=bandeira,
-                erro="Nenhuma regra encontrada. Verifique os parâmetros da transação.",
+                erro=(
+                    "Nenhuma regra encontrada. Verifique os parâmetros da transação."
+                    if not include_cascata
+                    else "Nenhuma regra encontrada. Veja 'cascata' para detalhes."
+                ),
+                cascata=cascata,
             )
 
         ird = matched.ird
@@ -328,6 +355,7 @@ class InterchangeCalculator:
                 bandeira=bandeira,
                 ird=ird,
                 erro=f"Taxa não encontrada: IRD={ird}, tier={tier_input}, segment={segment}",
+                cascata=cascata,
             )
 
         taxa = round(valor * (rate_pct / 100), 4)
@@ -335,6 +363,7 @@ class InterchangeCalculator:
         return CalcResult(
             sucesso=True,
             bandeira=bandeira,
+            rule_id=str(matched.rule_id),
             ird=ird,
             descricao_regra=matched.description,
             segment=segment,
@@ -342,6 +371,7 @@ class InterchangeCalculator:
             rate_pct=rate_pct,
             valor_transacao=valor,
             taxa_intercambio=taxa,
+            cascata=cascata,
             detalhe={"prioridade_regra": matched.priority},
         )
 
@@ -349,10 +379,20 @@ class InterchangeCalculator:
     # Cálculo interno Maestro
     # ------------------------------------------------------------------
 
-    def _calc_maestro(self, ctx: dict, valor: float, bandeira: str) -> CalcResult:
+    def _calc_maestro(self, ctx: dict, valor: float, bandeira: str, include_cascata: bool = False) -> CalcResult:
         matched = None
+        cascata = []
         for rule in self.maestro_rules:
-            if eval_rule(rule, ctx):
+            hit = eval_rule(rule, ctx)
+            if include_cascata:
+                cascata.append({
+                    "priority": rule.priority,
+                    "rule_id": str(rule.rule_id),
+                    "descriptor": f"IRD: {rule.pseudo_ird}",
+                    "description": rule.description,
+                    "result": hit,
+                })
+            if hit:
                 matched = rule
                 break
 
@@ -360,7 +400,12 @@ class InterchangeCalculator:
             return CalcResult(
                 sucesso=False,
                 bandeira="maestro",
-                erro="Nenhuma regra Maestro encontrada.",
+                erro=(
+                    "Nenhuma regra Maestro encontrada."
+                    if not include_cascata
+                    else "Nenhuma regra Maestro encontrada. Veja 'cascata' para detalhes."
+                ),
+                cascata=cascata,
             )
 
         rate_pct = matched.rate_pct
@@ -374,12 +419,14 @@ class InterchangeCalculator:
         return CalcResult(
             sucesso=True,
             bandeira="maestro",
+            rule_id=str(matched.rule_id),
             pseudo_ird=matched.pseudo_ird,
             descricao_regra=matched.description,
             rate_pct=rate_pct,
             valor_transacao=valor,
             taxa_intercambio=taxa,
             cap_aplicado=cap_aplicado,
+            cascata=cascata,
             detalhe={"cap_brl": matched.cap_brl},
         )
 
