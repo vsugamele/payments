@@ -1,0 +1,317 @@
+{
+  "trilhas": [
+    {
+      "id": "do-zero-ao-intercambio",
+      "titulo": "Do Zero ao Intercâmbio",
+      "subtitulo": "De portador a taxa: entenda o ciclo completo de um pagamento",
+      "descricao": "Para quem está começando no mercado de meios de pagamento. Você vai entender quem são os atores, como flui uma transação, o que é clearing, settlement e como nasce a taxa de intercâmbio.",
+      "nivel": "Iniciante",
+      "cor": "#10b981",
+      "cor_fundo": "rgba(16,185,129,0.08)",
+      "cor_borda": "rgba(16,185,129,0.2)",
+      "tempo_total": "50 min",
+      "icone": "Route",
+      "modulos": [
+        {
+          "id": "ecossistema",
+          "titulo": "O Ecossistema",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "atores",
+              "titulo": "Os 5 atores de toda transação",
+              "descricao": "Portador, Lojista, Adquirente, Emissor e Bandeira — quem faz o quê em cada pagamento",
+              "tempo": "8 min",
+              "tipo": "conceito",
+              "termos": ["BIN", "PAN", "MCC", "Credenciador", "Bandeira"]
+            },
+            {
+              "id": "o-que-o-cartao-carrega",
+              "titulo": "O que o cartão carrega",
+              "descricao": "BIN, PAN, CVV, Chip EMV e tudo que está codificado no seu cartão",
+              "tempo": "7 min",
+              "tipo": "conceito",
+              "termos": ["BIN", "PAN", "DPAN", "CVV", "EMV"]
+            }
+          ]
+        },
+        {
+          "id": "transacao",
+          "titulo": "A Transação",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "autorizacao",
+              "titulo": "Autorização: menos de 1.5 segundos",
+              "descricao": "ISO 8583, MTI e o que acontece nos bastidores quando você aproxima o cartão",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["ISO 8583", "MTI", "DE", "Autorização", "Response Code"]
+            },
+            {
+              "id": "clearing-e-settlement",
+              "titulo": "Clearing e Settlement",
+              "descricao": "O que acontece depois da aprovação: como os bancos acertam as contas e o dinheiro chega ao lojista",
+              "tempo": "8 min",
+              "tipo": "conceito",
+              "termos": ["Clearing", "Base II", "IPM", "Settlement", "CIP"]
+            }
+          ]
+        },
+        {
+          "id": "dinheiro",
+          "titulo": "O Dinheiro",
+          "numero": 3,
+          "licoes": [
+            {
+              "id": "intercambio",
+              "titulo": "O que é Intercâmbio",
+              "descricao": "A taxa que vai do Adquirente para o Emissor — por que ela existe e quem a define",
+              "tempo": "9 min",
+              "tipo": "conceito",
+              "termos": ["Intercâmbio", "IRD", "Emissor", "Adquirente"]
+            },
+            {
+              "id": "mdr-e-custos",
+              "titulo": "MDR: o custo do lojista",
+              "descricao": "MDR = Intercâmbio + Fee Bandeira + Margem Adquirente. Quem paga o quê",
+              "tempo": "8 min",
+              "tipo": "conceito",
+              "termos": ["MDR", "Fee de Bandeira", "Intercâmbio", "Adquirente"],
+              "simulador": {
+                "label": "Simular uma transação real",
+                "href": "/simulador"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "intercambio-tecnico",
+      "titulo": "Intercâmbio Técnico",
+      "subtitulo": "Regras, cascatas e como calcular a taxa para cada transação",
+      "descricao": "Para quem já entende o básico e quer mergulhar na mecânica real das regras de intercâmbio — IRDs, tiers, cascata de regras, como Visa e Mastercard diferem.",
+      "nivel": "Intermediário",
+      "cor": "#6366f1",
+      "cor_fundo": "rgba(99,102,241,0.08)",
+      "cor_borda": "rgba(99,102,241,0.2)",
+      "tempo_total": "1h 10min",
+      "icone": "Calculator",
+      "modulos": [
+        {
+          "id": "estrutura",
+          "titulo": "Estrutura do Intercâmbio",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "como-a-taxa-e-determinada",
+              "titulo": "Como a taxa é determinada",
+              "descricao": "Produto, canal, MCC e os fatores que definem qual regra se aplica",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["IRD", "MCC", "Tier", "Canal", "Produto"]
+            },
+            {
+              "id": "cascata-de-regras",
+              "titulo": "A cascata de regras (waterfall)",
+              "descricao": "Como o motor avalia cada regra em ordem de prioridade até encontrar a correta",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["IRD", "Waterfall", "Prioridade", "Debug", "Cascata"]
+            }
+          ]
+        },
+        {
+          "id": "mastercard",
+          "titulo": "Mastercard",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "irds-mastercard",
+              "titulo": "IRDs Mastercard: IA, HU, AU e ajustes",
+              "descricao": "Os Interchange Rate Designators da MC — o que cada um representa e como se combinam",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["IRD", "IA", "HU", "AU", "Tier", "Ajuste"]
+            },
+            {
+              "id": "tiers-e-segmentos",
+              "titulo": "Tiers e Segmentos de MCC",
+              "descricao": "Como o produto do cartão e o tipo de lojista combinam para chegar na taxa final",
+              "tempo": "9 min",
+              "tipo": "conceito",
+              "termos": ["Tier", "Segmento", "MCC", "IRD", "Consumer standard"]
+            }
+          ]
+        },
+        {
+          "id": "visa",
+          "titulo": "Visa",
+          "numero": 3,
+          "licoes": [
+            {
+              "id": "pid-e-afs",
+              "titulo": "PID, AFS e a lógica Visa",
+              "descricao": "Product ID e Account Funding Source — o DNA de uma regra de intercâmbio Visa",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["PID", "AFS", "ECI", "SETTL_FLAG"]
+            },
+            {
+              "id": "eci-e-autenticacao",
+              "titulo": "ECI e como a autenticação vira desconto",
+              "descricao": "ECI 05 vs 07 — como o 3DS impacta diretamente a taxa de intercâmbio",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["ECI", "3DS", "FRICTIONLESS", "Autenticação", "VBV"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compliance-e-risco",
+      "titulo": "Compliance e Risco",
+      "subtitulo": "Programas de monitoramento, fraude e o que os adquirentes devem evitar",
+      "descricao": "Entenda os programas VAMP, ECP, EFM, PED e MATCH. Como adquirentes e emissores gerenciam risco para não cair em penalidades das bandeiras.",
+      "nivel": "Intermediário",
+      "cor": "#f59e0b",
+      "cor_fundo": "rgba(245,158,11,0.08)",
+      "cor_borda": "rgba(245,158,11,0.2)",
+      "tempo_total": "45 min",
+      "icone": "ShieldCheck",
+      "modulos": [
+        {
+          "id": "fraude",
+          "titulo": "Fraude e Risco",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "tipos-de-fraude",
+              "titulo": "Tipos de fraude em cartões",
+              "descricao": "CNP, account takeover, skimming e card testing — o que cada um significa e como se detecta",
+              "tempo": "9 min",
+              "tipo": "conceito",
+              "termos": ["Fraude", "CNP", "TC40", "Chargeback", "Card Testing"]
+            },
+            {
+              "id": "tc40-e-safe",
+              "titulo": "TC40 e SAFE: como a fraude é reportada",
+              "descricao": "O ciclo de reporte de fraude entre adquirente, bandeira e emissor",
+              "tempo": "9 min",
+              "tipo": "conceito",
+              "termos": ["TC40", "SAFE", "Fraude", "VAMP", "Emissor"]
+            }
+          ]
+        },
+        {
+          "id": "programas",
+          "titulo": "Programas de Monitoramento",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "vamp-e-ecp",
+              "titulo": "VAMP e ECP: os grandes programas",
+              "descricao": "Como funcionam os programas de monitoramento de fraude da Visa e da Mastercard",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["VAMP", "ECP", "EFM", "Threshold", "Penalidade"]
+            },
+            {
+              "id": "match",
+              "titulo": "MATCH: o cadastro de lojistas problemáticos",
+              "descricao": "O que é o MATCH, como funciona e por que entrar nele é quase sentença de morte para um negócio",
+              "tempo": "8 min",
+              "tipo": "conceito",
+              "termos": ["MATCH", "Chargeback", "Onboarding", "Adquirente", "BRAM"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visa-deep-dive",
+      "titulo": "Visa Deep Dive",
+      "subtitulo": "VisaNet, VBS, BASE II, IPM e o ecossistema completo da Visa",
+      "descricao": "Para quem trabalha diretamente com Visa e precisa entender a fundo a rede VisaNet, o sistema VSS, os arquivos de clearing BASE II e IPM, portfólio de produtos e como a tokenização VTS funciona na prática.",
+      "nivel": "Avançado",
+      "cor": "#06b6d4",
+      "cor_fundo": "rgba(6,182,212,0.08)",
+      "cor_borda": "rgba(6,182,212,0.2)",
+      "tempo_total": "1h 20min",
+      "icone": "CreditCard",
+      "modulos": [
+        {
+          "id": "rede",
+          "titulo": "A Rede Visa",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "visanet-e-vbs",
+              "titulo": "VisaNet e VBS: a espinha dorsal",
+              "descricao": "A infraestrutura global que conecta emissores e adquirentes — como uma transação Visa viaja pelo mundo",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["VisaNet", "VBS", "VIP", "Autorização", "Adquirente"]
+            },
+            {
+              "id": "vss-e-clearing-visa",
+              "titulo": "VSS: como o clearing Visa funciona",
+              "descricao": "Visa Settlement Service — ciclos de settlement, arquivos de clearing e como o dinheiro é liquidado",
+              "tempo": "11 min",
+              "tipo": "conceito",
+              "termos": ["VSS", "Settlement", "Clearing", "VCF", "BASE II"]
+            }
+          ]
+        },
+        {
+          "id": "arquivos",
+          "titulo": "Arquivos de Clearing",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "base-ii-e-ipm",
+              "titulo": "BASE II vs IPM: os dois formatos",
+              "descricao": "O formato legado de clearing da Visa (BASE II) e o IPM da Mastercard — diferenças, campos e uso no Brasil",
+              "tempo": "13 min",
+              "tipo": "conceito",
+              "termos": ["BASE II", "IPM", "TC", "PDS", "Clearing"]
+            },
+            {
+              "id": "vcf-e-campos-criticos",
+              "titulo": "VCF: campos críticos do clearing",
+              "descricao": "Visa Clearing File — PID, AFS, ECI, POS_ENTRY_MODE e como auditar uma transação pelo arquivo",
+              "tempo": "11 min",
+              "tipo": "conceito",
+              "termos": ["VCF", "PID", "AFS", "ECI", "POS_ENTRY_MODE", "SETTL_FLAG"]
+            }
+          ]
+        },
+        {
+          "id": "produtos-e-tokens",
+          "titulo": "Produtos e Tokenização",
+          "numero": 3,
+          "licoes": [
+            {
+              "id": "portfolio-visa-brasil",
+              "titulo": "Portfólio Visa Brasil: do Classic ao Infinite",
+              "descricao": "Todos os PIDs relevantes no Brasil, seus benefícios e como o produto do cartão impacta o intercâmbio",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["PID", "Classic", "Platinum", "Infinite", "Electron", "BNDES"]
+            },
+            {
+              "id": "vts-e-tokenizacao",
+              "titulo": "VTS: Visa Token Service",
+              "descricao": "Como a tokenização Visa funciona — DPAN, DCV, wallets digitais e impacto em segurança e intercâmbio",
+              "tempo": "13 min",
+              "tipo": "conceito",
+              "termos": ["VTS", "DPAN", "Token", "DCV", "Apple Pay", "Provisioning"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

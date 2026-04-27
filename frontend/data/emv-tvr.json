@@ -1,0 +1,150 @@
+{
+  "tvr": {
+    "name": "Terminal Verification Results (TVR)",
+    "tag": "95",
+    "length": "5 bytes (40 bits)",
+    "source": "EMV Book 3 — Application Specification, Annex C",
+    "description": "Resultado de todas as verificações realizadas pelo terminal durante o fluxo offline. Cada bit setado em '1' indica uma condição de falha ou alerta. O Emissor avalia este campo no ARQC para decidir a autorização.",
+    "bytes": [
+      {
+        "byte": 1,
+        "label": "Offline Data Authentication",
+        "bits": [
+          { "bit": 8, "flag": "Offline Data Authentication was not performed", "risk": "high", "desc": "O terminal não executou ODA. Transações sem ODA são vulneráveis a wedge attacks (cartões clonados sem chip real)." },
+          { "bit": 7, "flag": "SDA failed", "risk": "high", "desc": "A assinatura estática (Static Data Authentication) falhou. O certificado do chip não foi validado pela CA pública. Indica possível cartão clonado ou dados corrompidos." },
+          { "bit": 6, "flag": "ICC data missing", "risk": "high", "desc": "Dados obrigatórios do chip não foram retornados pelo cartão. O terminal não conseguiu ler os registros do chip corretamente (possível cartão defeituoso ou ataque)." },
+          { "bit": 5, "flag": "Card appears on terminal exception file", "risk": "critical", "desc": "O PAN do cartão consta na lista negra do terminal (exception file). Transação deve ser recusada imediatamente (Action: Decline)." },
+          { "bit": 4, "flag": "DDA failed", "risk": "high", "desc": "Dynamic Data Authentication falhou. O criptograma único gerado pelo chip não pôde ser verificado com a chave pública do emissor. Indica clonagem sofisticada ou adulteração." },
+          { "bit": 3, "flag": "CDA failed", "risk": "critical", "desc": "Combined DDA/Application Cryptogram generation falhou. Mecanismo mais moderno e seguro de autenticação — falha aqui é sinal grave de fraude ou manipulação." },
+          { "bit": 2, "flag": "RFU (For future use)", "risk": "none", "desc": "Reservado para uso futuro. Deve ser zero." },
+          { "bit": 1, "flag": "RFU (For future use)", "risk": "none", "desc": "Reservado para uso futuro. Deve ser zero." }
+        ]
+      },
+      {
+        "byte": 2,
+        "label": "Application / Card Validity",
+        "bits": [
+          { "bit": 8, "flag": "ICC and terminal have different application versions", "risk": "medium", "desc": "O Application Version Number do chip não coincide com o suportado pelo terminal. Pode indicar cartão desatualizado ou terminal com parâmetros antigos." },
+          { "bit": 7, "flag": "Expired application", "risk": "medium", "desc": "A Application Expiry Date (tag 5F24) já passou. O emissor pode ter emitido um novo cartão. Transação geralmente declinada pelo emissor (Response Code 54)." },
+          { "bit": 6, "flag": "Application not yet effective", "risk": "medium", "desc": "A Application Effective Date (tag 5F25) ainda não chegou. Cartão sendo usado antes da data de ativação." },
+          { "bit": 5, "flag": "Requested service not allowed for card product", "risk": "medium", "desc": "O serviço solicitado (ex: cash advance) não é permitido para este produto de cartão conforme a Application Usage Control (AUC)." },
+          { "bit": 4, "flag": "New card", "risk": "low", "desc": "Indica primeiro uso do cartão (Application Usage Counter = 0). Não é uma falha, mas pode acionar regras de fraud scoring do emissor para primeiro uso." },
+          { "bit": 3, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      },
+      {
+        "byte": 3,
+        "label": "Cardholder Verification Method (CVM)",
+        "bits": [
+          { "bit": 8, "flag": "Cardholder verification was not successful", "risk": "high", "desc": "O CVM (PIN, assinatura, etc.) falhou ou não foi satisfeito. Para transações que exigem verificação, isto pode resultar em declínio ou em transação sem proteção de liability shift." },
+          { "bit": 7, "flag": "Unrecognised CVM", "risk": "medium", "desc": "O método de verificação solicitado pelo cartão não é reconhecido pelo terminal. O terminal aplica a CVM substituta (Fallback CVM)." },
+          { "bit": 6, "flag": "PIN Try Limit exceeded", "risk": "critical", "desc": "O portador excedeu o número máximo de tentativas de PIN offline. Cartão pode estar bloqueado. Emissor quase certamente declinará (Response Code 75 ou 08)." },
+          { "bit": 5, "flag": "PIN entry required and PIN pad not present or not working", "risk": "high", "desc": "O cartão exige PIN mas o terminal não possui pinpad ou o pinpad está com defeito. Transação não pode ser autenticada adequadamente." },
+          { "bit": 4, "flag": "PIN entry required, PIN pad present, but PIN was not entered", "risk": "medium", "desc": "O portador não inseriu o PIN quando solicitado. Pode indicar bypass intencional (fraude) ou portador confuso." },
+          { "bit": 3, "flag": "Online PIN entered", "risk": "low", "desc": "PIN foi inserido e enviado de forma criptografada para o emissor validar online. Este bit setado é positivo — indica autenticação forte." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      },
+      {
+        "byte": 4,
+        "label": "Terminal Risk Management",
+        "bits": [
+          { "bit": 8, "flag": "Transaction exceeds floor limit", "risk": "medium", "desc": "O valor da transação supera o Floor Limit configurado no terminal. O terminal DEVE ir online para autorização (não pode aprovar offline)." },
+          { "bit": 7, "flag": "Lower consecutive offline limit exceeded", "risk": "medium", "desc": "O contador de transações offline consecutivas (ATC vs Lower Consecutive Offline Limit) foi ultrapassado. Terminal tenta ir online." },
+          { "bit": 6, "flag": "Upper consecutive offline limit exceeded", "risk": "high", "desc": "O limite superior de transações offline consecutivas foi ultrapassado. O terminal deve recusar a transação offline (Action: Decline)." },
+          { "bit": 5, "flag": "Transaction selected randomly for online processing", "risk": "low", "desc": "O terminal selecionou aleatoriamente esta transação para processamento online (Biased Random Selection — BCPS). Comportamento normal de monitoramento." },
+          { "bit": 4, "flag": "Merchant forced transaction online", "risk": "low", "desc": "O lojista configurou o terminal para sempre ir online (Floor Limit = 0 ou configuração de política). Transação não pode ser aprovada offline." },
+          { "bit": 3, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      },
+      {
+        "byte": 5,
+        "label": "Issuer Authentication & Script",
+        "bits": [
+          { "bit": 8, "flag": "Default TDOL used", "risk": "low", "desc": "O Terminal Default Transaction Certificate Data Object List foi usado em vez do TDOL fornecido pelo emissor. Pode indicar falta de personalização do chip." },
+          { "bit": 7, "flag": "Issuer authentication failed", "risk": "critical", "desc": "A autenticação do emissor (External Authenticate) falhou. O código retornado pelo emissor no campo de dados de autenticação não foi validado pelo chip. Indica possível ataque man-in-the-middle ou mensagem adulterada." },
+          { "bit": 6, "flag": "Script processing failed before final GENERATE AC", "risk": "high", "desc": "Um Issuer Script (comando do emissor para o chip, como desbloqueio de PIN ou reset de ATC) falhou antes do GENERATE AC final. O chip pode estar em estado inconsistente." },
+          { "bit": 5, "flag": "Script processing failed after final GENERATE AC", "risk": "medium", "desc": "Um Issuer Script falhou após o criptograma final já ter sido gerado. A transação pode ter sido aprovada, mas o script de gestão do chip não foi executado." },
+          { "bit": 4, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 3, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      }
+    ]
+  },
+  "tsi": {
+    "name": "Transaction Status Information (TSI)",
+    "tag": "9B",
+    "length": "2 bytes (16 bits)",
+    "source": "EMV Book 3 — Application Specification, Annex C",
+    "description": "Indica quais funções do kernel EMV foram executadas pelo terminal durante a transação. Complementa o TVR indicando o que foi FEITO (vs. TVR que indica o que FALHOU).",
+    "bytes": [
+      {
+        "byte": 1,
+        "label": "Functions Performed",
+        "bits": [
+          { "bit": 8, "flag": "Offline data authentication was performed", "risk": "none", "desc": "✅ ODA executada. Ver byte 1 do TVR para saber se passou ou falhou." },
+          { "bit": 7, "flag": "Cardholder verification was performed", "risk": "none", "desc": "✅ CVM executado (PIN, assinatura, etc). Ver byte 3 do TVR para resultado." },
+          { "bit": 6, "flag": "Card risk management was performed", "risk": "none", "desc": "✅ Gestão de risco do cartão executada (ATC, velocity checks, etc)." },
+          { "bit": 5, "flag": "Issuer authentication was performed", "risk": "none", "desc": "✅ External Authenticate executado. Ver byte 5 do TVR para resultado." },
+          { "bit": 4, "flag": "Terminal risk management was performed", "risk": "none", "desc": "✅ Floor limit check, velocity checks e seleção aleatória executados." },
+          { "bit": 3, "flag": "Script processing was performed", "risk": "none", "desc": "✅ Issuer Script foi processado. Ver byte 5 do TVR para resultado." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      },
+      {
+        "byte": 2,
+        "label": "RFU",
+        "bits": [
+          { "bit": 8, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 7, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 6, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 5, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 4, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 3, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 2, "flag": "RFU", "risk": "none", "desc": "Reservado." },
+          { "bit": 1, "flag": "RFU", "risk": "none", "desc": "Reservado." }
+        ]
+      }
+    ]
+  },
+  "common_patterns": [
+    {
+      "label": "Transação Chip Limpa (aprovada sem alertas)",
+      "tvr_hex": "0000000000",
+      "interpretation": "Todos os bits zerados. ODA passou, CVM satisfeito, sem limites excedidos. Transação de baixo risco offline.",
+      "risk": "low"
+    },
+    {
+      "label": "PIN Excedido + SDA Falhou",
+      "tvr_hex": "C240000000",
+      "interpretation": "Byte 1 bit 7 (SDA failed) + Byte 3 bit 6 (PIN Try Limit exceeded). Cartão possivelmente clonado com chip simulado e portador tentando quebrar PIN. Recuse.",
+      "risk": "critical"
+    },
+    {
+      "label": "Autenticação do Emissor Falhou",
+      "tvr_hex": "0000008000",
+      "interpretation": "Byte 5 bit 7 (Issuer authentication failed). External Authenticate rejeitado pelo chip. Possível ataque MITM ou mensagem adulterada no canal. Recuse.",
+      "risk": "critical"
+    },
+    {
+      "label": "Floor Limit Excedido (online obrigatório)",
+      "tvr_hex": "0000100000",
+      "interpretation": "Byte 4 bit 8 (Transaction exceeds floor limit). Terminal deve ir online. Comum em transações de alto valor no varejo.",
+      "risk": "medium"
+    },
+    {
+      "label": "Cartão em Exception File",
+      "tvr_hex": "0800000000",
+      "interpretation": "Byte 1 bit 5 (Card appears on terminal exception file). PAN na lista negra do terminal. Recuse imediatamente independente de qualquer autorização.",
+      "risk": "critical"
+    }
+  ]
+}

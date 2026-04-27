@@ -1,0 +1,264 @@
+[
+  {
+    "id": "mc-trp-2024",
+    "bandeira": "Mastercard",
+    "titulo": "Mastercard Transaction Processing Rules",
+    "versao": "December 2024",
+    "descricao": "Manual supremo de regras da operadora englobando definições de merchant, obrigações de liquidação, restrições de rede e parâmetros de autorização.",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "Chapter 2: Authorization Server & STIP",
+        "resumo": "Parâmetros do Stand-In Processing, obrigação de processamento in-line e timeouts do Banknet."
+      },
+      {
+        "nome": "Chapter 3: Acceptance & Merchant Obligations",
+        "resumo": "Regras de Surcharge, Convenience Fees, e proibição de Discriminação de Cartões (Honor All Cards)."
+      },
+      {
+        "nome": "Chapter 8: Excessive Chargeback Program (ECP) & EFM",
+        "resumo": "Limites percentuais globais (BPS), thresholds de multa (100bps/50bps) e as isenções via 3DS para o Excessive Fraud Merchant."
+      }
+    ]
+  },
+  {
+    "id": "mc-cb-guide-2024",
+    "bandeira": "Mastercard",
+    "titulo": "Mastercard Chargeback Guide",
+    "versao": "October 2024",
+    "descricao": "O Livro Sagrado da Resolução de Disputas. Delimita cada Reason Code, prazos de representment e as evidências compulsórias.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Reason Code 4837: No Cardholder Authorization",
+        "resumo": "Tratamento de fraudes limpas. Quais dados do 3DS (ECI 05/02) servem para reverter a chargeback."
+      },
+      {
+        "nome": "Reason Code 4853: Cardholder Dispute",
+        "resumo": "Mercadoria não entregue ou defeituosa. A diferença entre o risco de crédito do lojista e a fraude pura."
+      },
+      {
+        "nome": "Arbitration & Compliance",
+        "resumo": "O processo de escalonamento para o comitê da Mastercard quando emissor e credenciador não entram em acordo."
+      }
+    ]
+  },
+  {
+    "id": "vi-core-2024",
+    "bandeira": "Visa",
+    "titulo": "Visa Core Rules and Visa Product and Service Rules",
+    "versao": "October 2024",
+    "descricao": "Conjunto mastodôntico de mais de 1000 páginas que dita as operações internacionais da Visa.",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "Chapter 11: Dispute Resolution Framework",
+        "resumo": "O guia oficial da estruturação da Disputa baseada em Allocation (responsabilidade automática) e Collaboration."
+      },
+      {
+        "nome": "Condition 10.4: Other Fraud - Card Absent Environment",
+        "resumo": "A matriz central para E-commerce. Requisitos do protocolo CE 3.0 (Compelling Evidence 3.0) para defesas de Friendly Fraud."
+      },
+      {
+        "nome": "Visa Acquirer Monitoring Program (VAMP)",
+        "resumo": "Como a Visa pune Adquirentes e sub-adquirentes usando o reporte TC40 (Fraude declarada), ignorando a disputa financeira final."
+      }
+    ]
+  },
+  {
+    "id": "vi-cb-guide-2024",
+    "bandeira": "Visa",
+    "titulo": "Visa Dispute Management Guidelines (VDMG)",
+    "versao": "2024",
+    "descricao": "Manual oficial de operação do sistema VROL (Visa Resolve Online), dissecando cada categoria de Customer Dispute (Condição 10, 11, 12 e 13).",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Dispute Condition 10.4: Other Fraud",
+        "resumo": "Disputa iniciada quando o emissor acata alegação de fraude do portador. Explica o processo de Allocation e a janela de 30 dias para resposta."
+      },
+      {
+        "nome": "Dispute Condition 13.1: Merchandise/Services Not Received",
+        "resumo": "Processamento de chargeback comercial. Exige prova conclusiva de entrega e detalha o limite de tempo (120 dias a partir da data prometida)."
+      },
+      {
+        "nome": "Pre-Arbitration & Arbitration",
+        "resumo": "O processo escalonado de disputa quando o pre-arbitration é negado. Custo de US$ 500 para comitê arbitral Visa (VROL)."
+      }
+    ]
+  },
+  {
+    "id": "vi-gars-2024",
+    "bandeira": "Visa",
+    "titulo": "Visa Global Acquirer Risk Standards (GARS)",
+    "versao": "April 2024",
+    "descricao": "Regulamento definitivo de underwriting (credenciamento) para Adquirentes e Facilitadores de Pagamento (Third-Party Agents).",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "TPA (Third-Party Agent) Registration",
+        "resumo": "Obrigações de registro de facilitadores de pagamento (Sub-adquirentes/Gateways) junto à Visa para mitigar lavagem de dinheiro."
+      },
+      {
+        "nome": "Merchant Underwriting & KYB",
+        "resumo": "Padrões de AML, PLD e verificação de benefiários finais (UBO) exigidos ao credenciar novos lojistas na rede Visa."
+      }
+    ]
+  },
+  {
+    "id": "vi-ce30-2024",
+    "bandeira": "Visa",
+    "titulo": "Visa Compelling Evidence 3.0 (CE 3.0)",
+    "versao": "2024",
+    "descricao": "Novo protocolo de defesa de merchants contra Fraudes Amigáveis (Friendly Fraud), integrando dados avançados de rastreio de identidade.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Deflection at Pre-Dispute (Order Insight)",
+        "resumo": "Como enviar dados de telemetria diretamente ao sistema do emissor (Verifi) para anular a disputa 10.4 antes dela oficializar."
+      },
+      {
+        "nome": "Historical Footprint Requirements",
+        "resumo": "Exigência de 2 componentes qualificados (IP, Device ID, Login) vindos de 2 transações pregressas (older than 120 days) do mesmo cartão para barrar chargeback."
+      }
+    ]
+  },
+  {
+    "id": "iso-8583-1987",
+    "bandeira": "Global",
+    "titulo": "ISO 8583-1:1987 (Financial Transaction Messages)",
+    "versao": "Edição 1987 (Legado Majoritário)",
+    "descricao": "A norma padrão universal de mensageria para transações financeiras.",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "MTIs (Message Type Indicators)",
+        "resumo": "A matriz de roteamento: 0100 (Autorização), 0110 (Resposta), 0420 (Reversal) e 0200 (Liquidação)."
+      },
+      {
+        "nome": "Data Element 39: Response Codes",
+        "resumo": "O dicionário Universal dos códigos de aprovação e declínio (ex: 00 Approved, 04/05 Hard Declines, 51 NSF)."
+      },
+      {
+        "nome": "Data Element 22 & 61: Point of Service",
+        "resumo": "A raiz do custo de Intercâmbio. Como o Entry Mode (Pan Manual, Magstripe, Chip, Contactless) dita o risco da transação."
+      }
+    ]
+  },
+  {
+    "id": "emvco-3ds-22",
+    "bandeira": "Global",
+    "titulo": "EMV Secure Remote Commerce (3DS Core Specification)",
+    "versao": "V2.2.0 & V2.3.0",
+    "descricao": "A arquitetura de autenticação de ponta a ponta que permite Frictionless Flow e Shift de Responsabilidade em CNP.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Frictionless Flow vs Challenge Flow",
+        "resumo": "Matriz de decisão do ACS (Access Control Server) do Emissor baseada nos dados contextuais enviados (SDK/Browser)."
+      },
+      {
+        "nome": "Liability Shift Matrix",
+        "resumo": "Como o risco financeiro de Fraude (RC 4837 ou 10.4) sai do Lojista e vai para o Banco Emissor (ECI 02 ou 05)."
+      }
+    ]
+  },
+  {
+    "id": "bacen-res-150",
+    "bandeira": "BACEN (BR)",
+    "titulo": "Resolução BCB Nº 150 (Arranjos de Pagamento)",
+    "versao": "Atualizada 2024",
+    "descricao": "O marco legal brasileiro que asfixiou o Intercâmbio local (Cap de Débito e Pré-pago).",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "Teto de Intercâmbio de Cartões de Débito",
+        "resumo": "O limite draconiano imposto aos emissores brasileiros (média de 0.5%) que matou programas de milhagem no débito."
+      },
+      {
+        "nome": "Teto de Cartões Pré-Pagos (0.7%)",
+        "resumo": "A lei que impactou diretamente o PNL das fintechs (Nubank, Neon, Inter), despencando a receita das contas digitais."
+      }
+    ]
+  },
+  {
+    "id": "pci-dss-v4",
+    "bandeira": "PCI SSC",
+    "titulo": "PCI Data Security Standard (PCI DSS)",
+    "versao": "v4.0.1",
+    "descricao": "Norma mandatório de engenharia de segurança cibernética para manuseio, transmissão e armazenamento de cartões.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Requirement 3: Protect Stored Account Data",
+        "resumo": "Proibição expressa de armazenamento de CVV/CVC2 e Track Data. Exigência legal e técnica de Tokenização (Network Tokens)."
+      },
+      {
+        "nome": "Requirement 11: Security Testing",
+        "resumo": "Necessidade de ASV (Approved Scanning Vendors) scans trimestrais e Pen Tests anuais para Tier 1 e Tier 2 Gateways."
+      }
+    ]
+  },
+  {
+    "id": "elo-manual-2024",
+    "bandeira": "Elo",
+    "titulo": "Elo Manual de Intercâmbio e Regras de Produto",
+    "versao": "2024",
+    "descricao": "Manual de regras de intercâmbio, programas de monitoramento (PED, PEF) e especificações de produtos da Elo (Nanquim, Grafite, Débito). Regulado pelo BACEN (Res. BCB 150).",
+    "isPremium": false,
+    "capitulos": [
+      {
+        "nome": "Tabelas de Intercâmbio Elo (Débito, Pré-pago, Crédito)",
+        "resumo": "Tarifas por produto, canal e MCC. Débito e Pré-pago regulados pelo Banco Central (teto 0,5% e 0,7%)."
+      },
+      {
+        "nome": "PED — Programa Elo de Excelência em Disputas",
+        "resumo": "Equivalente ao ECP Mastercard para a rede Elo. Thresholds em % de volume, multas em BRL."
+      },
+      {
+        "nome": "PEF — Programa Elo de Excelência em Fraudes",
+        "resumo": "Equivalente ao EFM Mastercard / VAMP Visa para adquirentes Elo. Monitoramento TC40-like."
+      }
+    ]
+  },
+  {
+    "id": "emv-book-3",
+    "bandeira": "Global",
+    "titulo": "EMV Book 3 — Application Specification",
+    "versao": "v4.3 (2014, adotado como padrão)",
+    "descricao": "Especificação do comportamento do kernel EMV no chip: autenticação offline (ODA/SDA/DDA/CDA), CVMs, gestão de risco, geração de criptograma (ARQC/TC/AAC) e TVR.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Annex C: Terminal Verification Results (TVR)",
+        "resumo": "Definição bit a bit dos 5 bytes do TVR (Tag 95). Cada bit representa o resultado de uma verificação de segurança no terminal."
+      },
+      {
+        "nome": "Section 6.3: Application Cryptogram (ARQC/TC/AAC)",
+        "resumo": "Como o chip gera o criptograma ARQC (Request), TC (Transaction Certificate — aprovado offline) ou AAC (declined). Validação pelo emissor via ARPC."
+      },
+      {
+        "nome": "Section 7: Cardholder Verification Methods (CVM)",
+        "resumo": "PIN offline, PIN online, assinatura, No CVM Required. Hierarquia e fallback de CVM. Impacto no byte 3 do TVR."
+      }
+    ]
+  },
+  {
+    "id": "mc-ipm-2024",
+    "bandeira": "Mastercard",
+    "titulo": "Mastercard IPM — Interface Processor Manual",
+    "versao": "2024",
+    "descricao": "Manual técnico do arquivo de clearing da Mastercard. Define os Transaction Codes (TC05 Presentment, TC46 Settlement, TC50 Chargeback) e cada PDS/DE incluído no arquivo.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Transaction Codes (TC05, TC46, TC50)",
+        "resumo": "TC05 = Apresentação (captura). TC50 = Chargeback financeiro. TC46 = Settlement. Cada TC tem um layout de registro binário EBCDIC específico."
+      },
+      {
+        "nome": "Private Data Subelements (PDS)",
+        "resumo": "Campos proprietários da Mastercard no arquivo IPM (PDS 0023 para MCC, PDS 0105 para programas de compliance, etc). Não existem no ISO 8583 padrão."
+      }
+    ]
+  }
+]

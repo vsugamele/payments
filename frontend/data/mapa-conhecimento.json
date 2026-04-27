@@ -1,0 +1,856 @@
+{
+  "categorias": [
+    {
+      "id": "ator",
+      "label": "Atores",
+      "cor": "#3b82f6",
+      "corFundo": "rgba(59,130,246,0.12)",
+      "corBorda": "rgba(59,130,246,0.35)"
+    },
+    {
+      "id": "dado",
+      "label": "Dados",
+      "cor": "#10b981",
+      "corFundo": "rgba(16,185,129,0.12)",
+      "corBorda": "rgba(16,185,129,0.35)"
+    },
+    {
+      "id": "processo",
+      "label": "Processos",
+      "cor": "#8b5cf6",
+      "corFundo": "rgba(139,92,246,0.12)",
+      "corBorda": "rgba(139,92,246,0.35)"
+    },
+    {
+      "id": "dinheiro",
+      "label": "Dinheiro",
+      "cor": "#f59e0b",
+      "corFundo": "rgba(245,158,11,0.12)",
+      "corBorda": "rgba(245,158,11,0.35)"
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance",
+      "cor": "#ef4444",
+      "corFundo": "rgba(239,68,68,0.12)",
+      "corBorda": "rgba(239,68,68,0.35)"
+    },
+    {
+      "id": "visa",
+      "label": "Visa",
+      "cor": "#06b6d4",
+      "corFundo": "rgba(6,182,212,0.12)",
+      "corBorda": "rgba(6,182,212,0.35)"
+    },
+    {
+      "id": "mastercard",
+      "label": "Mastercard",
+      "cor": "#f97316",
+      "corFundo": "rgba(249,115,22,0.12)",
+      "corBorda": "rgba(249,115,22,0.35)"
+    }
+  ],
+  "nos": [
+    {
+      "id": "portador",
+      "label": "Portador",
+      "categoria": "ator",
+      "x": 80,
+      "y": 80,
+      "descricao": "Quem usa o cartão para pagar. Tecnicamente representado pelo PAN e pelos dados do chip EMV.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      },
+      "glossario": "Portador"
+    },
+    {
+      "id": "ec",
+      "label": "Lojista (EC)",
+      "categoria": "ator",
+      "x": 280,
+      "y": 80,
+      "descricao": "Estabelecimento Comercial que aceita cartões. Identificado pelo Merchant ID (DE 42) e pelo MCC (DE 18).",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      },
+      "glossario": "Credenciador"
+    },
+    {
+      "id": "adquirente",
+      "label": "Adquirente",
+      "categoria": "ator",
+      "x": 480,
+      "y": 80,
+      "descricao": "Credenciador do lojista. Captura a transação, roteia para a bandeira e liquida ao EC. Assume risco de crédito perante o lojista.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      }
+    },
+    {
+      "id": "bandeira",
+      "label": "Bandeira",
+      "categoria": "ator",
+      "x": 680,
+      "y": 80,
+      "descricao": "Visa, Mastercard, Elo. Opera a rede de roteamento. Define regras técnicas, tabelas de intercâmbio e programas de compliance. Não empresta dinheiro.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      },
+      "glossario": "Bandeira"
+    },
+    {
+      "id": "emissor",
+      "label": "Emissor",
+      "categoria": "ator",
+      "x": 880,
+      "y": 80,
+      "descricao": "Banco que emitiu o cartão. Aprova ou nega a transação, conhece o portador, seu limite e risco. Recebe a taxa de intercâmbio.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      },
+      "glossario": "Emissor"
+    },
+    {
+      "id": "processador",
+      "label": "Processador",
+      "categoria": "ator",
+      "x": 880,
+      "y": 200,
+      "descricao": "Empresa de tecnologia (Fiserv, FIS, Dock) que opera infraestrutura de autorização para emissores e/ou adquirentes. Conecta ao rede da bandeira.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      }
+    },
+    {
+      "id": "pan",
+      "label": "PAN",
+      "categoria": "dado",
+      "x": 80,
+      "y": 280,
+      "descricao": "Primary Account Number. O número de 16 dígitos do cartão. Contém BIN (6-8 dígitos), número de conta e dígito verificador (Luhn).",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "o-que-o-cartao-carrega"
+      },
+      "glossario": "PAN"
+    },
+    {
+      "id": "bin",
+      "label": "BIN",
+      "categoria": "dado",
+      "x": 280,
+      "y": 280,
+      "descricao": "Bank Identification Number. Primeiros 6-8 dígitos do PAN. Identifica bandeira, emissor, produto e tipo do cartão.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "o-que-o-cartao-carrega"
+      },
+      "glossario": "BIN"
+    },
+    {
+      "id": "emv",
+      "label": "Chip EMV",
+      "categoria": "dado",
+      "x": 80,
+      "y": 380,
+      "descricao": "Padrão de chip para cartões. Gera um código criptográfico único por transação (ARQC), impedindo clonagem mesmo que dados sejam interceptados.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "o-que-o-cartao-carrega"
+      },
+      "glossario": "EMV"
+    },
+    {
+      "id": "dpan",
+      "label": "DPAN / Token",
+      "categoria": "dado",
+      "x": 280,
+      "y": 380,
+      "descricao": "Device PAN. Número substituto gerado pela tokenização (VTS/MDES). Usado em wallets digitais. O PAN real nunca chega ao lojista.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "o-que-o-cartao-carrega"
+      },
+      "glossario": "DPAN"
+    },
+    {
+      "id": "mcc",
+      "label": "MCC",
+      "categoria": "dado",
+      "x": 480,
+      "y": 280,
+      "descricao": "Merchant Category Code. Código de 4 dígitos que classifica o tipo de negócio do lojista. Determina regras de intercâmbio, elegibilidade para parcelamento e vouchers.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "atores"
+      },
+      "glossario": "MCC"
+    },
+    {
+      "id": "iso8583",
+      "label": "ISO 8583",
+      "categoria": "dado",
+      "x": 480,
+      "y": 380,
+      "descricao": "Protocolo padrão de mensageria financeira. Define estrutura de mensagens com MTI (tipo) e Data Elements (campos). Usado em autorização e reversão.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "autorizacao"
+      },
+      "glossario": "ISO 8583"
+    },
+    {
+      "id": "de",
+      "label": "Data Elements",
+      "categoria": "dado",
+      "x": 680,
+      "y": 280,
+      "descricao": "Campos da mensagem ISO 8583. DE 2 = PAN, DE 4 = Valor, DE 18 = MCC, DE 22 = POS Entry Mode, DE 39 = Response Code, DE 42 = Merchant ID.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "autorizacao"
+      },
+      "glossario": "DE"
+    },
+    {
+      "id": "autorizacao",
+      "label": "Autorização",
+      "categoria": "processo",
+      "x": 480,
+      "y": 480,
+      "descricao": "Processo de aprovação em tempo real (<1.5s). Mensagem 0100 vai ao emissor; resposta 0110 retorna com Response Code (00 = aprovado).",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "autorizacao"
+      },
+      "glossario": "Autorização"
+    },
+    {
+      "id": "clearing",
+      "label": "Clearing",
+      "categoria": "processo",
+      "x": 680,
+      "y": 480,
+      "descricao": "Compensação financeira após autorização. Adquirentes e emissores trocam registros de transações para calcular posição líquida. Base II (MC) e IPM (Visa).",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "clearing-e-settlement"
+      },
+      "glossario": "Clearing"
+    },
+    {
+      "id": "settlement",
+      "label": "Settlement",
+      "categoria": "processo",
+      "x": 880,
+      "y": 480,
+      "descricao": "Liquidação financeira efetiva. Transferência real do dinheiro entre emissor, bandeira e adquirente, via CIP no Brasil. D+1 do clearing.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "clearing-e-settlement"
+      },
+      "glossario": "Settlement"
+    },
+    {
+      "id": "3ds",
+      "label": "3DS",
+      "categoria": "processo",
+      "x": 280,
+      "y": 480,
+      "descricao": "Three-Domain Secure. Protocolo de autenticação do e-commerce que envolve lojista, bandeira e emissor. Versão 2.x suporta frictionless.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "eci-e-autenticacao"
+      },
+      "glossario": "3DS"
+    },
+    {
+      "id": "tokenizacao",
+      "label": "Tokenização",
+      "categoria": "processo",
+      "x": 80,
+      "y": 480,
+      "descricao": "Substituição do PAN por um token (DPAN) específico para dispositivo/lojista. Reduz risco de exposição de dados. VTS (Visa) e MDES (MC).",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "o-que-o-cartao-carrega"
+      },
+      "glossario": "Tokenização"
+    },
+    {
+      "id": "chargeback",
+      "label": "Chargeback",
+      "categoria": "processo",
+      "x": 880,
+      "y": 580,
+      "descricao": "Contestação de transação iniciada pelo portador. Pode ser legítima (fraude) ou abusiva (friendly fraud). Gera custo para o adquirente e ameaça de MATCH.",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "tipos-de-fraude"
+      },
+      "glossario": "Chargeback"
+    },
+    {
+      "id": "intercambio",
+      "label": "Intercâmbio",
+      "categoria": "dinheiro",
+      "x": 480,
+      "y": 620,
+      "descricao": "Taxa paga pelo Adquirente ao Emissor como compensação por risco, crédito e benefícios. Principal componente do MDR. Definida pela bandeira.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "intercambio"
+      },
+      "glossario": "Intercâmbio"
+    },
+    {
+      "id": "mdr",
+      "label": "MDR",
+      "categoria": "dinheiro",
+      "x": 280,
+      "y": 620,
+      "descricao": "Merchant Discount Rate. Taxa total cobrada do lojista = Intercâmbio + Fee Bandeira + Margem Adquirente. Quem paga é o EC; quem define é o Adquirente.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "mdr-e-custos"
+      },
+      "glossario": "MDR"
+    },
+    {
+      "id": "fee-bandeira",
+      "label": "Fee de Bandeira",
+      "categoria": "dinheiro",
+      "x": 80,
+      "y": 620,
+      "descricao": "Taxa cobrada pela bandeira pelo uso da rede. Geralmente 0,05%–0,15% por transação. Componente do MDR repassado ao lojista.",
+      "trilha": {
+        "id": "do-zero-ao-intercambio",
+        "licao": "mdr-e-custos"
+      }
+    },
+    {
+      "id": "ird",
+      "label": "IRD",
+      "categoria": "dinheiro",
+      "x": 680,
+      "y": 620,
+      "descricao": "Interchange Rate Designator. Código que identifica a categoria de intercâmbio Mastercard. Ex: IA (físico), HU (CNP sem 3DS), JA (contactless).",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "irds-mastercard"
+      },
+      "glossario": "IRD"
+    },
+    {
+      "id": "tier",
+      "label": "Tier",
+      "categoria": "dinheiro",
+      "x": 880,
+      "y": 620,
+      "descricao": "Nível do produto Mastercard para lookup de taxa. Consumer standard < gold < platinum < black. Determinado pelo BIN do cartão.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "tiers-e-segmentos"
+      }
+    },
+    {
+      "id": "fraude",
+      "label": "Fraude",
+      "categoria": "compliance",
+      "x": 80,
+      "y": 760,
+      "descricao": "Uso não autorizado de cartão. Tipos: CNP, card testing, account takeover, skimming, friendly fraud. Reportada via TC40 (MC) ou SAFE (Visa).",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "tipos-de-fraude"
+      },
+      "glossario": "Fraude"
+    },
+    {
+      "id": "tc40",
+      "label": "TC40 / SAFE",
+      "categoria": "compliance",
+      "x": 280,
+      "y": 760,
+      "descricao": "Sistemas de reporte de fraude. TC40 é o código Mastercard; SAFE é o sistema Visa. Emissores reportam transações fraudulentas e alimentam programas de monitoramento.",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "tc40-e-safe"
+      }
+    },
+    {
+      "id": "vamp",
+      "label": "VAMP",
+      "categoria": "compliance",
+      "x": 480,
+      "y": 760,
+      "descricao": "Visa Acquirer Monitoring Program. Monitora taxa de fraude (FSR) do adquirente via dados SAFE. Penalidades de US$25k–US$75k/mês.",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "vamp-e-ecp"
+      },
+      "glossario": "VAMP"
+    },
+    {
+      "id": "ecp",
+      "label": "ECP",
+      "categoria": "compliance",
+      "x": 680,
+      "y": 760,
+      "descricao": "Excessive Chargeback Program (Mastercard). Monitora taxa de chargeback do adquirente. Early Warning > 1%, Standard > 1,5%, Excessive > 2%.",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "vamp-e-ecp"
+      },
+      "glossario": "ECP"
+    },
+    {
+      "id": "match",
+      "label": "MATCH",
+      "categoria": "compliance",
+      "x": 880,
+      "y": 760,
+      "descricao": "Member Alert to Control High-Risk Merchants. Banco de dados global de lojistas encerrados por razões graves (fraude, lavagem, PCI). Impede re-credenciamento.",
+      "trilha": {
+        "id": "compliance-e-risco",
+        "licao": "match"
+      },
+      "glossario": "MATCH"
+    },
+    {
+      "id": "pid",
+      "label": "PID (Visa)",
+      "categoria": "visa",
+      "x": 80,
+      "y": 900,
+      "descricao": "Product Identifier Visa. Código de 2 chars que identifica o produto. F^=Classic, N^=Platinum, I^=Infinite, I1=Infinite HNW, C^=Signature, K^=Business.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "pid-e-afs"
+      }
+    },
+    {
+      "id": "afs",
+      "label": "AFS (Visa)",
+      "categoria": "visa",
+      "x": 280,
+      "y": 900,
+      "descricao": "Account Funding Source. C=Crédito, D=Débito, P=Pré-pago. Determina qual tabela de intercâmbio Visa se aplica.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "pid-e-afs"
+      }
+    },
+    {
+      "id": "eci",
+      "label": "ECI",
+      "categoria": "visa",
+      "x": 480,
+      "y": 900,
+      "descricao": "Electronic Commerce Indicator. 05=3DS autenticado, 06=tentativa, 07=sem autenticação. Impacta diretamente a taxa de intercâmbio Visa e Mastercard.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "eci-e-autenticacao"
+      },
+      "glossario": "ECI"
+    },
+    {
+      "id": "settl-flag",
+      "label": "SETTL_FLAG",
+      "categoria": "visa",
+      "x": 680,
+      "y": 900,
+      "descricao": "Settlement Flag Visa. 8 ou 9 = transação doméstica brasileira. 0 = internacional. Separa completamente as tabelas de intercâmbio.",
+      "trilha": {
+        "id": "intercambio-tecnico",
+        "licao": "pid-e-afs"
+      }
+    },
+    {
+      "id": "base2-ipm",
+      "label": "Base II / IPM",
+      "categoria": "mastercard",
+      "x": 880,
+      "y": 900,
+      "descricao": "Sistemas de clearing. Base II é o sistema Mastercard (arquivos batch com TCs). IPM é o formato Visa (VCF). Onde o intercâmbio é efetivamente calculado.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "base-ii-e-ipm"
+      }
+    },
+    {
+      "id": "visanet-no",
+      "label": "VisaNet",
+      "categoria": "visa",
+      "x": 80,
+      "y": 1040,
+      "descricao": "Rede global de telecomunicacoes da Visa. Processa autorizacoes em tempo real via VIP (Visa Interchange Processing). Suporta Stand-In (STIP) quando o emissor esta offline.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "visanet-e-vbs"
+      }
+    },
+    {
+      "id": "vss-no",
+      "label": "VSS",
+      "categoria": "visa",
+      "x": 280,
+      "y": 1040,
+      "descricao": "Visa Settlement Service. Recebe arquivos BASE II dos adquirentes, calcula o intercambio Visa e produz o VCF. Settlement multilateral: cada participante liquida uma posicao liquida unica.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "vss-e-clearing-visa"
+      }
+    },
+    {
+      "id": "vcf-no",
+      "label": "VCF",
+      "categoria": "visa",
+      "x": 480,
+      "y": 1040,
+      "descricao": "Visa Clearing File. Arquivo devolvido pela Visa ao adquirente apos clearing. Contem IRD aplicado, valor de intercambio e todos os campos da transacao. Base para auditoria e reconciliacao.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "vcf-e-campos-criticos"
+      }
+    },
+    {
+      "id": "vts-no",
+      "label": "VTS",
+      "categoria": "visa",
+      "x": 680,
+      "y": 1040,
+      "descricao": "Visa Token Service. Substitui o PAN por um DPAN especifico ao dispositivo. Suporta Apple Pay, Google Pay e wallets. DCV (Domain Control Verification) garante que o token so funciona no contexto correto.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "vts-e-tokenizacao"
+      }
+    },
+    {
+      "id": "pos-entry",
+      "label": "POS Entry Mode",
+      "categoria": "dado",
+      "x": 480,
+      "y": 1160,
+      "descricao": "Campo 22 do ISO 8583. Define como o cartao foi lido: 05=chip EMV, 10=contactless NFC, 90=tarja magnetica, 81=e-commerce. Determina o canal da transacao e qual regra de intercambio se aplica.",
+      "trilha": {
+        "id": "visa-deep-dive",
+        "licao": "vcf-e-campos-criticos"
+      }
+    }
+  ],
+  "arestas": [
+    {
+      "id": "e1",
+      "source": "portador",
+      "target": "ec",
+      "label": "apresenta cartão"
+    },
+    {
+      "id": "e2",
+      "source": "ec",
+      "target": "adquirente",
+      "label": "envia transação"
+    },
+    {
+      "id": "e3",
+      "source": "adquirente",
+      "target": "bandeira",
+      "label": "roteia"
+    },
+    {
+      "id": "e4",
+      "source": "bandeira",
+      "target": "emissor",
+      "label": "autoriza"
+    },
+    {
+      "id": "e5",
+      "source": "emissor",
+      "target": "processador",
+      "label": "delega para"
+    },
+    {
+      "id": "e6",
+      "source": "portador",
+      "target": "pan",
+      "label": "identificado por"
+    },
+    {
+      "id": "e7",
+      "source": "pan",
+      "target": "bin",
+      "label": "contém"
+    },
+    {
+      "id": "e8",
+      "source": "bin",
+      "target": "emissor",
+      "label": "identifica"
+    },
+    {
+      "id": "e9",
+      "source": "bin",
+      "target": "bandeira",
+      "label": "identifica"
+    },
+    {
+      "id": "e10",
+      "source": "emv",
+      "target": "autorizacao",
+      "label": "autentica com ARQC"
+    },
+    {
+      "id": "e11",
+      "source": "dpan",
+      "target": "pan",
+      "label": "substitui"
+    },
+    {
+      "id": "e12",
+      "source": "tokenizacao",
+      "target": "dpan",
+      "label": "gera"
+    },
+    {
+      "id": "e13",
+      "source": "emv",
+      "target": "pan",
+      "label": "contém"
+    },
+    {
+      "id": "e14",
+      "source": "mcc",
+      "target": "ec",
+      "label": "classifica"
+    },
+    {
+      "id": "e15",
+      "source": "mcc",
+      "target": "intercambio",
+      "label": "influencia via segmento"
+    },
+    {
+      "id": "e16",
+      "source": "iso8583",
+      "target": "de",
+      "label": "estruturado em"
+    },
+    {
+      "id": "e17",
+      "source": "de",
+      "target": "autorizacao",
+      "label": "compõe mensagem"
+    },
+    {
+      "id": "e18",
+      "source": "autorizacao",
+      "target": "clearing",
+      "label": "depois"
+    },
+    {
+      "id": "e19",
+      "source": "clearing",
+      "target": "settlement",
+      "label": "resulta em"
+    },
+    {
+      "id": "e20",
+      "source": "clearing",
+      "target": "base2-ipm",
+      "label": "via"
+    },
+    {
+      "id": "e21",
+      "source": "3ds",
+      "target": "eci",
+      "label": "gera"
+    },
+    {
+      "id": "e22",
+      "source": "eci",
+      "target": "intercambio",
+      "label": "impacta taxa"
+    },
+    {
+      "id": "e23",
+      "source": "chargeback",
+      "target": "fraude",
+      "label": "originado por"
+    },
+    {
+      "id": "e24",
+      "source": "chargeback",
+      "target": "match",
+      "label": "excesso leva a"
+    },
+    {
+      "id": "e25",
+      "source": "mdr",
+      "target": "intercambio",
+      "label": "contém"
+    },
+    {
+      "id": "e26",
+      "source": "mdr",
+      "target": "fee-bandeira",
+      "label": "contém"
+    },
+    {
+      "id": "e27",
+      "source": "intercambio",
+      "target": "emissor",
+      "label": "vai para"
+    },
+    {
+      "id": "e28",
+      "source": "intercambio",
+      "target": "ird",
+      "label": "determinado pelo"
+    },
+    {
+      "id": "e29",
+      "source": "ird",
+      "target": "tier",
+      "label": "depende do"
+    },
+    {
+      "id": "e30",
+      "source": "ird",
+      "target": "mcc",
+      "label": "depende do"
+    },
+    {
+      "id": "e31",
+      "source": "fraude",
+      "target": "tc40",
+      "label": "reportada via"
+    },
+    {
+      "id": "e32",
+      "source": "tc40",
+      "target": "vamp",
+      "label": "alimenta"
+    },
+    {
+      "id": "e33",
+      "source": "tc40",
+      "target": "ecp",
+      "label": "alimenta"
+    },
+    {
+      "id": "e34",
+      "source": "vamp",
+      "target": "adquirente",
+      "label": "penaliza"
+    },
+    {
+      "id": "e35",
+      "source": "ecp",
+      "target": "adquirente",
+      "label": "penaliza"
+    },
+    {
+      "id": "e36",
+      "source": "match",
+      "target": "adquirente",
+      "label": "restringe"
+    },
+    {
+      "id": "e37",
+      "source": "pid",
+      "target": "intercambio",
+      "label": "determina (Visa)"
+    },
+    {
+      "id": "e38",
+      "source": "afs",
+      "target": "intercambio",
+      "label": "determina (Visa)"
+    },
+    {
+      "id": "e39",
+      "source": "settl-flag",
+      "target": "intercambio",
+      "label": "doméstico vs intl"
+    },
+    {
+      "id": "e40",
+      "source": "bin",
+      "target": "tier",
+      "label": "determina"
+    },
+    {
+      "id": "e41",
+      "source": "ec",
+      "target": "mdr",
+      "label": "paga"
+    },
+    {
+      "id": "e42",
+      "source": "chargeback",
+      "target": "ecp",
+      "label": "excesso alimenta"
+    },
+    {
+      "id": "e43",
+      "source": "bandeira",
+      "target": "visanet-no",
+      "label": "instancia Visa"
+    },
+    {
+      "id": "e44",
+      "source": "visanet-no",
+      "target": "autorizacao",
+      "label": "processa"
+    },
+    {
+      "id": "e45",
+      "source": "vss-no",
+      "target": "clearing",
+      "label": "executa"
+    },
+    {
+      "id": "e46",
+      "source": "vss-no",
+      "target": "vcf-no",
+      "label": "produz"
+    },
+    {
+      "id": "e47",
+      "source": "base2-ipm",
+      "target": "vss-no",
+      "label": "enviado ao"
+    },
+    {
+      "id": "e48",
+      "source": "vts-no",
+      "target": "dpan",
+      "label": "gera"
+    },
+    {
+      "id": "e49",
+      "source": "vts-no",
+      "target": "tokenizacao",
+      "label": "e a infra de"
+    },
+    {
+      "id": "e50",
+      "source": "pos-entry",
+      "target": "autorizacao",
+      "label": "campo de"
+    },
+    {
+      "id": "e51",
+      "source": "pos-entry",
+      "target": "intercambio",
+      "label": "determina canal"
+    }
+  ]
+}

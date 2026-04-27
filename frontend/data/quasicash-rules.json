@@ -1,0 +1,61 @@
+[
+  {
+    "id": "aft-crypto",
+    "name": "Compra de Criptomoeda",
+    "operation_type": "Account Funding Transaction (AFT)",
+    "description": "Usuário está usando um Cartão de Crédito/Débito para comprar criptoativos em uma Exchange (Ex: Binance, Mercado Bitcoin). O lojista saca fundos do cartão para convertê-los em ativos sistêmicos digitais.",
+    "mcc": "6051 - Non-Financial Institutions / Crypto",
+    "visa_rule": "AFT Mandatório. Requer o uso de Payment Account Reference (PAR) ou campos especiais provando lavagem de dinheiro/verificação. Visa não permite chargebacks comuns por RC 10.4 se 3DS foi usado, mas permite chargebacks para AML.",
+    "mastercard_rule": "É uma Transação Funding. O emissor pode declinar (RC 57) por não permitir 'saque de capital no crédito para compra de ativos de risco'. O Lojista / Adquirente não pode mascarar sob MCC 5399 (General Merchandise).",
+    "money_flow": "Cartão (Emissor) ──💰▶ Exchange (Lojista/Adquirente)",
+    "chargeback_risk": "Altíssimo",
+    "iso_indicators": {
+      "DE_18": "6051",
+      "DE_48_PDS": "Tag específica denotando AFT (Funding) presente no IPM"
+    }
+  },
+  {
+    "id": "oct-crypto-cashout",
+    "name": "Saque / Liquidação de Cripto ou Wallet",
+    "operation_type": "Original Credit Transaction (OCT)",
+    "description": "O usuário vende as criptomoedas na Exchange e pede para enviar o dinheiro em Dólar/Real de volta para o cartão dele, aumentando o saldo na conta corrente/fatura.",
+    "mcc": "6051",
+    "visa_rule": "Visa Direct (OCT). A Visa possui uma malha separada para envio de dinheiro. Essa transação 'Inverte' o processo. Ela não é um Refund (Estorno). Um OCT transfere fundos líquidos.",
+    "mastercard_rule": "Mastercard Send (Payment Transaction). Exige que na rede o MTI seja 0200 com código de processamento no DE 3 que comece em 28 (Payment) ao invés de 00 (Purchase).",
+    "money_flow": "Exchange (Lojista) ──💰▶ Cartão (Emissor)",
+    "chargeback_risk": "Nenhum (Lojista não leva chargeback por dar dinheiro ao portador)",
+    "iso_indicators": {
+      "MTI": "0200",
+      "DE_03": "Processing Code: 28XXXX",
+      "DE_18": "6051"
+    }
+  },
+  {
+    "id": "aft-wallet",
+    "name": "Carga de Carteira Digital (Wallet Funding)",
+    "operation_type": "AFT / Quasi-Cash",
+    "description": "Usuário pagou com cartão para colocar saldo em um app fechado de mobilidade, food-delivery ou e-wallet genérica (ex: subiu saldo Apple Pay Cash ou PicPay).",
+    "mcc": "6540 - POI Funding Transactions",
+    "visa_rule": "As transações usando MCC 6540 informam ao banco que não há compra de sapato, mas 'troca de dinheiro'. O Emissor geralmente nega no Crédito para evitar 'pedalar limite' (RC 57), aprovando apenas no Débito.",
+    "mastercard_rule": "Mastercard determina rigorosa separação. MCC 6540 para Wallets Genéricas. MCC 6012 se for instituição financeira bancária clássica (Fintech bancária repassando crédito). O Adquirente que configurar errado sofrerá downgrade no intercâmbio (cai penalizado em EIRF).",
+    "money_flow": "Cartão (Emissor) ──💰▶ Carteira do App (Adquirente)",
+    "chargeback_risk": "Alto (Sequestro de Conta / ATO - Account Takeover)",
+    "iso_indicators": {
+      "DE_18": "6540 / 6012"
+    }
+  },
+  {
+    "id": "gaming-cash",
+    "name": "Fichas de Cassino / Bets",
+    "operation_type": "Quasi-Cash",
+    "description": "Aposta Online regulada. O usuário usa cartão de crédito para comprar fichas em uma casa de apostas autorizada na jurisdição.",
+    "mcc": "7995 - Betting / Casino",
+    "visa_rule": "O Adquirente DEVE mandar indicadores geográficos cruzados exigidos. Bancos quase sempre declinam. Quando o emissor é brasileiro e o app de aposta sediado fora, a taxação governamental (IOF) afeta o Clearing.",
+    "mastercard_rule": "Enquadra fortemente nas regras de QMAP e BRAM acima se não autorizado. Funciona sob estritos indicadores de Transação com Identificação Pessoal e 3DS Challenge mandatórios para a aprovação.",
+    "money_flow": "Cartão (Emissor) ──💰▶ Bets (Adquirente)",
+    "chargeback_risk": "Altíssimo (Fraude Amigável, o jogador perde a aposta e finge que fraudaram)",
+    "iso_indicators": {
+      "DE_18": "7995"
+    }
+  }
+]

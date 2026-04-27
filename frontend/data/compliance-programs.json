@@ -1,0 +1,410 @@
+[
+  {
+    "id": "vamp",
+    "bandeira": "Visa",
+    "nome": "Visa Acquirer Monitoring Program",
+    "sigla": "VAMP",
+    "categoria": "Fraude",
+    "descricao": "Monitora a taxa de fraude reportada pelos adquirentes via TC40 e TC15 em relação ao volume de transações liquidadas.",
+    "formula": "(TC40 + TC15) / Total Settled Transactions",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "Above Standard",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Taxa VAMP", "operador": ">=", "valor": "0.50%", "label": "≥ 50bps" },
+          { "metrica": "Volume TC40+TC15", "operador": ">=", "valor": "1500", "label": "≥ 1.500 transações" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 5000 },
+          { "mes": "Mês 2", "valor": 10000 },
+          { "mes": "Mês 3+", "valor": 15000 }
+        ]
+      },
+      {
+        "nome": "Excessive",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Taxa VAMP", "operador": ">=", "valor": "0.70%", "label": "≥ 70bps" },
+          { "metrica": "Volume TC40+TC15", "operador": ">=", "valor": "1500", "label": "≥ 1.500 transações" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 10000 },
+          { "mes": "Mês 2", "valor": 20000 },
+          { "mes": "Mês 3+", "valor": 30000 }
+        ]
+      },
+      {
+        "nome": "Merchant LAC",
+        "cor": "orange",
+        "condicoes": [
+          { "metrica": "Taxa VAMP Merchant", "operador": ">=", "valor": "1.50%", "label": "≥ 150bps (LAC)" }
+        ],
+        "penalidades": [
+          { "mes": "Identificação", "valor": 0 },
+          { "mes": "Não remediado", "valor": 25000 }
+        ]
+      },
+      {
+        "nome": "Enumeration Attack",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Taxa", "operador": ">=", "valor": "2000bps", "label": "≥ 2.000bps OU" },
+          { "metrica": "Volume", "operador": ">=", "valor": "300000", "label": "≥ 300.000 transações" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 25000 },
+          { "mes": "Mês 2", "valor": 50000 },
+          { "mes": "Mês 3+", "valor": 75000 }
+        ]
+      }
+    ],
+    "observacoes": "O VAMP substituiu o GMAP em 2019. A taxa é calculada mensalmente pela Visa com base nos dados de clearing.",
+    "referencias": ["Visa Core Rules", "Visa Acquirer Monitoring Program Guide"]
+  },
+  {
+    "id": "ecp",
+    "bandeira": "Mastercard",
+    "nome": "Excessive Chargeback Program",
+    "sigla": "ECP",
+    "categoria": "Chargeback",
+    "descricao": "Monitora adquirentes com volume excessivo de chargebacks em relação ao total de transações aprovadas.",
+    "formula": "Chargebacks / Approved Transactions (mês anterior)",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "ECM — Excessive Chargeback Merchant",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Chargebacks", "operador": ">=", "valor": "100", "label": "≥ 100 chargebacks" },
+          { "metrica": "Taxa CBR", "operador": ">=", "valor": "1.50%", "label": "≥ 150bps" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 1000 },
+          { "mes": "Mês 2", "valor": 2000 },
+          { "mes": "Mês 3", "valor": 4000 },
+          { "mes": "Mês 4", "valor": 6000 },
+          { "mes": "Mês 5", "valor": 8000 },
+          { "mes": "Mês 6+", "valor": 10000 }
+        ]
+      },
+      {
+        "nome": "HECM — High Excessive Chargeback Merchant",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Chargebacks", "operador": ">=", "valor": "300", "label": "≥ 300 chargebacks" },
+          { "metrica": "Taxa CBR", "operador": ">=", "valor": "3.00%", "label": "≥ 300bps" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 2000 },
+          { "mes": "Mês 2", "valor": 4000 },
+          { "mes": "Mês 3", "valor": 8000 },
+          { "mes": "Mês 4", "valor": 12000 },
+          { "mes": "Mês 5", "valor": 16000 },
+          { "mes": "Mês 6+", "valor": 20000 }
+        ]
+      }
+    ],
+    "observacoes": "O ECP é aplicado por MID (Merchant ID). Adquirentes são responsáveis pelo monitoramento e remediação de merchants.",
+    "referencias": ["Mastercard Transaction Processing Rules", "Chargeback Guide"]
+  },
+  {
+    "id": "efm",
+    "bandeira": "Mastercard",
+    "nome": "Excessive Fraud Merchant Program",
+    "sigla": "EFM",
+    "categoria": "Fraude",
+    "descricao": "Programa que monitora merchants com volume excessivo de fraude em transações CNP com baixa autenticação 3DS.",
+    "formula": "Fraud Amount / Settled Volume",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "Nível 1 — 50-99bps",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Volume Fraude", "operador": ">=", "valor": "USD 50K", "label": "≥ US$ 50.000" },
+          { "metrica": "Taxa Fraude", "operador": ">=", "valor": "0.50%", "label": "≥ 50bps" },
+          { "metrica": "3DS Auth", "operador": "<", "valor": "10%", "label": "< 10% com 3DS" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 500 },
+          { "mes": "Mês 2", "valor": 1000 },
+          { "mes": "Mês 3+", "valor": 2000 }
+        ]
+      },
+      {
+        "nome": "Nível 2 — 100-149bps",
+        "cor": "orange",
+        "condicoes": [
+          { "metrica": "Volume Fraude", "operador": ">=", "valor": "USD 50K", "label": "≥ US$ 50.000" },
+          { "metrica": "Taxa Fraude", "operador": ">=", "valor": "1.00%", "label": "≥ 100bps" },
+          { "metrica": "3DS Auth", "operador": "<", "valor": "10%", "label": "< 10% com 3DS" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 1000 },
+          { "mes": "Mês 2", "valor": 2000 },
+          { "mes": "Mês 3+", "valor": 4000 }
+        ]
+      },
+      {
+        "nome": "Nível 3 — 150bps+",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Volume Fraude", "operador": ">=", "valor": "USD 50K", "label": "≥ US$ 50.000" },
+          { "metrica": "Taxa Fraude", "operador": ">=", "valor": "1.50%", "label": "≥ 150bps" },
+          { "metrica": "3DS Auth", "operador": "<", "valor": "10%", "label": "< 10% com 3DS" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 2000 },
+          { "mes": "Mês 2", "valor": 4000 },
+          { "mes": "Mês 3+", "valor": 8000 }
+        ]
+      }
+    ],
+    "observacoes": "Isenção de 90 dias para merchants que apresentarem plano de ação com implementação de 3DS. Aplica-se apenas a transações e-commerce (CNP).",
+    "referencias": ["Mastercard Transaction Processing Rules", "EFM Program Guide"]
+  },
+  {
+    "id": "ped",
+    "bandeira": "Elo",
+    "nome": "Programa de Excelência em Disputas",
+    "sigla": "PED",
+    "categoria": "Chargeback",
+    "descricao": "Monitora credenciadoras com alta taxa de disputas em relação ao volume de transações aprovadas.",
+    "formula": "Disputas / Transações Aprovadas",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "Nível de Alerta",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Taxa Disputa", "operador": ">", "valor": "1.49%", "label": "> 1,49%" },
+          { "metrica": "Transações Aprovadas", "operador": ">", "valor": "1000", "label": "> 1.000 aprovadas" },
+          { "metrica": "Volume Disputas", "operador": ">", "valor": "100", "label": "> 100 disputas" }
+        ],
+        "penalidades": [
+          { "mes": "Identificação", "valor": 0 },
+          { "mes": "Sem remediação 60d", "valor": 15000 }
+        ]
+      }
+    ],
+    "observacoes": "A Elo exige plano de remediação formal em até 30 dias. Penalidade aplicada se não houver melhora em 60 dias.",
+    "referencias": ["Manual de Disputas Elo", "Regulamento de Programa de Monitoramento Elo"]
+  },
+  {
+    "id": "pef",
+    "bandeira": "Elo",
+    "nome": "Programa de Excelência em Fraude",
+    "sigla": "PEF",
+    "categoria": "Fraude",
+    "descricao": "Similar ao EFM da Mastercard. Monitora credenciadoras com alta taxa de fraude CNP e baixo uso de autenticação.",
+    "formula": "Valor Fraude / Volume Liquidado",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "Nível 1",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Volume Fraude", "operador": ">=", "valor": "BRL 150K", "label": "≥ R$ 150.000" },
+          { "metrica": "Taxa Fraude", "operador": ">=", "valor": "0.50%", "label": "≥ 50bps" },
+          { "metrica": "3DS Auth", "operador": "<", "valor": "10%", "label": "< 10% com 3DS" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 500 },
+          { "mes": "Mês 2", "valor": 1000 },
+          { "mes": "Mês 3+", "valor": 2000 }
+        ]
+      },
+      {
+        "nome": "Nível 2",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Volume Fraude", "operador": ">=", "valor": "BRL 150K", "label": "≥ R$ 150.000" },
+          { "metrica": "Taxa Fraude", "operador": ">=", "valor": "1.00%", "label": "≥ 100bps" },
+          { "metrica": "3DS Auth", "operador": "<", "valor": "10%", "label": "< 10% com 3DS" }
+        ],
+        "penalidades": [
+          { "mes": "Mês 1", "valor": 2000 },
+          { "mes": "Mês 2", "valor": 4000 },
+          { "mes": "Mês 3+", "valor": 8000 }
+        ]
+      }
+    ],
+    "observacoes": "Isenção de 90 dias com plano de ação aprovado pela Elo.",
+    "referencias": ["Manual de Compliance Elo"]
+  },
+  {
+    "id": "per",
+    "bandeira": "Elo",
+    "nome": "Programa de Excelência em Risco",
+    "sigla": "PER",
+    "categoria": "Risco",
+    "descricao": "Monitora credenciadoras com perfil de risco elevado em métricas combinadas (fraude + disputa + operacionais).",
+    "formula": "Score combinado de múltiplas métricas",
+    "periodicidade": "Trimestral",
+    "niveis": [
+      {
+        "nome": "Risco Elevado",
+        "cor": "orange",
+        "condicoes": [
+          { "metrica": "Score PER", "operador": ">=", "valor": "Definido pela Elo", "label": "Threshold definido pela Elo" }
+        ],
+        "penalidades": [
+          { "mes": "Notificação", "valor": 0 },
+          { "mes": "Sem melhora 90d", "valor": 30000 }
+        ]
+      }
+    ],
+    "observacoes": "O PER é um programa holístico que avalia múltiplos indicadores de risco operacional.",
+    "referencias": ["Manual de Compliance Elo"]
+  },
+  {
+    "id": "virp",
+    "bandeira": "Visa",
+    "nome": "Visa Integrity Risk Program",
+    "sigla": "VIRP",
+    "categoria": "Integridade",
+    "descricao": "Programa de integridade que monitora o registro correto de MCC, dados de merchant e conformidade com regras de uso da marca Visa.",
+    "formula": "Auditoria qualitativa + indicadores de conformidade",
+    "periodicidade": "Contínuo",
+    "niveis": [
+      {
+        "nome": "Non-Compliant",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Violação de Regra", "operador": "=", "valor": "Identificada", "label": "Violação identificada pela Visa" }
+        ],
+        "penalidades": [
+          { "mes": "Menor", "valor": 5000 },
+          { "mes": "Moderada", "valor": 25000 },
+          { "mes": "Grave", "valor": 100000 }
+        ]
+      }
+    ],
+    "observacoes": "O VIRP inclui verificação de MCC correto, dados de estabelecimento (nome, cidade, país) e práticas proibidas.",
+    "referencias": ["Visa Core Rules and Visa Product and Service Rules"]
+  },
+  {
+    "id": "bram",
+    "bandeira": "Mastercard",
+    "nome": "Brand Risk and Acquirer Monitoring",
+    "sigla": "BRAM",
+    "categoria": "Integridade",
+    "descricao": "Monitora credenciadoras que processam merchants de alto risco, com práticas enganosas ou que violam regras de uso da marca Mastercard.",
+    "formula": "Auditoria qualitativa + denúncias",
+    "periodicidade": "Contínuo",
+    "niveis": [
+      {
+        "nome": "Category 1",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Nível de Risco", "operador": "=", "valor": "Baixo a Moderado", "label": "Risco baixo a moderado" }
+        ],
+        "penalidades": [
+          { "mes": "Penalidade", "valor": 5000 }
+        ]
+      },
+      {
+        "nome": "Category 2",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Nível de Risco", "operador": "=", "valor": "Alto", "label": "Risco alto" }
+        ],
+        "penalidades": [
+          { "mes": "Penalidade", "valor": 25000 }
+        ]
+      }
+    ],
+    "observacoes": "O BRAM pode resultar em descredenciamento do merchant e responsabilidade financeira do adquirente.",
+    "referencias": ["Mastercard Transaction Processing Rules", "Security Rules and Procedures"]
+  },
+  {
+    "id": "match",
+    "bandeira": "Mastercard",
+    "nome": "Member Alert to Control High-Risk Merchants",
+    "sigla": "MATCH",
+    "categoria": "Risco",
+    "descricao": "Lista de merchants terminados por alta fraude, excesso de chargebacks ou violações de regras. Adquirentes são obrigados a consultar o MATCH antes de credenciar um merchant.",
+    "formula": "Listagem baseada em motivos de terminação (Reason Codes 01-13)",
+    "periodicidade": "Contínuo",
+    "niveis": [
+      {
+        "nome": "RC 01 — Account Data Compromise",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Evento", "operador": "=", "valor": "Vazamento de dados", "label": "Comprometimento de dados de conta" }
+        ],
+        "penalidades": [{ "mes": "Listagem", "valor": 0 }]
+      },
+      {
+        "nome": "RC 04 — Excessive Chargebacks",
+        "cor": "orange",
+        "condicoes": [
+          { "metrica": "CBR", "operador": ">=", "valor": "1.50%", "label": "≥ 150bps por 2 meses consecutivos" }
+        ],
+        "penalidades": [{ "mes": "Listagem por 5 anos", "valor": 0 }]
+      },
+      {
+        "nome": "RC 05 — Excessive Fraud",
+        "cor": "red",
+        "condicoes": [
+          { "metrica": "Fraude", "operador": ">=", "valor": "Threshold", "label": "Fraude excessiva comprovada" }
+        ],
+        "penalidades": [{ "mes": "Listagem por 5 anos", "valor": 0 }]
+      }
+    ],
+    "observacoes": "Merchant listado no MATCH fica impedido de ser credenciado por qualquer adquirente Mastercard pelo período determinado. Adquirentes que não consultam o MATCH antes de credenciar respondem pelas perdas.",
+    "referencias": ["Mastercard MATCH System Operations Manual"]
+  },
+  {
+    "id": "mmp",
+    "bandeira": "Mastercard",
+    "nome": "Mastercard Merchant Monitoring Program",
+    "sigla": "MMP",
+    "categoria": "Fraude",
+    "descricao": "Complementar ao ECP e EFM. Identifica merchants com padrões anômalos de transação que indicam risco de fraude futura.",
+    "formula": "Análise de padrões + métricas de risco compostas",
+    "periodicidade": "Mensal",
+    "niveis": [
+      {
+        "nome": "Monitorado",
+        "cor": "yellow",
+        "condicoes": [
+          { "metrica": "Score Anomalia", "operador": ">=", "valor": "Threshold MC", "label": "Padrão anômalo identificado" }
+        ],
+        "penalidades": [
+          { "mes": "Aviso formal", "valor": 0 },
+          { "mes": "Sem remediação 90d", "valor": 15000 }
+        ]
+      }
+    ],
+    "observacoes": "O MMP gera alertas proativos antes que o merchant entre em ECP ou EFM.",
+    "referencias": ["Mastercard Transaction Processing Rules"]
+  },
+  {
+    "id": "qmap",
+    "bandeira": "Mastercard",
+    "nome": "Quick MCC Assessment Program",
+    "sigla": "QMAP",
+    "categoria": "Integridade",
+    "descricao": "Audita se o MCC (Merchant Category Code) registrado pelo adquirente reflete corretamente a atividade econômica do merchant.",
+    "formula": "Auditoria de MCC vs. atividade real do merchant",
+    "periodicidade": "Sob demanda / Contínuo",
+    "niveis": [
+      {
+        "nome": "MCC Incorreto",
+        "cor": "orange",
+        "condicoes": [
+          { "metrica": "MCC Registrado", "operador": "!=", "valor": "MCC Correto", "label": "MCC não reflete atividade real" }
+        ],
+        "penalidades": [
+          { "mes": "1ª ocorrência", "valor": 1000 },
+          { "mes": "Reincidência", "valor": 5000 }
+        ]
+      }
+    ],
+    "observacoes": "MCC incorreto pode resultar em intercâmbio incorreto e perdas de receita para o adquirente. O QMAP visa corrigir registros sistematicamente.",
+    "referencias": ["Mastercard Transaction Processing Rules", "Quick MCC Assessment Program Guide"]
+  }
+]

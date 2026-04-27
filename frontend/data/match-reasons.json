@@ -1,0 +1,112 @@
+[
+  {
+    "code": "01",
+    "name": "Account Data Compromise",
+    "description": "O Lojista causou direta ou indiretamente um vazamento ou comprometimento de dados sensíveis de cartões (Primary Account Number - PAN, CVV, etc.). Frequentemente associado a quebras do PCI DSS e falta de criptografia de banco de dados.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Total ao Novo Adquirente. Qualquer vazamento subsequente ou fraude advinda no novo modelo é de risco inquestionável do adquirente que ativou o lojista.",
+    "retro_match": "Engatilhável. Se ativado o retro-match, todos os adquirentes anteriores que mantiveram relação com este CNPJ receberão o alerta.",
+    "severity": "Crítico",
+    "visa_equivalent": "VMAS: PCI DSS Non-Compliance / Data Compromise"
+  },
+  {
+    "code": "02",
+    "name": "Common Point of Purchase (CPP)",
+    "description": "Uma quantidade massiva de cartões fraudados possuem em comum apenas este ponto de venda antes da fraude ocorrer. Há uma correlação inegável de que o Lojista é a ponte de captura (skimming) fraudulenta dos plásticos.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Alto. Indica que a infraestrutura do lojista (TEF/POS) continua escoando dados. Necessária perícia forense antes de qualquer aceitação.",
+    "retro_match": "Não automático, mas reportável às bandeiras nos programas forenses.",
+    "severity": "Alto",
+    "visa_equivalent": "VMAS: CPP Suspect"
+  },
+  {
+    "code": "03",
+    "name": "Laundering (Lavagem / Agenciamento)",
+    "description": "O Lojista atuou como 'Testa de Ferro'. Facilitou operações para empresas terceiras entrarem na rede disfarçadas usando o seu código/MID (Merchant ID), mascarando quem realmente é o dono da transação (Agregação Ilegal).",
+    "retention_period": "5 Anos",
+    "liability_shift": "Absoluto no Risco Reputacional. Transações sob MCCs mascarados rendem pesadas multas cruzadas do Compliance de Adquirência.",
+    "retro_match": "Sim. Todos devem ser notificados para verificar Sub-Adquirência disfarçada.",
+    "severity": "Crítico",
+    "visa_equivalent": "VMAS: Factoring / Transaction Laundering"
+  },
+  {
+    "code": "04",
+    "name": "Excessive Chargebacks",
+    "description": "O Lojista excedeu a régua primária operacional de estornos. O número de chargebacks em qualquer único mês superou 1% da sua volumetria em dólares O/U a volumetria superou as barreiras ECP/EFM e ele não reduziu as contestações a tempo.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Moderado. Novo Adquirente pode dar onboard caso adote medidas restritivas (Rolling Reserve temporário, retenção de pagamento de 30-90 dias).",
+    "retro_match": "Padrão.",
+    "severity": "Atenção",
+    "visa_equivalent": "VMAS: Excessive Risk/Chargeback Programs (VDMP/VFMP)"
+  },
+  {
+    "code": "05",
+    "name": "Excessive Fraud",
+    "description": "Similar ao Chargeback, porém os índices de FRAUDE real excederam os limits da bandeira. A relação de fraude sobre vendas ($) no mês tornou a operação comercialmente tóxica para a rede.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Alto. O Adquirente que assumir ficará responsável se a fraude não for contida através de barramentos sistêmicos intensos (3DS Challenge Requirement ativo).",
+    "retro_match": "Padrão.",
+    "severity": "Alto",
+    "visa_equivalent": "VMAS: Excessive Fraud"
+  },
+  {
+    "code": "07",
+    "name": "Fraud Conviction",
+    "description": "Não é suspeita. Houve uma condenação civil ou criminal sobre o executivo principal (Sócio-Procurador) ou sobre as operações governantes do CNPJ envolvendo Fraude em Pagamentos.",
+    "retention_period": "5 Anos (podendo manter perpétua a critério jurídico)",
+    "liability_shift": "Ilegal de ser mantido salvo permissões excepcionais das Bandeiras. Incursiona o adquirente em risco de compliance de PLD (AML - Anti-money laundering).",
+    "retro_match": "Sim, com engatilho penal.",
+    "severity": "Crítico",
+    "visa_equivalent": "VMAS: Criminal Conviction / Collusion"
+  },
+  {
+    "code": "08",
+    "name": "Mastercard Questionable Merchant Audit",
+    "description": "Lojista recusou, omitiu dados ou falhou intencionalmente num programa de auditoria requisitado pela Mastercard durante investigação de QMAP (Quasi-Mastercard Registration) ou programas de fraude global.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Alto Risco Associativo. Significa recusa em cooperar financeiramente com averiguações da Bandeira.",
+    "retro_match": "Sim. Avisa aos pares sobre possível conivência ou vazamento de lastro.",
+    "severity": "Crítico",
+    "visa_equivalent": "VMAS: Non-compliant Audit"
+  },
+  {
+    "code": "09",
+    "name": "Bankruptcy / Liquidation",
+    "description": "O Lojista quebrou de forma a deixar um prejuízo líquido e massivo na cadeia de liquidação que o Adquirente originador precisou honrar perante o emissor e os lojistas do marketplace.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Moderado Financeiro. Pode ser recredenciado pelo 'New Acquirer' se ele provar lastro e exigir garantias (Deposits / Letters of Credit).",
+    "retro_match": "Informacional.",
+    "severity": "Atenção",
+    "visa_equivalent": "VMAS: Unpaid Chargebacks / Financial Default"
+  },
+  {
+    "code": "10",
+    "name": "Violation of Standards (BRAM/GBPP)",
+    "description": "Incorreu em violação dura das regras institucionais listadas no BRAM (Business Risk Assessment and Mitigation) - Venda de bens ILEGAIS. Exemplos: Narcóticos, exploração infantil, quebra sistemática de QMAP não remediada.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Absoluto perante as Fines de $100.000. O Adquirente que assumir responderá por Noncompliance Assessment (NCA) solidário imediato sem defesa.",
+    "retro_match": "Mandatório, com caça agressiva a agregadores na base retroativa.",
+    "severity": "Banimento Definitivo",
+    "visa_equivalent": "VMAS: VIRP/GBPP Violator (Illegal goods/Brands Damage)"
+  },
+  {
+    "code": "12",
+    "name": "Payment Card Industry (PCI) Noncompliance",
+    "description": "Lojista não apenas falhou na validação do PCI DSS, como recusou consertar suas vulnerabilidades sistêmicas ou recusa as auditorias sistêmicas (Scan ASV / SAQ), persistindo em utilizar arquitetura de processamento e roteamento vulnerável.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Todos os vazamentos recairão sobre o Adquirente (Tier 1 a 4). Caso submeta transações sem PCI Compliant sob auditoria, será cobrado.",
+    "retro_match": "Padrão.",
+    "severity": "Alto",
+    "visa_equivalent": "VMAS: PCI Standard Violation"
+  },
+  {
+    "code": "14",
+    "name": "Identity Theft",
+    "description": "O Adquirente de origem tomou o Lojista como onboarding legítimo e posteriormente descobriu que a identidade cadastrada e assinada no acordo comercial de afiliação não pertencia legalmente aos reais controladores.",
+    "retention_period": "5 Anos",
+    "liability_shift": "Inconclusivo para operação técnica de cartão, porém mortal sob a óptica de KYC. Indicação frontal de Quadrilha/Bust-out Fraud.",
+    "retro_match": "Fundamental. Alerta a bancos onde as contas de domicílio cruzadas foram abertas também.",
+    "severity": "Banimento Definitivo",
+    "visa_equivalent": "VMAS: Identificaton Falsification / Fictitious Merchant"
+  }
+]

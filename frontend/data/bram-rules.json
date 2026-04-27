@@ -1,0 +1,74 @@
+[
+  {
+    "id": "illegal-goods",
+    "name": "Bens e Atividades Ilegais",
+    "category": "BRAM Categoria 1",
+    "description": "Venda de produtos ou serviços ilegais no país do Lojista ou do Portador. Inclui drogas, apostas ilegais, pornografia infantil e violação severa de Propriedade Intelectual (Pirataria massiva).",
+    "mccs": ["Diversos"],
+    "action_required": "Rescisão de Contrato Imediata e bloqueio de credenciamento. Inclusão forçada do Lojista na lista MATCH Pro (Merchant Alert to Control High-risk Merchants).",
+    "nc_assessment": "US$ 100.000 por violação inicial (Acréscimos de 100k a 200k por reincidência contínua).",
+    "compliance_visa": "VIRP Tier 1 (Illegal Activity) / GBPP. Penalidades equivalentes (US$ 150k à Visa). MATCH equivalente é o VMAS.",
+    "registration": "Não aplicável. O credenciamento é Proibido.",
+    "risk_level": "Crítico"
+  },
+  {
+    "id": "adult",
+    "name": "Conteúdo Adulto (Non-Face-to-Face)",
+    "category": "BRAM Categoria 2 / MRP",
+    "description": "Distribuição de conteúdo e entretenimento adulto ou materiais com restrição de maioridade legal via ambiente e-commerce/remote.",
+    "mccs": ["5967", "7273", "7841"],
+    "action_required": "Revisão humana do conteúdo e retenção (Rolling Reserve) de valores são exigidos. Submissão mandatória do modelo de consentimento do usuário final.",
+    "nc_assessment": "Em caso de transações ilegais cruzadas (Child Pornography), sobe para Categoria 1. Para falha operacional de Compliance, multas de US$ 25.000 (Tier 2).",
+    "compliance_visa": "Visa exige High-Risk Merchant Registration para o MCC 5967. Taxas anuais vigoram para Adquirente (Aprox. $500).",
+    "registration": "Mandatório. Requer registro Mastercard MRP (Merchant Registration Program). O Adquirente banca taxa anual (aprox. US$ 500/lojista) ao manter esse MCC aberto.",
+    "risk_level": "Alto"
+  },
+  {
+    "id": "pharma",
+    "name": "Farmácias Online (Pharma CNP)",
+    "category": "BRAM / High-Risk Registrations",
+    "description": "Comerciantes Non-Face-To-Face (E-com/MOTO) que vendem produtos famacêuticos sujeitos a prescrição médica através da internet.",
+    "mccs": ["5122", "5912"],
+    "action_required": "Comerciante deve ter auditoria/certificação local (Ex: LegitScript ou licenças estatais rigorosas). Adquirente submete licença à bandeira.",
+    "nc_assessment": "Penalidade por falha em controlar drogaria sem licença: de US$ 25k (Tier 2) a $100k por atividade paralela ilegal.",
+    "compliance_visa": "GBPP Healthcare Restrictions. Mandatório uso de consultorias terceirizadas de validação e registro no Visa High-Risk Merchant Board.",
+    "registration": "Registro Exigido. Sem aprovação da certificadora médica competente, o Adquirente é culpabilizado em auditorias.",
+    "risk_level": "Alto"
+  },
+  {
+    "id": "gambling",
+    "name": "Apostas, Loterias e Cassinos Online",
+    "category": "QMAP / Alta Regulamentação",
+    "description": "Comerciantes voltados a Apostas Esportivas, Jogos de Azar em regiões perimitidas e Loterias patrocinadas pelo Esdado.",
+    "mccs": ["7995", "9754"],
+    "action_required": "O Lojista e a operação cruzam fronteiras legais perigosas. MCC 7995 possui regras draconianas geográficas. Aprovação explícita e licença legal do país emissor exigida.",
+    "nc_assessment": "US$ 100.000 se interceptado operando apostas em Estados Unidos (Illegal Internet Gambling Enforcement Act - UIGEA) ou países árabes sob proibição.",
+    "compliance_visa": "Regras ECI restritas, exigência brutal de uso do V3DS (Challenge). Multas podem chegar a esferas federais (Visa retém valores sumariamente).",
+    "registration": "Registro QMAP e MRP extremamente mandatórios. O Adquirente e o Emissor devem usar bloqueios severos no DE 18 (MCC).",
+    "risk_level": "Crítico"
+  },
+  {
+    "id": "crypto",
+    "name": "Criptomoedas (Exchanges) e Ativos Digitais",
+    "category": "Quasi-Cash / Funding",
+    "description": "Compra e venda direta de Câmbio, Travelers Cheques, Criptoativos, NFT de alto montante.",
+    "mccs": ["6012", "6051", "6540"],
+    "action_required": "Classificar corretamente como 'Funding' e utilizar indicadores KYC e limites duros. Se transacionado no crédito (Cartão), requer monitoramento ALDF (Anti-Money Laundering).",
+    "nc_assessment": "Risco massivo não apenas na Bandeira, mas em Resoluções BCB 150 e PLD. Penalidade da Mastercard aplicável caso o MCC esteja mascarado como varejista regular (ex: 5399).",
+    "compliance_visa": "Monitoramento de Account Funding (AFT) acurado. MCC 6051 não pode camuflar MCC 6012. Visa pune falsidade ideológica do Lojista.",
+    "registration": "Atenção constante às regulamentações financeiras governamentais (COAF/Bacen). Não é listado nativamente no BRAM Cat 1, salvo em ilícitos.",
+    "risk_level": "Médio-Alto"
+  },
+  {
+    "id": "tobacco",
+    "name": "Tabaco e Cigarros Eletrônicos (Vapes)",
+    "category": "BRAM Categoria 2 / Regulados",
+    "description": "Distribuição online de cigarros tracionais, vapes e acessórios assemelhados (E-com/MOTO).",
+    "mccs": ["5993"],
+    "action_required": "A legalidade primariamente rege este mercado (ex: Vapes são restritos como ilegais no Brasil pela ANVISA). Venda online B2C para jurisdições proibidas engatilha escalonamento BRAM.",
+    "nc_assessment": "Pode sofrer upgrades drásticos para Tier 1 ($100k) caso o fluxo envolva evasão de impostos internacionais ou transações onde vapes são criminalizados (Ex: Brasil - Anvisa cruzado via IP).",
+    "compliance_visa": "Incluído nas mesmas restrições e regras de validação etária. Em muitas esferas, uso de KYC e Validação de Identidade (Selfie) na compra são essenciais para contestar Chargebacks.",
+    "registration": "Padrão de Alto Risco em adquirentes Tier 1; Adquirentes evitam processamento cross-border na categoria.",
+    "risk_level": "Alto"
+  }
+]

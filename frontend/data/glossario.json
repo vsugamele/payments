@@ -1,0 +1,596 @@
+[
+  {
+    "termo": "3DS / 3-D Secure",
+    "sigla": "3DS",
+    "categoria": "Autenticação",
+    "bandeiras": ["Visa", "Mastercard", "Global"],
+    "definicao": "Protocolo de autenticação criado pelo consórcio EMVCo que adiciona uma camada de segurança em compras online (CNP). O portador é desafiado pelo Banco Emissor via SMS, Token ou Biometria antes da aprovação. A versão 2.x trouxe o Frictionless Flow, onde o Emissor aprova silenciosamente com base em dados de risco (Device fingerprint, histórico de compras).",
+    "impacto": "Quando o lojista implementa 3DS corretamente (ECI 05 ou 02), o Liability de fraude (Chargeback 4837 ou Condition 10.4) é transferido para o Emissor.",
+    "referencia": "EMVCo 3DS Core Specification v2.2"
+  },
+  {
+    "termo": "ACS (Access Control Server)",
+    "sigla": "ACS",
+    "categoria": "Autenticação",
+    "bandeiras": ["Global"],
+    "definicao": "Servidor do Banco Emissor responsável por autenticar o portador no fluxo 3DS. Recebe os dados de contexto enviados pelo MPI/SDK e decide se aplica Challenge (desafio ativo) ou Frictionless (aprovação silenciosa) com base nos modelos de risco internos.",
+    "impacto": "A qualidade do ACS do Emissor determina a taxa de aprovação frictionless do lojista. Emissores com ACS ruim causam atrito desnecessário.",
+    "referencia": "EMVCo 3DS v2.2"
+  },
+  {
+    "termo": "Acquirer (Adquirente)",
+    "sigla": null,
+    "categoria": "Participantes",
+    "bandeiras": ["Global"],
+    "definicao": "Instituição financeira que credencia o estabelecimento comercial (lojista) para aceitar cartões. É o intermediário entre o Lojista e a Bandeira. Paga o intercâmbio ao Emissor, recolhe fee à Bandeira e desconta o MDR do lojista. Ex: Cielo, Rede, GetNet, Stone.",
+    "impacto": "O Adquirente assume o risco de crédito e fraude do portfólio de lojistas. Lojistas com alta fraude podem ocasionar enquadramento do Adquirente no VAMP/ECP.",
+    "referencia": "Mastercard Rules — Chapter 1"
+  },
+  {
+    "termo": "Allocation (Fluxo de Disputa Visa)",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Visa"],
+    "definicao": "Um dos dois fluxos de disputa da Visa (VCR — Visa Claims Resolution). Usado para casos de Fraude (Condition 10.4) e Auth. Aqui, a responsabilidade (Liability) é atribuída automaticamente sem ping-pong. O Lojista tem apenas UMA chance de enviar evidências.",
+    "impacto": "Em Allocation, se o lojista não tem 3DS ou prova de entrega sólida, o chargeback é automático e irreversível na primeira instância.",
+    "referencia": "Visa Core Rules — Ch. 11"
+  },
+  {
+    "termo": "Arbitration (Arbitragem)",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Estágio final e mais caro da disputa, onde a Bandeira dá o veredito definitivo. Na Mastercard é o 4º estágio (após First Chargeback → Representment → Pre-Arbitration). Na Visa, segue ao Dispute Response no fluxo Collaboration. Custa entre USD 150 (filing) + USD 250 (review fee do perdedor).",
+    "impacto": "Nunca escale para Arbitration em casos abaixo de USD 500, a menos que a evidência seja irrefutável. O custo da derrota supera o valor da venda.",
+    "referencia": "Mastercard Chargeback Guide — Arbitration"
+  },
+  {
+    "termo": "Authorization (Autorização)",
+    "sigla": "AUTH",
+    "categoria": "Autorização",
+    "bandeiras": ["Global"],
+    "definicao": "Processo de verificação em tempo real onde o Adquirente solicita à Bandeira (que repassa ao Emissor) a aprovação de uma transação. Ocorre via mensagem ISO 8583 de MTI 0100 (Request) e 0110 (Response). O Emissor verifica saldo, status do cartão e risco de fraude antes de responder com Response Code.",
+    "impacto": "Toda transação aprovada (RC 00) gera uma autorização que reserva o limite/saldo. A captura (clearing) posterior confirma a liquidação.",
+    "referencia": "ISO 8583 — MTI 0100/0110"
+  },
+  {
+    "termo": "BIN (Bank Identification Number)",
+    "sigla": "BIN",
+    "categoria": "Identificação",
+    "bandeiras": ["Global"],
+    "definicao": "Os primeiros 6 a 8 dígitos do PAN que identificam o Banco Emissor, a Bandeira, o Produto (Standard/Gold/Black/Infinite) e o país de emissão. Hoje migrado para IIN (Issuer Identification Number) com 8 dígitos segundo a ISO 7812.",
+    "impacto": "O BIN determina o intercâmbio. Um BIN emitido como 'Visa Infinite' pagará muito mais intercâmbio do que um BIN 'Visa Classic', pois o produto PID é mais sofisticado.",
+    "referencia": "ISO 7812 — Financial Cards"
+  },
+  {
+    "termo": "BRAM (Brand Risk & Compliance)",
+    "sigla": "BRAM",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Programa de monitoramento da Mastercard focado em Integridade Operacional. Monitora Adquirentes e Processadores que descumprem regras operacionais de aceitação (ex: cobrar surcharge ilegal, bloquear aceitação de determinado produto). As penalidades incluem avisos formais e cisão do acordo de aceitação.",
+    "impacto": "Diferente do ECP (que olha chargeback), o BRAM é qualitativo — monitora práticas ilegais de aceitação que distorcem o mercado.",
+    "referencia": "Mastercard Transaction Processing Rules"
+  },
+  {
+    "termo": "Card-Not-Present (CNP)",
+    "sigla": "CNP",
+    "categoria": "Canais de Pagamento",
+    "bandeiras": ["Global"],
+    "definicao": "Transação onde o cartão físico não está presente. Inclui e-commerce, telefone (MOTO) e recorrência. O risco de fraude é estruturalmente maior pois não há verificação de posse física, e por isso a faixa de intercâmbio CNP é substancialmente maior que CP.",
+    "impacto": "Sem 3DS em ambiente CNP, o Liability de fraude é inteiramente do Lojista. Com 3DS (ECI 05), o Liability passa para o Emissor.",
+    "referencia": "Visa Core Rules — Card-Not-Present Acceptance"
+  },
+  {
+    "termo": "Card-Present (CP)",
+    "sigla": "CP",
+    "categoria": "Canais de Pagamento",
+    "bandeiras": ["Global"],
+    "definicao": "Transação onde o cartão físico está presente na loja. Engloba Chip+PIN, Chip+Assinatura, Contactless (NFC/Tap to Pay) e Fallback Magstripe. O risco de fraude é menor que CNP pois requer posse física. A hierarquia de custo é: Chip < Contactless < Fallback Magstripe.",
+    "impacto": "Chip tem o menor intercâmbio pois minimiza o risco. Fallback para Magstripe aumenta a taxa pois indica que a segurança do chip falhou.",
+    "referencia": "ISO 8583 — Data Element 22 (POS Entry Mode)"
+  },
+  {
+    "termo": "Clearing (Compensação)",
+    "sigla": null,
+    "categoria": "Liquidação",
+    "bandeiras": ["Global"],
+    "definicao": "Processo de reconciliação financeira posterior à autorização. O Adquirente envia os dados das transações capturadas à Bandeira (via TC46/TC05 Mastercard ou TC46 Visa) para processamento multilateral. É nesta fase que os valores são calculados para a liquidação final.",
+    "impacto": "A diferença de timing entre autorização e clearing pode gerar problemas de reconciliação. Chargebacks ocorrem no período pós-clearing.",
+    "referencia": "Mastercard Transaction Processing Rules — Clearing"
+  },
+  {
+    "termo": "Compelling Evidence 3.0 (CE 3.0)",
+    "sigla": "CE 3.0",
+    "categoria": "Disputas",
+    "bandeiras": ["Visa"],
+    "definicao": "Atualização de 2023 do protocolo de defesa da Visa para disputas de Fraude CNP (Condition 10.4). Permite ao lojista apresentar histórico de 2 transações anteriores bem-sucedidas do mesmo portador (mesmo IP/Device ID/Shipping Address) para evidenciar que a transação atual NÃO é fraude — transformando o chargeback em Friendly Fraud.",
+    "impacto": "CE 3.0 foi uma revolução para lojistas recorrentes (assinaturas). Com dados históricos indexados, é possível reverter 60-70% dos chargebacks de alegação de 'não reconheço' que são, na verdade, tentativas oportunistas (Friendly Fraud).",
+    "referencia": "Visa Core Rules — Condition 10.4 / CE 3.0"
+  },
+  {
+    "termo": "Chargeback",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Global"],
+    "definicao": "Mecanismo de disputa onde o portador contesta uma transação junto ao Banco Emissor. O Emissor estorna o valor da transação e abre um processo de disputa contra o Adquirente/Lojista. Pode ser motivado por fraude, não-recebimento de mercadoria, duplicidade ou divergência de valor.",
+    "impacto": "Além do valor da transação, o chargeback tem custo operacional (taxa por caso), risco de enquadramento em ECP/VAMP e dano à reputação. Acima de certos thresholds, gera multas das Bandeiras.",
+    "referencia": "Mastercard Chargeback Guide / Visa Core Rules Ch. 11"
+  },
+  {
+    "termo": "Collaboration (Fluxo de Disputa Visa)",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Visa"],
+    "definicao": "Um dos dois fluxos de disputa da Visa (VCR). Usado para casos de Processamento (mercadoria não entregue, duplicidade, valor diferente). Permite troca de evidências entre Emissor e Adquirente antes do veredito final. Mais similar ao fluxo da Mastercard (DMAS).",
+    "impacto": "Em Collaboration há mais oportunidade de negociação e envio de provas. A Visa tenta estimular resolução amigável antes da instância formal.",
+    "referencia": "Visa Core Rules — Ch. 11 Dispute Resolution"
+  },
+  {
+    "termo": "Contactless / Tap to Pay",
+    "sigla": "NFC",
+    "categoria": "Canais de Pagamento",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Tecnologia de pagamento por aproximação que usa comunicação NFC (Near Field Communication). O portador aproxima o cartão ou dispositivo (celular, smartwatch) ao terminal. Gera uma criptografia de uso único (similar a Chip) e é considerada de risco equivalente ao Chip.",
+    "impacto": "Transações Contactless abaixo de limites definidos pelas Bandeiras (geralmente R$200-R$300 no Brasil) são isentas de PIN, o que pode aumentar levemente o risco de fraude em cartões perdidos/roubados.",
+    "referencia": "Mastercard Rules — Contactless Acceptance"
+  },
+  {
+    "termo": "Cryptogram (Criptograma)",
+    "sigla": null,
+    "categoria": "Segurança",
+    "bandeiras": ["Global"],
+    "definicao": "Código criptográfico de uso único gerado pelo chip EMV ou pelo Token Requestor (carteira digital). É único para cada transação e impossível de reutilizar. Prova matematicamente que o dispositivo que gerou a transação possui as chaves corretas do cartão.",
+    "impacto": "Criptogramas tornam a clonagem de cartão praticamente impossível. Mesmo que o dado seja interceptado, o criptograma é inútil para uma nova transação.",
+    "referencia": "EMVCo Chip Specification"
+  },
+  {
+    "termo": "DAF (Digital Authentication Framework)",
+    "sigla": "DAF",
+    "categoria": "Autenticação",
+    "bandeiras": ["Visa"],
+    "definicao": "Framework da Visa que usa dados de autenticação de Tokens (VTS) para conceder Liability Shift em transações CNP sem exigir um fluxo 3DS separado. Quando o pagamento vem de um Token certificado com autenticação biométrica (Apple Pay/Google Pay), o DAF reconhece automaticamente como 'autenticado'.",
+    "impacto": "Lojistas que aceitam pagamentos via carteiras certificadas DAF têm o mesmo Liability Shift do 3DS sem o atrito do redirect. Crítico para conversão em mobile checkout.",
+    "referencia": "Visa Product and Service Rules — DAF"
+  },
+  {
+    "termo": "Data Element (Campo DE)",
+    "sigla": "DE",
+    "categoria": "Mensageria",
+    "bandeiras": ["Global"],
+    "definicao": "Campo estruturado da mensagem ISO 8583. A norma define até 192 DEs, cada um com posição fixa, tipo (alfanumérico, binário, LLVAR, etc.) e conteúdo específico. Os DEs mais críticos para intercâmbio são: DE 22 (POS Mode), DE 39 (Response Code), DE 48 (Additional Data), DE 61 e DE 62.",
+    "impacto": "O preenchimento incorreto de DEs pode resultar em downgrade de intercâmbio (transação processada em uma faixa mais cara) ou rejeição da mensagem pela Bandeira.",
+    "referencia": "ISO 8583-1:1987 — Data Elements"
+  },
+  {
+    "termo": "Declínio Hard (Hard Decline)",
+    "sigla": null,
+    "categoria": "Autorização",
+    "bandeiras": ["Global"],
+    "definicao": "Declínio permanente emitido pelo Emissor que NÃO deve ser re-tentado com o mesmo dado de pagamento. Indica uma condição definitiva como: cartão roubado (RC 04), suspeita de fraude (RC 59), cartão cancelado (RC 62) ou pick-up (RC 41/43). Retentativas em Hard Decline podem resultar em multas.",
+    "impacto": "Re-tentativas de Hard Declines violam as regras de retentativa da Visa/Mastercard e podem gerar multas de USD 0.25 por transação em casos reincidentes do VIRP/BRAM.",
+    "referencia": "Visa/Mastercard Retry Rules"
+  },
+  {
+    "termo": "Declínio Soft (Soft Decline)",
+    "sigla": null,
+    "categoria": "Autorização",
+    "bandeiras": ["Global"],
+    "definicao": "Declínio temporário que PODE ser retentado após decorrido um período. Indica condições transitórias como: sem fundos (RC 51), erro de processamento (RC 96), timeout (RC 68). As Bandeiras definem janelas mínimas entre tentativas (ex: esperar 24h antes de retry de RC 51).",
+    "impacto": "Sistemas de cobrança recorrente devem ter lógica de retry inteligente para Soft Declines, respeitando as janelas definidas pelas Bandeiras para não incorrer em multas.",
+    "referencia": "Mastercard/Visa Retry Rules"
+  },
+  {
+    "termo": "DMAS (Dispute Management API Service)",
+    "sigla": "DMAS",
+    "categoria": "Disputas",
+    "bandeiras": ["Mastercard"],
+    "definicao": "A plataforma (API e portal) da Mastercard para gestão do ciclo de vida de disputas. Também conhecida como Mastercom. Gerencia os 4 estágios: First Chargeback → Representment → Pre-Arbitration → Arbitration. Integração via API para Adquirentes e Processadores.",
+    "impacto": "Adquirentes sem integração ao DMAS perdem automaticamente todos os casos por não responderem dentro do prazo. Prazos de representment são tipicamente 18 dias.",
+    "referencia": "Mastercard Chargeback Guide — DMAS"
+  },
+  {
+    "termo": "DPAN (Device Primary Account Number)",
+    "sigla": "DPAN",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Token de 16 dígitos gerado por uma carteira digital (Apple Pay, Google Pay, Samsung Pay) que substitui o PAN real em transações de pagamento. Vinculado a um único dispositivo físico e pode ser revogado sem afetar o cartão original. Diferente do FPAN (número no plástico) e do MDES Network Token.",
+    "impacto": "Se um DPAN for comprometido, o portador pode desvinculá-lo do dispositivo sem cancelar o cartão. Reduz dramaticamente o risco em ambientes NFC/Contactless.",
+    "referencia": "EMVCo Token Specification"
+  },
+  {
+    "termo": "ECI (Electronic Commerce Indicator)",
+    "sigla": "ECI",
+    "categoria": "Autenticação",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Código de 2 dígitos incluído na mensagem de autorização que indica o resultado da autenticação 3DS. Os valores mais importantes: ECI 05 (Visa) / 02 (MC) = Autenticado com sucesso → Liability do Emissor. ECI 06 (Visa) / 01 (MC) = Tentou autenticar, Emissor não participante → Liability do Emissor. ECI 07 = Sem autenticação → Liability do Lojista.",
+    "impacto": "O ECI é o campo que determina legalmente quem paga de volta em caso de fraude CNP. É o campo mais crítico de todo o fluxo 3DS para fins de chargeback.",
+    "referencia": "EMVCo 3DS Spec / ISO 8583 DE 48"
+  },
+  {
+    "termo": "ECP (Excessive Chargeback Program)",
+    "sigla": "ECP",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Programa de monitoramento da Mastercard que mede a relação entre chargebacks e transações de um Merchant (via Adquirente). O threshold de alerta é 100 bps (1%) e o de penalidade é 150 bps. A Mastercard multa o Adquirente mensalmente até o Merchant sair do programa.",
+    "impacto": "Um único Merchant com problemas sérios de chargeback pode arrastar o Adquirente inteiro para o ECP. Por isso Adquirentes têm programas de gerenciamento de portfolio de alto risco.",
+    "referencia": "Mastercard Rules — Chapter 8: ECP"
+  },
+  {
+    "termo": "EFM (Excessive Fraud Merchant)",
+    "sigla": "EFM",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Programa que monitora Merchants CNP com fraude excessiva ANTES que cheguem ao nível de chargeback. Usa dados TC40 (relatório de fraude declarada pelo portador) para calcular o índice. Merchants em EFM devam implementar 3DS ou serão colocados na lista de restrição.",
+    "impacto": "EFM foi criado para incentivar o uso de 3DS. Merchants EFM que implementam 3DS com sucesso recebem isenção (EFM Exemption).",
+    "referencia": "Mastercard Rules — EFM/ECP Framework"
+  },
+  {
+    "termo": "EMVCo",
+    "sigla": null,
+    "categoria": "Regulatório",
+    "bandeiras": ["Global"],
+    "definicao": "Consórcio fundado por EMV (Europay, Mastercard, Visa) que define os padrões técnicos globais para segurança de pagamentos. Responsável pelas especificações de Chip (EMV), Contactless, 3DS, Tokenização e pagamentos QR Code.",
+    "impacto": "Toda evolução de segurança de pagamentos é legitimada pelo EMVCo. Certificações EMV são obrigatórias para terminais e gateways.",
+    "referencia": "www.emvco.com"
+  },
+  {
+    "termo": "Fallback (Magstripe Fallback)",
+    "sigla": null,
+    "categoria": "Canais de Pagamento",
+    "bandeiras": ["Global"],
+    "definicao": "Quando o terminal tenta ler o chip do cartão e falha, pode 'cair' para leitura da tarja magnética (Magstripe). Essa operação chama-se Fallback e é sinalizada no DE 22 da mensagem ISO. É tratada com maior risco pelas Bandeiras pois contorna a segurança do chip.",
+    "impacto": "Transações Fallback têm intercâmbio mais alto que Chip. Adquirentes com alta taxa de Fallback podem receber alertas das Bandeiras por potencial comprometimento de terminais.",
+    "referencia": "EMVCo Chip Spec / ISO 8583 DE 22"
+  },
+  {
+    "termo": "FPAN (Funding PAN)",
+    "sigla": "FPAN",
+    "categoria": "Tokenização",
+    "bandeiras": ["Global"],
+    "definicao": "O número de cartão 'real' e permanente impresso no plástico e armazenado no banco do Emissor. Diferente do DPAN (Token de dispositivo) ou do Network Token (Token de Merchant). O FPAN nunca deve ser armazenado por lojistas após a transação (PCI DSS Req. 3).",
+    "impacto": "A exposição do FPAN é o maior risco de segurança em payments. Qualquer brecha que exponha FPANs pode resultar em multas PCI SSC e obrigação do emissor de reemitir todos os cartões afetados.",
+    "referencia": "PCI DSS v4.0 — Requirement 3"
+  },
+  {
+    "termo": "Friendly Fraud",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Global"],
+    "definicao": "Quando o portador contesta uma transação como fraude, mas na verdade realizou a compra e mente intencionalmente (ou a fez e esqueceu). É o tipo de chargeback mais difícil de combater pois o portador conhece os dados do cartão e nega a compra.",
+    "impacto": "Estima-se que 60-80% dos chargebacks de fraude em e-commerce sejam Friendly Fraud. O protocolo CE 3.0 da Visa foi criado especificamente para combatê-lo com histórico de transações anteriores.",
+    "referencia": "Visa Core Rules — CE 3.0"
+  },
+  {
+    "termo": "IC++ (Interchange++)",
+    "sigla": "IC++",
+    "categoria": "Pricing",
+    "bandeiras": ["Global"],
+    "definicao": "Modelo de precificação transparente onde o Adquirente cobra do lojista separadamente: Intercâmbio real (I) + Fee da Bandeira (C, de 'Ciem'/Scheme Fee) + Margem do Adquirente (%). Oposto ao modelo 'blended' onde o lojista paga um MDR único sem ver os componentes.",
+    "impacto": "IC++ é obrigatório na UE pós-IFR (Interchange Fee Regulation). No Brasil, grandes lojistas negociam IC++ para ter previsibilidade e otimizar o mix de produtos aceitos.",
+    "referencia": "EU Interchange Fee Regulation (IFR)"
+  },
+  {
+    "termo": "IIN (Issuer Identification Number)",
+    "sigla": "IIN",
+    "categoria": "Identificação",
+    "bandeiras": ["Global"],
+    "definicao": "Evolução do BIN (Bank Identification Number). Com a migração para 8 dígitos (ISO 7812-1 2017), o IIN passou a ter maior granularidade para identificar Emissor, Produto e País de emissão. A Bandeira usa o IIN para roteamento e para determinar o intercâmbio aplicável.",
+    "impacto": "A migração BIN-6 para IIN-8 exigiu atualização de sistemas de roteamento, tabelas de intercâmbio e plataformas de anti-fraude que usavam BIN para identificar produtos.",
+    "referencia": "ISO 7812-1:2017"
+  },
+  {
+    "termo": "Intercâmbio (Interchange)",
+    "sigla": null,
+    "categoria": "Pricing",
+    "bandeiras": ["Global"],
+    "definicao": "Taxa paga pelo Adquirente ao Emissor a cada transação aprovada. É definida pela Bandeira em tabelas públicas e varia por Produto (Standard/Black/Infinite), Canal (CP/CNP/3DS), MCC do lojista e Região. Representa tipicamente 70-80% do MDR total cobrado ao lojista.",
+    "impacto": "O intercâmbio é o maior custo do Adquirente. A diferença entre aceitar um cartão Standard e um Infinite pode ser de 0.5 a 1.5% por transação, impactando diretamente a margem.",
+    "referencia": "Visa/Mastercard Interchange Schedules"
+  },
+  {
+    "termo": "IPM (Integrated Payment Mastercard)",
+    "sigla": "IPM",
+    "categoria": "Mensageria",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Arquivo de clearing da Mastercard (TC46) que contém os dados consolidados das transações para reconciliação e liquidação. Estruturado em PDS (Private Data Subelement) que são campos proprietários da Mastercard dentro do IPM.",
+    "impacto": "A reconciliação do IPM é crítica para Adquirentes. Erros de PDS preenchidos incorretamente causam downgrade de intercâmbio ou rejeições de transação no clearing.",
+    "referencia": "Mastercard IPM Clearing Formats"
+  },
+  {
+    "termo": "Liability Shift",
+    "sigla": null,
+    "categoria": "Autenticação",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "A transferência da responsabilidade financeira por fraude (chargeback de não-reconhecimento) do Lojista/Adquirente para o Banco Emissor. Ocorre quando o lojista implementa mecanismos de autenticação aprovados pelas Bandeiras: 3DS (ECI 05/02) ou Token com autenticação biométrica (DAF).",
+    "impacto": "Liability Shift é o maior incentivo econômico para adotar 3DS e carteiras digitais certificadas. Um lojista com alto volume CNP e Liability Shift total pode eliminar toda a perda de fraude do seu P&L.",
+    "referencia": "EMVCo 3DS / Visa DAF Framework"
+  },
+  {
+    "termo": "Liquidação (Settlement)",
+    "sigla": null,
+    "categoria": "Liquidação",
+    "bandeiras": ["Global"],
+    "definicao": "Transferência efetiva dos fundos entre Adquirente e Emissor após o Clearing. A Bandeira atua como câmara de compensação multilateral (Bilateral Net Settlement). No Brasil, a liquidação geralmente ocorre em D+1 (débito) ou D+2 (crédito à vista), com crédito parcelado entre D+2 e D+30.",
+    "impacto": "Chargebacks no período pós-liquidação exigem que o Adquirente devolva fundos já liquidados, criando risco de crédito caso o Merchant não tenha reserva financeira.",
+    "referencia": "Mastercard Settlement Manual"
+  },
+  {
+    "termo": "MATCH (Member Alert to Control High-Risk Merchants)",
+    "sigla": "MATCH",
+    "categoria": "Risco",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Base de dados global da Mastercard que lista Merchants e seus proprietários que tiveram contratos de aceitação rescindidos por Adquirentes devido a violações graves (fraude, excesso de chargeback, atividade ilegal). Adquirentes são OBRIGADOS a consultar o MATCH antes de credenciar um novo Merchant.",
+    "impacto": "Ser incluído no MATCH é praticamente uma 'lista negra' do setor. Merchants listados dificilmente conseguem credenciamento em adquirentes sérios. O registro permanece por 5 anos.",
+    "referencia": "Mastercard MATCH Listing Rules"
+  },
+  {
+    "termo": "MCC (Merchant Category Code)",
+    "sigla": "MCC",
+    "categoria": "Identificação",
+    "bandeiras": ["Global"],
+    "definicao": "Código de 4 dígitos definido pela ISO 18245 que categoriza o tipo de negócio do lojista. Ex: 5411 = Supermercado, 4812 = Telefonia, 5912 = Farmácia, 7922 = Teatro. O MCC afeta diretamente a taxa de intercâmbio aplicável e também é usado para filtros de benefícios de cartões (ex: cashback em supermercados).",
+    "impacto": "Um MCC incorreto pode resultar em intercâmbio mais alto (lojista de supermercado classificado como varejo genérico paga muito mais). Também pode causar problemas com programas de monitoramento (ex: QMAP da Mastercard).",
+    "referencia": "ISO 18245 / Mastercard MCC Listing 2025"
+  },
+  {
+    "termo": "MDR (Merchant Discount Rate)",
+    "sigla": "MDR",
+    "categoria": "Pricing",
+    "bandeiras": ["Global"],
+    "definicao": "A taxa percentual descontada do valor de cada transação que o Adquirente cobra do lojista. É o preço que o lojista paga para aceitar cartões. Composto por: Intercâmbio (Emissor) + Scheme Fee (Bandeira) + Spread do Adquirente. Varia por tipo de cartão, canal e MCC.",
+    "impacto": "O MDR é o maior custo operacional para muitos varejistas. Entender como o intercâmbio compõe o MDR permite negociar tarifas mais inteligentes e otimizar o mix de meios de pagamento aceitos.",
+    "referencia": "Estrutura de Pricing BC Resolução 150"
+  },
+  {
+    "termo": "MDES (Mastercard Digital Enablement Service)",
+    "sigla": "MDES",
+    "categoria": "Tokenização",
+    "bandeiras": ["Mastercard"],
+    "definicao": "A plataforma de tokenização da Mastercard. Substitui o PAN real por um DPAN ou Network Token para uso em carteiras digitais (Google Pay, Samsung Pay) e e-commerce tokenizado. Equivale ao VTS da Visa.",
+    "impacto": "Merchants que usam MDES Network Tokens têm taxas de aprovação mais altas pois os Emissores confiam mais em transações tokenizadas. Também reduzem o risco de fraude em dados em repouso.",
+    "referencia": "Mastercard MDES Technical Guide"
+  },
+  {
+    "termo": "MPI (Merchant Plug-In)",
+    "sigla": "MPI",
+    "categoria": "Autenticação",
+    "bandeiras": ["Global"],
+    "definicao": "Componente de software no lado do lojista que inicia o fluxo de autenticação 3DS. Coleta dados de contexto do comprador (IP, navegador, dispositivo), envia ao DS (Directory Server) da Bandeira e recebe o resultado de autenticação (ARes) do ACS do Emissor.",
+    "impacto": "A qualidade do MPI determina a taxa de sucesso do frictionless flow. MPIs que enviam dados ricos de contexto têm mais autenticações silenciosas, reduzindo o atrito na experiência de compra.",
+    "referencia": "EMVCo 3DS Spec v2.2"
+  },
+  {
+    "termo": "MTI (Message Type Indicator)",
+    "sigla": "MTI",
+    "categoria": "Mensageria",
+    "bandeiras": ["Global"],
+    "definicao": "Código de 4 dígitos no header da mensagem ISO 8583 que identifica o tipo e versão da mensagem. Os principais: 0100/0110 (Autorização Request/Response), 0200/0210 (Financeiro/Captura), 0400/0410 (Reversal), 0420/0430 (Reversal Request/Response).",
+    "impacto": "Erros no MTI causam rejeição imediata da mensagem pela Bandeira. A sequência correta de MTIs é fundamental para o fluxo de autorização, captura e estorno.",
+    "referencia": "ISO 8583-1:1987"
+  },
+  {
+    "termo": "NABU (Network Access and Brand Usage)",
+    "sigla": "NABU",
+    "categoria": "Pricing",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Fee cobrado pela Mastercard por cada transação que usa a rede Mastercard, independente da aprovação. Inclui: Fixed Acquirer Network Fee (FANF), Network Access Fee, e Brand Usage Fee. Diferente do intercâmbio (que vai para o Emissor), o NABU fica com a Mastercard.",
+    "impacto": "O NABU é uma das componentes do MDR que muitos lojistas e adquirentes subestimam. Em volumes altos, pode representar 0.05 a 0.15% de custo adicional sobre o intercâmbio.",
+    "referencia": "Mastercard Fees Schedule"
+  },
+  {
+    "termo": "Network Token",
+    "sigla": null,
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Token permanente criado pelas redes de pagamento (VTS ou MDES) para um par específico Merchant-Cartão. Diferente do DPAN (que é por dispositivo), o Network Token é por relação Merchant-Emissor e pode ser usado em múltiplas transações recorrentes. É atualizado automaticamente quando o cartão vence.",
+    "impacto": "Merchants com recorrência (assinaturas) que usam Network Tokens têm dramática redução de churn involuntário. A taxa de aprovação em renovações é tipicamente 10-15% maior do que com PAN estático.",
+    "referencia": "EMVCo Token Spec / VTS & MDES"
+  },
+  {
+    "termo": "PAN (Primary Account Number)",
+    "sigla": "PAN",
+    "categoria": "Identificação",
+    "bandeiras": ["Global"],
+    "definicao": "O número de 13 a 19 dígitos que identifica uma conta de cartão. Composto por: IIN/BIN (primeiros 6-8 dígitos identificando Banco/Produto), Número de Conta do portador, e Check Digit (último dígito, calculado pelo algoritmo de Luhn). O PAN é o dado mais crítico de um cartão.",
+    "impacto": "O PAN nunca deve ser armazenado pós-autorização por lojistas (PCI DSS). Sua exposição em vazamentos de dados pode custar milhões em reemissão de cartões e multas.",
+    "referencia": "ISO 7812 / PCI DSS Req. 3"
+  },
+  {
+    "termo": "PCI DSS",
+    "sigla": "PCI DSS",
+    "categoria": "Segurança",
+    "bandeiras": ["Global"],
+    "definicao": "Payment Card Industry Data Security Standard — conjunto de 12 requisitos de segurança administrados pelo PCI SSC (Security Standards Council) para qualquer entidade que processe, armazene ou transmita dados de cartões. Versão atual: 4.0.1 (2024). Certificações variam por nível de volume de transações.",
+    "impacto": "Não conformidade com PCI DSS pode resultar em multas das Bandeiras (USD 5k-100k/mês), perda do direito de aceitar cartões e, em caso de breach, custo de reemissão de todos os cartões afetados.",
+    "referencia": "PCI SSC — PCI DSS v4.0.1"
+  },
+  {
+    "termo": "PDS (Private Data Subelement)",
+    "sigla": "PDS",
+    "categoria": "Mensageria",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Campos proprietários da Mastercard dentro do arquivo de clearing IPM (DE 48). Cada PDS tem uma tag (ex: PDS 0001, PDS 0170) e contém dados específicos de transação como: tipo de produto emitido, dados do programa de fidelidade, indicadores de transação especial.",
+    "impacto": "Preenchimento incorreto ou ausente de PDS críticos causa downgrade de intercâmbio. Ex: PDS 0052 incorreto em transações de pedágio gera perda do intercâmbio preferencial de transporte.",
+    "referencia": "Mastercard IPM Clearing Formats Manual"
+  },
+  {
+    "termo": "PED (Programa de Excesso de Disputas)",
+    "sigla": "PED",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Elo"],
+    "definicao": "Programa de monitoramento da Elo equivalente ao ECP da Mastercard. Monitora a taxa de chargeback de Merchants credenciados por Adquirentes. Thresholds e penalidades definidas pela Elo para o mercado brasileiro.",
+    "impacto": "Similar ao ECP, o PED pode resultar em multas ao Adquirente e exigência de plano de remediação para Merchants com altas taxas de disputa.",
+    "referencia": "Manual Elo de Política de Disputas"
+  },
+  {
+    "termo": "PID (Product ID)",
+    "sigla": "PID",
+    "categoria": "Identificação",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Identificador proprietário da Mastercard que classifica o produto do cartão: Standard, Gold, Platinum, World, World Elite, etc. Transmitido nos campos PDS do clearing IPM. Junto com o BIN, determina a faixa de intercâmbio aplicável.",
+    "impacto": "Cartões World Elite (equivalente ao Infinite da Visa) têm intercâmbio significativamente maior que cartões Standard. Um mix de portfólio com muitos cartões premium aumenta o custo de intercâmbio do Adquirente.",
+    "referencia": "Mastercard Product Identifier Table"
+  },
+  {
+    "termo": "QR Code Pagamento",
+    "sigla": "QR",
+    "categoria": "Canais de Pagamento",
+    "bandeiras": ["Global"],
+    "definicao": "Modalidade de pagamento baseada em QRCode, tanto no modelo CPM (Consumer Presents Model — portador mostra o QR) quanto MPM (Merchant Presents Model — o caixa exibe o QR). No Brasil, o Pix é predominante, mas redes internacionais usam EMVCo QRCS para interoperabilidade global.",
+    "impacto": "QR codes de cartão têm intercâmbio diferenciado das Bandeiras, geralmente equiparado ao Contactless. O modelo de risco é CNP mas com menor fraude por requerer proximidade física.",
+    "referencia": "EMVCo QR Code Specification"
+  },
+  {
+    "termo": "Reason Code",
+    "sigla": "RC",
+    "categoria": "Disputas",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Código que classifica o motivo de um chargeback. Mastercard usa códigos numéricos (4853 = Cardholder Dispute, 4837 = No Auth, 4847 = Exceeds Floor Limit). Visa usa categorias numéricas (10.4 = Other Fraud CNP, 13.1 = Merchandise Not Received). Cada RC tem regras específicas de prazo e evidência.",
+    "impacto": "Entender o Reason Code é essencial para decidir se o caso vale ser representado. Alguns RCs têm muito mais chance de reversão do que outros — ex: RC 4853 (mercadoria não recebida) com comprovante de entrega é altamente defensável.",
+    "referencia": "Mastercard Chargeback Guide / Visa Core Rules Ch. 11"
+  },
+  {
+    "termo": "Representment (Rebut/Defesa)",
+    "sigla": null,
+    "categoria": "Disputas",
+    "bandeiras": ["Mastercard"],
+    "definicao": "A resposta formal do Adquirente/Lojista a um First Chargeback da Mastercard. É o mecanismo de defesa onde o lojista envia provas documentais (comprovante de entrega, logs 3DS, histórico do cliente) via DMAS para contestar o chargeback. Prazo típico: 18 dias calendário.",
+    "impacto": "Um Representment bem fundamentado pode reverter 40-70% dos chargebacks defensáveis. Sem ele, o chargeback é automaticamente decidido a favor do portador.",
+    "referencia": "Mastercard Chargeback Guide"
+  },
+  {
+    "termo": "Response Code",
+    "sigla": "RC",
+    "categoria": "Autorização",
+    "bandeiras": ["Global"],
+    "definicao": "Código de 2 dígitos no DE 39 da mensagem ISO 8583 que indica o resultado da autorização. Os principais: 00 = Aprovado, 01 = Referência (ligue para banco), 04 = Pick Up (reter cartão — Hard Decline), 05 = Do Not Honor, 51 = Sem Fundos (Soft Decline), 57 = Transação não permitida, 96 = Erro de Sistema.",
+    "impacto": "Sistemas de retentativa de cobrança devem categorizar corretamente o Response Code recebido para evitar tentativas desnecessárias em Hard Declines (que geram multas) e configurar intervalos corretos para Soft Declines.",
+    "referencia": "ISO 8583-1 DE-39 / Visa/Mastercard Response Code List"
+  },
+  {
+    "termo": "Reversal (Estorno Técnico)",
+    "sigla": null,
+    "categoria": "Autorização",
+    "bandeiras": ["Global"],
+    "definicao": "Mensagem ISO 8583 (MTI 0420/0400) enviada pelo Adquirente para cancelar uma autorização previamente aprovada ANTES da captura. Diferente de um chargeback (pós-liquidação), o reversal é instantâneo e libera o limite reservado do portador imediatamente.",
+    "impacto": "Reversals não enviadas em caso de timeout ou falha de captura deixam o limite do portador bloqueado por horas/dias, causando uma experiência ruim. Bons sistemas de pagamento têm gestão automática de reversals.",
+    "referencia": "ISO 8583 — MTI 0420"
+  },
+  {
+    "termo": "SCOF (Standing Credential-on-File)",
+    "sigla": "SCOF",
+    "categoria": "Autorização",
+    "bandeiras": ["Visa", "Mastercard"],
+    "definicao": "Tipo de transação recorrente onde o valor e/ou data variam a cada cobrança (ex: conta de streaming com plano variável, assinatura com consumo adicional). Diferente do COF fixo, o SCOF exige parâmetros específicos na mensagem ISO para identificar a natureza da recorrência.",
+    "impacto": "Classificação incorreta de SCOF pode resultar em declínios por suspeita de fraude, pois o Emissor pode não reconhecer a cobrança variável como legítima. Exige registro da transação inicial (CITI).",
+    "referencia": "Visa/Mastercard Credential-on-File Rules"
+  },
+  {
+    "termo": "Scheme Fee (Taxa da Bandeira)",
+    "sigla": null,
+    "categoria": "Pricing",
+    "bandeiras": ["Global"],
+    "definicao": "Fee cobrado pela Bandeira (Visa, Mastercard, Elo) diretamente ao Adquirente por cada transação processada na rede, independente do intercâmbio. Inclui: Network Access Fee, Processing Fee, Cross-Border Fee (cobrado em transações internacionais), Brand Usage Fee. É a segunda componente do MDR após o intercâmbio.",
+    "impacto": "Em altos volumes internacionais, o Scheme Fee pode ultrapassar o intercâmbio doméstico. Especialmente em Cross-Border onde a Bandeira cobra um adicional de 0.4-1% sobre o valor.",
+    "referencia": "Visa/Mastercard Fees Schedule"
+  },
+  {
+    "termo": "Settlement Fail / Falha de Liquidação",
+    "sigla": null,
+    "categoria": "Liquidação",
+    "bandeiras": ["Global"],
+    "definicao": "Situação onde a transferência financeira entre Adquirente e Emissor (mediada pela Bandeira) não ocorre corretamente. Causada por: saldo insuficiente do Adquirente no banco liquidante, erros de clearing, ou problemas técnicos no sistema de settlement da Bandeira.",
+    "impacto": "Settlement fails são eventos gravíssimos. O Adquirente pode ser suspenso da rede de aceitação e multado pela Bandeira. Instituições com problemas recorrentes de settlement enfrentam revisão de seu contrato com a Bandeira.",
+    "referencia": "Mastercard Settlement Manual"
+  },
+  {
+    "termo": "STIP (Stand-In Processing)",
+    "sigla": "STIP",
+    "categoria": "Autorização",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Sistema de backup da Mastercard que aprova ou recusa transações quando o Banco Emissor está inacessível (timeout de rede). A Mastercard usa parâmetros pré-definidos pelo Emissor (limite de aprovação, categorias de MCC permitidas) para responder no lugar do Emissor.",
+    "impacto": "Emissores com alta taxa de indisponibilidade geram muitas transações via STIP, o que pode resultar em aprovações de transações que seriam recusadas pelo banco real, gerando mais fraude.",
+    "referencia": "Mastercard Transaction Processing Rules — STIP"
+  },
+  {
+    "termo": "TAF (Token Authentication Flag)",
+    "sigla": "TAF",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa"],
+    "definicao": "Flag inserida na mensagem de autorização que indica que a transação foi originada por um Token autenticado via VTS (Visa Token Service). É o bit que ativa o Liability Shift no contexto DAF para transações tokenizadas sem 3DS separado.",
+    "impacto": "Sem o TAF correto no DE 48, a transação de Apple Pay não recebe o Liability Shift automático. É um campo crítico que passadores de gateway de pagamento frequentemente esquecem de configurar.",
+    "referencia": "Visa DAF Technical Spec"
+  },
+  {
+    "termo": "TC40 (Transaction Certification — Fraud Report)",
+    "sigla": "TC40",
+    "categoria": "Fraude",
+    "bandeiras": ["Mastercard", "Visa"],
+    "definicao": "Arquivo de relatório de fraude onde o Banco Emissor informa à Bandeira as transações que o portador declarou como fraudulentas. É o mecanismo de coleta de dados de fraude ANTES do chargeback formal. A Bandeira usa TC40 para monitorar o índice de fraude do Adquirente/Merchant.",
+    "impacto": "O TC40 alimenta o VAMP (Visa) e o EFM (Mastercard). Um Merchant com muitos TC40 está sendo sinalizado pelos Emissores como de alto risco, mesmo antes de qualquer chargeback formal.",
+    "referencia": "Mastercard Technical Manual — Fraud Reporting"
+  },
+  {
+    "termo": "TIDI (Token ID Indicator)",
+    "sigla": "TIDI",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa"],
+    "definicao": "Indicador da Visa usado em transações de Token recorrentes (COF subsequentes) para vincular a cobrança recorrente à autorização original onde o portador consentiu. Obrigatório para manter o Liability Shift em transações subsequentes de Network Token.",
+    "impacto": "Sem TIDI correto nas recorrências com VTS Token, o Liability Shift pode ser perdido nas cobranças subsequentes, deixando o lojista responsável por fraudes mesmo usando tokenização.",
+    "referencia": "Visa Credential-on-File Rules"
+  },
+  {
+    "termo": "Track Data",
+    "sigla": null,
+    "categoria": "Segurança",
+    "bandeiras": ["Global"],
+    "definicao": "Dados armazenados na tarja magnética do cartão ou codificados no chip EMV. Track 1 contém: PAN + Nome + Data de Validade + Dados de serviço. Track 2 contém: PAN + Dados de validade + CVV (iCVV no chip). PCI DSS proíbe terminantemente o armazenamento de Track Data completo pós-autorização.",
+    "impacto": "Armazenamento ilegal de Track Data é a maior violação PCI possível. Exposição de Track Data permite clonagem completa de cartões. Resulta em multas máximas PCI e possível encerramento do contrato de credenciamento.",
+    "referencia": "PCI DSS v4.0 — Requirement 3.3"
+  },
+  {
+    "termo": "VAMP (Visa Acquirer Monitoring Program)",
+    "sigla": "VAMP",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Visa"],
+    "definicao": "Programa de monitoramento da Visa que mede a taxa de fraude declarada (via TC40) de um Adquirente em relação ao total de transações. Monitora separadamente por Merchant. A Visa multa o Adquirente (não o Merchant diretamente) quando thresholds são ultrapassados, incentivando o Adquirente a gerir seu portfólio de risco.",
+    "impacto": "O VAMP usa dados TC40 (fraude declarada), não chargebacks formais. Isso significa que Merchants podem estar prejudicando o índice VAMP do Adquirente ANTES de qualquer disputa formal.",
+    "referencia": "Visa Acquirer Monitoring Program Rules"
+  },
+  {
+    "termo": "VCR (Visa Claims Resolution)",
+    "sigla": "VCR",
+    "categoria": "Disputas",
+    "bandeiras": ["Visa"],
+    "definicao": "Plataforma de gestão de disputas da Visa (equivalente ao DMAS da Mastercard). Introduzida em 2018, dividiu o processo de disputa em dois fluxos: Allocation (fraude/auth) e Collaboration (processamento). Acessível via portal VROL.",
+    "impacto": "A migração para VCR reduziu o número de disputas ao automatizar a responsabilidade em casos de Fraude com 3DS. No entanto, sem evidências fortes, casos de Allocation são perdidos automaticamente.",
+    "referencia": "Visa Core Rules — Dispute Resolution"
+  },
+  {
+    "termo": "VIRP (Visa Integrity Risk Program)",
+    "sigla": "VIRP",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Visa"],
+    "definicao": "Programa de monitoramento da Visa focado em integridade operacional. Penaliza Adquirentes que violam regras de aceitação da Visa: cobrar surcharge ilegal, recusar aceitar determinado produto Visa, ou não processar reversals corretamente. Similar ao BRAM da Mastercard.",
+    "impacto": "VIRP pode resultar em multas significativas por prática de discriminação de produto. Ex: um adquirente que orienta lojistas a não aceitar Infinite Cards para evitar o alto intercâmbio viola o VIRP.",
+    "referencia": "Visa Integrity Risk Program Rules"
+  },
+  {
+    "termo": "VROL (Visa Resolve Online)",
+    "sigla": "VROL",
+    "categoria": "Disputas",
+    "bandeiras": ["Visa"],
+    "definicao": "Portal e API de acesso ao sistema de disputas VCR da Visa. Interface oficial para Adquirentes e Processadores gerenciarem o ciclo de vida de chargebacks na rede Visa. Equivalente funcional ao DMAS/Mastercom da Mastercard.",
+    "impacto": "Adquirentes sem integração ao VROL perdem disputas automaticamente por não responderem dentro dos prazos. A integração via API permite automação do processo de representment.",
+    "referencia": "Visa Resolve Online Technical Guide"
+  },
+  {
+    "termo": "VTS (Visa Token Service)",
+    "sigla": "VTS",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa"],
+    "definicao": "A plataforma de tokenização da Visa. Gera e gerencia Tokens (DPANs e Network Tokens) que substituem o PAN real em transações de carteiras digitais (Apple Pay, Google Pay) e e-commerce tokenizado. Equivale ao MDES da Mastercard.",
+    "impacto": "VTS é a infraestrutura central para implementar Network Tokens (recorrência segura) e activar o DAF (Digital Authentication Framework) para Liability Shift sem 3DS em carteiras.",
+    "referencia": "Visa Token Service Technical Specification"
+  }
+]

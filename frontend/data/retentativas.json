@@ -1,0 +1,184 @@
+[
+  {
+    "code": "00",
+    "titulo": "Aprovada",
+    "descricao": "Transação Autorizada com Sucesso.",
+    "categoria_tipo": "Success",
+    "acao_exigida": "Aprovar pedido. Nenhuma tentativa necessária.",
+    "detalhes": {
+      "visa": "Aprovada. Categoria 0. Nenhuma regra aplicável.",
+      "mastercard": "Aprovada."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Baixo"
+  },
+  {
+    "code": "04",
+    "titulo": "Capture Card (Hard Decline)",
+    "descricao": "Cartão Restrito. O emissor instruiu a captura física do cartão devido à suspeita severa de fraude e risco à rede.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Bloqueio Definitivo. Proibido retentar em todos os canais.",
+    "detalhes": {
+      "visa": "Category 3 ou 4 (Suspected Fraud/Lost/Stolen). Retentativas não são permitidas. Exposição gigantesca à multas e ingresso nos programas de monitoramento de risco (VAMP).",
+      "mastercard": "Action Code 04 / MAC 03 (Do Not Try Again). O cartão foi bloqueado na rede emissora e as retentativas prejudicarão o Authorization Approval Rate do Adquirente."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Crítico"
+  },
+  {
+    "code": "05",
+    "titulo": "Do Not Honor (Hard Decline Genérico)",
+    "descricao": "Recusa genérica do Emissor. Geralmente engloba bloqueios preventivos de fraude no perfil de consumo ou regras na adquirência.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Não Retentar. Abordar o portador pedindo outra forma de pagamento.",
+    "detalhes": {
+      "visa": "Category 2 (Issuer will never approve). Visa proíbe retentativa se o RC 05 for contínuo, a menos que dados sejam alterados na nova tentativa (ex: CVV ou expiração informada na nova). Retentar à revelia quebra o Visa Core Rules.",
+      "mastercard": "Merchant Advice Code pode ditar 'Do Not Try Again' ou MAC 02 (Try Again Later). Em regra, assuma Hard Decline a não ser que os mecanismos de ML sugiram falha momentânea de rede."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Alto"
+  },
+  {
+    "code": "14",
+    "titulo": "Invalid Card Number",
+    "descricao": "Conta especificada é inválida. O formato do PAN pode estar correto, mas a conta não existe mais nos registros.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Solicitar correção de digitação ao portador ou excluir o cartão do cofre (Stored Credentials).",
+    "detalhes": {
+      "visa": "Category 3 (Data Quality). É considerado má-qualidade transacional continuar enviando PANs inexistentes. Use Account Updater (VAU) antes de qualquer re-tentativa cega, especialmente em recorrentes.",
+      "mastercard": "Mastercard ABU (Automatic Billing Updater) é mandatório. Continuar tentando RC 14 atrai degradação progressiva de qualidade do Mastercom/Autorização."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Alto"
+  },
+  {
+    "code": "41",
+    "titulo": "Lost Card",
+    "descricao": "Cartão reportado como Perdido pelo portador original.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Extremo Risco de Fraude! Bloquear imediatamente tentativas de transação e remover cartão das carteiras.",
+    "detalhes": {
+      "visa": "Category 4 (Stop Payment). Nenhuma retentativa pode ocorrer. Contribui maciçamente para a pontuação de risco global.",
+      "mastercard": "Reported Lost. Multas por retentativas sucessivas são comuns. A rede ataca severamente fluxos massivos sobre cartões que estão nessa listagem (Fraud Attacks)."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Crítico"
+  },
+  {
+    "code": "43",
+    "titulo": "Stolen Card",
+    "descricao": "Cartão reportado como Roubado.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Bloqueio absoluto. Fraude Confirmada em andamento ou tentada.",
+    "detalhes": {
+      "visa": "Equivalente ao comportamento do RC 41. Retentar aciona alertas de Velocity Checks na adquirência.",
+      "mastercard": "O EFM (Excessive Fraud Merchant) se alimenta do volume transacional que perpassa estelionatos na rede. Pare."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Crítico"
+  },
+  {
+    "code": "51",
+    "titulo": "Insufficient Funds (Soft Decline)",
+    "descricao": "A conta do portador não possui saldo ou crédito suficiente no momento.",
+    "categoria_tipo": "Soft Decline",
+    "acao_exigida": "Retentativa programada permitida até o usuário quitar as faturas/realizar depósito (Ex: Billing rules).",
+    "detalhes": {
+      "visa": "Category 1. A Visa permite oficialmente ATÉ 15 tentativas durante o período de 30 dias para o mesmo valor num contexto recorrente. Passar desse limite viola a diretriz técnica e gera chargebacks do tipo Not Authorized ou Custo Administrativo.",
+      "mastercard": "Use MAC 02 (Try Again Later). Geralmente, adquirentes e lojistas aplicam réguas de retentativas inteligentes (D+1, D+3, D+7, etc) visando o dia de pagamento do cliente."
+    },
+    "retry_permitido": true,
+    "nivel_risco": "Monitoramento"
+  },
+  {
+    "code": "54",
+    "titulo": "Expired Card",
+    "descricao": "A Data de Expiração informada já passou, mas o PAN ainda pode ser de uma conta ativa (aguardando novo plástico).",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Chamar o Account Updater Database (VAU / ABU) e não repassar a mesma data.",
+    "detalhes": {
+      "visa": "Category 3 (Data Quality Decline). Enviar continuamente o RC 54 piora a taxa de aprovação (AR). Atualize o dado de validade ou force o cliente a redigitar.",
+      "mastercard": "Mesma dinâmica. Em transações MIT (Merchant Initiated), deve-se usar os flags apropriados para avisar a rede de que é uma assinatura e a validade pode não ser mandatória caso já processada no passado sob as Regras de Credencial Armazenada."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Médio"
+  },
+  {
+    "code": "57",
+    "titulo": "Transaction Not Permitted By Issuer",
+    "descricao": "Cartão atrelado a banco emissor não permite este tipo de operação. (Ex: corporativo tentando comprar cassino; Cartão doméstico tentando transação cross-border internacional).",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Pedir nova via de pagamento. Não existe como forçar tecnicamente a passagem desse cenário sem burlar regras cruzadas de restrição do MCC.",
+    "detalhes": {
+      "visa": "Category 2 (Issuer will never approve). Bloqueios com base primária no tipo de comerciante (TCC/MCC).",
+      "mastercard": "A Mastercard é estrita ao negar operações que transgridam as Regras da Conta do Emissor em restrições geográficas ou Setoriais."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Alto"
+  },
+  {
+    "code": "62",
+    "titulo": "Restricted Card (Hard Decline)",
+    "descricao": "Cartão restrito para o comerciante solicitante, ou regras rigorosas do cartão.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Não tentar com o mesmo cartão.",
+    "detalhes": {
+      "visa": "Category 2/3. Pode indicar fraude por cruzamento de regras antifraude específicas do emissor contra a localidade.",
+      "mastercard": "Similar ao RC 04."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Médio"
+  },
+  {
+    "code": "65",
+    "titulo": "Exceeds Withdrawal / Activity Limit",
+    "descricao": "Limite de frequência ou valor global atingido. (Ex: 'Você só pode fazer 5 compras de viagem por dia').",
+    "categoria_tipo": "Soft Decline",
+    "acao_exigida": "Condicional. Se for limite por dia ou ciclo, retentar no próximo ciclo (Janela D+1) pode ser efetivo.",
+    "detalhes": {
+      "visa": "Category 1. Enquadra-se nas retentativas razoáveis e programadas. Mas em escala maciça e sequencial do mesmo PAN, os mecanismos ativam bloqueio forçado.",
+      "mastercard": "Aguardar a expiração do limite de tempo ou notificar portador no App dele do Banco."
+    },
+    "retry_permitido": true,
+    "nivel_risco": "Monitoramento"
+  },
+  {
+    "code": "82",
+    "titulo": "CVV2 / CAVV Invalid",
+    "descricao": "O CVV digitado (ou valor 3DS CAVV) não coincide. Tentativa Criptográfica Inválida.",
+    "categoria_tipo": "Hard Decline",
+    "acao_exigida": "Re-pedir digitação Imediatamente. Não processar à revelia com o mesmo valor.",
+    "detalhes": {
+      "visa": "Pode ser listado no Decline Reason Code por data incorreta atrelada a fraude (BIN Guessing). A rede recusa transações subsequentes.",
+      "mastercard": "Autenticadores CVV falhos consecutivamente são um vetor puro para a Mastercard classificar o terminal como possível base vazada submetendo Card Testing. Exige parada."
+    },
+    "retry_permitido": false,
+    "nivel_risco": "Alto"
+  },
+  {
+    "code": "91",
+    "titulo": "Issuer / Switch Inoperative",
+    "descricao": "O Link para o Banco Emissor na Autorização caiu, ou o Stand-in Processing (STIP) também negou (Timeout).",
+    "categoria_tipo": "Soft Decline",
+    "acao_exigida": "Recuperar na próxima janela baseada nas lógicas exponenciais de Retry Backoff.",
+    "detalhes": {
+      "visa": "Category 1 (Timeout). Redes orientam não metralhar a mesma transação enquanto a linha estiver morta. Tente novamente após minutos progressivos (Ex: 1min, 5min, 15min) visando diminuir estrangulamento.",
+      "mastercard": "Mesmo procedimento. É fundamental ter arquiteturas de Retry Queue eficientes para RC 91, pois não se trata de problemas de saldo/crédito, garantindo a venda após recuperação do link do banco."
+    },
+    "retry_permitido": true,
+    "nivel_risco": "Baixo"
+  },
+  {
+    "code": "96",
+    "titulo": "System Malfunction",
+    "descricao": "Falha geral do sistema do emissor ou da bandeira.",
+    "categoria_tipo": "Soft Decline",
+    "acao_exigida": "Retentativa permitida (Retry Backoff).",
+    "detalhes": {
+      "visa": "Similar ao RC 91, ocorre raríssimas vezes em picos catastróficos. Retentativas amigáveis via Exponential Backoff são seguras.",
+      "mastercard": "Soft decline padrão infraestrutural."
+    },
+    "retry_permitido": true,
+    "nivel_risco": "Baixo"
+  }
+]

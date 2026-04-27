@@ -1,0 +1,86 @@
+[
+  {
+    "code": "01",
+    "name": "Account Data Compromise",
+    "description": "Lojista sofreu vazamento comprovado de dados de portadores de cartão ou foi diretamente responsável por comprometer o ecossistema (ex: banco de dados invadido).",
+    "severity": "Falta Secundária/Grave",
+    "action": "Adoção de cautela extrema. Risco cibernético."
+  },
+  {
+    "code": "02",
+    "name": "Common Point of Purchase (CPP)",
+    "description": "Lojista foi identificado pelas bandeiras como o Ponto Comum de Compra em um cluster de transações fraudulentas (mesmo que sem prova direta de invasão).",
+    "severity": "Grave",
+    "action": "Não deve ser credenciado sem investigação forense (QSA)."
+  },
+  {
+    "code": "03",
+    "name": "Laundering",
+    "description": "Lavagem de dinheiro ou de transações. O lojista processou vendas prestando a sua afiliação (seu MID) para empresas de terceiros que muitas vezes não têm contrato.",
+    "severity": "Crítica",
+    "action": "Rejeição sumária (No-Go). Ilegalidade estatutária."
+  },
+  {
+    "code": "04",
+    "name": "Excessive Chargebacks",
+    "description": "As transações sofreram alto volume de contestações, ultrapassando sistematicamente os limites aceitáveis da bandeira (ex: ECP thresholds ultrapassados).",
+    "severity": "Grave",
+    "action": "Possibilidade de credenciamento condicionado a fundos de reserva pesados."
+  },
+  {
+    "code": "05",
+    "name": "Excessive Fraud",
+    "description": "Alto índice de fraudes comprovadas confirmadas pelos emissores via relatórios TC40/SAFE de fraude, independentemente de carga de chargeback.",
+    "severity": "Crítica",
+    "action": "Risco financeiro iminente para a Subadquirente."
+  },
+  {
+    "code": "07",
+    "name": "Fraud Conviction",
+    "description": "Um dos sócios administradores ou procuradores do lojista sofreu condenação judicial criminal por fraude financeira.",
+    "severity": "Crítica",
+    "action": "Rejeição sumária (No-Go)."
+  },
+  {
+    "code": "08",
+    "name": "Questionable Merchant Audit Program (QMAP)",
+    "description": "Lojista recusou colaborar com uma auditoria oficial promovida pela bandeira via programa QMAP, resultando em descredenciamento ostensivo.",
+    "severity": "Grave",
+    "action": "Suspensão automática do MCC para operar."
+  },
+  {
+    "code": "09",
+    "name": "Bankruptcy/Liquidation/Insolvency",
+    "description": "Encerramento das atividades oficiais do EC mediante processo formal de falência civil, liquidação ou comprovação rigorosa de insolvência.",
+    "severity": "Risco Operacional",
+    "action": "Evitar credenciamento futuro visando prevenção a passivos não pagos."
+  },
+  {
+    "code": "10",
+    "name": "Violation of Standards",
+    "description": "Reincidência em desrespeito às regras manuais preestabelecidas pelas bandeiras (por ex. split de transações, transação fictícia, auto-financiamento).",
+    "severity": "Grave",
+    "action": "Sinaliza descontrole ou má intenção na cúpula do EC."
+  },
+  {
+    "code": "12",
+    "name": "PCI Non-Compliance",
+    "description": "Lojista reprovou ou recusou-se ativamente a submeter os reports (ROC/SAQ) necessários para atestar o Padrão de Segurança PCI-DSS.",
+    "severity": "Mediana",
+    "action": "Normalmente contornada desde que reajustado o status de certificação."
+  },
+  {
+    "code": "13",
+    "name": "Illegal Transactions",
+    "description": "Flagrante venda de produtos/serviços proibidos pelas legislações locais ou pelas regras corporativas da Bandeira (BRAM/VIRP) – Narcóticos, pornografia infantil, etc.",
+    "severity": "Crítica",
+    "action": "Rejeição sumária (No-Go) com possível alerta às autoridades."
+  },
+  {
+    "code": "14",
+    "name": "Identity Theft",
+    "description": "Fraude de ONBOARDING. O portfólio de lojista foi aberto falsamente usando uma razão social existente e usurpada de identidade.",
+    "severity": "Crítica",
+    "action": "Verifique com diligência intensa novos Onboardings desse CNPJ, que deve estar negativado."
+  }
+]

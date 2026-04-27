@@ -1,0 +1,101 @@
+[
+  {
+    "code": "4837",
+    "name": "No Cardholder Authorization",
+    "category": "Fraud",
+    "visa_equivalent": "10.4",
+    "mastercom_stage": "DMAS",
+    "visa_stage": "Allocation",
+    "description": "Portador do cartão contesta a transação alegando que não a autorizou nem participou da compra (Fraude amigável ou roubo de dados). Corresponde a 70% do volume global de sub-adquirentes.",
+    "doc_required": "Comprovante de autenticação 3DS (ECI 02/05) garantindo Shift Liability ou evidência CE 3.0 provando uso anterior do cartão pela mesma pessoa.",
+    "compelling_evidence": [
+      { "name": "Proof of 3DS (Authentication)", "type": "TIFF", "desc": "Print ou log do gateway contendo a flag CAAV/UCAF comprovando que a autenticação foi desafiada e bem-sucedida." },
+      { "name": "CE 3.0 Historical Footprint (Visa)", "type": "JSON", "desc": "Para Visa 10.4: Logs de Device ID e IP de pelo menos 2 transações pregressas com mais de 120 dias, com o mesmo cartão e usuário (Evidência mandatória para Friendly Fraud)." },
+      { "name": "Delivery Proof (Signed A.R)", "type": "PDF", "desc": "Assinatura física ao Correio no exato mesmo endereço de faturamento do cartão." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance": "Critically Low",
+    "manualBase": "Mastercard Chargeback Guide",
+    "manualReference": "Section 3: Fraud",
+    "visaManualBase": "Visa Dispute Management Guidelines (VDMG)",
+    "visaManualReference": "Dispute Condition 10.4: Other Fraud - Card Absent"
+  },
+  {
+    "code": "4834",
+    "name": "Point of Interaction Error",
+    "category": "Processing Error",
+    "visa_equivalent": "11.1 / 11.2",
+    "mastercom_stage": "DMAS",
+    "visa_stage": "Collaboration",
+    "description": "Engloba transações processadas em duplicidade, valor incorreto, crédito não processado, ou cobrança tardia. Houve erro no momento do processamento sistêmico no PDV ou Gateway.",
+    "doc_required": "Comprovante de que houve duas transações distintas válidas (para duplicidade) ou print do carrinho com os valores corretos concordados.",
+    "compelling_evidence": [
+      { "name": "Dual Distinct Receipts", "type": "PDF", "desc": "Dois recibos/faturas assinadas com produtos e autorizações logísticas diferentes provando ausência de duplicidade." },
+      { "name": "Refund Voucher (Credit ARN)", "type": "TIFF", "desc": "ARN de liquidação comprovando que o reembolso da transação 'incorreta' já havia sido despachado antes do chargeback ser levantado." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance": "High",
+    "manualBase": "Mastercard Chargeback Guide",
+    "manualReference": "Section 4: Processing Errors",
+    "visaManualBase": "VDMG",
+    "visaManualReference": "Dispute Condition 11: Processing Errors"
+  },
+  {
+    "code": "4853",
+    "name": "Cardholder Dispute / Merchandise Not Received",
+    "category": "Consumer Dispute",
+    "visa_equivalent": "13.1",
+    "mastercom_stage": "DMAS",
+    "visa_stage": "Collaboration",
+    "description": "Mercadoria não entregue, mercadoria com defeito, ou prestação de serviço paralisada (exclui fraudes limpas). Também cobre cancelamento de assinatura recorrente (Recurring Billing) ignorado.",
+    "doc_required": "AR dos correios (Assinatura de Recebimento), Termos e Condições explícitos, logs provando o uso do serviço digital, rastreio final com sucesso.",
+    "compelling_evidence": [
+      { "name": "Terms of Service Acceptance", "type": "PDF", "desc": "IP log e timestamp preciso apontando quando o portador do cartão aceitou o ToS e a cláusula formal de cancelamento (não pode ser checkbox pré-marcado)." },
+      { "name": "Digital Usage Log", "type": "TIFF", "desc": "Para SaaS e Infoprodutos: Tabela de logs do servidor mostrando login da conta consumindo o conteúdo de aula/videotech *após* a suposta data de cancelamento argumentada pelo banco." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance": "Medium",
+    "manualBase": "Mastercard Chargeback Guide",
+    "manualReference": "Section 5: Cardholder Disputes",
+    "visaManualBase": "VDMG",
+    "visaManualReference": "Dispute Condition 13: Consumer Disputes"
+  },
+  {
+    "code": "4808",
+    "name": "Authorization-Related Chargeback",
+    "category": "Authorization",
+    "visa_equivalent": "11.3",
+    "mastercom_stage": "DMAS",
+    "visa_stage": "Allocation",
+    "description": "Emissor alega que a transação foi forçada off-line post-decline, o cartão estava no HOT File (bulletin board), ou a transação não obteve autorização de rede e foi lançada em clearing induzido (Force Post).",
+    "doc_required": "Comprovante de Autorização válida emitida pelo Issuer ou pelo Stand-in Processor (STIP).",
+    "compelling_evidence": [
+      { "name": "Banknet/VIP Auth Log", "type": "TXT", "desc": "Linha bruta T-Log da mensagem ISO-8583 (MTI 0110) exibindo o Approval Code emitido pelo emissor e a data (provando que não houve injeção em arquivo Batch offline)." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance": "Medium",
+    "manualBase": "Mastercard Chargeback Guide",
+    "manualReference": "Section 2: Authorization-Related",
+    "visaManualBase": "VDMG",
+    "visaManualReference": "Condition 11.3: No Authorization"
+  },
+  {
+    "code": "4870",
+    "name": "Chip Liability Shift",
+    "category": "Liability",
+    "visa_equivalent": "10.5",
+    "mastercom_stage": "DMAS",
+    "visa_stage": "Allocation",
+    "description": "Cartão físico inteligente (EMV/Chip/PIN) foi processado caindo de nível para tarja magnética no terminal POS porque o adquirente estava com chip leitor quebrado. Resultou em fraude e prejuízo jogado contra o lojista.",
+    "doc_required": "O adquirente não consegue reverter se comprovado fallback indevido gerado por hardware defasado (Regra Global EMVCo).",
+    "compelling_evidence": [
+      { "name": "Terminal Fallback TVR", "type": "PDF", "desc": "Prova através da tag 95 (Terminal Verification Results) e tag 82 (AIP) que atestam que o terminal tomou Technical Fallback obrigatório ditado pelo EMV, e não uma fraude induzida." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance": "Very Low",
+    "manualBase": "Mastercard Chargeback Guide",
+    "manualReference": "Section 6: Point of Interaction Errors",
+    "visaManualBase": "VDMG",
+    "visaManualReference": "Condition 10.5: Visa Fraud Intelligence Liability"
+  }
+]
