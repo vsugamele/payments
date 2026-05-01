@@ -136,19 +136,20 @@ const CASCADE = {
       sublabel: 'Product Code — DE 63 Tag 2',
       icon: CreditCard,
       color: '#6366f1',
-      desc: 'O Product Code identifica o produto Mastercard no IPM. Enviado pelo emissor no PDS Tag 2 dentro do DE 63 da mensagem de clearing.',
+      desc: 'O PROD_ID identifica o produto Mastercard no IPM. Enviado no DE 63 Tag 2 (PDS). Fonte: Mastercard_30_v2.xlsx — coluna EXPRESSION_RULE (variável PROD_ID).',
       values: [
-        { v: 'Maestro',            id: 'MAE', badge: 'básico' },
-        { v: 'Standard',           id: '101', badge: 'base' },
-        { v: 'Gold / Enhanced',    id: '102', badge: 'médio' },
-        { v: 'Platinum / World',   id: '103', badge: 'alto' },
-        { v: 'World Elite',        id: '104', badge: 'premium' },
-        { v: 'Corporate',          id: 'MCO', badge: 'corporativo' },
-        { v: 'Pré-pago',           id: 'MPP', badge: 'regulado' },
-        { v: 'Débito MC',          id: 'MDM', badge: 'regulado' },
+        { v: 'Débito MC',              id: 'MDM', badge: 'regulado' },
+        { v: 'Maestro',                id: 'MAE', badge: 'débito básico' },
+        { v: 'Standard Credit',        id: 'MCC', badge: 'base' },
+        { v: 'Gold Credit',            id: 'MCG', badge: 'médio' },
+        { v: 'World / World Adv.',     id: 'MDW', badge: 'alto' },
+        { v: 'World Elite',            id: 'MBK', badge: 'premium' },
+        { v: 'Corporate',              id: 'MCO', badge: 'corporativo' },
+        { v: 'Pré-pago Refeição',      id: 'MRJ', badge: 'benefício PAT' },
+        { v: 'Pré-pago Alimentação',   id: 'MBF', badge: 'benefício VA/VR' },
       ],
-      campo: 'DE 63 Tag 2 (Product Code / PDS) no IPM — identificado no clearing',
-      downgrade: 'Product Code ausente no IPM → taxa de fallback Standard (101), independente do produto real.',
+      campo: 'DE 63 Tag 2 (PROD_ID / PDS) no IPM — variável usada nas EXPRESSION_RULEs',
+      downgrade: 'PROD_ID ausente no IPM → IRD de fallback RJ (Standard base), independente do produto real.',
     },
     {
       step: 2,
@@ -239,54 +240,99 @@ const MATRIX: Record<Network, MatrixRow[]> = {
     { produto: 'Business',     pid: 'FB',  chip: '0,90%', nfc: '0,90%', ecomm05: '1,00%', ecomm07: '1,40%', moto: '1,40%', mag: '1,40%', regulado: false },
   ],
   mc: [
-    { produto: 'Débito MC',        pid: 'MDM', chip: '0,40%', nfc: '0,40%', ecomm05: '0,50%', ecomm07: '0,50%', moto: '—',     mag: '0,50%', regulado: true  },
-    { produto: 'Maestro',          pid: 'MAE', chip: '0,36%', nfc: '0,36%', ecomm05: '—',     ecomm07: '—',     moto: '—',     mag: '0,50%', regulado: true  },
-    { produto: 'Standard',         pid: '101', chip: '0,36%', nfc: '0,36%', ecomm05: '0,50%', ecomm07: '0,80%', moto: '0,80%', mag: '0,80%', regulado: true  },
-    { produto: 'Gold / Enhanced',  pid: '102', chip: '0,50%', nfc: '0,50%', ecomm05: '0,65%', ecomm07: '1,10%', moto: '1,10%', mag: '1,10%', regulado: false },
-    { produto: 'Platinum / World', pid: '103', chip: '1,20%', nfc: '1,20%', ecomm05: '1,40%', ecomm07: '1,80%', moto: '1,80%', mag: '1,80%', regulado: false },
-    { produto: 'World Elite',      pid: '104', chip: '1,80%', nfc: '1,80%', ecomm05: '2,00%', ecomm07: '2,50%', moto: '2,50%', mag: '2,50%', regulado: false },
-    { produto: 'Corporate',        pid: 'MCO', chip: '0,90%', nfc: '0,90%', ecomm05: '1,00%', ecomm07: '1,40%', moto: '1,40%', mag: '1,40%', regulado: false },
-    { produto: 'Pré-pago',         pid: 'MPP', chip: '0,40%', nfc: '0,40%', ecomm05: '0,50%', ecomm07: '0,50%', moto: '—',     mag: '0,50%', regulado: true  },
+    // PROD_IDs reais conforme Mastercard_30_v2.xlsx (EXPRESSION_RULE / PROD_ID)
+    { produto: 'Débito MC',          pid: 'MDM', chip: '0,40%', nfc: '0,40%', ecomm05: '0,50%', ecomm07: '0,50%', moto: '—',     mag: '0,50%', regulado: true  },
+    { produto: 'Maestro',            pid: 'MAE', chip: '0,36%', nfc: '0,36%', ecomm05: '—',     ecomm07: '—',     moto: '—',     mag: '0,50%', regulado: true  },
+    { produto: 'Standard (MCC)',     pid: 'MCC', chip: '0,36%', nfc: '0,36%', ecomm05: '0,50%', ecomm07: '0,80%', moto: '0,80%', mag: '0,80%', regulado: true  },
+    { produto: 'Gold (MCG)',         pid: 'MCG', chip: '0,50%', nfc: '0,50%', ecomm05: '0,65%', ecomm07: '1,10%', moto: '1,10%', mag: '1,10%', regulado: false },
+    { produto: 'World (MDW)',        pid: 'MDW', chip: '1,20%', nfc: '1,20%', ecomm05: '1,40%', ecomm07: '1,80%', moto: '1,80%', mag: '1,80%', regulado: false },
+    { produto: 'World Elite (MBK)',  pid: 'MBK', chip: '1,80%', nfc: '1,80%', ecomm05: '2,00%', ecomm07: '2,50%', moto: '2,50%', mag: '2,50%', regulado: false },
+    { produto: 'Corporate (MCO)',    pid: 'MCO', chip: '0,90%', nfc: '0,90%', ecomm05: '1,00%', ecomm07: '1,40%', moto: '1,40%', mag: '1,40%', regulado: false },
+    { produto: 'Pré-pago Refeição',  pid: 'MRJ', chip: '0,40%', nfc: '0,40%', ecomm05: '—',     ecomm07: '—',     moto: '—',     mag: '0,50%', regulado: true  },
+    { produto: 'Pré-pago Alimentação', pid: 'MBF', chip: '0,40%', nfc: '0,40%', ecomm05: '—',   ecomm07: '—',     moto: '—',     mag: '0,50%', regulado: true  },
   ],
 };
 
 // ── Parcelamento ──────────────────────────────────────────────────────────────
 
-type ParcRow = { produto: string; pid: string; vista: string; parc2a6: string; parc7a12: string };
+type ParcRow = { produto: string; pid: string; vista: string; parc2a6: string; parc7a21: string; parc22a36?: string };
 
 const PARCELAMENTO: Record<Network, ParcRow[]> = {
   visa: [
-    { produto: 'Classic',   pid: 'F^', vista: '0,36%', parc2a6: '0,50%', parc7a12: '0,65%' },
-    { produto: 'Gold',      pid: 'FN', vista: '0,50%', parc2a6: '0,68%', parc7a12: '0,88%' },
-    { produto: 'Platinum',  pid: 'FP', vista: '1,20%', parc2a6: '1,45%', parc7a12: '1,75%' },
-    { produto: 'Signature', pid: 'FS', vista: '1,50%', parc2a6: '1,75%', parc7a12: '2,10%' },
-    { produto: 'Infinite',  pid: 'FI', vista: '1,80%', parc2a6: '2,10%', parc7a12: '2,60%' },
-    { produto: 'Business',  pid: 'FB', vista: '0,90%', parc2a6: '1,05%', parc7a12: '1,25%' },
+    { produto: 'Classic',   pid: 'F^', vista: '0,36%', parc2a6: '0,50%', parc7a21: '0,65%' },
+    { produto: 'Gold',      pid: 'FN', vista: '0,50%', parc2a6: '0,68%', parc7a21: '0,88%' },
+    { produto: 'Platinum',  pid: 'FP', vista: '1,20%', parc2a6: '1,45%', parc7a21: '1,75%' },
+    { produto: 'Signature', pid: 'FS', vista: '1,50%', parc2a6: '1,75%', parc7a21: '2,10%' },
+    { produto: 'Infinite',  pid: 'FI', vista: '1,80%', parc2a6: '2,10%', parc7a21: '2,60%' },
+    { produto: 'Business',  pid: 'FB', vista: '0,90%', parc2a6: '1,05%', parc7a21: '1,25%' },
   ],
   mc: [
-    { produto: 'Standard',         pid: '101', vista: '0,36%', parc2a6: '0,50%', parc7a12: '0,65%' },
-    { produto: 'Gold / Enhanced',  pid: '102', vista: '0,50%', parc2a6: '0,68%', parc7a12: '0,88%' },
-    { produto: 'Platinum / World', pid: '103', vista: '1,20%', parc2a6: '1,45%', parc7a12: '1,75%' },
-    { produto: 'World Elite',      pid: '104', vista: '1,80%', parc2a6: '2,10%', parc7a12: '2,60%' },
-    { produto: 'Corporate',        pid: 'MCO', vista: '0,90%', parc2a6: '1,05%', parc7a12: '1,25%' },
+    // Bandas reais do Mastercard_30_v2.xlsx: 1×, 2–6×, 7–21×, 22–36× (NUM_INST no DE 48 Tag 0095)
+    { produto: 'Standard',    pid: 'MCC', vista: '0,36%', parc2a6: '0,50%', parc7a21: '0,65%', parc22a36: '0,80%' },
+    { produto: 'Gold',        pid: 'MCG', vista: '0,50%', parc2a6: '0,68%', parc7a21: '0,88%', parc22a36: '1,05%' },
+    { produto: 'World',       pid: 'MDW', vista: '1,20%', parc2a6: '1,45%', parc7a21: '1,75%', parc22a36: '2,00%' },
+    { produto: 'World Elite', pid: 'MBK', vista: '1,80%', parc2a6: '2,10%', parc7a21: '2,40%', parc22a36: '2,60%' },
+    { produto: 'Corporate',   pid: 'MCO', vista: '0,90%', parc2a6: '1,05%', parc7a21: '1,25%', parc22a36: '1,40%' },
   ],
 };
 
 // ── IRD Mastercard ────────────────────────────────────────────────────────────
 
-type IRDRow = { ird: string; desc: string; prodCode: string; canal: string; rate: string; obs?: string };
+type IRDRow = { ird: string; desc: string; prodCode: string; canal: string; rate: string; obs?: string; group?: string };
 
+// Fonte: Mastercard_30_v2.xlsx — sheets "Regras" (114 regras) + "Maestro" (14 regras)
+// Colunas: PRIORITY / RULE_ID / EXPRESSION_RULE / FALLBACK_IRD_REF / IRD / DESCRIPTION
 const IRD_TABLE: IRDRow[] = [
-  { ird: 'IA', desc: 'Debit Merit',                prodCode: 'MDM / MAE', canal: 'Chip / NFC',      rate: '0,40%' },
-  { ird: 'HU', desc: 'Debit e-commerce regulado',  prodCode: 'MDM',       canal: 'E-comm ECI 05',   rate: '0,50%' },
-  { ird: 'AU', desc: 'Merit I (Standard)',          prodCode: '101',       canal: 'Chip EMV',         rate: '0,36%' },
-  { ird: 'JA', desc: 'Enhanced Merit II',           prodCode: '102',       canal: 'Chip / NFC',      rate: '0,50%' },
-  { ird: 'GB', desc: 'World Interchange',           prodCode: '103',       canal: 'Chip / NFC',      rate: '1,20%' },
-  { ird: 'GC', desc: 'World Elite',                 prodCode: '104',       canal: 'Chip / NFC',      rate: '1,80%' },
-  { ird: 'AB', desc: 'Merit I e-comm sem auth',     prodCode: '101',       canal: 'E-comm ECI 07',   rate: '0,80%', obs: 'Non-Auth Fee 2AB3006M' },
-  { ird: 'CB', desc: 'Corporate Card',              prodCode: 'MCO',       canal: 'Chip / NFC',      rate: '0,90%' },
-  { ird: 'WB', desc: 'Prepaid Debit',               prodCode: 'MPP',       canal: 'Chip / NFC',      rate: '0,40%' },
-  { ird: 'FB', desc: 'Fallback (penalidade)',        prodCode: 'todos',     canal: 'Fallback DE22=80', rate: 'max+fee', obs: 'Auditado pelo MFMP' },
+  // ── Débito Doméstico ──────────────────────────────────────────────────────
+  { group: 'Débito Doméstico', ird: 'IA', desc: 'Debit Merit — Chip / Contactless', prodCode: 'MDM / MAE', canal: 'Chip / NFC', rate: '0,40%' },
+  { ird: 'HU', desc: 'Debit E-comm Frictionless (ECSLI 2xx)', prodCode: 'MDM', canal: 'E-comm ECI 05', rate: '0,50%' },
+  { ird: 'VI', desc: 'Micro Merchant Débito Nível I', prodCode: 'MDM', canal: 'Chip / NFC', rate: '0,30%', obs: 'Small merchant MCC' },
+  { ird: 'CO', desc: 'Cash Out / Saque Débito', prodCode: 'MDM / MAE', canal: 'ATM / Caixa', rate: '0,00%', obs: 'PROC_CODE específico' },
+  { ird: 'Q2', desc: 'MoneySend Débito — P2P Dom.', prodCode: 'MDM', canal: 'Dom. débito', rate: '0,00%', obs: 'MC_TRANS_TYPE_IDENTIFIER' },
+  { ird: 'QR', desc: 'MoneySend QR Code', prodCode: 'MDM / MCC', canal: 'QR / Wallet', rate: '0,00%' },
+
+  // ── Pré-pago ──────────────────────────────────────────────────────────────
+  { group: 'Pré-pago', ird: 'ME', desc: 'Prepaid Refeição (PAT/Cesta)', prodCode: 'MRJ / MBM', canal: 'Chip / NFC', rate: '0,40%', obs: 'PROD_ID = MRJ ou MBM' },
+  { ird: 'FD', desc: 'Prepaid Alimentação (VA/VR)', prodCode: 'MBF', canal: 'Chip / NFC', rate: '0,40%', obs: 'PROD_ID = MBF' },
+  { ird: 'ER', desc: 'rePower Prepaid Reload', prodCode: 'MRJ', canal: 'Recarga', rate: '0,50%', obs: 'FLEXIBLE_INTERCHANGE = ER' },
+
+  // ── Crédito PF — Standard (MCC) ──────────────────────────────────────────
+  { group: 'Crédito PF — Standard (MCC)', ird: 'AU', desc: 'Merit I — 1× Chip EMV', prodCode: 'MCC', canal: 'Chip EMV', rate: '0,36%' },
+  { ird: 'AV', desc: 'Merit I — 1× Contactless (PayPass)', prodCode: 'MCC', canal: 'NFC / PayPass', rate: '0,36%', obs: 'PAYPASS_IND = 1' },
+  { ird: 'AW', desc: 'Merit I — 1× E-comm Frictionless', prodCode: 'MCC', canal: 'E-comm ECSLI 2xx', rate: '0,50%', obs: '3DS v2 autenticado' },
+  { ird: 'AB', desc: 'Merit I — 1× E-comm Base (sem auth)', prodCode: 'MCC', canal: 'E-comm ECI 07', rate: '0,80%', obs: 'Non-Auth Fee 2AB3006M' },
+  { ird: 'A2', desc: 'Merit I — 2–6× Parcelado', prodCode: 'MCC', canal: 'Chip / NFC', rate: '0,50%', obs: 'NUM_INST 2–6' },
+  { ird: 'A3', desc: 'Merit I — 7–21× Parcelado', prodCode: 'MCC', canal: 'Chip / NFC', rate: '0,65%', obs: 'NUM_INST 7–21' },
+  { ird: 'AX', desc: 'Merit I — 22–36× Parcelado', prodCode: 'MCC', canal: 'Chip / NFC', rate: '0,80%', obs: 'NUM_INST ≥ 22' },
+
+  // ── Crédito PF — Gold / World / World Elite ───────────────────────────────
+  { group: 'Crédito PF — Gold / World / World Elite', ird: 'JA', desc: 'Enhanced Merit II — 1× Chip (Gold MCG)', prodCode: 'MCG', canal: 'Chip / NFC', rate: '0,50%' },
+  { ird: 'JX', desc: 'Enhanced Merit II — 22–36× (Gold MCG)', prodCode: 'MCG', canal: 'Chip / NFC', rate: '1,05%', obs: 'NUM_INST ≥ 22' },
+  { ird: 'GB', desc: 'World Interchange — 1× Chip (World MDW)', prodCode: 'MDW', canal: 'Chip / NFC', rate: '1,20%' },
+  { ird: 'HX', desc: 'World — 22–36× Parcelado', prodCode: 'MDW', canal: 'Chip / NFC', rate: '2,00%', obs: 'NUM_INST ≥ 22' },
+  { ird: 'GC', desc: 'World Elite — 1× Chip (MBK)', prodCode: 'MBK / MWE', canal: 'Chip / NFC', rate: '1,80%' },
+  { ird: 'IX', desc: 'World Elite — 22–36× Parcelado', prodCode: 'MBK', canal: 'Chip / NFC', rate: '2,60%', obs: 'NUM_INST ≥ 22' },
+
+  // ── Crédito PJ / Comercial ────────────────────────────────────────────────
+  { group: 'Crédito PJ / Comercial', ird: 'CB', desc: 'Corporate Card — Físico', prodCode: 'MCO', canal: 'Chip / NFC', rate: '0,90%', obs: 'DOCUMENT_TYPE = 1 (PJ)' },
+  { ird: 'BB', desc: 'B2B Commercial Card', prodCode: 'MCO', canal: 'Chip / E-comm', rate: '0,90%', obs: 'FLEXIBLE_INTERCHANGE = BB' },
+
+  // ── Programas Especiais ───────────────────────────────────────────────────
+  { group: 'Programas Especiais', ird: 'CR', desc: 'Crediário / CDC Doméstico', prodCode: 'MCC / MCG', canal: 'Chip / NFC', rate: '1,00%', obs: 'FLEXIBLE_INTERCHANGE = CR' },
+  { ird: 'FF', desc: 'Freight / Frete', prodCode: 'MES', canal: 'CNP / E-comm', rate: '0,50%', obs: 'PROD_ID = MES' },
+  { ird: 'E6', desc: 'CPA — Consumer Presented App (QR)', prodCode: 'MAP', canal: 'QR / E-comm', rate: '0,50%', obs: 'PROD_ID = MAP' },
+  { ird: '2A', desc: 'Rewards / Benefícios Premium', prodCode: 'MCC', canal: 'Chip / NFC', rate: '1,50%', obs: 'FLEXIBLE_INTERCHANGE = 2A' },
+  { ird: 'Q1', desc: 'MoneySend Crédito — P2P Dom.', prodCode: 'MCC', canal: 'Dom. crédito', rate: '0,00%', obs: 'MC_TRANS_TYPE_IDENTIFIER' },
+  { ird: 'ZX', desc: 'Humanitarian / Doação', prodCode: 'MWF / DWF', canal: 'Qualquer', rate: '0,00%' },
+
+  // ── Internacional ─────────────────────────────────────────────────────────
+  { group: 'Internacional', ird: 'YA', desc: 'International Standard Consumer', prodCode: 'MCC / MCG', canal: 'Chip / NFC', rate: '1,20%', obs: 'ISSR_COUNTRY ≠ ACQR_COUNTRY' },
+  { ird: 'YI', desc: 'International World Elite', prodCode: 'MBK', canal: 'Chip / NFC', rate: '2,10%', obs: 'ISSR_COUNTRY ≠ ACQR_COUNTRY' },
+  { ird: 'LD', desc: 'International Debit / Maestro', prodCode: 'MDM / MAE', canal: 'Chip / NFC', rate: '0,50%' },
+
+  // ── Fallback ──────────────────────────────────────────────────────────────
+  { group: 'Fallback', ird: 'RJ', desc: 'Fallback Base (sem regra específica)', prodCode: 'MCC', canal: 'Qualquer', rate: '0,80%', obs: 'FALLBACK_IRD_REF padrão do xlsx' },
+  { ird: 'FB', desc: 'Fallback Penalidade — Mag/Tarja', prodCode: 'todos', canal: 'DE 22 = 80/90', rate: 'max+fee', obs: 'Auditado pelo MFMP' },
 ];
 
 // ── Tokenização ───────────────────────────────────────────────────────────────
@@ -689,17 +735,17 @@ export default function MatrixClient() {
               <p className="text-sm text-muted-foreground mb-4 ml-3">
                 {net === 'visa'
                   ? 'PIDs Visa (Campo AFS) × modalidade de captura. Taxas indicativas BR.'
-                  : 'Product Codes MC (DE 63 Tag 2) × modalidade de captura. Taxas indicativas BR.'}
+                  : 'PROD_IDs MC (DE 63 Tag 2) × modalidade de captura. Base: Mastercard_30_v2.xlsx. Taxas indicativas BR.'}
               </p>
 
               <div className="mb-3 p-3 rounded-lg text-xs"
                 style={{ background: `${cfg.color}08`, borderLeft: `3px solid ${cfg.color}` }}>
                 <strong style={{ color: cfg.color }}>
-                  {net === 'visa' ? 'Visa PID' : 'MC Product Code'}:
+                  {net === 'visa' ? 'Visa PID' : 'MC PROD_ID'}:
                 </strong>{' '}
                 {net === 'visa'
                   ? 'identificador de produto no Field 61.5 (AFS) do BASE II. Emissores regulados (BACEN 3.887) têm teto de 0,50% na média.'
-                  : 'identificador no DE 63 Tag 2 do IPM. IRD (Interchange Rate Designator) mapeia Product Code + canal → taxa final. Teto BACEN 0,50% para regulados.'}
+                  : 'variável PROD_ID nas EXPRESSION_RULEs do IPM (DE 63 Tag 2). IRD mapeia PROD_ID + CARD_PRESENT_ID + ECSLI + NUM_INST → taxa final. Teto BACEN 0,50% para regulados.'}
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-border">
@@ -786,15 +832,15 @@ export default function MatrixClient() {
                   { title: 'Custo de não usar 3DS', icon: ShieldX, color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.2)',
                     desc: net === 'visa'
                       ? 'Classic (F^) regulado: ECI 07 (0,80%) vs ECI 05 (0,50%) = +0,30 p.p. Em 1M txns de R$100 = R$300k/mês a mais.'
-                      : 'Standard (101) regulado: ECI 07 (0,80%) vs ECI 05 (0,50%) = +0,30 p.p. Cobrado via Non-Auth Fee 2AB3006M no MCBS.' },
+                      : 'Standard (MCC) regulado: IRD AB (0,80%) vs IRD AW (0,50%) = +0,30 p.p. + Non-Auth Fee 2AB3006M cobrado no MCBS.' },
                   { title: 'Premium vs base', icon: CreditCard, color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)',
                     desc: net === 'visa'
                       ? 'Infinite (FI) chip (1,80%) vs Classic (F^) chip (0,36%) = +1,44 p.p. Razão para emissores lançarem produtos premium.'
-                      : 'World Elite (104) chip (1,80%) vs Standard (101) chip (0,36%) = +1,44 p.p. Fee cobrado via MCBS MTI 1740.' },
+                      : 'World Elite (MBK) chip IRD GC (1,80%) vs Standard (MCC) chip IRD AU (0,36%) = +1,44 p.p. Fee cobrado via MCBS MTI 1740.' },
                   { title: 'MOTO vs E-commerce 3DS', icon: Phone, color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.2)',
                     desc: net === 'visa'
                       ? 'Classic MOTO (0,80%) vs Classic e-comm ECI 05 (0,50%) = +0,30 p.p. + sem liability shift. MOTO não suporta 3DS.'
-                      : 'Standard MOTO (0,80%) vs Standard e-comm ECI 05 (0,50%) = +0,30 p.p. + sem liability shift. IRD AB vs AU.' },
+                      : 'Standard MOTO (0,80%) vs Standard e-comm ECI 05 (0,50%) = +0,30 p.p. + sem liability shift. IRD AB vs IRD AW (ECSLI 2xx).' },
                 ].map(({ title, icon: Icon, color, bg, border, desc }) => (
                   <div key={title} className="rounded-xl border p-4" style={{ background: bg, borderColor: border }}>
                     <div className="flex items-center gap-2 mb-2">
@@ -823,7 +869,7 @@ export default function MatrixClient() {
                 <strong className="text-amber-400">Campo técnico:</strong>{' '}
                 {net === 'visa'
                   ? 'Field 54 (Additional Amounts) no BASE II indica número de parcelas. Field 26 (MCC) + PID + parcelas determinam o rate qualifier de parcelamento.'
-                  : 'DE 48 subfield 95 (Installment Data) no IPM indica número de parcelas. O IRD de parcelamento difere do IRD à vista para o mesmo Product Code.'}
+                  : 'DE 48 Tag 0095 (NUM_INST) no IPM indica número de parcelas. Mastercard BR tem 4 bandas: 1×, 2–6×, 7–21×, 22–36×. Cada banda gera um IRD diferente.'}
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-border">
@@ -832,7 +878,7 @@ export default function MatrixClient() {
                     <tr className="border-b border-border bg-muted/40">
                       <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Produto</th>
                       <th className="text-center px-3 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: cfg.color }}>
-                        {net === 'visa' ? 'PID' : 'Code'}
+                        {net === 'visa' ? 'PID' : 'PROD_ID'}
                       </th>
                       <th className="text-center px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         <div className="flex flex-col items-center gap-0.5">
@@ -848,18 +894,27 @@ export default function MatrixClient() {
                       </th>
                       <th className="text-center px-4 py-3 text-xs font-bold text-orange-400 uppercase tracking-wider">
                         <div className="flex flex-col items-center gap-0.5">
-                          <span>7× – 12×</span>
+                          <span>{net === 'mc' ? '7× – 21×' : '7× – 12×'}</span>
                           <span className="text-[9px] opacity-60">parcelado</span>
                         </div>
                       </th>
+                      {net === 'mc' && (
+                        <th className="text-center px-4 py-3 text-xs font-bold text-red-400 uppercase tracking-wider">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span>22× – 36×</span>
+                            <span className="text-[9px] opacity-60">longo prazo</span>
+                          </div>
+                        </th>
+                      )}
                       <th className="text-center px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                        Delta 7–12×
+                        {net === 'mc' ? 'Delta 22–36×' : 'Delta 7–12×'}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {PARCELAMENTO[net].map((row, i) => {
-                      const delta = (parseFloat(row.parc7a12.replace(',', '.')) - parseFloat(row.vista.replace(',', '.'))).toFixed(2).replace('.', ',');
+                      const lastBand = net === 'mc' && row.parc22a36 ? row.parc22a36 : row.parc7a21;
+                      const delta = (parseFloat(lastBand.replace(',', '.')) - parseFloat(row.vista.replace(',', '.'))).toFixed(2).replace('.', ',');
                       return (
                         <tr key={i} className={`border-b border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/15'}`}>
                           <td className="px-4 py-3 font-semibold text-foreground text-sm">{row.produto}</td>
@@ -874,8 +929,15 @@ export default function MatrixClient() {
                             <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.parc2a6)}`}>{row.parc2a6}</span>
                           </td>
                           <td className="px-3 py-3 text-center">
-                            <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.parc7a12)}`}>{row.parc7a12}</span>
+                            <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.parc7a21)}`}>{row.parc7a21}</span>
                           </td>
+                          {net === 'mc' && (
+                            <td className="px-3 py-3 text-center">
+                              <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.parc22a36 ?? '—')}`}>
+                                {row.parc22a36 ?? '—'}
+                              </span>
+                            </td>
+                          )}
                           <td className="px-3 py-3 text-center">
                             <span className="text-xs font-bold tabular-nums px-2 py-0.5 rounded text-orange-400 bg-orange-500/10">
                               +{delta} p.p.
@@ -1042,7 +1104,7 @@ export default function MatrixClient() {
                 <>
                   <div className="mb-3 p-3 rounded-lg text-xs bg-red-500/8 border border-red-500/20">
                     <strong className="text-red-400">Campo técnico MC:</strong>{' '}
-                    IRD presente no DE 63 Tag 7 do IPM. Verificar na fatura MCBS se o IRD cobrado bate com o esperado para o Product Code + Canal da transação.
+                    IRD presente no DE 63 Tag 7 do IPM. Fonte: <span className="font-mono">Mastercard_30_v2.xlsx</span> — 114 regras (sheet &quot;Regras&quot;) + 14 Maestro. Verificar na fatura MCBS se o IRD cobrado bate com o esperado para PROD_ID + Canal + NUM_INST da transação.
                   </div>
                   <div className="overflow-x-auto rounded-xl border border-border">
                     <table className="w-full text-sm">
@@ -1050,34 +1112,59 @@ export default function MatrixClient() {
                         <tr className="border-b border-border bg-muted/40">
                           <th className="text-center px-3 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: '#ef4444' }}>IRD</th>
                           <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Descrição</th>
-                          <th className="text-center px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Product Code</th>
+                          <th className="text-center px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">PROD_ID</th>
                           <th className="text-left px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Canal</th>
                           <th className="text-center px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Taxa</th>
-                          <th className="text-left px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Obs.</th>
+                          <th className="text-left px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Obs. / EXPRESSION_RULE</th>
                         </tr>
                       </thead>
                       <tbody>
                         {IRD_TABLE.map((row, i) => (
-                          <tr key={i} className={`border-b border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/15'}`}>
-                            <td className="px-3 py-3 text-center">
-                              <span className="font-mono text-sm font-black px-2.5 py-1 rounded bg-red-500/15 text-red-400">{row.ird}</span>
-                            </td>
-                            <td className="px-4 py-3 text-foreground font-medium text-sm">{row.desc}</td>
-                            <td className="px-3 py-3 text-center">
-                              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-400">{row.prodCode}</span>
-                            </td>
-                            <td className="px-3 py-3 text-muted-foreground text-xs">{row.canal}</td>
-                            <td className="px-3 py-3 text-center">
-                              <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.rate)}`}>{row.rate}</span>
-                            </td>
-                            <td className="px-3 py-3 text-xs text-muted-foreground/70 italic">{row.obs ?? '—'}</td>
-                          </tr>
+                          row.group ? (
+                            <>
+                              <tr key={`g-${i}`} className="border-b border-border">
+                                <td colSpan={6} className="px-4 py-2 text-[10px] font-black uppercase tracking-widest"
+                                  style={{ background: 'rgba(239,68,68,0.06)', color: '#ef4444' }}>
+                                  {row.group}
+                                </td>
+                              </tr>
+                              <tr key={i} className="border-b border-border/60">
+                                <td className="px-3 py-2.5 text-center">
+                                  <span className="font-mono text-sm font-black px-2.5 py-1 rounded bg-red-500/15 text-red-400">{row.ird}</span>
+                                </td>
+                                <td className="px-4 py-2.5 text-foreground font-medium text-sm">{row.desc}</td>
+                                <td className="px-3 py-2.5 text-center">
+                                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-400">{row.prodCode}</span>
+                                </td>
+                                <td className="px-3 py-2.5 text-muted-foreground text-xs">{row.canal}</td>
+                                <td className="px-3 py-2.5 text-center">
+                                  <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.rate)}`}>{row.rate}</span>
+                                </td>
+                                <td className="px-3 py-2.5 text-xs text-muted-foreground/70 italic">{row.obs ?? '—'}</td>
+                              </tr>
+                            </>
+                          ) : (
+                            <tr key={i} className={`border-b border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/15'}`}>
+                              <td className="px-3 py-2.5 text-center">
+                                <span className="font-mono text-sm font-black px-2.5 py-1 rounded bg-red-500/15 text-red-400">{row.ird}</span>
+                              </td>
+                              <td className="px-4 py-2.5 text-foreground font-medium text-sm">{row.desc}</td>
+                              <td className="px-3 py-2.5 text-center">
+                                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-400">{row.prodCode}</span>
+                              </td>
+                              <td className="px-3 py-2.5 text-muted-foreground text-xs">{row.canal}</td>
+                              <td className="px-3 py-2.5 text-center">
+                                <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${rateColor(row.rate)}`}>{row.rate}</span>
+                              </td>
+                              <td className="px-3 py-2.5 text-xs text-muted-foreground/70 italic">{row.obs ?? '—'}</td>
+                            </tr>
+                          )
                         ))}
                       </tbody>
                     </table>
                   </div>
                   <div className="mt-3 p-3 rounded-lg text-xs bg-muted/20 border border-border text-muted-foreground">
-                    <strong className="text-foreground">Como usar:</strong> Ao auditar a fatura MCBS, compare o IRD de cada linha com o Product Code (DE 63 Tag 2) e Canal (DE 22) da transação. IRD inesperado = downgrade ou erro de cadastro.
+                    <strong className="text-foreground">Como usar:</strong> Ao auditar a fatura MCBS, compare o IRD de cada linha com o PROD_ID (DE 63 Tag 2), Canal (DE 22) e NUM_INST (DE 48 Tag 0095) da transação. IRD inesperado = downgrade ou erro de cadastro.
                   </div>
                 </>
               ) : (
