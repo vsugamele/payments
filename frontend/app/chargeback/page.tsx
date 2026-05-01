@@ -3,8 +3,10 @@ import Link from 'next/link';
 import {
   AlertTriangle, Clock, ArrowRight, ArrowLeft, CheckCircle2,
   XCircle, ShieldCheck, FileText, Users, Building2, CreditCard,
-  Scale, Timer, AlertOctagon,
+  Scale, Timer, AlertOctagon, Sparkles
 } from 'lucide-react';
+import AIAssistant from '@/components/AIAssistant';
+import DisputeSimulator from '@/components/DisputeSimulator';
 
 export const metadata: Metadata = {
   title: 'Chargeback — Ciclo de Disputa | VS Payments',
@@ -236,25 +238,15 @@ export default function ChargebackPage() {
             prazos, reason codes, liability shift, VROL×MCOM e estratégias de defesa
             para adquirentes e subadquirentes.
           </p>
+        </div>
 
-          {/* Stats strip */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            {[
-              { icon: Clock,        label: '120 dias',       desc: 'Prazo máximo do portador' },
-              { icon: AlertTriangle, label: '6 fases',       desc: 'Do pedido à arbitragem' },
-              { icon: Scale,        label: 'USD 500 / 250',  desc: 'Taxa de arbitragem' },
-              { icon: ShieldCheck,  label: 'ECI 05',         desc: 'Proteção máxima (3DS)' },
-            ].map(({ icon: Icon, label, desc }) => (
-              <div key={label}
-                className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-2.5">
-                <Icon size={15} className="text-primary shrink-0" />
-                <div>
-                  <div className="text-sm font-bold text-foreground leading-none">{label}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{desc}</div>
-                </div>
-              </div>
-            ))}
+        {/* Interactive Simulator Section */}
+        <div className="mb-14">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles size={18} className="text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Ferramenta Forense de Disputas</h2>
           </div>
+          <DisputeSimulator />
         </div>
 
         <div className="flex gap-10 items-start">
@@ -363,37 +355,45 @@ export default function ChargebackPage() {
                 de maior volume e risco para e-commerce sem 3DS.
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-border">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-border bg-muted/40">
-                      <th className="text-left px-4 py-3 text-xs font-bold text-blue-400 uppercase tracking-wider w-20">Visa</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-red-400 uppercase tracking-wider w-20">MC</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Descrição</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider w-40">Liability padrão</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide text-[10px]">Visa</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide text-[10px]">Mastercard</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide text-[10px]">Descrição</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide text-[10px]">Liability</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {REASON_CODES.map((r, i) => (
-                      <tr key={i} className={`border-b border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/20'}`}>
-                        <td className="px-4 py-3 font-mono text-xs font-bold text-blue-400">{r.visa}</td>
-                        <td className="px-4 py-3 font-mono text-xs font-bold text-red-400">{r.mc}</td>
-                        <td className="px-4 py-3 text-muted-foreground text-sm">{r.desc}</td>
-                        <td className="px-4 py-3">
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                            r.liability === 'emissor'
-                              ? 'bg-green-500/12 text-green-400'
-                              : r.liability === 'adquirente'
-                              ? 'bg-red-500/12 text-red-400'
-                              : 'bg-amber-500/12 text-amber-400'
+                    {REASON_CODES.map((rc, i) => (
+                      <tr key={i} className="border-b border-border/40 hover:bg-white/[0.02]">
+                        <td className="py-2 px-3 font-mono text-primary font-semibold">{rc.visa}</td>
+                        <td className="py-2 px-3 font-mono text-amber-400">{rc.mc}</td>
+                        <td className="py-2 px-3 text-foreground/80">{rc.desc}</td>
+                        <td className="py-2 px-3">
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            rc.liability === 'emissor'
+                              ? 'bg-green-500/15 text-green-400'
+                              : rc.liability === 'adquirente'
+                              ? 'bg-red-500/15 text-red-400'
+                              : 'bg-yellow-500/15 text-yellow-400'
                           }`}>
-                            {r.liability === 'emissor' ? 'Emissor' : r.liability === 'adquirente' ? 'Adquirente' : 'Condicional'}
+                            {rc.liability}
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="mt-4">
+                <AIAssistant 
+                  toolName="Tabela de Reason Codes"
+                  triggerLabel="Analisar Reason Codes com IA"
+                  context="Tabela de equivalência Visa x Mastercard para fraude, autorização e processamento. Analise as diferenças de prazos e evidências entre as bandeiras."
+                />
               </div>
             </Section>
 

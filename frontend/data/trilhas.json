@@ -312,6 +312,85 @@
           ]
         }
       ]
+    },
+    {
+      "id": "chargeback-e-disputas",
+      "titulo": "Chargeback e Disputas",
+      "subtitulo": "Reason codes, representment, CE 3.0 e como defender o lojista",
+      "descricao": "Para quem lida com gestão de disputas, prevenção a chargebacks e compliance. Entenda o ciclo completo: da reclamação do portador ao representment, reason codes Visa e Mastercard, e o framework CE 3.0.",
+      "nivel": "Intermediário",
+      "cor": "#ef4444",
+      "cor_fundo": "rgba(239,68,68,0.08)",
+      "cor_borda": "rgba(239,68,68,0.2)",
+      "tempo_total": "55 min",
+      "icone": "AlertTriangle",
+      "modulos": [
+        {
+          "id": "fundamentos",
+          "titulo": "Fundamentos do Chargeback",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "ciclo-de-disputa",
+              "titulo": "O ciclo de uma disputa",
+              "descricao": "Da reclamação do portador ao encerramento: retrieval, chargeback, representment e arbitragem",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["Chargeback", "Representment", "Retrieval", "Arbitragem", "Bandeira"]
+            },
+            {
+              "id": "reason-codes-visa",
+              "titulo": "Reason codes Visa: 10.x, 11.x, 12.x, 13.x",
+              "descricao": "Os quatro grupos de reason codes Visa — fraude, autorização, erros de processamento e disputas de serviço",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["Reason Code", "RC 10.4", "RC 11.3", "RC 12.6", "RC 13.1", "Visa Secure"]
+            }
+          ]
+        },
+        {
+          "id": "defesa",
+          "titulo": "Defesa do Lojista",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "representment-pratico",
+              "titulo": "Representment: como montar uma defesa sólida",
+              "descricao": "Documentação necessária, prazos, armadilhas comuns e quando não vale a pena disputar",
+              "tempo": "11 min",
+              "tipo": "conceito",
+              "termos": ["Representment", "Compelling Evidence", "ARN", "Prazo", "PRE"]
+            },
+            {
+              "id": "compelling-evidence-30",
+              "titulo": "CE 3.0: combatendo friendly fraud com dados",
+              "descricao": "Como o Compelling Evidence 3.0 usa transações anteriores não disputadas para reverter chargebacks de fraude amigável",
+              "tempo": "11 min",
+              "tipo": "conceito",
+              "termos": ["CE 3.0", "Friendly Fraud", "Prior Transaction", "PDS Tag 75", "RC 10.4"],
+              "simulador": {
+                "label": "Ler artigo técnico completo sobre CE 3.0",
+                "href": "/artigos/compelling-evidence-3-0"
+              }
+            }
+          ]
+        },
+        {
+          "id": "prevencao",
+          "titulo": "Prevenção",
+          "numero": 3,
+          "licoes": [
+            {
+              "id": "reducao-de-chargebacks",
+              "titulo": "Estratégias de redução de chargebacks",
+              "descricao": "3DS, AVS, CVV, Device Fingerprinting e descritores de fatura — o que funciona e por quê",
+              "tempo": "11 min",
+              "tipo": "conceito",
+              "termos": ["3DS", "AVS", "CVV", "Device Fingerprint", "Descritor de Fatura"]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

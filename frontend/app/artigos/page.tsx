@@ -25,6 +25,17 @@ const ARTICLES = [
     published: true,
   },
   {
+    slug: "compelling-evidence-3-0",
+    tag: "Técnico",
+    title: "Compelling Evidence 3.0: Como a Visa Combate Fraude Amigável",
+    excerpt:
+      "Guia técnico completo do CE 3.0 da Visa: critérios de elegibilidade, campos BASE II (DE 60/PDS), reason codes 10.4 e 13.1, comparativo com CE 2.0 e fluxo prático de submissão.",
+    date: "28 Abr 2026",
+    readTime: "10 min",
+    featured: false,
+    published: true,
+  },
+  {
     slug: "releases-bandeiras-q2-2026",
     tag: "Regulatório",
     title: "O que esperar dos Releases das Bandeiras — Abril/Q2 2026",
@@ -38,13 +49,13 @@ const ARTICLES = [
   {
     slug: "intercambio-guia-completo",
     tag: "Técnico",
-    title: "Intercâmbio: Guia Completo para Adquirentes e Emissores",
+    title: "Intercâmbio: Guia Completo para Adquirentes e Sub-adquirentes",
     excerpt:
-      "Entenda como as taxas de intercâmbio funcionam, quem define, como são calculadas e quais fatores influenciam o custo final para lojistas e emissores.",
-    date: "Em breve",
-    readTime: "10 min",
-    featured: false,
-    published: false,
+      "A cascata de 5 decisões que define qual taxa é aplicada, por que ela pode mudar silenciosamente (downgrade) e como verificar se você está pagando o correto.",
+    date: "28 Abr 2026",
+    readTime: "12 min",
+    featured: true,
+    published: true,
   },
   {
     slug: "3ds-autenticacao-ecommerce",

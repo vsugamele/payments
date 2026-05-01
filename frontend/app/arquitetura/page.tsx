@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import FlowDiagram from "@/components/FlowEcosystem/FlowDiagram";
 
 export default function ArquiteturaPage() {
@@ -13,8 +14,10 @@ export default function ArquiteturaPage() {
           Explore o fluxo completo de transação (Autorização → Clearing → Liquidação) comparando as malhas VisaNet (VSS) e Banknet (IPM).
         </p>
       </div>
-      
-      <FlowDiagram />
+
+      <Suspense fallback={<div className="flex items-center justify-center h-96 text-muted-foreground text-sm">Carregando diagrama…</div>}>
+        <FlowDiagram />
+      </Suspense>
     </div>
   );
 }

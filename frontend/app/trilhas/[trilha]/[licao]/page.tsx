@@ -1969,6 +1969,442 @@ const CONTEUDO: Record<string, React.ReactNode> = {
       </div>
     </>
   ),
+
+  // ── Trilha 5: Chargeback e Disputas ──────────────────────────────────────────
+
+  "ciclo-de-disputa": (
+    <>
+      <p>
+        Um chargeback começa com uma reclamação. Mas entre a reclamação do portador e o
+        encerramento do caso existe um ciclo formal com etapas bem definidas, prazos rígidos
+        e responsabilidades distribuídas entre todos os participantes da cadeia.
+      </p>
+
+      <h2>Fase 1 — Reclamação do portador</h2>
+      <p>
+        O portador contata o emissor (banco) e contesta uma transação. Motivos comuns: não
+        reconhece a compra, produto não entregue, cobrança duplicada. O emissor registra a
+        solicitação e decide se abre a disputa.
+      </p>
+
+      <h2>Fase 2 — Retrieval Request (opcional)</h2>
+      <p>
+        Em alguns casos, antes de abrir o chargeback formal, o emissor envia um{" "}
+        <strong>retrieval request</strong> (ou copy request): pede ao adquirente documentação
+        da transação (comprovante, recibo). Se o adquirente não responde no prazo, o emissor
+        pode converter diretamente em chargeback.
+      </p>
+      <div className="callout">
+        <strong>Prazo típico:</strong> 30 dias corridos para o adquirente responder a um
+        retrieval. A não-resposta é considerada confirmação implícita da disputa.
+      </div>
+
+      <h2>Fase 3 — Chargeback (First Presentment Reversal)</h2>
+      <p>
+        O emissor abre o chargeback formal na bandeira. O valor é debitado do adquirente e
+        creditado provisoriamente ao portador. A bandeira notifica o adquirente com:
+      </p>
+      <ul>
+        <li>O <strong>reason code</strong> — a razão formal da disputa</li>
+        <li>O valor e a data limite para resposta</li>
+        <li>O ARN (Acquirer Reference Number) da transação original</li>
+      </ul>
+
+      <h2>Fase 4 — Representment (Second Presentment)</h2>
+      <p>
+        O adquirente — geralmente em nome do lojista — responde ao chargeback com evidências
+        que provam que a transação foi válida. Esse processo se chama{" "}
+        <strong>representment</strong>. O adquirente reenvia a transação com a documentação
+        de defesa pelo arquivo de clearing (BASE II / IPM).
+      </p>
+
+      <h2>Fase 5 — Arbitragem</h2>
+      <p>
+        Se o emissor não aceitar o representment, ele pode escalar para arbitragem da bandeira.
+        A Visa ou Mastercard analisa as evidências dos dois lados e decide. A parte perdedora
+        paga uma taxa de arbitragem (USD 500 a USD 1.000+). Por isso, casos fracos raramente
+        chegam até aqui.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Fase</th>
+            <th>Quem age</th>
+            <th>Prazo típico</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Reclamação</td><td>Portador → Emissor</td><td>Até 120 dias da transação</td></tr>
+          <tr><td>Chargeback</td><td>Emissor → Bandeira → Adquirente</td><td>Emissor tem 120 dias</td></tr>
+          <tr><td>Representment</td><td>Adquirente</td><td>30 dias após chargeback</td></tr>
+          <tr><td>Pré-arbitragem</td><td>Emissor</td><td>30 dias após representment</td></tr>
+          <tr><td>Arbitragem</td><td>Bandeira decide</td><td>Sem prazo fixo</td></tr>
+        </tbody>
+      </table>
+
+      <div className="callout">
+        <strong>Regra prática:</strong> A cada chargeback não respondido, o adquirente perde
+        o valor automaticamente. Responder com representment, mesmo com chances incertas, quase
+        sempre compensa — o custo de não responder é o valor total da transação.
+      </div>
+    </>
+  ),
+
+  "reason-codes-visa": (
+    <>
+      <p>
+        Todo chargeback Visa tem um <strong>reason code</strong> — um código de dois números
+        separados por ponto que identifica a razão formal da disputa. Entender os grupos de
+        reason codes é o passo mais importante para saber como defender cada caso.
+      </p>
+      <p>
+        A Visa usa quatro grupos, cada um com uma lógica distinta:
+      </p>
+
+      <h2>Grupo 10 — Fraude</h2>
+      <p>
+        Portador alega que não autorizou a transação, ou que houve uso indevido do cartão.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nome</th><th>Situação típica</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>10.1</code></td>
+            <td>EMV Liability Shift – CNP</td>
+            <td>Transação CNP com token, mas autenticação inadequada</td>
+          </tr>
+          <tr>
+            <td><code>10.2</code></td>
+            <td>EMV Liability Shift – Counterfeit</td>
+            <td>Cartão falsificado usado em POS sem chip</td>
+          </tr>
+          <tr>
+            <td><code>10.3</code></td>
+            <td>Other Fraud – Card Present</td>
+            <td>Fraude em transação física, cartão presente</td>
+          </tr>
+          <tr>
+            <td><code>10.4</code></td>
+            <td>Other Fraud – Card Absent</td>
+            <td>Fraude em e-commerce / telefone (CNP)</td>
+          </tr>
+          <tr>
+            <td><code>10.5</code></td>
+            <td>Visa Fraud Monitoring Program</td>
+            <td>Lojista em programa de monitoramento VFMP</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="callout">
+        <strong>10.4 é o mais comum</strong> em e-commerce. O CE 3.0 (próxima lição) foi
+        criado especificamente para combater chargebacks 10.4 de friendly fraud.
+      </div>
+
+      <h2>Grupo 11 — Autorização</h2>
+      <p>
+        Problemas na autorização: não foi solicitada, foi negada mas processou, ou os dados
+        estavam incorretos.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nome</th><th>Causa</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>11.1</code></td><td>Card Recovery Bulletin</td><td>Cartão listado como recuperado/bloqueado</td></tr>
+          <tr><td><code>11.2</code></td><td>Declined Authorization</td><td>Transação processada após negativa do emissor</td></tr>
+          <tr><td><code>11.3</code></td><td>No Authorization</td><td>Transação sem autorização prévia válida</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Grupo 12 — Erros de Processamento</h2>
+      <p>
+        Erros técnicos: valor incorreto, múltipla captura, transação inválida.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nome</th><th>Causa</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>12.1</code></td><td>Late Presentment</td><td>Transação submetida ao clearing fora do prazo</td></tr>
+          <tr><td><code>12.2</code></td><td>Incorrect Transaction Code</td><td>Crédito processado como débito (ou vice-versa)</td></tr>
+          <tr><td><code>12.3</code></td><td>Incorrect Currency</td><td>Moeda diferente da autorizada</td></tr>
+          <tr><td><code>12.6</code></td><td>Duplicate Processing</td><td>Mesma transação enviada ao clearing duas vezes</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Grupo 13 — Disputas de Serviço</h2>
+      <p>
+        Portador recebeu o produto/serviço mas tem uma reclamação legítima.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nome</th><th>Causa</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>13.1</code></td><td>Merchandise/Services Not Received</td><td>Produto não entregue ou serviço não prestado</td></tr>
+          <tr><td><code>13.2</code></td><td>Cancelled Recurring</td><td>Cobrança recorrente após cancelamento</td></tr>
+          <tr><td><code>13.3</code></td><td>Not as Described</td><td>Produto diferente do descrito</td></tr>
+          <tr><td><code>13.4</code></td><td>Counterfeit Merchandise</td><td>Produto falsificado entregue</td></tr>
+          <tr><td><code>13.6</code></td><td>Credit Not Processed</td><td>Reembolso prometido mas não creditado</td></tr>
+          <tr><td><code>13.7</code></td><td>Cancelled Merchandise / Services</td><td>Cobrança após cancelamento do serviço</td></tr>
+        </tbody>
+      </table>
+
+      <div className="callout">
+        <strong>Dica operacional:</strong> O reason code determina a estratégia de defesa. Para
+        10.4 e 13.1, o CE 3.0 pode ser o caminho mais rápido. Para 12.6 (duplicata), basta
+        provar que a segunda transação é a mesma e solicitar o cancelamento.
+      </div>
+    </>
+  ),
+
+  "representment-pratico": (
+    <>
+      <p>
+        Representment é a resposta formal do adquirente a um chargeback. É a oportunidade de
+        apresentar evidências que provem que a transação foi válida — e recuperar o valor debitado.
+        Feito corretamente, pode reverter 40–70% dos chargebacks dependendo do setor.
+      </p>
+
+      <h2>O que é evidência válida?</h2>
+      <p>
+        A evidência depende do reason code. Não existe uma resposta universal — cada grupo
+        exige um tipo diferente de prova:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Reason Code</th><th>Evidências aceitas</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>10.4</code> (fraude CNP)</td>
+            <td>CE 3.0 com prior transaction + device ID; prova de entrega no mesmo IP; histórico de uso sem disputas anteriores</td>
+          </tr>
+          <tr>
+            <td><code>13.1</code> (não recebido)</td>
+            <td>Rastreamento de entrega com assinatura; confirmação de download/acesso digital; contato do portador confirmando recebimento</td>
+          </tr>
+          <tr>
+            <td><code>13.2</code> (recorrente)</td>
+            <td>Termos de serviço assinados; e-mail de aviso de renovação; falta de solicitação de cancelamento</td>
+          </tr>
+          <tr>
+            <td><code>12.6</code> (duplicata)</td>
+            <td>Prova de que são transações diferentes (datas distintas, valores, ARNs)</td>
+          </tr>
+          <tr>
+            <td><code>11.2</code> (autorização negada)</td>
+            <td>Evidência de nova autorização aprovada para a mesma transação</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Prazos — a armadilha mais comum</h2>
+      <p>
+        O prazo para responder um chargeback é rígido e varia por razão. Perder o prazo é
+        perder o caso automaticamente, independente da qualidade da defesa.
+      </p>
+      <div className="callout">
+        <strong>Regra geral Visa:</strong> 30 dias corridos a partir da data do chargeback
+        para submeter o representment. Após esse prazo, o valor é definitivamente debitado.
+      </div>
+
+      <h2>Quando NÃO representar</h2>
+      <p>
+        Nem todo chargeback vale a pena disputar. Calcule o custo-benefício:
+      </p>
+      <ul>
+        <li>
+          <strong>Valor baixo ({"<"} R$ 30):</strong> o custo operacional de montar a defesa
+          muitas vezes supera o valor a recuperar.
+        </li>
+        <li>
+          <strong>Sem evidências:</strong> representment sem documentação adequada piora seu
+          histórico de disputas — bandeiras monitoram a taxa de reverso de representment.
+        </li>
+        <li>
+          <strong>Erro próprio (12.x):</strong> se você processou em duplicata ou com valor
+          errado, a melhor resposta é emitir o crédito proativamente antes do chargeback.
+        </li>
+        <li>
+          <strong>Portador tem razão:</strong> insistir em um caso perdedor leva a arbitragem
+          e multa da bandeira (USD 500+).
+        </li>
+      </ul>
+
+      <h2>Erros que invalidam o representment</h2>
+      <ul>
+        <li>Documentos ilegíveis ou incompletos</li>
+        <li>Evidência fora do escopo do reason code</li>
+        <li>Não incluir o ARN ou referência da transação original</li>
+        <li>Submeter fora do prazo por 1 dia (sem exceção)</li>
+        <li>Reapresentar um caso já arbitrado pela bandeira</li>
+      </ul>
+
+      <div className="callout">
+        <strong>Best practice:</strong> Automatize a triagem de chargebacks. Classifique por
+        reason code, valor e disponibilidade de evidência. Dispute apenas casos com {">"} 60%
+        de chance estimada de reverso. Isso maximiza o win rate e protege seu histórico.
+      </div>
+    </>
+  ),
+
+  "compelling-evidence-30": (
+    <>
+      <p>
+        Friendly fraud é quando um portador realiza uma compra legítima e depois contesta
+        o débito — alegando que não reconhece a transação. Em e-commerce, estima-se que 35–40%
+        dos chargebacks são desse tipo. O{" "}
+        <strong>Compelling Evidence 3.0 (CE 3.0)</strong> é a resposta da Visa para esse
+        problema.
+      </p>
+
+      <h2>A lógica do CE 3.0</h2>
+      <p>
+        Se um portador já comprou nesse mesmo lojista antes, com o mesmo cartão, no mesmo
+        dispositivo, e nunca contestou essas compras anteriores — ele reconhece o lojista.
+        O CE 3.0 permite ao lojista usar essas transações anteriores como prova.
+      </p>
+
+      <h2>Os 2 critérios obrigatórios</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Critério</th><th>Detalhe</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Prior undisputed transaction</td>
+            <td>Ao menos 1 transação anterior, nos últimos 120 dias, mesmo PAN, mesmo MID, não contestada</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Device ID ou IP compartilhado</td>
+            <td>A transação anterior e a disputada devem ter o mesmo Device ID ou endereço IP</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Reason codes elegíveis</h2>
+      <ul>
+        <li><code>10.4</code> — Other Fraud (Card Absent): portador nega ter autorizado</li>
+        <li><code>13.1</code> — Merchandise Not Received: portador alega não ter recebido</li>
+      </ul>
+
+      <h2>Campos técnicos (BASE II / PDS)</h2>
+      <p>
+        O CE 3.0 requer que o adquirente envie campos específicos no arquivo de clearing:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Campo</th><th>Conteúdo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>DE 60 / Tag 72</code></td><td>Device fingerprint ou endereço IP da sessão</td></tr>
+          <tr><td><code>DE 60 / Tag 75</code></td><td>ARN ou RRN da prior undisputed transaction</td></tr>
+          <tr><td><code>DE 60 / Tag 76</code></td><td>Tipo de mercadoria (para RC 13.1)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>O que mudou do CE 2.0</h2>
+      <ul>
+        <li>CE 2.0 exigia 2 transações anteriores; CE 3.0 exige apenas 1</li>
+        <li>A janela caiu de 365 para 120 dias</li>
+        <li>O Device ID/IP se tornou obrigatório (antes era opcional)</li>
+        <li>RC 13.1 passou a ser elegível (antes era só 10.4)</li>
+      </ul>
+
+      <div className="callout">
+        <strong>Pré-requisito operacional:</strong> Para usar CE 3.0, o lojista precisa
+        capturar e armazenar Device ID ou IP de cada sessão de compra. Sem esse dado, o
+        Critério 2 não pode ser atendido e a defesa é inválida.
+      </div>
+    </>
+  ),
+
+  "reducao-de-chargebacks": (
+    <>
+      <p>
+        O melhor chargeback é o que nunca acontece. Prevenção é mais barata que disputa —
+        e garante que você nunca entre nos programas de monitoramento das bandeiras (VAMP,
+        VFMP, ECP). Cada ferramenta abaixo age em uma camada diferente do problema.
+      </p>
+
+      <h2>1. 3DS 2.x — autenticação forte</h2>
+      <p>
+        O 3D Secure 2.x é a linha de defesa mais poderosa contra fraude CNP. Quando a
+        autenticação tem sucesso (ECI 05), a <strong>responsabilidade pelo chargeback de
+        fraude muda para o emissor</strong> — o lojista fica protegido de 10.4.
+      </p>
+      <div className="callout">
+        <strong>ECI 05 + CAVV:</strong> se você transmitir esses dados no clearing, um
+        chargeback 10.4 não tem como prosperar contra você. O emissor assumiu a responsabilidade
+        ao autenticar.
+      </div>
+
+      <h2>2. AVS — Address Verification Service</h2>
+      <p>
+        O AVS compara o CEP/endereço fornecido pelo portador com o cadastrado no emissor.
+        Não é infalível, mas reduz significativamente fraude de cartão roubado em que o
+        fraudador não tem os dados de endereço.
+      </p>
+      <ul>
+        <li>Match total (CEP + número): risco muito baixo</li>
+        <li>Match parcial: risco médio — avaliar outros sinais</li>
+        <li>No match: considerar recusar ou solicitar verificação adicional</li>
+      </ul>
+
+      <h2>3. CVV2 em e-commerce</h2>
+      <p>
+        Exigir o CVV2 (os 3 dígitos do verso) reduz fraude de dados vazados. CVV2 não é
+        armazenado por lei (PCI DSS) — então um dado de cartão vazado sem CVV2 tem valor
+        muito menor para fraudadores.
+      </p>
+
+      <h2>4. Device Fingerprinting</h2>
+      <p>
+        Capturar um identificador único do dispositivo do comprador permite:
+      </p>
+      <ul>
+        <li>Detectar múltiplas contas usando o mesmo device (fraude de identidade)</li>
+        <li>Identificar dispositivos usados em chargebacks anteriores</li>
+        <li>Preencher o Critério 2 do CE 3.0 automaticamente</li>
+      </ul>
+      <p>
+        Soluções: Fingerprint.js, Seon, ThreatMetrix, Kount. O dado deve ser armazenado
+        vinculado ao ARN de cada transação.
+      </p>
+
+      <h2>5. Descritores de fatura claros</h2>
+      <p>
+        Muitos chargebacks acontecem não por fraude, mas porque o portador não reconhece
+        o nome na fatura. Um descritor como <code>LOJA*NOMEABREV</code> ou{" "}
+        <code>EMPRESA + 0800XXXXXX</code> reduz drasticamente esse tipo de caso.
+      </p>
+      <ul>
+        <li>Use o nome mais reconhecível do negócio, não a razão social</li>
+        <li>Inclua número de contato sempre que possível</li>
+        <li>Para assinaturas, inclua a periodicidade: <code>NOME/MES</code></li>
+      </ul>
+
+      <h2>6. Comunicação proativa</h2>
+      <p>
+        Email de confirmação após a compra + notificação de envio + suporte fácil de contato
+        = menos chargebacks por "não recebi" ou "não reconheço". Portadores que conseguem
+        resolver problemas com o lojista raramente abrem disputa no banco.
+      </p>
+
+      <div className="callout">
+        <strong>Regra de bolso:</strong> se sua taxa de chargeback ultrapassa 0,9% das
+        transações mensais, você já está no radar do VFMP (Visa Fraud Monitoring Program).
+        Acima de 1,0%, você entra no programa e começa a pagar penalidades. Prevenção aqui
+        é literalmente menos costosa.
+      </div>
+    </>
+  ),
 };
 
 // ─── Conteúdo placeholder para lições ainda não escritas ──────────────────────

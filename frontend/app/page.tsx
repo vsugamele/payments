@@ -16,6 +16,8 @@ import {
   Sparkles,
   TrendingDown,
   AlertTriangle,
+  DollarSign,
+  FileText,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -46,6 +48,7 @@ const HUB = [
     border: "rgba(14,165,233,0.2)",
     tools: [
       { icon: Calculator,    label: "Simulador",             href: "/simulador",   desc: "Intercâmbio em tempo real" },
+      { icon: BarChart2,     label: "Matriz de Intercâmbio", href: "/matrix",      desc: "Decisão de taxa passo a passo" },
       { icon: LayoutTemplate,label: "Arquitetura",           href: "/arquitetura", desc: "Tour guiado Visa × MC" },
       { icon: BarChart2,     label: "Comparativo",           href: "/comparativo", desc: "BASE II vs IPM lado a lado" },
     ],
@@ -58,8 +61,10 @@ const HUB = [
     border: "rgba(16,185,129,0.2)",
     tools: [
       { icon: ShieldCheck,   label: "Compliance",            href: "/compliance", desc: "VAMP, ECP, 3DS, disputas" },
+      { icon: DollarSign,    label: "MCBS / Scheme Fees",    href: "/mcbs",       desc: "Tarifas de bandeira consolidadas" },
       { icon: BookOpen,      label: "Consultas",             href: "/consultas",  desc: "Lookup de campos e regras" },
       { icon: BookOpen,      label: "Acervo Normativo",      href: "/acervo",     desc: "Docs oficiais compilados" },
+      { icon: FileText,      label: "Artigos",               href: "/artigos",    desc: "Técnico, educacional e regulatório" },
     ],
   },
 ];
@@ -118,22 +123,43 @@ const FEATURES = [
   },
 ];
 
+const TAG_COLORS: Record<string, { bg: string; text: string }> = {
+  "Técnico":     { bg: "rgba(37,99,235,0.15)",  text: "#60a5fa" },
+  "Educacional": { bg: "rgba(34,197,94,0.12)",  text: "#4ade80" },
+  "Regulatório": { bg: "rgba(234,179,8,0.12)",  text: "#fbbf24" },
+  "Segurança":   { bg: "rgba(239,68,68,0.12)",  text: "#f87171" },
+};
+
 const ARTICLES_PREVIEW = [
   {
-    tag: "Regulatório",
-    title: "O que esperar dos Releases das Bandeiras — Q2 2026",
+    tag: "Técnico",
+    title: "Intercâmbio: Guia Completo para Adquirentes e Sub-adquirentes",
     excerpt:
-      "Visão antecipada das principais mudanças que Visa, Mastercard e Elo vão implementar no próximo release trimestral.",
-    readTime: "6 min",
-    href: "/artigos",
+      "A cascata de 5 decisões que define qual taxa é aplicada, por que ela pode mudar silenciosamente (downgrade) e como verificar se você está pagando o correto.",
+    date: "28 Abr 2026",
+    readTime: "12 min",
+    featured: true,
+    href: "/artigos/intercambio-guia-completo",
   },
   {
     tag: "Educacional",
     title: "Passo a Passo de uma Transação de Pagamento",
     excerpt:
-      "Do credenciamento do lojista até a liquidação final: entenda todos os atores, fluxos e responsabilidades do ciclo de pagamento.",
-    readTime: "8 min",
-    href: "/artigos",
+      "Do credenciamento do lojista até a liquidação: fluxo completo de uma transação Mastercard, com ISO 8583, EMV, clearing e chargeback explicados do zero.",
+    date: "8 Fev 2026",
+    readTime: "15 min",
+    featured: false,
+    href: "/artigos/passo-a-passo-transacao",
+  },
+  {
+    tag: "Técnico",
+    title: "Visa VDCAP e Mastercard TAF/SCOF: A engenharia da autenticação silenciosa com token",
+    excerpt:
+      "Como Visa e Mastercard implementam autenticação silenciosa baseada em token, dispensando 3DS sem abrir mão da segurança.",
+    date: "12 Abr 2025",
+    readTime: "12 min",
+    featured: false,
+    href: "/artigos/vdcap-taf-scof",
   },
 ];
 
@@ -432,34 +458,71 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {ARTICLES_PREVIEW.map((a) => (
-            <Link
-              key={a.title}
-              href={a.href}
-              className="card-hover group block"
-              style={{
-                background: "var(--code-bg)",
-                border: "1px solid #0f172a",
-                borderRadius: "1rem",
-                padding: "1.75rem",
-              }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="tag tag-blue">{a.tag}</span>
-                <span style={{ fontSize: "0.72rem", color: "var(--border)" }}>{a.readTime} leitura</span>
-              </div>
-              <h3 className="font-semibold text-white mb-2 leading-snug" style={{ fontSize: "1rem" }}>
-                {a.title}
-              </h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--muted-foreground)", lineHeight: 1.65 }}>
-                {a.excerpt}
-              </p>
-              <div className="flex items-center gap-1 mt-5" style={{ color: "var(--primary)", fontSize: "0.8rem", fontWeight: 600 }}>
-                Ler artigo <ChevronRight size={13} />
-              </div>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          {ARTICLES_PREVIEW.map((a) => {
+            const tc = TAG_COLORS[a.tag] ?? { bg: "rgba(37,99,235,0.15)", text: "#60a5fa" };
+            return (
+              <Link
+                key={a.title}
+                href={a.href}
+                className="card-hover group flex flex-col"
+                style={{
+                  background: a.featured ? "rgba(37,99,235,0.06)" : "var(--code-bg)",
+                  border: a.featured ? "1px solid rgba(37,99,235,0.22)" : "1px solid #0f172a",
+                  borderRadius: "1rem",
+                  padding: "1.75rem",
+                  position: "relative",
+                }}
+              >
+                {a.featured && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "1rem",
+                      right: "1rem",
+                      fontSize: "0.6rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "#60a5fa",
+                      background: "rgba(37,99,235,0.15)",
+                      border: "1px solid rgba(37,99,235,0.25)",
+                      borderRadius: "999px",
+                      padding: "0.2rem 0.55rem",
+                    }}
+                  >
+                    Destaque
+                  </span>
+                )}
+                <div className="flex items-center gap-2 mb-4">
+                  <span
+                    className="tag"
+                    style={{ background: tc.bg, color: tc.text, border: "none" }}
+                  >
+                    {a.tag}
+                  </span>
+                  {a.date && (
+                    <span style={{ fontSize: "0.7rem", color: "var(--border)" }}>{a.date}</span>
+                  )}
+                </div>
+                <h3 className="font-semibold text-white mb-2 leading-snug flex-1" style={{ fontSize: "0.95rem" }}>
+                  {a.title}
+                </h3>
+                <p style={{ fontSize: "0.825rem", color: "var(--muted-foreground)", lineHeight: 1.65, marginTop: "0.25rem" }}>
+                  {a.excerpt.length > 110 ? a.excerpt.slice(0, 110) + "…" : a.excerpt}
+                </p>
+                <div
+                  className="flex items-center justify-between mt-5 pt-4"
+                  style={{ borderTop: "1px solid var(--border)" }}
+                >
+                  <span style={{ fontSize: "0.7rem", color: "var(--border)" }}>{a.readTime} leitura</span>
+                  <div className="flex items-center gap-1" style={{ color: "var(--primary)", fontSize: "0.78rem", fontWeight: 600 }}>
+                    Ler <ChevronRight size={12} />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
