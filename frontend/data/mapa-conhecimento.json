@@ -58,6 +58,8 @@
       "x": 80,
       "y": 80,
       "descricao": "Quem usa o cartão para pagar. Tecnicamente representado pelo PAN e pelos dados do chip EMV.",
+      "analogy": "É o passageiro que quer fazer a viagem (pagamento).",
+      "curiosidade": "Existem mais de 25 bilhões de cartões em circulação no mundo!",
       "trilha": {
         "id": "do-zero-ao-intercambio",
         "licao": "atores"
@@ -71,6 +73,8 @@
       "x": 280,
       "y": 80,
       "descricao": "Estabelecimento Comercial que aceita cartões. Identificado pelo Merchant ID (DE 42) e pelo MCC (DE 18).",
+      "analogy": "É o destino da viagem. A loja que recebe o passageiro.",
+      "curiosidade": "O primeiro EC do mundo a aceitar cartão foi um restaurante em NY em 1950.",
       "trilha": {
         "id": "do-zero-ao-intercambio",
         "licao": "atores"
@@ -84,6 +88,8 @@
       "x": 480,
       "y": 80,
       "descricao": "Credenciador do lojista. Captura a transação, roteia para a bandeira e liquida ao EC. Assume risco de crédito perante o lojista.",
+      "analogy": "É o guia de viagem da loja. Ele garante que o lojista receba o dinheiro.",
+      "curiosidade": "No Brasil, os maiores adquirentes processam trilhões de reais por ano.",
       "trilha": {
         "id": "do-zero-ao-intercambio",
         "licao": "atores"
@@ -134,6 +140,8 @@
       "x": 80,
       "y": 280,
       "descricao": "Primary Account Number. O número de 16 dígitos do cartão. Contém BIN (6-8 dígitos), número de conta e dígito verificador (Luhn).",
+      "analogy": "É o número de identidade da maleta (transação).",
+      "impacto": "O PAN define o BIN, que por sua vez define o Emissor e o Produto (Taxa).",
       "trilha": {
         "id": "do-zero-ao-intercambio",
         "licao": "o-que-o-cartao-carrega"
@@ -186,6 +194,8 @@
       "x": 480,
       "y": 280,
       "descricao": "Merchant Category Code. Código de 4 dígitos que classifica o tipo de negócio do lojista. Determina regras de intercâmbio, elegibilidade para parcelamento e vouchers.",
+      "analogy": "É o uniforme da loja. Padaria veste um, Posto de Gasolina veste outro.",
+      "impacto": "Mudar o MCC pode alterar a taxa de intercâmbio em até 300%!",
       "trilha": {
         "id": "do-zero-ao-intercambio",
         "licao": "atores"

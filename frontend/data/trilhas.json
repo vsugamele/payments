@@ -391,6 +391,166 @@
           ]
         }
       ]
+    },
+    {
+      "id": "mastercard-deep-dive",
+      "titulo": "Mastercard Deep Dive",
+      "subtitulo": "Banknet, IPM, GCMS e a engenharia de clearing Mastercard",
+      "descricao": "Uma imersão técnica no universo Mastercard. Aprenda a ler arquivos IPM, entender a mensageria PDS, navegar nas tabelas do GCMS e como o faturamento MCBS impacta o P&L do adquirente.",
+      "nivel": "Avançado",
+      "cor": "#eb001b",
+      "cor_fundo": "rgba(235,0,27,0.08)",
+      "cor_borda": "rgba(235,0,27,0.2)",
+      "tempo_total": "1h 30min",
+      "icone": "Cpu",
+      "modulos": [
+        {
+          "id": "mensageria-mc",
+          "titulo": "Mensageria e IPM",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "rede-banknet-e-ipm",
+              "titulo": "Rede Banknet e o Formato IPM",
+              "descricao": "Como os dados trafegam na rede Mastercard e a estrutura de blocos do arquivo IPM",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["Banknet", "IPM", "PDS", "DE", "Clearing"]
+            },
+            {
+              "id": "pds-criticos",
+              "titulo": "PDSs Críticos e Mapeamento",
+              "descricao": "Os Private Data Subelements que definem taxas, moedas e segurança",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["PDS", "DE 48", "DE 61", "PDS 0025", "PDS 0158"]
+            }
+          ]
+        },
+        {
+          "id": "clearing-mc",
+          "titulo": "Clearing e GCMS",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "gcms-tabelas-t165",
+              "titulo": "Explorando o GCMS: Tabelas T165/T168",
+              "descricao": "Como interpretar os manuais de clearing e as tabelas de suporte global da Mastercard",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["GCMS", "T165", "T168", "Clearing", "Mastercard Connect"],
+              "simulador": {
+                "label": "Abrir Explorador GCMS",
+                "href": "/compliance/gcms"
+              }
+            },
+            {
+              "id": "mcbs-e-scheme-fees",
+              "titulo": "MCBS: O Faturamento de Scheme Fees",
+              "descricao": "Entenda como a Mastercard cobra adquirentes e emissores pelos serviços de rede",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["MCBS", "Scheme Fees", "Invoice", "QMR", "Faturamento"],
+              "simulador": {
+                "label": "Ver Painel MCBS",
+                "href": "/mcbs"
+              }
+            }
+          ]
+        },
+        {
+          "id": "performance-mc",
+          "titulo": "Performance e Excelência",
+          "numero": 3,
+          "licoes": [
+            {
+              "id": "programa-tpe",
+              "titulo": "Programa TPE: Transaction Processing Excellence",
+              "descricao": "As regras de retentativas excessivas e como evitar multas operacionais",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["TPE", "Retentativas", "Hard Decline", "Soft Decline", "Performance"],
+              "simulador": {
+                "label": "Simular Matriz TPE",
+                "href": "/compliance/tpe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "novas-fronteiras",
+      "titulo": "Novas Fronteiras de Pagamentos",
+      "subtitulo": "Push Payments, SoftPOS e a evolução do ecossistema",
+      "descricao": "Estude as tecnologias que estão mudando o mercado. Do dinheiro instantâneo via Visa Direct ao uso do celular como maquininha (SoftPOS) e as complexidades do câmbio dinâmico (DCC).",
+      "nivel": "Intermediário",
+      "cor": "#10b981",
+      "cor_fundo": "rgba(16,185,129,0.08)",
+      "cor_borda": "rgba(16,185,129,0.2)",
+      "tempo_total": "1h",
+      "icone": "Zap",
+      "modulos": [
+        {
+          "id": "real-time-payouts",
+          "titulo": "Real-time Payouts",
+          "numero": 1,
+          "licoes": [
+            {
+              "id": "visa-direct-mc-send",
+              "titulo": "Visa Direct e Mastercard Send",
+              "descricao": "O fluxo de Push Payments: como enviar dinheiro para um cartão em segundos",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["OCT", "AFT", "Push Payment", "Visa Direct", "MC Send"],
+              "simulador": {
+                "label": "Laboratório de Payouts",
+                "href": "/compliance/payouts"
+              }
+            },
+            {
+              "id": "fast-funds-mandate",
+              "titulo": "Mandatos de Fast Funds",
+              "descricao": "As regras de conformidade para disponibilização imediata do saldo",
+              "tempo": "10 min",
+              "tipo": "conceito",
+              "termos": ["Fast Funds", "SLA", "Emissor", "Compliance"]
+            }
+          ]
+        },
+        {
+          "id": "aceitacao-moderna",
+          "titulo": "Aceitação e SoftPOS",
+          "numero": 2,
+          "licoes": [
+            {
+              "id": "softpos-tap-to-phone",
+              "titulo": "SoftPOS: O Celular como Terminal",
+              "descricao": "A arquitetura de segurança por trás do Tap to Phone e os novos padrões PCI",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["SoftPOS", "CPoC", "MPoC", "SDK", "Attestation"],
+              "simulador": {
+                "label": "Checklist de Segurança SoftPOS",
+                "href": "/compliance/softpos"
+              }
+            },
+            {
+              "id": "dcc-e-cross-border",
+              "titulo": "Matemática do Cross-Border e DCC",
+              "descricao": "Entenda as taxas de conversão de moeda, Markups e as tarifas ISA/IAF",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["DCC", "ISA", "IAF", "Markup", "Cross-border"],
+              "simulador": {
+                "label": "Simulador de Câmbio (DCC)",
+                "href": "/compliance/cross-border"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
+

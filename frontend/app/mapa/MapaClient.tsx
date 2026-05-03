@@ -120,15 +120,19 @@ function buildGraph(filtro: string | null) {
 
 // ─── Painel lateral ───────────────────────────────────────────────────────────
 
+// ─── Painel lateral ───────────────────────────────────────────────────────────
+
 function PainelLateral({
   no,
   cor,
   vizinhos,
+  didatico,
   onClose,
 }: {
-  no: NoData;
+  no: NoData & { analogy?: string; impacto?: string; curiosidade?: string };
   cor: string;
   vizinhos: NoData[];
+  didatico: boolean;
   onClose: () => void;
 }) {
   const catMap = Object.fromEntries(mapaData.categorias.map((c) => [c.id, c]));
@@ -139,11 +143,11 @@ function PainelLateral({
         position: "absolute",
         top: 16,
         right: 16,
-        width: 300,
+        width: 320,
         background: "#0f1117",
         border: `1px solid ${cor}40`,
-        borderRadius: "1rem",
-        padding: "1.25rem",
+        borderRadius: "1.5rem",
+        padding: "1.5rem",
         zIndex: 100,
         boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px ${cor}20`,
         maxHeight: "calc(100% - 32px)",
@@ -151,70 +155,117 @@ function PainelLateral({
       }}
     >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", marginBottom: "0.875rem" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", marginBottom: "1rem" }}>
         <div
           style={{
             flex: 1,
-            padding: "0.4rem 0.75rem",
-            borderRadius: "0.5rem",
+            padding: "0.5rem 0.875rem",
+            borderRadius: "0.75rem",
             background: `${cor}15`,
             border: `1px solid ${cor}30`,
           }}
         >
-          <p style={{ fontSize: "0.72rem", fontWeight: 700, color: cor, margin: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          <p style={{ fontSize: "0.75rem", fontWeight: 800, color: cor, margin: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}>
             {no.label}
           </p>
         </div>
         <button
           onClick={onClose}
+          className="hover:bg-white/10"
           style={{
             background: "rgba(255,255,255,0.05)",
             border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "0.375rem",
-            padding: "0.35rem",
+            borderRadius: "0.5rem",
+            padding: "0.4rem",
             cursor: "pointer",
             color: "rgba(255,255,255,0.5)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
+            transition: "all 0.2s"
           }}
         >
           <X size={14} />
         </button>
       </div>
 
-      {/* Descrição */}
-      <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: "0 0 1rem" }}>
-        {no.descricao}
-      </p>
+      {/* Modo Didático: Analogia */}
+      {didatico && no.analogy && (
+        <div style={{ 
+          background: "rgba(59,130,246,0.1)", 
+          border: "1px solid rgba(59,130,246,0.2)", 
+          padding: "0.875rem", 
+          borderRadius: "1rem",
+          marginBottom: "1.25rem"
+        }}>
+          <p style={{ fontSize: "0.65rem", fontWeight: 800, color: "#60a5fa", textTransform: "uppercase", marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <span style={{ fontSize: "1rem" }}>💡</span> Explicação Simples
+          </p>
+          <p style={{ fontSize: "0.85rem", color: "#93c5fd", lineHeight: 1.5, fontWeight: 500, fontStyle: "italic" }}>
+            "{no.analogy}"
+          </p>
+        </div>
+      )}
+
+      {/* Descrição Técnica */}
+      <div style={{ marginBottom: "1.25rem" }}>
+        <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>
+          {no.descricao}
+        </p>
+      </div>
+
+      {/* Efeito Borboleta: Impacto */}
+      {no.impacto && (
+        <div style={{ 
+          background: "rgba(16,185,129,0.08)", 
+          border: "1px dashed rgba(16,185,129,0.3)", 
+          padding: "0.875rem", 
+          borderRadius: "1rem",
+          marginBottom: "1.25rem"
+        }}>
+          <p style={{ fontSize: "0.65rem", fontWeight: 800, color: "#34d399", textTransform: "uppercase", marginBottom: "0.3rem" }}>
+            🦋 Efeito Borboleta (Impacto)
+          </p>
+          <p style={{ fontSize: "0.78rem", color: "#6ee7b7", lineHeight: 1.5 }}>
+            {no.impacto}
+          </p>
+        </div>
+      )}
+
+      {/* Curiosidade */}
+      {no.curiosidade && (
+        <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", fontStyle: "italic", marginBottom: "1.25rem" }}>
+          <strong>Sabia?</strong> {no.curiosidade}
+        </p>
+      )}
 
       {/* Conectado a */}
       {vizinhos.length > 0 && (
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ marginBottom: "1.5rem" }}>
           <p style={{
             fontSize: "0.65rem",
-            fontWeight: 700,
+            fontWeight: 800,
             color: "rgba(255,255,255,0.3)",
-            letterSpacing: "0.07em",
+            letterSpacing: "0.08em",
             textTransform: "uppercase",
-            margin: "0 0 0.4rem",
+            margin: "0 0 0.6rem",
           }}>
-            Conectado a
+            Conexões Diretas
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
             {vizinhos.map((v) => {
               const cat = catMap[v.categoria];
               return (
                 <span
                   key={v.id}
                   style={{
-                    fontSize: "0.68rem",
+                    fontSize: "0.7rem",
                     fontWeight: 600,
-                    padding: "0.2rem 0.5rem",
-                    borderRadius: "9999px",
-                    background: `${cat?.cor ?? "#fff"}12`,
-                    border: `1px solid ${cat?.cor ?? "#fff"}25`,
+                    padding: "0.25rem 0.65rem",
+                    borderRadius: "0.5rem",
+                    background: `${cat?.cor ?? "#fff"}10`,
+                    border: `1px solid ${cat?.cor ?? "#fff"}20`,
                     color: cat?.cor ?? "#fff",
                   }}
                 >
@@ -227,7 +278,7 @@ function PainelLateral({
       )}
 
       {/* Links */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
         {no.trilha && (
           <Link
             href={`/trilhas/${no.trilha.id}/${no.trilha.licao}`}
@@ -235,20 +286,21 @@ function PainelLateral({
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
-              padding: "0.6rem 0.875rem",
-              borderRadius: "0.5rem",
-              background: `${cor}12`,
-              border: `1px solid ${cor}25`,
+              padding: "0.75rem 1rem",
+              borderRadius: "0.875rem",
+              background: `${cor}15`,
+              border: `1px solid ${cor}30`,
               color: cor,
-              fontSize: "0.78rem",
-              fontWeight: 600,
+              fontSize: "0.82rem",
+              fontWeight: 700,
               textDecoration: "none",
-              transition: "background 0.15s",
+              transition: "all 0.2s",
             }}
+            className="hover:scale-[1.02] active:scale-[0.98]"
           >
-            <BookOpen size={13} />
-            Ver na trilha
-            <ChevronRight size={12} style={{ marginLeft: "auto" }} />
+            <BookOpen size={14} />
+            Estudar este conceito
+            <ChevronRight size={14} style={{ marginLeft: "auto" }} />
           </Link>
         )}
         {no.glossario && (
@@ -258,18 +310,18 @@ function PainelLateral({
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
-              padding: "0.6rem 0.875rem",
-              borderRadius: "0.5rem",
+              padding: "0.75rem 1rem",
+              borderRadius: "0.875rem",
               background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.1)",
               color: "rgba(255,255,255,0.6)",
-              fontSize: "0.78rem",
-              fontWeight: 500,
+              fontSize: "0.82rem",
+              fontWeight: 600,
               textDecoration: "none",
             }}
           >
-            <ExternalLink size={13} />
-            Ver no glossário
+            <ExternalLink size={14} />
+            Dicionário Técnico
           </Link>
         )}
       </div>
@@ -281,70 +333,106 @@ function PainelLateral({
 
 export default function MapaClient() {
   const [filtro, setFiltro] = useState<string | null>(null);
-  const [noSelecionado, setNoSelecionado] = useState<NoData | null>(null);
+  const [noSelecionado, setNoSelecionado] = useState<any | null>(null);
   const [busca, setBusca] = useState("");
+  const [didatico, setDidatico] = useState(true);
 
-  // Base graph (sem overlays)
+  // Base graph
   const { nodes: baseNodes, edges: baseEdges } = useMemo(
     () => buildGraph(filtro),
     [filtro]
   );
 
-  // IDs de vizinhos do nó selecionado (diretos)
-  const vizinhosIds = useMemo<Set<string> | null>(() => {
+  // Efeito Borboleta: Encontrar todos os nós afetados (descendentes)
+  const affectedNodesIds = useMemo<Set<string> | null>(() => {
     if (!noSelecionado) return null;
-    const ids = new Set<string>([noSelecionado.id]);
-    mapaData.arestas.forEach((e) => {
-      if (e.source === noSelecionado.id) ids.add(e.target);
-      if (e.target === noSelecionado.id) ids.add(e.source);
+    
+    const affected = new Set<string>([noSelecionado.id]);
+    const queue = [noSelecionado.id];
+    
+    // Busca em largura para encontrar todos os nós "a jusante"
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+      mapaData.arestas.forEach(edge => {
+        if (edge.source === currentId && !affected.has(edge.target)) {
+          affected.add(edge.target);
+          queue.push(edge.target);
+        }
+      });
+    }
+    
+    // Adiciona também vizinhos diretos que podem ser "a montante" para clareza
+    mapaData.arestas.forEach(edge => {
+      if (edge.target === noSelecionado.id) affected.add(edge.source);
     });
-    return ids;
+
+    return affected;
   }, [noSelecionado]);
 
-  // Objetos NoData dos vizinhos (para exibir no painel)
   const vizinhosData = useMemo<NoData[]>(() => {
-    if (!vizinhosIds || !noSelecionado) return [];
-    return mapaData.nos.filter(
-      (n) => vizinhosIds.has(n.id) && n.id !== noSelecionado.id
-    );
-  }, [vizinhosIds, noSelecionado]);
+    if (!noSelecionado) return [];
+    const directIds = new Set<string>();
+    mapaData.arestas.forEach(e => {
+      if (e.source === noSelecionado.id) directIds.add(e.target);
+      if (e.target === noSelecionado.id) directIds.add(e.source);
+    });
+    return mapaData.nos.filter(n => directIds.has(n.id));
+  }, [noSelecionado]);
 
   // Overlay de opacidade nos nós
   const nodesComOverlay = useMemo<Node[]>(() => {
     const query = busca.trim().toLowerCase();
     return baseNodes.map((n) => {
       let opacity = 1;
+      let isImpacted = false;
+
       if (query.length >= 1) {
         opacity = (n.data as NodeData).label.toLowerCase().includes(query) ? 1 : 0.08;
-      } else if (vizinhosIds) {
-        opacity = vizinhosIds.has(n.id) ? 1 : 0.08;
+      } else if (affectedNodesIds) {
+        opacity = affectedNodesIds.has(n.id) ? 1 : 0.15;
+        isImpacted = affectedNodesIds.has(n.id) && n.id !== noSelecionado.id;
       }
-      return { ...n, style: { opacity, transition: "opacity 0.18s" } };
+      
+      return { 
+        ...n, 
+        style: { 
+          opacity, 
+          transition: "opacity 0.25s, transform 0.25s",
+          transform: isImpacted ? "scale(1.05)" : "scale(1)"
+        } 
+      };
     });
-  }, [baseNodes, busca, vizinhosIds]);
+  }, [baseNodes, busca, affectedNodesIds, noSelecionado]);
 
   // Overlay de opacidade nas arestas
   const edgesComOverlay = useMemo<Edge[]>(() => {
     const query = busca.trim().toLowerCase();
     return baseEdges.map((e) => {
       let opacity = 1;
+      let animated = false;
+
       if (query.length >= 1) {
         opacity = 0.05;
-      } else if (vizinhosIds) {
-        opacity = vizinhosIds.has(e.source) && vizinhosIds.has(e.target) ? 0.9 : 0.04;
+      } else if (affectedNodesIds) {
+        const isImpactEdge = affectedNodesIds.has(e.source) && affectedNodesIds.has(e.target);
+        opacity = isImpactEdge ? 1 : 0.05;
+        animated = isImpactEdge && e.source === noSelecionado?.id;
       }
-      return { ...e, style: { ...e.style, opacity } };
+      
+      return { 
+        ...e, 
+        animated,
+        style: { ...e.style, opacity, strokeWidth: animated ? 3 : 1.5, transition: "opacity 0.25s" } 
+      };
     });
-  }, [baseEdges, busca, vizinhosIds]);
+  }, [baseEdges, busca, affectedNodesIds, noSelecionado]);
 
-  // Contagem de matches para search
   const matchCount = useMemo(() => {
     const q = busca.trim().toLowerCase();
     if (!q) return 0;
     return baseNodes.filter((n) => (n.data as NodeData).label.toLowerCase().includes(q)).length;
   }, [baseNodes, busca]);
 
-  // Hooks de estado necessários para onNodesChange/onEdgesChange (callbacks do ReactFlow)
   const [, , onNodesChange] = useNodesState(baseNodes);
   const [, , onEdgesChange] = useEdgesState(baseEdges);
 
@@ -352,7 +440,7 @@ export default function MapaClient() {
     (_: React.MouseEvent, node: Node) => {
       const found = mapaData.nos.find((n) => n.id === node.id);
       setNoSelecionado(found as NoData ?? null);
-      setBusca(""); // limpa busca ao selecionar nó
+      setBusca("");
     },
     []
   );
@@ -369,36 +457,59 @@ export default function MapaClient() {
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
 
-      {/* ── Controles top-left: busca + filtros ─────────────────────────── */}
+      {/* ── Controles top-left: busca + filtros + toggle didático ─────────── */}
       <div
         style={{
           position: "absolute",
-          top: 16,
-          left: 16,
+          top: 24,
+          left: 24,
           zIndex: 100,
           display: "flex",
           flexDirection: "column",
-          gap: "0.5rem",
-          maxWidth: "calc(100% - 340px)",
+          gap: "1rem",
+          maxWidth: "calc(100% - 400px)",
         }}
       >
-        {/* Busca */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ position: "relative", width: 220 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {/* Toggle Didático */}
+          <button
+            onClick={() => setDidatico(!didatico)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              padding: "0.5rem 1rem",
+              background: didatico ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.05)",
+              border: `1px solid ${didatico ? "#3b82f6" : "rgba(255,255,255,0.1)"}`,
+              borderRadius: "9999px",
+              color: didatico ? "#60a5fa" : "rgba(255,255,255,0.5)",
+              fontSize: "0.72rem",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+          >
+            <span style={{ fontSize: "1rem" }}>{didatico ? "👧" : "🎓"}</span>
+            Modo Didático: {didatico ? "ON" : "OFF"}
+          </button>
+
+          {/* Busca */}
+          <div style={{ position: "relative", width: 260 }}>
             <Search
-              size={12}
+              size={14}
               style={{
                 position: "absolute",
-                left: "0.65rem",
+                left: "0.8rem",
                 top: "50%",
                 transform: "translateY(-50%)",
-                color: "rgba(255,255,255,0.35)",
+                color: "rgba(255,255,255,0.3)",
                 pointerEvents: "none",
               }}
             />
             <input
               type="text"
-              placeholder="Buscar conceito..."
+              placeholder="Buscar no ecossistema..."
               value={busca}
               onChange={(e) => {
                 setBusca(e.target.value);
@@ -406,60 +517,33 @@ export default function MapaClient() {
               }}
               style={{
                 width: "100%",
-                padding: "0.32rem 2rem 0.32rem 1.9rem",
-                background: busca ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.05)",
-                border: busca
-                  ? "1px solid rgba(255,255,255,0.3)"
-                  : "1px solid rgba(255,255,255,0.1)",
+                padding: "0.5rem 2.5rem 0.5rem 2.2rem",
+                background: "rgba(10,15,26,0.8)",
+                border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: "9999px",
                 color: "#fff",
-                fontSize: "0.72rem",
+                fontSize: "0.8rem",
                 outline: "none",
-                transition: "background 0.15s, border-color 0.15s",
+                backdropFilter: "blur(8px)"
               }}
             />
-            {busca && (
-              <button
-                onClick={() => setBusca("")}
-                style={{
-                  position: "absolute",
-                  right: "0.55rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "rgba(255,255,255,0.4)",
-                  display: "flex",
-                  alignItems: "center",
-                  padding: 0,
-                }}
-              >
-                <X size={11} />
-              </button>
-            )}
           </div>
-          {busca.trim().length >= 1 && (
-            <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
-              {matchCount} resultado{matchCount !== 1 ? "s" : ""}
-            </span>
-          )}
         </div>
 
         {/* Filtros de categoria */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
           <button
             onClick={() => { setFiltro(null); setNoSelecionado(null); setBusca(""); }}
             style={{
-              padding: "0.28rem 0.7rem",
+              padding: "0.35rem 0.875rem",
               borderRadius: "9999px",
               fontSize: "0.7rem",
               fontWeight: 700,
               cursor: "pointer",
-              border: filtro === null ? "1.5px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)",
-              background: filtro === null ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)",
-              color: filtro === null ? "#fff" : "rgba(255,255,255,0.5)",
-              transition: "all 0.15s",
+              border: filtro === null ? "1.5px solid #fff" : "1px solid rgba(255,255,255,0.1)",
+              background: filtro === null ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.2)",
+              color: "#fff",
+              transition: "all 0.2s",
             }}
           >
             Todos
@@ -469,15 +553,15 @@ export default function MapaClient() {
               key={cat.id}
               onClick={() => { setFiltro(filtro === cat.id ? null : cat.id); setNoSelecionado(null); setBusca(""); }}
               style={{
-                padding: "0.28rem 0.7rem",
+                padding: "0.35rem 0.875rem",
                 borderRadius: "9999px",
                 fontSize: "0.7rem",
                 fontWeight: 700,
                 cursor: "pointer",
                 border: filtro === cat.id ? `1.5px solid ${cat.cor}` : `1px solid ${cat.corBorda}`,
-                background: filtro === cat.id ? cat.corFundo : "rgba(255,255,255,0.03)",
+                background: filtro === cat.id ? cat.corFundo : "rgba(0,0,0,0.2)",
                 color: filtro === cat.id ? cat.cor : "rgba(255,255,255,0.5)",
-                transition: "all 0.15s",
+                transition: "all 0.2s",
               }}
             >
               {cat.label}
@@ -492,6 +576,7 @@ export default function MapaClient() {
           no={noSelecionado}
           cor={corSelecionado}
           vizinhos={vizinhosData}
+          didatico={didatico}
           onClose={() => setNoSelecionado(null)}
         />
       )}
@@ -506,91 +591,51 @@ export default function MapaClient() {
         onPaneClick={handlePaneClick}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.15 }}
-        minZoom={0.2}
-        maxZoom={2}
-        style={{ background: "#0a0f1a" }}
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.1}
+        maxZoom={4}
+        style={{ background: "#05080f" }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#1e293b" gap={24} size={1} />
+        <Background color="#1e293b" gap={30} size={1} opacity={0.2} />
         <Controls
           style={{
-            bottom: 80,
-            left: 16,
+            bottom: 30,
+            left: 24,
             background: "#0f1117",
             border: "1px solid #1e293b",
-            borderRadius: "0.5rem",
+            borderRadius: "0.75rem",
+            overflow: "hidden"
           }}
-        />
-        <MiniMap
-          style={{
-            background: "#0f1117",
-            border: "1px solid #1e293b",
-            borderRadius: "0.5rem",
-          }}
-          nodeColor={(node) => {
-            const cat = catMap[(node.data as NodeData).categoria];
-            return cat?.cor ?? "#334155";
-          }}
-          maskColor="rgba(0,0,0,0.5)"
         />
       </ReactFlow>
 
-      {/* ── Legenda ──────────────────────────────────────────────────────── */}
+      {/* ── Legenda Didática ─────────────────────────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          bottom: 16,
-          left: 16,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.5rem 1rem",
-          padding: "0.6rem 1rem",
-          background: "rgba(10,15,26,0.85)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          borderRadius: "0.625rem",
-          backdropFilter: "blur(8px)",
+          bottom: 24,
+          left: 100,
+          padding: "0.75rem 1.25rem",
+          background: "rgba(10,15,26,0.8)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "1rem",
+          backdropFilter: "blur(12px)",
           zIndex: 50,
+          display: "flex",
+          gap: "1.5rem"
         }}
       >
-        {mapaData.categorias.map((cat) => (
-          <span
-            key={cat.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              fontSize: "0.68rem",
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: cat.cor,
-                flexShrink: 0,
-              }}
-            />
-            {cat.label}
-          </span>
-        ))}
+         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ width: 12, height: 2, background: "#fff", opacity: 0.15 }} />
+            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>Fluxo Normal</span>
+         </div>
+         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ width: 20, height: 3, background: "#3b82f6", borderRadius: "2px" }} />
+            <span style={{ fontSize: "0.7rem", color: "#60a5fa", fontWeight: 800 }}>🦋 Efeito Borboleta Ativo</span>
+         </div>
       </div>
-
-      {/* ── Hint quando há seleção ───────────────────────────────────────── */}
-      {noSelecionado && (
-        <div style={{
-          position: "absolute",
-          bottom: 16,
-          right: 16,
-          fontSize: "0.68rem",
-          color: "rgba(255,255,255,0.3)",
-          zIndex: 50,
-        }}>
-          Clique no fundo para desselecionar
-        </div>
-      )}
     </div>
   );
 }
+
