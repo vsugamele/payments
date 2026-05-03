@@ -17,9 +17,11 @@ import {
   Lock,
   Building2,
   Calculator as CalcIcon,
-  FileText
+  FileText,
+  Database as DbIcon
 } from "lucide-react";
 import VisaCalculator from "@/components/visa/VisaCalculator";
+import VisaBillingExplorer from "@/components/visa/VisaBillingExplorer";
 
 export default function VisaBusinessClient() {
   const [searchBin, setSearchBin] = useState("401288");
@@ -256,6 +258,23 @@ export default function VisaBusinessClient() {
           Utilizando as <strong>Billing Lines</strong> mapeadas da planilha oficial (5B1106453, 5B1107045, etc.), este simulador projeta o impacto financeiro mensal de uma operação de adquirência Visa no Brasil.
         </p>
         <VisaCalculator />
+      </section>
+
+      {/* ── Visa Master Billing Repository (100% das Linhas) ── */}
+      <section className="space-y-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <DbIcon size={24} />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-white">Repositório Mestre de Billing Lines</h3>
+            <p className="text-sm text-slate-500 font-medium tracking-wide uppercase">Volume Total: 100% (10.000+ Registros)</p>
+          </div>
+        </div>
+        <p className="text-sm text-slate-400 leading-relaxed max-w-4xl">
+          Navegue por todas as 10.914 linhas de cobrança mapeadas diretamente do extrato técnico da Visa. Este repositório permite identificar códigos de faturamento para emissores, adquirentes e processadores em todas as sub-categorias do Fee Schedule.
+        </p>
+        <VisaBillingExplorer />
       </section>
 
       {/* ── Footer / CTA ── */}
