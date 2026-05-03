@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { Search, X, BookOpen, Fingerprint } from "lucide-react";
 import deFields from "@/data/de-fields.json";
 import ValidatorTab from "./ValidatorTab";
+import AIAssistant from "@/components/AIAssistant";
 
 type Field = typeof deFields[number];
 
@@ -168,6 +169,15 @@ function FieldCard({ field, query }: { field: Field; query: string }) {
                 </span>
               </div>
             )}
+          </div>
+
+          <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px dashed var(--border)" }}>
+            <AIAssistant 
+              toolName="Dicionário de Campos"
+              triggerLabel={`Consultar Manual para ${field.numero}`}
+              context={`Campo: ${field.numero} - ${field.nome}. Descrição: ${field.descricao}. Notas: ${field.notas}. Tipo: ${field.tipo}.`}
+              placeholder={`O que os manuais dizem sobre o ${field.numero}?`}
+            />
           </div>
         </div>
       )}

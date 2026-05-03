@@ -206,3 +206,15 @@ def load_mcc_to_segment() -> dict[int, str]:
     for row in mcc_data:
         mcc_seg[int(row["mcc"])] = row["segment"]
     return mcc_seg
+
+def load_mcbs_groups() -> list[dict]:
+    data = fetch_supabase("ic_mcbs_groups")
+    return data
+
+def load_mcbs_events() -> list[dict]:
+    url = f"{SUPABASE_URL}/rest/v1/ic_mcbs_events?valid_until=is.null&order=priority.asc"
+    resp = httpx.get(url, headers=headers, timeout=30.0)
+    if resp.status_code != 200:
+        print(f"Error fetching ic_mcbs_events: {resp.text}")
+    resp.raise_for_status()
+    return resp.json()

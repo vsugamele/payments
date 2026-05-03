@@ -8,6 +8,10 @@ import { SimulatorForm } from "./SimulatorForm";
 import { ResultCard } from "./ResultCard";
 import { Cascata } from "./Cascata";
 import { ReloadButton } from "./ReloadButton";
+import { DecisionPath } from "./DecisionPath";
+import { ProvisioningWaterfall } from "./ProvisioningWaterfall";
+import { CustoTotalCard } from "./CustoTotalCard";
+import eloData from "@/data/elo-interchange.json";
 
 const DEFAULT_FORM: SimForm = {
   bandeira: "visa",
@@ -21,11 +25,14 @@ const DEFAULT_FORM: SimForm = {
   parcelas: "1",
   eci: "",
   internacional: false,
-  // Mastercard
+  // Mastercard / Elo
   tipo_cartao: "platinum",
   canal_mc: "ecommerce_3ds",
   pessoa: "fisica",
   tipo_produto: "CREDIT",
+  // Margem
+  mdr: "2.50",
+  scheme_fee: "0.25",
   // Debug
   debug: true,
 };
@@ -48,6 +55,9 @@ export function SimulatorPage() {
   useEffect(() => {
     setResult(null);
     setError("");
+    if (form.bandeira === "elo") {
+      setForm(prev => ({ ...prev, tipo_cartao: "debito", canal_mc: "fisico" }));
+    }
   }, [form.bandeira]);
 
   async function handleSubmit() {
@@ -55,8 +65,41 @@ export function SimulatorPage() {
     setError("");
     setResult(null);
     try {
-      const r = await calcular(form);
-      setResult(r);
+      if (form.bandeira === "elo") {
+        // Lógica Local Elo
+        const valor = Number(form.valor);
+        const produtoStr = form.tipo_cartao === "debito" ? "Elo Débito" : 
+                          form.tipo_cartao === "mais" ? "Elo Mais (Crédito)" :
+                          form.tipo_cartao === "grafite" ? "Elo Grafite" :
+                          "Elo Nanquim / Diners";
+        
+        const canalLabel = form.canal_mc === "fisico" ? "Físico (Chip)" :
+                          form.canal_mc === "ecommerce_3ds" ? "E-commerce (com 3DS)" :
+                          "E-commerce (sem 3DS)";
+
+        const produtoData = eloData.find(p => p.produto === produtoStr);
+        const segmento = produtoData?.segmentos[0];
+        const canalData = segmento?.canais.find(c => c.canal === canalLabel);
+
+        if (canalData) {
+          const ic_brl = (canalData.taxa / 100) * valor;
+          setResult({
+            sucesso: true,
+            bandeira: "elo",
+            rule_id: `ELO-${form.tipo_cartao.toUpperCase()}`,
+            descricao_regra: `Regra Elo Brasil: ${produtoStr} / ${canalLabel}`,
+            rate_pct: canalData.taxa,
+            valor_transacao: valor,
+            taxa_intercambio: ic_brl,
+            taxa_intercambio_fmt: `R$ ${ic_brl.toFixed(2)}`,
+          } as any);
+        } else {
+          throw new Error("Combinação de produto/canal Elo não mapeada.");
+        }
+      } else {
+        const r = await calcular(form);
+        setResult(r);
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro desconhecido");
     } finally {
@@ -200,6 +243,35 @@ export function SimulatorPage() {
 
             {/* Resultado */}
             {result && !loading && <ResultCard result={result} />}
+
+            {/* Custo Total (IC + Scheme Fee + Markup) — apenas Mastercard/Maestro */}
+            {result && !loading && result.sucesso &&
+              (form.bandeira === "mastercard" || form.bandeira === "maestro") && (
+              <CustoTotalCard
+                valor={result.valor_transacao ?? Number(form.valor)}
+                taxa_ic_pct={result.rate_pct ?? 0}
+                taxa_ic_brl={result.taxa_intercambio ?? 0}
+                ird={(result as any).ird ?? "IA"}
+                canal={form.canal_mc ?? "fisico"}
+                bandeira={form.bandeira}
+              />
+            )}
+
+            {/* "Por que esta taxa?" — caminho de decisão de 5 passos */}
+            {result && !loading && result.sucesso && (
+              <DecisionPath form={form} result={result} />
+            )}
+
+            {/* Simulador de Spread (Waterfall) */}
+            {result && !loading && result.sucesso && form.mdr && form.scheme_fee && (
+              <ProvisioningWaterfall
+                valorTransacao={result.valor_transacao ?? Number(form.valor)}
+                mdrPct={Number(form.mdr)}
+                interchangePct={result.taxa_intercambio ?? 0}
+                schemeFeePct={Number(form.scheme_fee)}
+                bandeira={form.bandeira}
+              />
+            )}
 
             {result && !loading && form.debug && cascata.length === 0 && !error && (
               <div

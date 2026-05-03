@@ -1,0 +1,42 @@
+[
+  {
+    "table": "T165",
+    "name": "Interchange Rates",
+    "description": "A tabela mestre de taxas de intercâmbio. Define o percentual e o valor fixo para cada combinação de IRD, MCC e Produto.",
+    "usage": "Clearing / Settlement",
+    "impact": "Define quanto o Adquirente paga ao Emissor por cada transação.",
+    "fields": ["IRD", "MCC", "Product Code", "Amount", "Percentage"]
+  },
+  {
+    "table": "T112",
+    "name": "Country and Currency",
+    "description": "Mapeia os códigos de país (ISO) e as moedas permitidas para clearing em cada região.",
+    "usage": "Cross-border Validation",
+    "impact": "Erros aqui causam rejeição de mensagens internacionais.",
+    "fields": ["Alpha Country Code", "Numeric Currency Code", "Exponent"]
+  },
+  {
+    "table": "T168",
+    "name": "Currency Conversion Rates",
+    "description": "Tabela de câmbio diária da Mastercard usada para converter transações internacionais para a moeda de liquidação (Settlement Currency).",
+    "usage": "FX / Settlement",
+    "impact": "Determina o valor final que o adquirente receberá após a conversão de moedas estrangeiras.",
+    "fields": ["Source Currency", "Target Currency", "Conversion Rate", "Date"]
+  },
+  {
+    "table": "T167",
+    "name": "Floor Limits",
+    "description": "Define os limites de valor abaixo dos quais uma transação pode ser processada off-line sem autorização prévia.",
+    "usage": "Offline Authorization",
+    "impact": "Risco de fraude assumido pelo lojista se processar acima do floor limit sem autorização.",
+    "fields": ["Merchant Category", "Amount Limit", "Region"]
+  },
+  {
+    "table": "T145",
+    "name": "Service ID Mapping",
+    "description": "Liga o código de transação ao ID de serviço que será cobrado no MCBS (fatura mensal).",
+    "usage": "Billing / MCBS",
+    "impact": "Determina quais taxas de rede (Scheme Fees) serão aplicadas.",
+    "fields": ["Transaction Code", "Service ID", "Fee Category"]
+  }
+]

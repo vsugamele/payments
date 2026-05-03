@@ -1,0 +1,52 @@
+[
+  {
+    "id": "DE022",
+    "name": "Point of Service (POS) Entry Mode",
+    "description": "Indica como o cartão foi apresentado (Chip, Tarja, Digitado) e a capacidade do terminal.",
+    "impact": "CRÍTICO",
+    "impact_desc": "O valor deste campo define se a transação é 'Card Present' (IA) ou 'Card Not Present' (HU).",
+    "values": {
+      "051": "Chip EMV (Capacidade de PIN). Qualifica para as melhores taxas de intercâmbio (IA).",
+      "010": "Digitado (E-commerce). Geralmente gera downgrade para IRD HU (mais caro).",
+      "071": "Contactless (NFC) via Chip. Qualifica para IRD JA.",
+      "901": "Tarja Magnética (Full Track). Alto risco de fraude e intercâmbio punitivo se o cartão tiver chip."
+    }
+  },
+  {
+    "id": "PDS0158",
+    "name": "Interchange Rate Designator (IRD)",
+    "description": "O 'carimbo' da Mastercard que define a taxa final de intercâmbio no clearing.",
+    "impact": "DIRETO",
+    "impact_desc": "Este é o campo final de liquidação. Ele reflete o resultado de todas as outras variáveis.",
+    "values": {
+      "IA": "Interchange A (Base). Taxa padrão para transações presenciais seguras.",
+      "HU": "High Value/E-com. Taxa penalizada para e-commerce sem 3DS.",
+      "AU": "Authentication. Taxa para e-commerce com 3DS Frictionless.",
+      "JA": "Contactless. Taxa para aproximação."
+    }
+  },
+  {
+    "id": "DE048_SE61",
+    "name": "POS Cardholder Condition Code",
+    "description": "Indica a condição do portador no momento da compra (E-commerce, MOTO, Recorrência).",
+    "impact": "ALTO",
+    "impact_desc": "Define o canal de venda. Erros aqui impedem a qualificação em programas de incentivo.",
+    "values": {
+      "01": "Card Not Present (E-commerce)",
+      "04": "Standing Instruction (Recorrência/Assinatura)",
+      "05": "Installment (Parcelado)"
+    }
+  },
+  {
+    "id": "DE003",
+    "name": "Processing Code",
+    "description": "Define o tipo de transação (Compra, Saque, Estorno).",
+    "impact": "MÉDIO",
+    "impact_desc": "Determina se a transação gera receita ou despesa de intercâmbio.",
+    "values": {
+      "00": "Purchase (Compra)",
+      "09": "Purchase with Cashback",
+      "20": "Refund (Estorno)"
+    }
+  }
+]

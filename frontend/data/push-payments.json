@@ -1,0 +1,35 @@
+[
+  {
+    "id": "aft",
+    "name": "AFT (Account Funding Transaction)",
+    "description": "Transação de 'Pull'. O dinheiro é retirado da conta do remetente via cartão de débito ou crédito.",
+    "mti": "0100 / 0200",
+    "use_case": "Carregar carteira digital, Iniciar P2P, Pagar fatura com outro cartão.",
+    "impact": "Considerada transação de alto risco de liquidez. Possui intercâmbio específico (geralmente fixo + %)."
+  },
+  {
+    "id": "oct",
+    "name": "OCT (Original Credit Transaction)",
+    "description": "Transação de 'Push'. O dinheiro é creditado na conta do destinatário em tempo real.",
+    "mti": "0200 (Transaction Code 06 na Visa / PDS 0025 na MC)",
+    "use_case": "Prêmios de apostas, Reembolso de seguros, Payout de motoristas de app, P2P Receive.",
+    "impact": "Gera um crédito positivo no saldo do cartão. O emissor DEVE disponibilizar os fundos em até 30 minutos (Fast Funds)."
+  },
+  {
+    "id": "fast_funds",
+    "name": "Visa Fast Funds / MC MoneySend",
+    "description": "Mandato das bandeiras que exige que o Banco Emissor (RI) disponibilize o dinheiro ao cliente final quase instantaneamente.",
+    "sla": "Máximo de 30 minutos após a aprovação da OCT.",
+    "status": "Obrigatório para emissores certificados.",
+    "penalty": "Multas por atraso na disponibilização (Non-compliance fees)."
+  },
+  {
+    "id": "payout_cases",
+    "name": "Casos de Uso Globais",
+    "examples": [
+      {"name": "Gig Economy", "desc": "Uber/iFood pagando o motorista logo após a corrida."},
+      {"name": "Gaming", "desc": "Sites de apostas pagando o prêmio instantaneamente."},
+      {"name": "Gov-to-Citizen", "desc": "Pagamento de benefícios sociais direto no cartão."}
+    ]
+  }
+]

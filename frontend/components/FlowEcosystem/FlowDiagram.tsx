@@ -14,6 +14,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ChevronRight, ChevronLeft, Map, Play, Pause, Minimize2, Maximize2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 import { initialNodes, NodeData } from './nodes';
 import { initialEdges } from './edges';
@@ -106,6 +107,15 @@ function FlowDiagramInner() {
   const [minimized, setMinimized]       = useState(false);
   const [bandeira, setBandeira]         = useState<Bandeira>('ambas');
   const [isReplaying, setIsReplaying]   = useState(false);
+
+  const searchParams = useSearchParams();
+  const initialBandeira = searchParams.get('bandeira') as Bandeira | null;
+  const initialStep = searchParams.get('step');
+
+  useEffect(() => {
+    if (initialBandeira) setBandeira(initialBandeira);
+    if (initialStep) setTourStep(parseInt(initialStep, 10));
+  }, [initialBandeira, initialStep]);
 
   const { theme }  = useTheme();
   const { fitView } = useReactFlow();

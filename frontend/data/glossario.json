@@ -592,5 +592,95 @@
     "definicao": "A plataforma de tokenização da Visa. Gera e gerencia Tokens (DPANs e Network Tokens) que substituem o PAN real em transações de carteiras digitais (Apple Pay, Google Pay) e e-commerce tokenizado. Equivale ao MDES da Mastercard.",
     "impacto": "VTS é a infraestrutura central para implementar Network Tokens (recorrência segura) e activar o DAF (Digital Authentication Framework) para Liability Shift sem 3DS em carteiras.",
     "referencia": "Visa Token Service Technical Specification"
+  },
+  {
+    "termo": "GCMS (Global Clearing Management System)",
+    "sigla": "GCMS",
+    "categoria": "Liquidação",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Sistema central da Mastercard responsável pelo processamento de arquivos de clearing (IPM). Ele valida as transações, calcula o intercâmbio com base nas tabelas (T165, T168) e gera os arquivos de saída para os emissores.",
+    "impacto": "É o motor que determina se o adquirente receberá o valor correto da venda após descontar o intercâmbio.",
+    "referencia": "Mastercard Clearing Guide"
+  },
+  {
+    "termo": "TPE (Transaction Processing Excellence)",
+    "sigla": "TPE",
+    "categoria": "Programas de Monitoramento",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Programa de integridade técnica que monitora a qualidade da autorização. Pune excesso de retentativas (Optimizer), MCCs incorretos e má qualidade de dados nos campos ISO 8583.",
+    "impacto": "Gera multas automáticas no faturamento mensal (MCBS) se a operação técnica for ineficiente.",
+    "referencia": "Mastercard TPE Manual"
+  },
+  {
+    "termo": "IPM (Integrated Product Message)",
+    "sigla": "IPM",
+    "categoria": "Mensageria",
+    "bandeiras": ["Mastercard"],
+    "definicao": "O formato de arquivo proprietário da Mastercard usado para intercâmbio de dados de clearing entre adquirentes, bandeira e emissores. Substituiu o antigo formato CIS.",
+    "impacto": "Erros na formatação de arquivos IPM impedem a liquidação financeira das transações.",
+    "referencia": "Mastercard IPM Interface Specs"
+  },
+  {
+    "termo": "MCBS (Mastercard Consolidated Billing System)",
+    "sigla": "MCBS",
+    "categoria": "Pricing",
+    "bandeiras": ["Mastercard"],
+    "definicao": "Sistema centralizado de fatura da Mastercard. É onde todas as taxas de rede (Scheme Fees), intercâmbio e multas operacionais (BRAM, TPE) são consolidadas mensalmente.",
+    "impacto": "É o extrato final que mostra a lucratividade líquida de um adquirente após todas as taxas de bandeira.",
+    "referencia": "Mastercard Billing Manual"
+  },
+  {
+    "termo": "Downgrade (Rebaixamento de Intercâmbio)",
+    "sigla": null,
+    "categoria": "Pricing",
+    "bandeiras": ["Global"],
+    "definicao": "Ocorre quando uma transação não cumpre os requisitos técnicos para uma faixa de intercâmbio menor (incentivada) e é 'rebaixada' para uma faixa mais cara (geralmente Standard). Causado por atrasos no clearing ou campos ISO mal preenchidos.",
+    "impacto": "É a maior causa de perda de margem de lucro para adquirentes. Um downgrade pode aumentar o custo da transação em até 1.00%.",
+    "referencia": "Visa/Mastercard Interchange Qualification Guides"
+  },
+  {
+    "termo": "DAF (Digital Authentication Framework)",
+    "sigla": "DAF",
+    "categoria": "Autenticação",
+    "bandeiras": ["Visa"],
+    "definicao": "Framework da Visa que reconhece a autenticação biométrica de carteiras digitais (Apple Pay/Google Pay) para conceder Liability Shift sem necessidade de um fluxo 3DS externo.",
+    "impacto": "Permite aprovação frictionless com proteção contra fraude, aumentando a conversão no checkout mobile.",
+    "referencia": "Visa Service Rules — DAF Section"
+  },
+  {
+    "termo": "TIDI (Token ID Indicator)",
+    "sigla": "TIDI",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa"],
+    "definicao": "Campo na mensagem de autorização que vincula uma transação recorrente de token à autenticação inicial. Essencial para manter o Liability Shift em assinaturas.",
+    "impacto": "Sem o TIDI correto, o lojista pode ser responsabilizado por fraudes em cobranças recorrentes subsequentes.",
+    "referencia": "Visa Tokenization Specification"
+  },
+  {
+    "termo": "TAF (Token Authentication Flag)",
+    "sigla": "TAF",
+    "categoria": "Tokenização",
+    "bandeiras": ["Visa"],
+    "definicao": "Indicador que prova que a transação foi originada por um Token autenticado. É o 'bit' que avisa ao emissor que a segurança do token foi validada pela bandeira.",
+    "impacto": "Garante que o emissor não recuse a transação por suspeita de fraude em ambientes tokenizados.",
+    "referencia": "Visa Product Rules"
+  },
+  {
+    "termo": "CAT Level (Cardholder Activated Terminal)",
+    "sigla": "CAT",
+    "categoria": "Identificação",
+    "bandeiras": ["Global"],
+    "definicao": "Indicador que classifica o nível de automação de um terminal (CAT 1 = Self Service, CAT 2 = Quiosque, CAT 3 = Pedágio).",
+    "impacto": "O preenchimento correto do CAT Level é obrigatório para acessar as faixas de intercâmbio de incentivo de transportes e combustíveis.",
+    "referencia": "ISO 8583 DE 48 / Mastercard Rules"
+  },
+  {
+    "termo": "Late Presentment (Atraso de Clearing)",
+    "sigla": null,
+    "categoria": "Liquidação",
+    "bandeiras": ["Global"],
+    "definicao": "Quando um adquirente envia o arquivo de clearing (captura) após o prazo máximo permitido pela bandeira (geralmente 3-7 dias após a autorização).",
+    "impacto": "Gera multas automáticas e causa o rebaixamento (downgrade) da transação para a faixa de intercâmbio mais cara.",
+    "referencia": "Mastercard Transaction Processing Rules"
   }
 ]

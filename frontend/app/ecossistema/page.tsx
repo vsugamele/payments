@@ -86,7 +86,7 @@ export default function EcosystemPage() {
 
             {/* Omni-search trigger area (visual) */}
             <div className="w-full md:w-80">
-              <GlobalSearch isExposed={true} />
+              <GlobalSearch />
             </div>
           </div>
         </div>

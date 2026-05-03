@@ -1,6 +1,6 @@
 // ─── Tipos compartilhados entre frontend e API ───────────────────────────────
 
-export type Bandeira = "visa" | "mastercard" | "maestro";
+export type Bandeira = "visa" | "mastercard" | "maestro" | "elo";
 
 // ─── Health / Reload ──────────────────────────────────────────────────────────
 export interface HealthResponse {
@@ -83,6 +83,9 @@ export interface SimForm {
   canal_mc: string;
   pessoa: string;
   tipo_produto: string;
+  // Margem e Provisionamento
+  mdr?: string;
+  scheme_fee?: string;
   // Debug
   debug: boolean;
 }

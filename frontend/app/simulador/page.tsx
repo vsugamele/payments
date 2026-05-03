@@ -130,6 +130,50 @@ export default function SimuladorRoute() {
         </div>
       </section>
 
+      {/* Guia Técnico de Provisionamento */}
+      <section className="border-t border-border bg-[#0a0f18]">
+        <div className="mx-auto max-w-5xl px-6 py-12">
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <CreditCard size={20} className="text-emerald-500"/> Guia de Provisionamento e Clearing Técnico
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              O momento da autorização (0100/0200) apenas reserva o saldo. A verdadeira "conta" para a Adquirente chega no **Clearing**. Para provisionar as margens corretamente (calcular o *Spread* antes da liquidação), o motor de reconciliação precisa ler campos específicos dos arquivos de clearing.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Visa VSS */}
+            <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold font-mono">V</div>
+                <h3 className="font-bold text-slate-200">Visa (Base II / VSS)</h3>
+              </div>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Arquivo de Clearing:</strong> Edit Package (TC33) ou raw Base II.</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Motor de Cálculo:</strong> VisaNet Settlement Service (VSS). A Visa calcula e devolve o fee aplicado através do report <TermTooltip term="VSS-110 / VSS-120" definition="Reports oficiais de settlement da Visa contendo a sumarização de fundos líquidos, incluindo Interchange e Scheme Fees por BIN/região." />.</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Campos Críticos de Reconciliação:</strong> `Fee Program Indicator (FPI)`, `Product ID (PID)`, `Business Application Identifier (BAI)` e `Reimbursement Attribute`.</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Margem:</strong> A Adquirente estima o custo lendo a Tabela VSS em D+0. A reconciliação real ocorre quando a Visa envia os relatórios finais do Draft Data.</span></li>
+              </ul>
+            </div>
+
+            {/* Mastercard GCMS */}
+            <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold font-mono">M</div>
+                <h3 className="font-bold text-slate-200">Mastercard (GCMS / IPM)</h3>
+              </div>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Arquivo de Clearing:</strong> IPM (Integrated Product Messages).</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Motor de Cálculo:</strong> Global Clearing Management System (GCMS). Ele roda as regras de MCC, IRD e CVM em tempo real.</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Campos Críticos de Reconciliação:</strong> O sub-elemento de clearing `DE048` e o `PDS 0158` (Interchange Rate Designator - IRD). Aqui a Mastercard literalmente 'carimba' qual a taxa exata na mensagem T112/T114.</span></li>
+                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Margem:</strong> O provisionamento da MC é mais 'garantido' em D+0 se a adquirente souber derivar o IRD, pois as tabelas de MCBS (Mastercard Consolidated Billing System) são mapeáveis no pré-clearing.</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Formulário & Motor */}
       <section className="border-t border-border bg-black/40">
         <div className="mx-auto max-w-7xl px-6 pt-12">

@@ -84,3 +84,6 @@ export async function calcular(form: SimForm): Promise<CalcResult> {
     categoria: form.categoria || undefined,
   });
 }
+
+// ─── MCBS ─────────────────────────────────────────────────────────────────────
+export const fetchMcbsFees = () => get<any>("/mcbs/fees");

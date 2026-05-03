@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Info, Cpu, ChevronDown, ChevronRight } from "lucide-react";
 import emvData from "@/data/emv-tvr.json";
 import RuleReference from "@/components/RuleReference";
+import AIAssistant from "@/components/AIAssistant";
 
 const RISK_CONFIG = {
   critical: { label: "CRÍTICO", color: "#ef4444", bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.3)", icon: AlertTriangle },
@@ -188,12 +189,23 @@ export default function EMVDecoderClient() {
                   : `⚠️ Nível ${RISK_CONFIG[overallRisk].label} — ${activeBits.filter(b => b.def.risk !== "none").length} flag(s) ativo(s)`}
               </p>
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap items-center">
               {(["critical","high","medium","low"] as const).filter(r => riskSummary[r] > 0).map(r => (
                 <div key={r} className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: RISK_CONFIG[r].bg, color: RISK_CONFIG[r].color, border: `1px solid ${RISK_CONFIG[r].border}` }}>
                   {riskSummary[r]}x {RISK_CONFIG[r].label}
                 </div>
               ))}
+              
+              {activeBits.length > 0 && (
+                <div className="ml-2 pl-4 border-l border-border/50">
+                  <AIAssistant 
+                    toolName="Decodificador EMV"
+                    triggerLabel="Análise Forense (IA)"
+                    context={`TVR Hex: ${tvrHex}. Flags ativos: ${activeBits.map(b => `${b.def.flag} (${b.def.desc})`).join(", ")}`}
+                    placeholder="Pergunte sobre liability shift ou regras de fallback..."
+                  />
+                </div>
+              )}
             </div>
           </div>
 

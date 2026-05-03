@@ -1,0 +1,23 @@
+[
+  {
+    "id": "vcx",
+    "name": "VCX (Visa Clearing eXchange)",
+    "description": "Interface web e gateway de arquivos que permite a gestão do ciclo de clearing Base II.",
+    "function": "Monitoramento de arquivos, pesquisa de transações, gestão de exceções e relatórios de conformidade.",
+    "benefit": "Transparência total sobre o status dos arquivos de captura (TCs)."
+  },
+  {
+    "id": "vss",
+    "name": "VSS (Visa Settlement Service)",
+    "description": "O motor de liquidação que consolida as obrigações financeiras globais da Visa.",
+    "function": "Cálculo de posições líquidas, conversão de moedas de settlement e geração de ordens de transferência bancária.",
+    "impact": "É onde o intercâmbio e as Scheme Fees são efetivamente debitados/creditados."
+  },
+  {
+    "id": "psr",
+    "name": "PSR (Payment Service Rules)",
+    "description": "O conjunto mestre de regras operacionais e comerciais da bandeira.",
+    "topics": ["Licenciamento", "Gestão de Merchants", "Regras de Aceitação", "Sinalização de Marca (Branding)"],
+    "enforcement": "A violação de uma PSR resulta em multas de conformidade que podem chegar a centenas de milhares de dólares."
+  }
+]

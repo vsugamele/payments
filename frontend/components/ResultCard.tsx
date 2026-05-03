@@ -1,14 +1,17 @@
 "use client";
 
-import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, ArrowRight } from "lucide-react";
 import type { CalcResult } from "@/lib/types";
 import RuleReference from "./RuleReference";
+import { useRouter } from "next/navigation";
 
 interface Props {
   result: CalcResult;
 }
 
 export function ResultCard({ result }: Props) {
+  const router = useRouter();
+  
   if (!result.sucesso) {
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-950/30 p-5">
@@ -112,6 +115,18 @@ export function ResultCard({ result }: Props) {
           <p className="text-xs text-amber-300">{aviso}</p>
         </div>
       )}
+
+      {/* Interconexão: Ver Jornada */}
+      <button
+        onClick={() => {
+          const step = result.bandeira === 'visa' ? 5 : 5; // Passo 5 é Clearing na arquitetura
+          router.push(`/arquitetura?bandeira=${result.bandeira}&step=${step}`);
+        }}
+        className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-xl transition-all text-xs font-bold uppercase tracking-widest mt-2"
+      >
+        Ver Jornada desta Transação
+        <ArrowRight size={14} />
+      </button>
     </div>
   );
 }

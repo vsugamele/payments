@@ -33,6 +33,18 @@ export default function RagChat() {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    const handleOpenChat = (e: CustomEvent<{ query: string }>) => {
+      setIsOpen(true);
+      if (e.detail?.query) {
+        setInput(e.detail.query);
+      }
+    };
+    
+    window.addEventListener('open-rag-chat', handleOpenChat as EventListener);
+    return () => window.removeEventListener('open-rag-chat', handleOpenChat as EventListener);
+  }, []);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 

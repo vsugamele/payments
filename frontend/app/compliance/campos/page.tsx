@@ -1,12 +1,13 @@
-import Link from "next/link";
-import { Search, ArrowLeft, Network, ShieldClose, ServerCrash, KeyRound } from "lucide-react";
 import CamposClient from "./CamposClient";
+import MessageParserClient from "./MessageParserClient";
 import TermTooltip from "@/components/TermTooltip";
 import RuleReference from "@/components/RuleReference";
+import Link from "next/link";
+import { ArrowLeft, Network, KeyRound, ServerCrash, ShieldClose } from "lucide-react";
 
 export const metadata = {
   title: "Autorização & ISO 8583 — Compliance VS Payments",
-  description: "Playbook completo da fisiologia transacional na rede VIP/Banknet. Aprenda como montar pacotes resilientes e evite quedas silenciosas por Stand-In.",
+  description: "Laboratório de diagnóstico de mensagens ISO 8583 e IPM Mastercard. Decodifique logs e entenda o impacto financeiro de cada campo no intercâmbio.",
 };
 
 export default function CamposPage() {
@@ -43,24 +44,29 @@ export default function CamposPage() {
               <Network size={24} style={{ color: "#3b82f6" }} />
             </div>
             <div>
-              <p className="section-eyebrow mb-2">Engenharia de Intercâmbio</p>
+              <p className="section-eyebrow mb-2">Engenharia de Mensageria</p>
               <h1 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", lineHeight: 1.1 }}>
-                Fisiologia da Autorização <br className="hidden md:block"/> ISO-8583
+                Fisiologia da Autorização <br className="hidden md:block"/> ISO-8583 & IPM
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
                 O desconhecimento do ecossistema de liquidação causa perdas massivas de aprovação. Entenda a jornada da requisição{" "}
                 <TermTooltip term="0100" definition="Message Type Indicator (MTI) que indica um Pedido de Autorização originado pelo Adquirente." />
                 , o impacto de cada Campo de Dados ({" "}
                 <TermTooltip term="DE / Data Element" definition="Data Element representa posições contidas nos Bitmaps da norma ISO 8583-1987. Ex: DE 2 é o PAN, DE 39 é a reposta." />
-                {" "}), e verifique no Validador Tático abaixo a solidez técnica da sua mensagem financeira.
+                {" "}), e utilize o **Laboratório de Diagnóstico** abaixo para decodificar logs reais e prever o custo de intercâmbio.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Conteúdo Teórico */}
+      {/* ── Laboratório de Diagnóstico (Parser) ── */}
       <section className="mx-auto max-w-5xl px-6 py-12">
+         <MessageParserClient />
+      </section>
+
+      {/* Conteúdo Teórico */}
+      <section className="mx-auto max-w-5xl px-6 py-12 border-t border-slate-900">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           
           {/* Lado Esquerdo: A Mecânica */}

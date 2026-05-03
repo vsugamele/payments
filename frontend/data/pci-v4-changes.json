@@ -1,0 +1,34 @@
+[
+  {
+    "id": "mfa",
+    "title": "MFA em Todo Lugar",
+    "v3_rule": "MFA apenas para acesso administrativo remoto.",
+    "v4_rule": "MFA obrigatório para TODOS os acessos ao CDE (Cardholder Data Environment), inclusive locais.",
+    "impact": "CRÍTICO",
+    "benefit": "Impede 90% dos ataques baseados em roubo de credenciais internas."
+  },
+  {
+    "id": "skimming",
+    "title": "Proteção de Scripts (E-com)",
+    "v3_rule": "Monitoramento genérico de logs.",
+    "v4_rule": "Gestão ativa de todos os scripts JS rodando na página de checkout (Requirement 6.4.3 e 11.6.1).",
+    "impact": "ALTO",
+    "benefit": "Previne o Magecart (Digital Skimming) onde invasores injetam código para roubar PAN no front-end."
+  },
+  {
+    "id": "custom",
+    "title": "Customized Approach",
+    "v3_rule": "Rígida (Siga a regra ou use controles compensatórios).",
+    "v4_rule": "Flexível. O lojista pode atingir o 'Objetivo' do requisito com uma solução inovadora validada pelo QSA.",
+    "impact": "MÉDIO",
+    "benefit": "Permite que empresas de tecnologia usem ferramentas modernas de cloud que antes eram barradas."
+  },
+  {
+    "id": "passwords",
+    "title": "Senhas Robustas",
+    "v3_rule": "Mínimo 7 caracteres.",
+    "v4_rule": "Mínimo 12 caracteres (se não houver MFA) e rotação baseada em risco.",
+    "impact": "MÉDIO",
+    "benefit": "Aumenta a resistência a ataques de brute-force."
+  }
+]

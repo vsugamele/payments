@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShieldCheck, ShieldAlert, Fingerprint, RefreshCw, CreditCard, Info } from "lucide-react";
+import AIAssistant from "./AIAssistant";
 
 export default function DafSimulator() {
   const [source, setSource] = useState("manual_pan");
@@ -129,7 +130,15 @@ export default function DafSimulator() {
 
       {/* Diagnostics Panel */}
       <div className="w-full xl:w-7/12 flex flex-col gap-4">
-         <h3 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold px-2">Resultado da Avaliação: Liability Shift & UX</h3>
+         <div className="flex items-center justify-between px-2">
+           <h3 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold">Liability Shift & UX</h3>
+           <AIAssistant 
+             toolName="Simulador DAF"
+             triggerLabel="Consultar Manuais"
+             context={`Origem: ${source}, DAF Registrado: ${dafRegistered}, Primeira Transação: ${firstTx}. Diagnóstico atual: ${results.map(r => r.title).join("; ")}`}
+             placeholder="Como o DAF impacta o intercâmbio neste caso?"
+           />
+         </div>
          <div className="flex flex-col gap-4">
            {results.map((res, i) => {
               let bg = "bg-input";

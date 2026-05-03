@@ -7,7 +7,7 @@ import RuleReference from "@/components/RuleReference";
 
 export default function DisputeSimulatorClient() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDispute, setSelectedDispute] = useState(data[0]); // Default to 4837 Fraud
+  const [selectedDispute, setSelectedDispute] = useState<any>(data[0]); // Default to 4837 Fraud
 
   const filteredData = data.filter(
     (item) =>

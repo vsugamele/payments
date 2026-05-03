@@ -1,327 +1,177 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, BookOpen, ChevronRight, X, Tag } from "lucide-react";
-import glossario from "@/data/glossario.json";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Search, 
+  BookMarked, 
+  ChevronRight, 
+  ArrowRight, 
+  ExternalLink,
+  Filter,
+  Layers,
+  Tag,
+  Scale,
+  Calculator,
+  ShieldCheck,
+  Zap
+} from "lucide-react";
+import glossarioData from "@/data/glossario.json";
 
-const CATEGORIAS = [
-  "Todos",
-  "Autorização",
-  "Autenticação",
-  "Disputas",
-  "Fraude",
-  "Identificação",
-  "Liquidação",
-  "Mensageria",
-  "Participantes",
-  "Canais de Pagamento",
-  "Pricing",
-  "Programas de Monitoramento",
-  "Regulatório",
-  "Risco",
-  "Segurança",
-  "Tokenização",
-];
-
-const CAT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Autorização: { bg: "rgba(99,102,241,0.1)", text: "#818cf8", border: "rgba(99,102,241,0.25)" },
-  Autenticação: { bg: "rgba(16,185,129,0.1)", text: "#34d399", border: "rgba(16,185,129,0.25)" },
-  Disputas: { bg: "rgba(239,68,68,0.1)", text: "#f87171", border: "rgba(239,68,68,0.25)" },
-  Fraude: { bg: "rgba(234,179,8,0.1)", text: "#fbbf24", border: "rgba(234,179,8,0.25)" },
-  Identificação: { bg: "rgba(20,184,166,0.1)", text: "#2dd4bf", border: "rgba(20,184,166,0.25)" },
-  Liquidação: { bg: "rgba(59,130,246,0.1)", text: "#60a5fa", border: "rgba(59,130,246,0.25)" },
-  Mensageria: { bg: "rgba(168,85,247,0.1)", text: "#c084fc", border: "rgba(168,85,247,0.25)" },
-  Participantes: { bg: "rgba(251,146,60,0.1)", text: "#fb923c", border: "rgba(251,146,60,0.25)" },
-  "Canais de Pagamento": { bg: "rgba(236,72,153,0.1)", text: "#f472b6", border: "rgba(236,72,153,0.25)" },
-  Pricing: { bg: "rgba(34,197,94,0.1)", text: "#4ade80", border: "rgba(34,197,94,0.25)" },
-  "Programas de Monitoramento": { bg: "rgba(245,158,11,0.1)", text: "#f59e0b", border: "rgba(245,158,11,0.25)" },
-  Regulatório: { bg: "rgba(100,116,139,0.1)", text: "#94a3b8", border: "rgba(100,116,139,0.25)" },
-  Risco: { bg: "rgba(239,68,68,0.1)", text: "#f87171", border: "rgba(239,68,68,0.25)" },
-  Segurança: { bg: "rgba(239,68,68,0.12)", text: "#fca5a5", border: "rgba(239,68,68,0.2)" },
-  Tokenização: { bg: "rgba(139,92,246,0.1)", text: "#a78bfa", border: "rgba(139,92,246,0.25)" },
+// Ícones por categoria
+const CATEGORY_ICONS: Record<string, any> = {
+  "Autenticação": Zap,
+  "Disputas": Scale,
+  "Participantes": Layers,
+  "Autorização": CpuIcon,
+  "Identificação": Tag,
+  "Programas de Monitoramento": ShieldCheck,
+  "Canais de Pagamento": NetworkIcon,
+  "Liquidação": Calculator,
+  "Segurança": LockIcon,
+  "Regulatório": GavelIcon,
+  "Pricing": DollarSignIcon,
+  "Tokenização": KeyIcon,
 };
 
-const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+function CpuIcon(props: any) { return <Zap {...props} />; }
+function NetworkIcon(props: any) { return <Zap {...props} />; }
+function LockIcon(props: any) { return <ShieldCheck {...props} />; }
+function GavelIcon(props: any) { return <Scale {...props} />; }
+function DollarSignIcon(props: any) { return <Calculator {...props} />; }
+function KeyIcon(props: any) { return <Tag {...props} />; }
 
-type TermoGlossario = typeof glossario[0];
+export default function GlossarioClient() {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
 
-function TermoCard({ t, onExpand, isExpanded }: { t: TermoGlossario; onExpand: () => void; isExpanded: boolean }) {
-  const cat = CAT_COLORS[t.categoria] ?? { bg: "rgba(100,116,139,0.08)", text: "#94a3b8", border: "rgba(100,116,139,0.2)" };
+  const categories = useMemo(() => {
+    const cats = new Set(glossarioData.map(i => i.categoria));
+    return ["Todas", ...Array.from(cats).sort()];
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    return glossarioData.filter(item => {
+      const matchesSearch = 
+        item.termo.toLowerCase().includes(search.toLowerCase()) ||
+        (item.sigla?.toLowerCase().includes(search.toLowerCase())) ||
+        item.definicao.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "Todas" || item.categoria === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [search, selectedCategory]);
 
   return (
-    <div
-      onClick={onExpand}
-      style={{
-        background: isExpanded ? "rgba(99,102,241,0.04)" : "rgba(0,0,0,0.35)",
-        border: `1px solid ${isExpanded ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.05)"}`,
-        borderRadius: "0.875rem",
-        padding: "1.25rem 1.5rem",
-        cursor: "pointer",
-        transition: "all 0.15s ease",
-      }}
-      className="hover:border-indigo-500/30 hover:bg-indigo-500/5"
-    >
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem", marginBottom: "0.375rem" }}>
-            <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "#f1f5f9" }}>
-              {t.termo}
-            </span>
-            {t.sigla && (
-              <code style={{
-                fontSize: "0.65rem",
-                fontWeight: 700,
-                background: "rgba(99,102,241,0.15)",
-                color: "#818cf8",
-                padding: "0.1rem 0.45rem",
-                borderRadius: "0.25rem",
-                letterSpacing: "0.05em",
-              }}>
-                {t.sigla}
-              </code>
-            )}
+    <div className="space-y-8 pb-20">
+      
+      {/* ── Filtros e Busca ── */}
+      <section className="sticky top-20 z-30 bg-[#030711]/80 backdrop-blur-md py-4 -mx-2 px-2 border-b border-slate-900/50">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+            <input 
+              type="text"
+              placeholder="Busque por termo ou sigla (ex: 3DS, BRAM, VAMP)..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-[#0a1120] border border-slate-800 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            />
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-            <span style={{
-              fontSize: "0.65rem",
-              fontWeight: 600,
-              background: cat.bg,
-              color: cat.text,
-              border: `1px solid ${cat.border}`,
-              padding: "0.15rem 0.55rem",
-              borderRadius: "9999px",
-              letterSpacing: "0.04em",
-            }}>
-              {t.categoria}
-            </span>
-            {t.bandeiras.map((b) => (
-              <span key={b} style={{
-                fontSize: "0.6rem",
-                fontWeight: 600,
-                background: "rgba(255,255,255,0.04)",
-                color: "#64748b",
-                padding: "0.1rem 0.4rem",
-                borderRadius: "0.25rem",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}>
-                {b}
-              </span>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar w-full md:w-auto">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  selectedCategory === cat 
+                    ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20" 
+                    : "bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 hover:text-slate-300"
+                }`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
         </div>
-        <ChevronRight
-          size={16}
-          style={{
-            color: "#475569",
-            flexShrink: 0,
-            transform: isExpanded ? "rotate(90deg)" : "none",
-            transition: "transform 0.15s",
-            marginTop: 4,
-          }}
-        />
-      </div>
+      </section>
 
-      {/* Definição resumida */}
-      {!isExpanded && (
-        <p style={{
-          marginTop: "0.75rem",
-          fontSize: "0.82rem",
-          color: "#64748b",
-          lineHeight: 1.6,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}>
-          {t.definicao}
-        </p>
-      )}
+      {/* ── Grid de Termos ── */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AnimatePresence mode="popLayout">
+          {filteredItems.map((item, idx) => {
+            const Icon = CATEGORY_ICONS[item.categoria] || BookMarked;
+            return (
+              <motion.div
+                key={item.termo}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, delay: idx * 0.02 }}
+                className="group relative bg-[#0a1120]/40 border border-slate-800/60 rounded-[2rem] p-6 hover:border-blue-500/30 hover:bg-[#0a1120] transition-all flex flex-col h-full group-hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.1)]"
+              >
+                {/* Header Termo */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-400 group-hover:border-blue-500/30 transition-all">
+                      <Icon size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">
+                        {item.termo} {item.sigla && <span className="text-blue-500/50 ml-1">({item.sigla})</span>}
+                      </h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{item.categoria}</p>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Expandido */}
-      {isExpanded && (
-        <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-          <div>
-            <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.375rem" }}>Definição</p>
-            <p style={{ fontSize: "0.875rem", color: "#94a3b8", lineHeight: 1.75 }}>{t.definicao}</p>
-          </div>
-          {"impacto" in t && t.impacto && (
-            <div style={{ background: "rgba(250,204,21,0.05)", border: "1px solid rgba(250,204,21,0.15)", borderRadius: "0.5rem", padding: "0.75rem 1rem" }}>
-              <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ca8a04", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.25rem" }}>💡 Impacto Operacional</p>
-              <p style={{ fontSize: "0.82rem", color: "#a16207", lineHeight: 1.65 }}>{t.impacto}</p>
-            </div>
-          )}
-          {"referencia" in t && t.referencia && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <BookOpen size={11} style={{ color: "#4f46e5", flexShrink: 0 }} />
-              <span style={{ fontSize: "0.72rem", color: "#6366f1", fontWeight: 600 }}>{t.referencia}</span>
-            </div>
-          )}
+                {/* Definição */}
+                <p className="text-xs text-slate-400 leading-relaxed mb-6 flex-grow">
+                  {item.definicao.length > 160 ? `${item.definicao.substring(0, 160)}...` : item.definicao}
+                </p>
+
+                {/* Impacto / Mão na Massa */}
+                {item.impacto && (
+                  <div className="mb-6 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                      <Zap size={10} /> Impacto Prático
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-tight italic">
+                      {item.impacto.substring(0, 80)}...
+                    </p>
+                  </div>
+                )}
+
+                {/* Footer / Bandeiras */}
+                <div className="mt-auto pt-4 border-t border-slate-800/50 flex items-center justify-between">
+                  <div className="flex gap-1.5">
+                    {item.bandeiras.map(b => (
+                      <span key={b} className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[8px] font-bold text-slate-500 uppercase tracking-tighter">
+                        {b}
+                      </span>
+                    ))}
+                  </div>
+                  <button className="text-[10px] font-bold text-blue-400 flex items-center gap-1.5 group/btn">
+                    Expandir <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </section>
+
+      {/* ── Empty State ── */}
+      {filteredItems.length === 0 && (
+        <div className="py-24 text-center">
+          <BookMarked size={48} className="text-slate-800 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-slate-400">Nenhum termo encontrado</h3>
+          <p className="text-sm text-slate-600">Tente buscar por termos mais genéricos ou mude a categoria.</p>
         </div>
       )}
-    </div>
-  );
-}
-
-export default function GlossarioClient() {
-  const [busca, setBusca] = useState("");
-  const [catAtiva, setCatAtiva] = useState("Todos");
-  const [letraAtiva, setLetraAtiva] = useState<string | null>(null);
-  const [expandido, setExpandido] = useState<string | null>(null);
-
-  const filtrados = useMemo(() => {
-    return glossario.filter((t) => {
-      const matchBusca =
-        busca.trim() === "" ||
-        t.termo.toLowerCase().includes(busca.toLowerCase()) ||
-        (t.sigla && t.sigla.toLowerCase().includes(busca.toLowerCase())) ||
-        t.definicao.toLowerCase().includes(busca.toLowerCase());
-      const matchCat = catAtiva === "Todos" || t.categoria === catAtiva;
-      const matchLetra =
-        !letraAtiva || t.termo.toUpperCase().startsWith(letraAtiva);
-      return matchBusca && matchCat && matchLetra;
-    });
-  }, [busca, catAtiva, letraAtiva]);
-
-  const letrasComTermos = useMemo(
-    () => new Set(glossario.map((t) => t.termo[0].toUpperCase())),
-    []
-  );
-
-  return (
-    <div style={{ maxWidth: "1024px", margin: "0 auto", padding: "0 1.5rem 6rem" }}>
-
-      {/* Barra de busca */}
-      <div style={{ position: "relative", marginBottom: "1.5rem" }}>
-        <Search size={18} style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#475569", pointerEvents: "none" }} />
-        <input
-          type="text"
-          placeholder="Buscar por termo, sigla ou definição..."
-          value={busca}
-          onChange={(e) => { setBusca(e.target.value); setLetraAtiva(null); }}
-          style={{
-            width: "100%",
-            background: "rgba(0,0,0,0.4)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "0.75rem",
-            padding: "0.875rem 1rem 0.875rem 3rem",
-            color: "#f1f5f9",
-            fontSize: "0.9rem",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-          className="focus:border-indigo-500/50 transition-colors"
-        />
-        {busca && (
-          <button onClick={() => setBusca("")} style={{ position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)", color: "#475569" }}>
-            <X size={16} />
-          </button>
-        )}
-      </div>
-
-      {/* Filtros de Categoria */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.5rem" }}>
-        {CATEGORIAS.map((cat) => {
-          const cc = CAT_COLORS[cat];
-          const isActive = catAtiva === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => setCatAtiva(cat)}
-              style={{
-                fontSize: "0.72rem",
-                fontWeight: 600,
-                padding: "0.3rem 0.75rem",
-                borderRadius: "9999px",
-                border: isActive
-                  ? `1px solid ${cc?.border ?? "rgba(99,102,241,0.5)"}`
-                  : "1px solid rgba(255,255,255,0.07)",
-                background: isActive
-                  ? (cc?.bg ?? "rgba(99,102,241,0.15)")
-                  : "rgba(255,255,255,0.03)",
-                color: isActive ? (cc?.text ?? "#818cf8") : "#64748b",
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Índice Alfabético */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", marginBottom: "2rem" }}>
-        {ALFABETO.map((l) => {
-          const hasTerms = letrasComTermos.has(l);
-          const isActive = letraAtiva === l;
-          return (
-            <button
-              key={l}
-              onClick={() => {
-                setLetraAtiva(isActive ? null : l);
-                setBusca("");
-              }}
-              disabled={!hasTerms}
-              style={{
-                width: 30,
-                height: 30,
-                fontSize: "0.72rem",
-                fontWeight: 700,
-                borderRadius: "0.375rem",
-                border: isActive ? "1px solid rgba(99,102,241,0.5)" : "1px solid transparent",
-                background: isActive
-                  ? "rgba(99,102,241,0.2)"
-                  : hasTerms
-                  ? "rgba(255,255,255,0.04)"
-                  : "transparent",
-                color: isActive ? "#818cf8" : hasTerms ? "#64748b" : "#1e293b",
-                cursor: hasTerms ? "pointer" : "default",
-                transition: "all 0.1s",
-              }}
-            >
-              {l}
-            </button>
-          );
-        })}
-        {letraAtiva && (
-          <button
-            onClick={() => setLetraAtiva(null)}
-            style={{ fontSize: "0.72rem", color: "#6366f1", padding: "0 0.5rem", cursor: "pointer", background: "none", border: "none" }}
-          >
-            <X size={13} style={{ display: "inline", marginRight: 2 }} /> limpar
-          </button>
-        )}
-      </div>
-
-      {/* Resultados */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Tag size={14} style={{ color: "#475569" }} />
-          <span style={{ fontSize: "0.8rem", color: "#475569" }}>
-            {filtrados.length} {filtrados.length === 1 ? "termo" : "termos"}
-            {catAtiva !== "Todos" && <span style={{ color: "#6366f1" }}> em {catAtiva}</span>}
-          </span>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-        {filtrados.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "4rem 0", color: "#475569" }}>
-            <Search size={32} style={{ margin: "0 auto 1rem", opacity: 0.4 }} />
-            <p style={{ fontSize: "0.9rem" }}>Nenhum termo encontrado para <strong style={{ color: "#64748b" }}>&quot;{busca}&quot;</strong></p>
-          </div>
-        ) : (
-          filtrados.map((t) => (
-            <TermoCard
-              key={t.termo}
-              t={t}
-              isExpanded={expandido === t.termo}
-              onExpand={() => setExpandido(expandido === t.termo ? null : t.termo)}
-            />
-          ))
-        )}
-      </div>
     </div>
   );
 }

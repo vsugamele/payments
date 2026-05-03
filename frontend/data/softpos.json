@@ -1,0 +1,29 @@
+[
+  {
+    "id": "cpoc",
+    "name": "CPOC (Contactless Payments on COTS)",
+    "description": "Padrão PCI para aceitação de pagamentos por aproximação em dispositivos móveis comerciais (celulares comuns) sem hardware adicional.",
+    "rule": "Originalmente limitado a transações sem senha (abaixo do limite de CVM).",
+    "security": "Exige um ambiente de execução confiável (TEE) ou monitoramento via software robusto."
+  },
+  {
+    "id": "mpoc",
+    "name": "MPOC (Mobile Payments on COTS)",
+    "description": "O novo padrão unificado do PCI que permite tanto o pagamento por aproximação quanto a digitação de senha na tela do celular (PIN on Glass).",
+    "benefit": "Permite transações de qualquer valor, eliminando totalmente a necessidade de um PIN Pad físico.",
+    "standard": "PCI MPOC Standard v1.0"
+  },
+  {
+    "id": "attestation",
+    "name": "Attestation Service (Atestação)",
+    "description": "Serviço em nuvem que verifica a integridade do celular do lojista antes de cada transação.",
+    "checks": ["Root/Jailbreak detection", "App integrity", "OS Security Patch level", "NFC health"],
+    "impact": "Se a atestação falhar, a chave de criptografia do SoftPOS é revogada instantaneamente."
+  },
+  {
+    "id": "l2_kernel",
+    "name": "Software L2 Kernel",
+    "description": "O 'Cérebro' do pagamento que antes ficava dentro do hardware da maquininha, agora é um software certificado rodando no app.",
+    "certification": "Exige certificação individual por bandeira (Visa, Mastercard, Elo, Amex)."
+  }
+]

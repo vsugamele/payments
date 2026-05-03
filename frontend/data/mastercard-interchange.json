@@ -1,0 +1,250 @@
+{
+  "bandeira": "Mastercard",
+  "versao": "2024/2025",
+  "fonte": "Mastercard Brazil Interchange Manual + Banco Central Res. 150",
+  "nota_regulatoria": "Cartões de Débito (Debit Mastercard) e Pré-pago (Prepaid) estão sujeitos ao teto regulatório do Banco Central (Res. BCB Nº 150/2021). Cartões de crédito operam em livre mercado com taxas definidas pela Bandeira via IRDs.",
+  "irds_base": {
+    "titulo": "Designadores de Taxa de Intercâmbio (IRDs)",
+    "descricao": "Na Mastercard, a taxa final não é um 'produto'. É um IRD (Interchange Rate Designator). O IRD é uma sigla que representa o cruzamento de Canal, Risco e Segurança da transação. Estes designadores mudam dependendo de onde o cartão foi emitido e onde ocorreu a compra (Escopo Geográfico).",
+    "brasil": [
+      {
+        "id": "IA",
+        "nome": "Base / Standard Físico",
+        "descricao": "IRD base para transações físicas à vista (Card Present) sem qualificações especiais.",
+        "canal": "Físico (POS/TEF)",
+        "risco": "Baixo",
+        "regra_acionamento": "Transação presencial à vista, lida via Chip, com MCC genérico."
+      },
+      {
+        "id": "JA",
+        "nome": "Físico Contactless (Base)",
+        "descricao": "Transações físicas à vista realizadas por aproximação (Tap and Go).",
+        "canal": "Contactless (Físico)",
+        "risco": "Baixo",
+        "regra_acionamento": "POS_ENTRY_MODE = 07 (Contactless ICC) sem parcelamento."
+      },
+      {
+        "id": "HU",
+        "nome": "E-Commerce Não Autenticado",
+        "descricao": "Transações Card Not Present (CNP) sem 3DS. Adquire forte ajuste de risco sobre a taxa base.",
+        "canal": "E-commerce (CNP)",
+        "risco": "Alto",
+        "regra_acionamento": "Transação online onde UCAF (Universal Cardholder Authentication Field) está vazio (ECI 07)."
+      },
+      {
+        "id": "HV / HW",
+        "nome": "E-Commerce (Variações UCAF)",
+        "descricao": "Transações CNP com níveis parciais de proteção ou dados em fallback. Também aplicadas a nichos específicos.",
+        "canal": "E-commerce (CNP)",
+        "risco": "Médio",
+        "regra_acionamento": "Condições não qualificadas integralmente no fluxo padrão CNP."
+      },
+      {
+        "id": "AU",
+        "nome": "E-Commerce Autenticado (3DS Frictionless)",
+        "descricao": "Transação CNP com 3D-Secure bem-sucedido sem desafio (Frictionless). Mastercard garante Liability Shift e desconto no IRD.",
+        "canal": "E-commerce (CNP)",
+        "risco": "Baixo",
+        "regra_acionamento": "UCAF preenchido e ECI 02 (Authentication Successful) ou ECI 01."
+      },
+      {
+        "id": "AV / AW",
+        "nome": "E-Commerce Autenticado (3DS Challenge)",
+        "descricao": "Transação CNP onde o emissor exigiu desafio ativo (ex: biometria/token) via 3DS.",
+        "canal": "E-commerce (CNP)",
+        "risco": "Baixo",
+        "regra_acionamento": "Plena autenticação do portador validada pelo emissor via Mastercard Identity Check."
+      },
+      {
+        "id": "IV / IW",
+        "nome": "Físico Parcelado (Installments)",
+        "descricao": "Comercialização típica brasileira: compras parceladas pelo lojista (Merchant Installments) no canal físico.",
+        "canal": "Físico Parcelado",
+        "risco": "Baixo",
+        "regra_acionamento": "Campo INSTALLMENTS > 1 em transação presencial."
+      },
+      {
+        "id": "JV / JW",
+        "nome": "Contactless Parcelado",
+        "descricao": "Cruzamento do canal por aproximação com o parcelamento lojista.",
+        "canal": "Contactless Parcelado",
+        "risco": "Baixo",
+        "regra_acionamento": "POS_ENTRY_MODE = 07 (Contactless ICC) e INSTALLMENTS > 1."
+      }
+    ],
+    "intraregional_lac": [
+      {
+        "id": "PI",
+        "nome": "Intraregional LAC Base Físico",
+        "descricao": "Equivalente ao IA para compras onde Emissor e Adquirente são de países diferentes, mas ambos dentro da América Latina/Caribe (LAC).",
+        "canal": "Físico (Cross-border LAC)",
+        "risco": "Baixo",
+        "regra_acionamento": "Transação presencial, ISS_REG = 4 (LAC) e ACQ_REG = 4 (LAC), países diferentes."
+      },
+      {
+        "id": "PU",
+        "nome": "Intraregional LAC E-Commerce",
+        "descricao": "Equivalente ao HU para e-commerce intra-LAC não autenticado.",
+        "canal": "E-commerce (Cross-border LAC)",
+        "risco": "Alto",
+        "regra_acionamento": "Transação online, ECI 07, dentro do bloco LAC."
+      },
+      {
+        "id": "PA",
+        "nome": "Intraregional LAC Autenticado",
+        "descricao": "Equivalente ao AU para e-commerce intra-LAC autenticado com 3DS.",
+        "canal": "E-commerce 3DS (Cross-border LAC)",
+        "risco": "Baixo",
+        "regra_acionamento": "Transação online autenticada (ECI 01/02) no bloco LAC."
+      },
+      {
+        "id": "PJ",
+        "nome": "Intraregional LAC Contactless",
+        "descricao": "Equivalente ao JA para compras por aproximação em viagens dentro do bloco LAC.",
+        "canal": "Contactless (Cross-border LAC)",
+        "risco": "Baixo",
+        "regra_acionamento": "POS_ENTRY_MODE = 07 em cross-border LAC."
+      }
+    ],
+    "interregional_global": [
+      {
+        "id": "SI",
+        "nome": "Interregional Global Base Físico",
+        "descricao": "Taxa cobrada quando um turista estrangeiro (fora do bloco LAC, ex: Europa, EUA) passa o cartão fisicamente no Brasil.",
+        "canal": "Físico (Cross-border Global)",
+        "risco": "Médio",
+        "regra_acionamento": "Transação presencial, regiões de Emissor e Adquirente pertencem a blocos continentais diferentes."
+      },
+      {
+        "id": "SU",
+        "nome": "Interregional Global E-Commerce",
+        "descricao": "Compra online feita em lojista brasileiro por um cartão emitido fora do bloco LAC, sem 3DS. Taxa geralmente elevadíssima.",
+        "canal": "E-commerce (Cross-border Global)",
+        "risco": "Crítico",
+        "regra_acionamento": "Transação online internacional, ECI 07, regiões globais distintas."
+      },
+      {
+        "id": "SA",
+        "nome": "Interregional Global Autenticado",
+        "descricao": "Compra online cross-border global protegida por 3DS. Traz segurança contra chargeback internacional.",
+        "canal": "E-commerce 3DS (Cross-border Global)",
+        "risco": "Baixo",
+        "regra_acionamento": "Autenticação 3DS (Identity Check) válida em compra global."
+      },
+      {
+        "id": "SJ",
+        "nome": "Interregional Global Contactless",
+        "descricao": "Turista estrangeiro utilizando carteira digital (Apple Pay) ou cartão por aproximação em solo nacional.",
+        "canal": "Contactless (Cross-border Global)",
+        "risco": "Baixo",
+        "regra_acionamento": "POS_ENTRY_MODE = 07 em transação cross-border global."
+      }
+    ]
+  },
+  "produtos": [
+    {
+      "id": "mc-debito",
+      "nome": "Mastercard Debit",
+      "categoria": "Débito",
+      "bandeira_cor": "#f59e0b",
+      "regulado_bacen": true,
+      "teto_bacen_pct": 0.5,
+      "teto_bacen_ref": "Resolução BCB Nº 150/2021",
+      "descricao": "Produto de débito padrão. Sujeito ao teto imposto pelo Bacen.",
+      "tabelas": [
+        { "canal": "Presencial (Chip)", "taxa_pct": 0.50, "observacao": "Teto Máximo do BACEN aplicado." },
+        { "canal": "E-commerce", "taxa_pct": 0.50, "observacao": "Teto Máximo do BACEN mantido em CNP." }
+      ]
+    },
+    {
+      "id": "mc-prepago",
+      "nome": "Mastercard Prepaid",
+      "categoria": "Pré-pago",
+      "bandeira_cor": "#fbbf24",
+      "regulado_bacen": true,
+      "teto_bacen_pct": 0.7,
+      "teto_bacen_ref": "Resolução BCB Nº 150/2021",
+      "descricao": "Cartões de saldo recarregável (contas digitais de fintechs de pagamento). Até 2023 não tinha teto, agora limitado a 0.70%.",
+      "tabelas": [
+        { "canal": "Qualquer", "taxa_pct": 0.70, "observacao": "Teto Máximo aplicado." }
+      ]
+    },
+    {
+      "id": "mc-standard",
+      "nome": "Mastercard Standard",
+      "categoria": "Crédito Base",
+      "bandeira_cor": "#3b82f6",
+      "regulado_bacen": false,
+      "descricao": "Cartão de crédito de entrada.",
+      "tabelas": [
+        { "canal": "Presencial à Vista (IA)", "taxa_pct": 1.50, "observacao": "Taxa de crédito à vista para MCC Genérico." },
+        { "canal": "E-commerce Não Autenticado (HU)", "taxa_pct": 2.05, "observacao": "Taxa base + prêmio de risco." },
+        { "canal": "E-commerce Autenticado (AU)", "taxa_pct": 1.65, "observacao": "Desconto por uso do 3DS." }
+      ]
+    },
+    {
+      "id": "mc-platinum",
+      "nome": "Mastercard Platinum",
+      "categoria": "Crédito Alta Renda",
+      "bandeira_cor": "#94a3b8",
+      "regulado_bacen": false,
+      "descricao": "Cartão premium intermediário. Financia seguros e benefícios.",
+      "tabelas": [
+        { "canal": "Presencial à Vista (IA)", "taxa_pct": 1.75, "observacao": "Intercâmbio majorado pelo funding do produto." },
+        { "canal": "E-commerce Não Autenticado (HU)", "taxa_pct": 2.25, "observacao": "Pico de intercâmbio para CNP inseguro Platinum." },
+        { "canal": "E-commerce Autenticado (AU)", "taxa_pct": 1.90, "observacao": "Desconto por 3DS em Platinum." }
+      ]
+    },
+    {
+      "id": "mc-black",
+      "nome": "Mastercard Black",
+      "categoria": "Crédito Premium",
+      "bandeira_cor": "#1e293b",
+      "regulado_bacen": false,
+      "descricao": "Produto topo de funil da Mastercard. Oferece LoungeKey e alta pontuação de milhas.",
+      "tabelas": [
+        { "canal": "Presencial à Vista (IA)", "taxa_pct": 2.10, "observacao": "Alto custo para a rede repassado ao Lojista (funding)." },
+        { "canal": "E-commerce Autenticado (AU)", "taxa_pct": 2.25, "observacao": "Mesmo autenticado, o custo do funding do Black mantém a taxa elevada." }
+      ]
+    }
+  ],
+  "cascatas_downgrade": {
+    "titulo": "Electronic Interchange Reimbursement Fee (EIRF) & Downgrades",
+    "descricao": "Quando a transação perde qualificação técnica ou de segurança, a Mastercard degrada o IRD (Downgrade). O Emissor é penalizado com uma taxa menor, ou o Lojista é penalizado, dependendo da região, mas no geral o fluxo de intercâmbio reverte à Tabela EIRF (ou Standard).",
+    "motivos_downgrade": [
+      {
+        "motivo": "Ausência de CVV2 em Transação CNP",
+        "impacto": "Downgrade para EIRF",
+        "descricao": "Transações e-commerce sem envio do código de segurança do cartão sofrem downgrade imediato se não autorizadas sob um framework específico de tokenização."
+      },
+      {
+        "motivo": "Atraso no Clearing (Late Presentment)",
+        "impacto": "Downgrade para Standard",
+        "descricao": "Se a Adquirente não capturar/liquidar a transação (enviar o arquivo de clearing GCMS) em até 3-5 dias (varia por região/MCC), a transação perde a taxa de qualificação e cai na taxa Standard/EIRF."
+      },
+      {
+        "motivo": "Autorização Floor Limit",
+        "impacto": "Penalização",
+        "descricao": "Transações forçadas offline e depois capturadas sem token criptográfico válido."
+      }
+    ]
+  },
+  "programas_monitoramento": [
+    {
+      "sigla": "ECP",
+      "nome": "Excessive Chargeback Program",
+      "threshold_chargebacks": 1.5,
+      "threshold_chargebacks_unit": "% e volume (Ex: Bps > 150)",
+      "multa": "Variável (Escalonada em USD por Tier)",
+      "impacto_lojista": "Bloqueio do MID na rede Mastercard e repasse de multas do Adquirente."
+    },
+    {
+      "sigla": "EFM",
+      "nome": "Excessive Fraud Merchant",
+      "threshold_fraude": 0.5,
+      "threshold_fraude_unit": "% ou valor financeiro e 3D-Secure Fraud Ratio alto",
+      "multa": "Assessments severos em USD",
+      "impacto_lojista": "Mandado a implementar 3D-Secure forçado em 100% das transações ou bloqueio definitivo de autorização na rede."
+    }
+  ]
+}

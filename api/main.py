@@ -18,6 +18,7 @@ from .schemas import (
     CalcVisaSimplesRequest,
 )
 from engine.calculator import InterchangeCalculator
+from engine.loader import load_mcbs_groups, load_mcbs_events
 from .routers import rag
 
 app = FastAPI(
@@ -300,3 +301,36 @@ def listar_irds():
     calc = get_calc()
     irds = sorted({k[0] for k in calc.base_rates})
     return {"irds": irds}
+
+@app.get("/mcbs/fees")
+def listar_mcbs_fees():
+    """
+    Lista todos os service IDs (Grupos) e eventos de cobrança do MCBS,
+    estruturados para a renderização visual do Playbook.
+    """
+    try:
+        groups = load_mcbs_groups()
+        events = load_mcbs_events()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
+    # Organizar os eventos dentro dos seus grupos
+    grouped_data = []
+    for g in groups:
+        # Pega os eventos deste grupo
+        g_events = [e for e in events if e.get("group_id") == g["id"]]
+        # Formata o objeto como o frontend espera
+        grouped_data.append({
+            "id": g["id"],
+            "label": g["label"],
+            "icon": g["icon"],
+            "color": g["color"],
+            "bg": g["bg"],
+            "border": g["border"],
+            "desc": g["description"],
+            "quem": g["quem"],
+            "coleta": g["coleta"],
+            "eventos": g_events
+        })
+        
+    return {"grupos": grouped_data}

@@ -47,6 +47,20 @@ const CANAIS_MC = [
   { value: "qr", label: "QR Code" },
 ];
 
+const PRODUTOS_ELO = [
+  { value: "debito", label: "Elo Débito" },
+  { value: "mais", label: "Elo Mais (Crédito)" },
+  { value: "grafite", label: "Elo Grafite" },
+  { value: "nanquim", label: "Elo Nanquim" },
+  { value: "diners", label: "Elo Diners Club" },
+];
+
+const CANAIS_ELO = [
+  { value: "fisico", label: "Físico (Chip/Contactless)" },
+  { value: "ecommerce_3ds", label: "E-commerce (com 3DS)" },
+  { value: "ecommerce", label: "E-commerce (sem 3DS)" },
+];
+
 const CATEGORIAS = [
   { value: "", label: "— ou use MCC direto —" },
   { value: "restaurante", label: "Restaurante (5812)" },
@@ -70,6 +84,7 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
   }
 
   const isVisa = form.bandeira === "visa";
+  const isElo = form.bandeira === "elo";
   const isMaestro = form.bandeira === "maestro";
 
   return (
@@ -79,13 +94,13 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
     >
       {/* Bandeira */}
       <Field label="Bandeira">
-        <div className="grid grid-cols-3 gap-2">
-          {(["visa", "mastercard", "maestro"] as Bandeira[]).map((b) => (
+        <div className="grid grid-cols-4 gap-2">
+          {(["visa", "mastercard", "maestro", "elo"] as Bandeira[]).map((b) => (
             <button
               key={b}
               type="button"
               onClick={() => set("bandeira", b)}
-              className={`rounded-lg border py-2.5 text-sm font-semibold capitalize transition-all ${
+              className={`rounded-lg border py-2 text-xs font-bold capitalize transition-all ${
                 form.bandeira === b
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-input text-muted-foreground hover:border-input-border hover:text-foreground"
@@ -152,24 +167,41 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
               options={CANAIS_VISA}
             />
           </Field>
+        </>
+      )}
 
-          <div className="flex items-center gap-3 rounded-lg border border-border bg-input px-3 py-2.5">
-            <input
-              id="internacional"
-              type="checkbox"
-              checked={form.internacional}
-              onChange={(e) => set("internacional", e.target.checked)}
-              className="h-4 w-4 rounded accent-primary"
+      {/* ─── Campos Elo ──────────────────────────────────────────────────── */}
+      {isElo && (
+        <>
+          <Field label="Produto Elo">
+            <Select
+              value={form.tipo_cartao} // Reusando campo tipo_cartao do form para Elo
+              onChange={(v) => set("tipo_cartao", v)}
+              options={PRODUTOS_ELO}
             />
-            <label htmlFor="internacional" className="text-sm text-foreground cursor-pointer">
-              Transação internacional (SETTL_FLAG=0)
-            </label>
-          </div>
+          </Field>
+          <Field label="Canal Elo">
+            <Select
+              value={form.canal_mc} // Reusando canal_mc para Elo
+              onChange={(v) => set("canal_mc", v)}
+              options={CANAIS_ELO}
+            />
+          </Field>
+          <Field label="Parcelas">
+            <input
+              type="number"
+              min="1"
+              max="12"
+              value={form.parcelas}
+              onChange={(e) => set("parcelas", e.target.value)}
+              className="input-base"
+            />
+          </Field>
         </>
       )}
 
       {/* ─── Campos Mastercard / Maestro ─────────────────────────────────── */}
-      {!isVisa && (
+      {!isVisa && !isElo && (
         <>
           {!isMaestro && (
             <>
@@ -247,21 +279,31 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
         </Field>
       </div>
 
-      {/* Debug toggle — cascata só funciona para Visa */}
-      {isVisa && (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-input px-3 py-2">
+      {/* ─── Provisionamento / Margem ────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-border/50">
+        <Field label="MDR do Lojista (%)">
           <input
-            id="debug"
-            type="checkbox"
-            checked={form.debug}
-            onChange={(e) => set("debug", e.target.checked)}
-            className="h-4 w-4 rounded accent-primary"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Ex: 2.50"
+            value={form.mdr ?? ""}
+            onChange={(e) => set("mdr", e.target.value)}
+            className="input-base"
           />
-          <label htmlFor="debug" className="text-xs text-muted-foreground cursor-pointer">
-            Mostrar cascata completa de avaliação
-          </label>
-        </div>
-      )}
+        </Field>
+        <Field label="Scheme Fee Estimado (%)">
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Ex: 0.25"
+            value={form.scheme_fee ?? ""}
+            onChange={(e) => set("scheme_fee", e.target.value)}
+            className="input-base"
+          />
+        </Field>
+      </div>
 
       {/* Submit */}
       <button
@@ -275,7 +317,6 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">

@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, ShieldAlert, Cpu, CheckCircle2, XCircle, AlertTriangle, Key } from "lucide-react";
-import RuleReference from "@/components/RuleReference";
-import TermTooltip from "@/components/TermTooltip";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Shield, ShieldAlert, Cpu, CheckCircle2, XCircle, 
+  AlertTriangle, Key, Zap, ArrowRight, ShieldCheck,
+  History, Lock, Terminal, Info
+} from "lucide-react";
+import pciV4Data from "@/data/pci-v4-changes.json";
 
 type PCILevel = "SAQ A" | "SAQ A-EP" | "SAQ D";
 
@@ -72,99 +76,197 @@ const PCI_SCENARIOS: Record<string, PCIData> = {
 };
 
 export default function PCIClient() {
+  const [activeTab, setActiveTab] = useState<"saq" | "v4">("v4");
   const [activeScenario, setActiveScenario] = useState<string>("api");
   const data = PCI_SCENARIOS[activeScenario];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       
-      {/* Opções de Escopo */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { id: "api", label: "Captura via API Própria", icon: AlertTriangle, desc: "Servidor acessa PAN" },
-          { id: "js", label: "JavaScript / React", icon: Cpu, desc: "Front-end captura e envia" },
-          { id: "iframe", label: "iFrame / Hosted Page", icon: Shield, desc: "Provedor T1 faz captura" },
-          { id: "token", label: "Network Token API", icon: Key, desc: "Trafega apenas Tokens" },
-        ].map(item => {
-          const isSelected = activeScenario === item.id;
-          const Icon = item.icon;
-          const color = PCI_SCENARIOS[item.id].color;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveScenario(item.id)}
-              className={`p-4 rounded-xl border text-left transition-all ${isSelected ? "" : "hover:bg-code-bg"}`}
-              style={{
-                borderColor: isSelected ? color : "var(--border)",
-                background: isSelected ? PCI_SCENARIOS[item.id].bg : "var(--background)",
-              }}
-            >
-              <div className="flex items-center gap-2 mb-1" style={{ color: isSelected ? color : "var(--muted-foreground)" }}>
-                 <Icon size={16} />
-                 <span className="font-bold text-sm text-foreground">{item.label}</span>
+      {/* Tabs Principais */}
+      <div className="flex p-1 bg-[#0a1120] border border-slate-800 rounded-2xl w-fit">
+        <button
+          onClick={() => setActiveTab("v4")}
+          className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${
+            activeTab === "v4" ? "bg-blue-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
+          }`}
+        >
+          <Zap size={14} /> Novidades v4.0
+        </button>
+        <button
+          onClick={() => setActiveTab("saq")}
+          className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${
+            activeTab === "saq" ? "bg-blue-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
+          }`}
+        >
+          <Shield size={14} /> Calculadora SAQ
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {activeTab === "v4" ? (
+          <motion.div
+            key="v4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {pciV4Data.map((item, idx) => (
+                <div key={item.id} className="bg-[#0a1120] border border-slate-800 rounded-3xl p-6 hover:border-blue-500/30 transition-all group">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                        {item.id === "mfa" ? <Key size={20} /> : item.id === "skimming" ? <Terminal size={20} /> : item.id === "custom" ? <ShieldCheck size={20} /> : <Lock size={20} />}
+                      </div>
+                      {item.title}
+                    </h3>
+                    <span className={`text-[10px] font-black px-2 py-1 rounded border ${
+                      item.impact === "CRÍTICO" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                    }`}>
+                      {item.impact}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 mb-6">
+                    <div className="p-3 rounded-xl bg-slate-900/50 border border-slate-800">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Padrão v3.2.1</p>
+                      <p className="text-xs text-slate-400">{item.v3_rule}</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                      <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">O Salto v4.0</p>
+                      <p className="text-xs text-white font-medium leading-relaxed">{item.v4_rule}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[11px] text-emerald-400 font-bold bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10">
+                    <ShieldCheck size={14} /> {item.benefit}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-orange-500/5 border border-orange-500/20 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 shrink-0">
+                <History size={32} />
               </div>
-              <p className="text-[10px] text-muted-foreground">{item.desc}</p>
-            </button>
-          );
-        })}
+              <div>
+                <h4 className="text-white font-bold mb-1">Prazo de Transição</h4>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  A versão 3.2.1 expirou em Março de 2024. A partir de agora, as avaliações já devem seguir a v4.0. Requisitos marcados como "Best Practice" tornam-se mandatórios em Março de 2025.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="saq"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-6"
+          >
+             {/* Opções de Escopo (O que já existia) */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { id: "api", label: "Captura via API Própria", icon: AlertTriangle, desc: "Servidor acessa PAN" },
+                { id: "js", label: "JavaScript / React", icon: Cpu, desc: "Front-end captura e envia" },
+                { id: "iframe", label: "iFrame / Hosted Page", icon: Shield, desc: "Provedor T1 faz captura" },
+                { id: "token", label: "Network Token API", icon: Key, desc: "Trafega apenas Tokens" },
+              ].map(item => {
+                const isSelected = activeScenario === item.id;
+                const Icon = item.icon;
+                const color = PCI_SCENARIOS[item.id].color;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveScenario(item.id)}
+                    className={`p-4 rounded-xl border text-left transition-all ${isSelected ? "" : "hover:bg-[#0a1120]"}`}
+                    style={{
+                      borderColor: isSelected ? color : "rgba(255,255,255,0.06)",
+                      background: isSelected ? PCI_SCENARIOS[item.id].bg : "rgba(255,255,255,0.02)",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1" style={{ color: isSelected ? color : "var(--muted-foreground)" }}>
+                       <Icon size={16} />
+                       <span className="font-bold text-xs text-white">{item.label}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500">{item.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Resultados do Escopo */}
+            <div className="p-8 rounded-[2rem] border border-slate-800 bg-[#0a1120]">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-800">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-4xl font-black" style={{ color: data.color }}>{data.saq}</h2>
+                    <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ background: data.bg, color: data.color, border: `1px solid ${data.border}` }}>
+                      {data.reqCount} Requisitos
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                    {data.description}
+                  </p>
+                </div>
+                <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Custo de Auditoria</p>
+                  <p className="text-sm font-bold text-white">
+                    {data.saq === "SAQ D" ? "R$ 50k - 200k / ano" : "R$ 5k - 20k / ano"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-8">
+                <div className="space-y-4">
+                  <h3 className="text-xs uppercase tracking-wider font-bold text-slate-500 flex items-center gap-2">
+                    <ShieldAlert size={14} /> Dados em Risco (Req. 3)
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-slate-800">
+                      <span className="text-sm font-bold text-slate-200">PAN Estocado / Transitado</span>
+                      {data.panStored ? <XCircle size={18} className="text-red-400" /> : <CheckCircle2 size={18} className="text-emerald-400" />}
+                    </div>
+                    <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-slate-800">
+                      <span className="text-sm font-bold text-slate-200">Network Tokens (VTS/MDES)</span>
+                      {data.networkTokens ? <CheckCircle2 size={18} className="text-emerald-400" /> : <XCircle size={18} className="text-red-400" />}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xs uppercase tracking-wider font-bold text-slate-500 flex items-center gap-2">
+                    <Cpu size={14} /> Testes de Segurança (Req. 11)
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-slate-800">
+                      <span className="text-sm font-bold text-slate-200">ASV Scans</span>
+                      {data.asvScans ? <span className="text-xs font-bold px-2 py-1 bg-amber-500/20 text-amber-400 rounded-md">Trimestral</span> : <span className="text-xs text-emerald-400">Isento</span>}
+                    </div>
+                    <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-slate-800">
+                      <span className="text-sm font-bold text-slate-200">Penetration Testing</span>
+                      {data.penTest ? <span className="text-xs font-bold px-2 py-1 bg-red-500/20 text-red-500 rounded-md">Anual</span> : <span className="text-xs text-emerald-400">Isento</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Footer Educativo */}
+      <div className="p-6 rounded-3xl bg-blue-600/5 border border-blue-600/10 flex items-start gap-4">
+        <Info size={20} className="text-blue-400 shrink-0 mt-1" />
+        <div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            <strong>O que é o PCI DSS?</strong> O Payment Card Industry Data Security Standard é o padrão global de segurança para qualquer empresa que processe, armazene ou transmita dados de cartões. O não cumprimento (Non-compliance) pode gerar multas mensais de **$5.000 a $100.000** aplicadas pelas bandeiras.
+          </p>
+        </div>
       </div>
-
-      {/* Resultados do Escopo */}
-      <div className="mt-8 animate-in fade-in duration-300">
-         <div className="p-6 rounded-2xl border bg-code-bg" style={{ borderColor: data.border }}>
-           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-border/50">
-             
-             <div>
-               <div className="flex items-center gap-3 mb-2">
-                 <h2 className="text-3xl font-black" style={{ color: data.color }}>{data.saq}</h2>
-                 <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ background: data.bg, color: data.color, border: `1px solid ${data.border}` }}>
-                   {data.reqCount} Requisitos
-                 </span>
-               </div>
-               <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                 {data.description}
-               </p>
-             </div>
-
-           </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-             <div className="space-y-4">
-               <h3 className="text-xs uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-2">
-                 <ShieldAlert size={14} /> Dados em Risco (Req. 3)
-               </h3>
-               <div className="space-y-3">
-                 <div className="flex items-center justify-between bg-background p-3 rounded-xl border border-border">
-                   <span className="text-sm font-bold text-foreground">PAN Estocado / Transitado</span>
-                   {data.panStored ? <XCircle size={16} className="text-red-400" /> : <CheckCircle2 size={16} className="text-emerald-400" />}
-                 </div>
-                 <div className="flex items-center justify-between bg-background p-3 rounded-xl border border-border">
-                   <span className="text-sm font-bold text-foreground">Uso de Network Tokens (VTS/MDES)</span>
-                   {data.networkTokens ? <CheckCircle2 size={16} className="text-emerald-400" /> : <XCircle size={16} className="text-red-400" />}
-                 </div>
-               </div>
-             </div>
-
-             <div className="space-y-4">
-               <h3 className="text-xs uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-2">
-                 <Cpu size={14} /> Testes de Segurança (Req. 11)
-               </h3>
-               <div className="space-y-3">
-                 <div className="flex items-center justify-between bg-background p-3 rounded-xl border border-border">
-                   <span className="text-sm font-bold text-foreground">ASV Scans (Vulnerabilidades)</span>
-                   {data.asvScans ? <span className="text-xs font-bold px-2 py-1 bg-amber-500/20 text-amber-400 rounded-md">Trimestral</span> : <span className="text-xs text-emerald-400">Isento</span>}
-                 </div>
-                 <div className="flex items-center justify-between bg-background p-3 rounded-xl border border-border">
-                   <span className="text-sm font-bold text-foreground">Penetration Testing (Pen Test)</span>
-                   {data.penTest ? <span className="text-xs font-bold px-2 py-1 bg-red-500/20 text-red-500 rounded-md">Anual / Obrigatório</span> : <span className="text-xs text-emerald-400">Isento</span>}
-                 </div>
-               </div>
-             </div>
-           </div>
-
-         </div>
-      </div>
-
     </div>
   );
 }

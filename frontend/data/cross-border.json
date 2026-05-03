@@ -1,0 +1,30 @@
+[
+  {
+    "id": "dcc",
+    "name": "DCC (Dynamic Currency Conversion)",
+    "description": "O lojista oferece ao cliente estrangeiro a opção de pagar na moeda de origem do seu cartão (ex: USD) em vez da moeda local (ex: BRL).",
+    "benefit": "O lojista ganha uma parte do 'markup' de câmbio (geralmente entre 1% e 3%).",
+    "risk": "Compliance rigoroso. O cliente DEVE ter a opção de recusar e pagar em moeda local.",
+    "fields": ["DE 6 (Amount, Cardholder Billing)", "DE 10 (Conversion Rate)", "DE 51 (Currency Code, Billing)"]
+  },
+  {
+    "id": "mcp",
+    "name": "MCP (Multi-Currency Pricing)",
+    "description": "O lojista exibe preços em várias moedas no site, mas a liquidação interna pode ser em moeda única ou múltipla.",
+    "benefit": "Melhora a conversão no e-commerce internacional ao mostrar o preço 'final' para o gringo.",
+    "impact": "Exige integração com tabelas de câmbio diárias das bandeiras."
+  },
+  {
+    "id": "isa_fee",
+    "name": "ISA Fee (International Service Assessment)",
+    "description": "Taxa cobrada pela Visa em transações onde o país do emissor é diferente do país do adquirente.",
+    "rate": "Geralmente 0.50% a 1.00% sobre o volume.",
+    "type": "Scheme Fee (Custo Adicional)"
+  },
+  {
+    "id": "iaf_fee",
+    "name": "IAF (International Access Fee)",
+    "description": "O equivalente da Mastercard para o ISA Fee da Visa.",
+    "impact": "Aumenta o custo total de aceitação (MSC) para transações internacionais."
+  }
+]

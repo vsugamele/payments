@@ -1,109 +1,64 @@
-{
-  "bandeira": "Elo",
-  "versao": "2024",
-  "fonte": "Elo Manual de Intercâmbio + Resolução BCB Nº 150/2021",
-  "nota_regulatoria": "Cartões de Débito e Pré-pago da Elo estão sujeitos ao teto regulatório do Banco Central (Res. BCB 150). A Elo comercializa produtos premium (Nanquim, Grafite, Diners) sem teto de intercâmbio para crédito.",
-  "produtos": [
-    {
-      "id": "elo-debito",
-      "nome": "Elo Débito",
-      "categoria": "Débito",
-      "bandeira_cor": "#4ade80",
-      "regulado_bacen": true,
-      "teto_bacen_pct": 0.5,
-      "teto_bacen_ref": "Resolução BCB Nº 150/2021 — Art. 6º: Débito",
-      "descricao": "Produto de débito da Elo sujeito ao teto de 0,5% pelo Banco Central. Principal produto do Elo em volume (conta digital, benefícios sociais, FGTS).",
-      "tabelas": [
-        { "canal": "Presencial (Chip + PIN)", "taxa_pct": 0.50, "observacao": "Teto regulatório BACEN. Emissor não pode cobrar mais." },
-        { "canal": "Contactless (abaixo de R$ 200)", "taxa_pct": 0.50, "observacao": "Mesmo teto. CVM Sem PIN não altera o intercâmbio no débito regulado." },
-        { "canal": "CNP (E-commerce sem débito online)", "taxa_pct": 0.50, "observacao": "Teto se aplica independente do canal." },
-        { "canal": "Fallback (Tarja Magnética)", "taxa_pct": 0.50, "observacao": "Teto mantido. Fallback proibido para novos terminais Elo." }
-      ]
-    },
-    {
-      "id": "elo-prepago",
-      "nome": "Elo Pré-Pago",
-      "categoria": "Pré-pago",
-      "bandeira_cor": "#34d399",
-      "regulado_bacen": true,
-      "teto_bacen_pct": 0.7,
-      "teto_bacen_ref": "Resolução BCB Nº 150/2021 — Art. 7º: Pré-pago",
-      "descricao": "Produto pré-pago da Elo (ex: cartão benefício, vale alimentação, carteiras digitais). Impacto direto no PNL das fintechs que operam com Elo pré-pago.",
-      "tabelas": [
-        { "canal": "Presencial (Chip + PIN)", "taxa_pct": 0.70, "observacao": "Teto regulatório BACEN para pré-pago." },
-        { "canal": "Benefícios (VA/VR - categoria especial)", "taxa_pct": 0.70, "observacao": "Vale Alimentação e Vale Refeição usam Elo Pré-pago com esse teto." },
-        { "canal": "CNP", "taxa_pct": 0.70, "observacao": "Teto regulatório aplicável em qualquer canal." }
-      ]
-    },
-    {
-      "id": "elo-credito-base",
-      "nome": "Elo Crédito (Base)",
-      "categoria": "Crédito",
-      "bandeira_cor": "#fbbf24",
-      "regulado_bacen": false,
-      "descricao": "Produto de crédito base da Elo. Sem teto regulatório federal (apenas mercado), mas com tabelas de intercâmbio negociadas bilateralmente entre emissor e Elo.",
-      "tabelas": [
-        { "canal": "Presencial à Vista (Chip + PIN)", "taxa_pct": 1.50, "mcc_grupo": "Todos", "observacao": "Taxa padrão crédito à vista." },
-        { "canal": "Presencial Parcelado Emissor (2-12x)", "taxa_pct": 2.10, "mcc_grupo": "Todos", "observacao": "Crédito parcelado tem intercâmbio maior. O custo de funding das parcelas é repassado ao intercâmbio." },
-        { "canal": "Contactless crédito (abaixo de R$ 200)", "taxa_pct": 1.45, "mcc_grupo": "Todos", "observacao": "Desconto marginal no contactless por menor risco." },
-        { "canal": "E-commerce sem 3DS (CNP)", "taxa_pct": 2.00, "mcc_grupo": "Todos", "observacao": "CNP sem autenticação tem maior risco → maior taxa." },
-        { "canal": "E-commerce com 3DS (ECI 05 ou 02)", "taxa_pct": 1.65, "mcc_grupo": "Todos", "observacao": "3DS concede desconto de ~35bps em CNP para Elo." },
-        { "canal": "Recorrente (MIT Recurring)", "taxa_pct": 1.70, "mcc_grupo": "SaaS, Streaming, Academia", "observacao": "Crédito recorrente com classificação correta (MIT) tem taxa intermediária." }
-      ]
-    },
-    {
-      "id": "elo-nanquim",
-      "nome": "Elo Nanquim",
-      "categoria": "Crédito Premium",
-      "bandeira_cor": "#818cf8",
-      "regulado_bacen": false,
-      "descricao": "Produto premium top-of-wallet da Elo, equivalente ao Infinite/World Elite. Programa de benefícios premium: lounge, seguro viagem, concierge.",
-      "tabelas": [
-        { "canal": "Presencial à Vista", "taxa_pct": 2.20, "observacao": "Intercâmbio premium. Maior custo compensado pelos gastos mais altos do portador." },
-        { "canal": "Parcelado (2-12x)", "taxa_pct": 2.80, "observacao": "Parcelado premium com funding rate mais alto." },
-        { "canal": "E-commerce com 3DS", "taxa_pct": 2.00, "observacao": "CNP autenticado com desconto para Nanquim." },
-        { "canal": "Internacional (transação no exterior)", "taxa_pct": 2.50, "observacao": "Elo aceito via Discover Network no exterior. Taxa de intercâmbio internacional." }
-      ]
-    },
-    {
-      "id": "elo-grafite",
-      "nome": "Elo Grafite",
-      "categoria": "Crédito Alto Padrão",
-      "bandeira_cor": "#94a3b8",
-      "regulado_bacen": false,
-      "descricao": "Produto alto padrão intermediário da Elo (entre Base e Nanquim). Benefícios de acesso a salas VIP e seguro.",
-      "tabelas": [
-        { "canal": "Presencial à Vista", "taxa_pct": 1.95, "observacao": "Intercâmbio alto padrão." },
-        { "canal": "Parcelado (2-12x)", "taxa_pct": 2.50, "observacao": "Parcelado alto padrão." },
-        { "canal": "E-commerce com 3DS", "taxa_pct": 1.80, "observacao": "CNP autenticado Grafite." }
-      ]
-    }
-  ],
-  "diferencial_mercado": {
-    "titulo": "Por que o Elo é diferente de Visa e Master no Brasil",
-    "pontos": [
-      "A Elo foi criada em 2011 por Bradesco, Banco do Brasil e Caixa — é a única bandeira 100% nacional com presença em todos os segmentos (débito, pré-pago, crédito, benefícios).",
-      "A Elo opera no exterior via rede Discover (EUA) e JCB (Ásia) — não tem rede própria internacional. Isso limita a aceitação internacional mas reduz custos de rede.",
-      "Res. BCB Nº 150/2021 impactou drasticamente o PNL de emissores Elo no débito e pré-pago. A saída das fintechs foi migrar portfólio para Mastercard (sem teto no pré-pago até 2023).",
-      "O Programa PED (Programa Elo de Excelência em Disputas) é equivalente ao ECP da Mastercard, com thresholds próprios. Emissores Elo em PED pagam multas em BRL, não USD."
+[
+  {
+    "produto": "Elo Débito",
+    "bin": "5067",
+    "segmentos": [
+      {
+        "nome": "Padrão (Geral)",
+        "canais": [
+          { "canal": "Físico (Chip)", "taxa": 0.50, "fixo": 0 },
+          { "canal": "E-commerce (com 3DS)", "taxa": 0.50, "fixo": 0 },
+          { "canal": "E-commerce (sem 3DS)", "taxa": 0.80, "fixo": 0 }
+        ]
+      },
+      {
+        "nome": "Supermercados & Postos",
+        "canais": [
+          { "canal": "Físico (Chip)", "taxa": 0.40, "fixo": 0 }
+        ]
+      }
     ]
   },
-  "programas_monitoramento": [
-    {
-      "sigla": "PED",
-      "nome": "Programa Elo de Excelência em Disputas",
-      "threshold_chargebacks": 1.5,
-      "threshold_chargebacks_unit": "% do volume de transações",
-      "multa": "Variável por tier, em BRL",
-      "equivalente": "ECP Mastercard"
-    },
-    {
-      "sigla": "PEF",
-      "nome": "Programa Elo de Excelência em Fraudes",
-      "threshold_fraude": 0.8,
-      "threshold_fraude_unit": "% do volume",
-      "multa": "Variável por tier, em BRL",
-      "equivalente": "EFM Mastercard / VAMP Visa"
-    }
-  ]
-}
+  {
+    "produto": "Elo Mais (Crédito)",
+    "bin": "5090",
+    "segmentos": [
+      {
+        "nome": "Padrão (Geral)",
+        "canais": [
+          { "canal": "Físico (Chip)", "taxa": 1.20, "fixo": 0 },
+          { "canal": "E-commerce (com 3DS)", "taxa": 1.20, "fixo": 0 },
+          { "canal": "E-commerce (sem 3DS)", "taxa": 1.50, "fixo": 0 }
+        ]
+      }
+    ]
+  },
+  {
+    "produto": "Elo Grafite",
+    "bin": "5067",
+    "segmentos": [
+      {
+        "nome": "Padrão (Geral)",
+        "canais": [
+          { "canal": "Físico (Chip)", "taxa": 1.50, "fixo": 0 },
+          { "canal": "E-commerce (com 3DS)", "taxa": 1.50, "fixo": 0 },
+          { "canal": "E-commerce (sem 3DS)", "taxa": 1.80, "fixo": 0 }
+        ]
+      }
+    ]
+  },
+  {
+    "produto": "Elo Nanquim / Diners",
+    "bin": "6504",
+    "segmentos": [
+      {
+        "nome": "Padrão (Geral)",
+        "canais": [
+          { "canal": "Físico (Chip)", "taxa": 2.10, "fixo": 0 },
+          { "canal": "E-commerce (com 3DS)", "taxa": 2.10, "fixo": 0 },
+          { "canal": "E-commerce (sem 3DS)", "taxa": 2.45, "fixo": 0 }
+        ]
+      }
+    ]
+  }
+]

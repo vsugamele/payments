@@ -3,99 +3,160 @@
     "code": "4837",
     "name": "No Cardholder Authorization",
     "category": "Fraud",
+    "bandeira": "Mastercard",
     "visa_equivalent": "10.4",
-    "mastercom_stage": "DMAS",
     "visa_stage": "Allocation",
-    "description": "Portador do cartão contesta a transação alegando que não a autorizou nem participou da compra (Fraude amigável ou roubo de dados). Corresponde a 70% do volume global de sub-adquirentes.",
-    "doc_required": "Comprovante de autenticação 3DS (ECI 02/05) garantindo Shift Liability ou evidência CE 3.0 provando uso anterior do cartão pela mesma pessoa.",
+    "prazo_defesa_dias": 45,
+    "prazo_preArb_dias": 30,
+    "chance_sucesso": "Muito Baixa",
+    "chance_cor": "#ef4444",
+    "description": "Portador contesta alegando não ter autorizado nem participado da compra. Representa ~70% do volume de chargebacks em e-commerce CNP. O IRD HU (sem 3DS) é o principal vetor deste reason code.",
+    "causa_raiz": "Transação CNP sem 3DS (ECI 07 / UCAF vazio). Sem Liability Shift, o Adquirente é responsável.",
+    "contexto_ird": "HU",
+    "alerta_ird": "Transação processada como HU (sem 3DS) é o principal gatilho deste chargeback. O Non-Auth Fee 2AB3006 já foi cobrado separadamente e agora você ainda perde o valor da venda.",
+    "estrategia_defesa": "A única defesa eficaz é provar que houve autenticação 3DS válida (ECI 02 ou 05) com UCAF/CAAV preenchido. Sem isso, a Mastercard aplica Liability Shift automático contra o Adquirente. A alternativa é Compelling Evidence 3.0 (CE 3.0) da Visa — provar que o mesmo portador comprou antes no mesmo device/IP.",
+    "acoes_imediatas": [
+      "Verificar nos logs do gateway se o ECI foi capturado corretamente",
+      "Checar se AAV/UCAF foi preenchido no DE 48.43",
+      "Reunir logs de IP, device fingerprint e histórico de compras do mesmo cartão"
+    ],
+    "doc_required": "Comprovante de autenticação 3DS (ECI 02/05) com CAAV/UCAF comprovando Liability Shift. Sem isso, a defesa é matematicamente desfavorável.",
     "compelling_evidence": [
-      { "name": "Proof of 3DS (Authentication)", "type": "TIFF", "desc": "Print ou log do gateway contendo a flag CAAV/UCAF comprovando que a autenticação foi desafiada e bem-sucedida." },
-      { "name": "CE 3.0 Historical Footprint (Visa)", "type": "JSON", "desc": "Para Visa 10.4: Logs de Device ID e IP de pelo menos 2 transações pregressas com mais de 120 dias, com o mesmo cartão e usuário (Evidência mandatória para Friendly Fraud)." },
-      { "name": "Delivery Proof (Signed A.R)", "type": "PDF", "desc": "Assinatura física ao Correio no exato mesmo endereço de faturamento do cartão." }
+      { "name": "Proof of 3DS Authentication", "type": "PDF/JSON", "prioridade": "CRÍTICA", "desc": "Log do gateway contendo flag CAAV/UCAF + ECI 02 ou 05, provando que a autenticação foi desafiada e bem-sucedida. Sem este documento, não há defesa válida." },
+      { "name": "CE 3.0 Historical Footprint (Visa 10.4)", "type": "JSON", "prioridade": "ALTA", "desc": "Para Visa 10.4: Logs de Device ID e IP de pelo menos 2 transações anteriores (> 120 dias) com o mesmo cartão e comportamento idêntico ao usuário contestante." },
+      { "name": "Delivery Proof with Signed Receipt", "type": "PDF", "prioridade": "MÉDIA", "desc": "Assinatura física nos Correios no endereço de faturamento do cartão. Útil como evidência complementar mas não suficiente sozinha." }
     ],
     "arbitration_risk": 500,
-    "recovery_chance": "Critically Low",
-    "manualBase": "Mastercard Chargeback Guide",
-    "manualReference": "Section 3: Fraud",
-    "visaManualBase": "Visa Dispute Management Guidelines (VDMG)",
-    "visaManualReference": "Dispute Condition 10.4: Other Fraud - Card Absent"
+    "recovery_chance_pct": 15,
+    "manual": "Mastercard Chargeback Guide — Section 3: Fraud",
+    "visa_manual": "Visa VDMG — Dispute Condition 10.4: Other Fraud - Card Absent",
+    "prevencao": "Implementar 3DS2 obrigatório para todas as transações e-commerce. Reduz este chargeback em ~95%."
+  },
+  {
+    "code": "4853",
+    "name": "Merchandise / Services Not Received",
+    "category": "Consumer Dispute",
+    "bandeira": "Mastercard",
+    "visa_equivalent": "13.1",
+    "visa_stage": "Collaboration",
+    "prazo_defesa_dias": 45,
+    "prazo_preArb_dias": 30,
+    "chance_sucesso": "Média",
+    "chance_cor": "#f59e0b",
+    "description": "Mercadoria não entregue, com defeito ou serviço não prestado. Inclui cancelamento de recorrência ignorado pelo lojista. Não é fraude pura — o portador reconhece a compra, mas alega problema no cumprimento.",
+    "causa_raiz": "Falha de entrega, produto diferente do anunciado, ou recorrência cobrada após cancelamento.",
+    "contexto_ird": null,
+    "alerta_ird": null,
+    "estrategia_defesa": "Provar entrega efetiva com AR assinado ou, para digitais, logs de acesso/uso do produto. Para recorrentes, mostrar que o cancelamento não foi solicitado dentro do prazo contratual com evidência de aceite dos Termos de Serviço.",
+    "acoes_imediatas": [
+      "Recuperar código de rastreio e comprovante de entrega (AR)",
+      "Checar se há logs de login ou uso do produto digital após a data contestada",
+      "Verificar se o portador enviou email de cancelamento antes da cobrança"
+    ],
+    "doc_required": "AR dos Correios assinado, ou logs de uso do produto digital, ou ToS aceito com IP/timestamp do cancelamento.",
+    "compelling_evidence": [
+      { "name": "Terms of Service Acceptance", "type": "PDF", "prioridade": "CRÍTICA", "desc": "IP log e timestamp preciso de quando o portador aceitou o ToS e a cláusula de cancelamento. Não pode ser checkbox pré-marcado." },
+      { "name": "Digital Usage Log", "type": "CSV/PDF", "prioridade": "ALTA", "desc": "Para SaaS/Infoprodutos: tabela de logs do servidor mostrando login da conta consumindo o conteúdo após a data de suposto cancelamento argumentada pelo banco." },
+      { "name": "Signed Delivery Receipt (AR)", "type": "PDF", "prioridade": "CRÍTICA (físico)", "desc": "Assinatura dos Correios no endereço de entrega correto. Deve coincidir com o endereço de faturamento do cartão." }
+    ],
+    "arbitration_risk": 500,
+    "recovery_chance_pct": 55,
+    "manual": "Mastercard Chargeback Guide — Section 5: Cardholder Disputes",
+    "visa_manual": "VDMG — Dispute Condition 13: Consumer Disputes",
+    "prevencao": "Enviar email de confirmação de entrega com link de rastreio. Para digitais, logar acessos com IP e timestamp."
   },
   {
     "code": "4834",
     "name": "Point of Interaction Error",
     "category": "Processing Error",
+    "bandeira": "Mastercard",
     "visa_equivalent": "11.1 / 11.2",
-    "mastercom_stage": "DMAS",
     "visa_stage": "Collaboration",
-    "description": "Engloba transações processadas em duplicidade, valor incorreto, crédito não processado, ou cobrança tardia. Houve erro no momento do processamento sistêmico no PDV ou Gateway.",
-    "doc_required": "Comprovante de que houve duas transações distintas válidas (para duplicidade) ou print do carrinho com os valores corretos concordados.",
+    "prazo_defesa_dias": 45,
+    "prazo_preArb_dias": 30,
+    "chance_sucesso": "Alta",
+    "chance_cor": "#10b981",
+    "description": "Transação duplicada, valor incorreto, crédito não processado ou cobrança tardia. O portador reconhece a compra mas identifica erro no valor ou duplicidade no extrato.",
+    "causa_raiz": "Falha no gateway, duplo clique no checkout, timeout com reprocessamento automático, ou crédito lançado incorretamente.",
+    "contexto_ird": null,
+    "alerta_ird": null,
+    "estrategia_defesa": "Comprovar que as duas transações são distintas e válidas (produtos diferentes, datas diferentes) ou que o crédito já foi processado antes do chargeback com ARN de liquidação. Este é o chargeback com maior taxa de reversão.",
+    "acoes_imediatas": [
+      "Checar se há dois ARNs (Authorization Reference Numbers) distintos para o mesmo cartão/valor",
+      "Verificar se crédito/estorno foi processado — buscar ARN de crédito",
+      "Comparar timestamps das transações para verificar duplicidade"
+    ],
+    "doc_required": "Dois recibos com produtos distintos (para duplicidade) ou ARN de crédito comprovando estorno anterior ao chargeback.",
     "compelling_evidence": [
-      { "name": "Dual Distinct Receipts", "type": "PDF", "desc": "Dois recibos/faturas assinadas com produtos e autorizações logísticas diferentes provando ausência de duplicidade." },
-      { "name": "Refund Voucher (Credit ARN)", "type": "TIFF", "desc": "ARN de liquidação comprovando que o reembolso da transação 'incorreta' já havia sido despachado antes do chargeback ser levantado." }
+      { "name": "Dual Distinct Receipts", "type": "PDF", "prioridade": "CRÍTICA", "desc": "Dois recibos/faturas com produtos e autorizações logísticas diferentes provando ausência de duplicidade real." },
+      { "name": "Refund Voucher (Credit ARN)", "type": "PDF", "prioridade": "CRÍTICA", "desc": "ARN de liquidação comprovando que o estorno já havia sido despachado ANTES do chargeback ser levantado pelo emissor." }
     ],
     "arbitration_risk": 500,
-    "recovery_chance": "High",
-    "manualBase": "Mastercard Chargeback Guide",
-    "manualReference": "Section 4: Processing Errors",
-    "visaManualBase": "VDMG",
-    "visaManualReference": "Dispute Condition 11: Processing Errors"
-  },
-  {
-    "code": "4853",
-    "name": "Cardholder Dispute / Merchandise Not Received",
-    "category": "Consumer Dispute",
-    "visa_equivalent": "13.1",
-    "mastercom_stage": "DMAS",
-    "visa_stage": "Collaboration",
-    "description": "Mercadoria não entregue, mercadoria com defeito, ou prestação de serviço paralisada (exclui fraudes limpas). Também cobre cancelamento de assinatura recorrente (Recurring Billing) ignorado.",
-    "doc_required": "AR dos correios (Assinatura de Recebimento), Termos e Condições explícitos, logs provando o uso do serviço digital, rastreio final com sucesso.",
-    "compelling_evidence": [
-      { "name": "Terms of Service Acceptance", "type": "PDF", "desc": "IP log e timestamp preciso apontando quando o portador do cartão aceitou o ToS e a cláusula formal de cancelamento (não pode ser checkbox pré-marcado)." },
-      { "name": "Digital Usage Log", "type": "TIFF", "desc": "Para SaaS e Infoprodutos: Tabela de logs do servidor mostrando login da conta consumindo o conteúdo de aula/videotech *após* a suposta data de cancelamento argumentada pelo banco." }
-    ],
-    "arbitration_risk": 500,
-    "recovery_chance": "Medium",
-    "manualBase": "Mastercard Chargeback Guide",
-    "manualReference": "Section 5: Cardholder Disputes",
-    "visaManualBase": "VDMG",
-    "visaManualReference": "Dispute Condition 13: Consumer Disputes"
+    "recovery_chance_pct": 80,
+    "manual": "Mastercard Chargeback Guide — Section 4: Processing Errors",
+    "visa_manual": "VDMG — Dispute Condition 11: Processing Errors",
+    "prevencao": "Implementar idempotency key no gateway para evitar double-posting. Processar créditos em D+0 quando identificado erro."
   },
   {
     "code": "4808",
     "name": "Authorization-Related Chargeback",
     "category": "Authorization",
+    "bandeira": "Mastercard",
     "visa_equivalent": "11.3",
-    "mastercom_stage": "DMAS",
     "visa_stage": "Allocation",
-    "description": "Emissor alega que a transação foi forçada off-line post-decline, o cartão estava no HOT File (bulletin board), ou a transação não obteve autorização de rede e foi lançada em clearing induzido (Force Post).",
-    "doc_required": "Comprovante de Autorização válida emitida pelo Issuer ou pelo Stand-in Processor (STIP).",
+    "prazo_defesa_dias": 45,
+    "prazo_preArb_dias": 30,
+    "chance_sucesso": "Média",
+    "chance_cor": "#f59e0b",
+    "description": "Transação processada sem autorização válida do emissor: force post após decline, cartão no HOT File ou autorização expirada. O emissor alega que nunca aprovou a transação.",
+    "causa_raiz": "Force post off-line após recusa, timeout sem re-autorização, ou autorização expirada (>30 dias da captura).",
+    "contexto_ird": null,
+    "alerta_ird": null,
+    "estrategia_defesa": "Apresentar o log ISO 8583 bruto (MTI 0110) com o Approval Code emitido pelo emissor ou pelo STIP (Stand-In Processing). Se a autorização for válida e o Approval Code existir, a reversão é praticamente garantida.",
+    "acoes_imediatas": [
+      "Extrair T-Log do gateway com a mensagem MTI 0110 (response) e o campo DE 38 (Approval Code)",
+      "Verificar data da autorização vs data da captura (não pode ultrapassar 30 dias)",
+      "Checar se houve force post após decline (DE 39 != '00' no request)"
+    ],
+    "doc_required": "Log bruto da mensagem ISO 8583 (MTI 0110) com Approval Code válido e data dentro do prazo.",
     "compelling_evidence": [
-      { "name": "Banknet/VIP Auth Log", "type": "TXT", "desc": "Linha bruta T-Log da mensagem ISO-8583 (MTI 0110) exibindo o Approval Code emitido pelo emissor e a data (provando que não houve injeção em arquivo Batch offline)." }
+      { "name": "Banknet / VIP Auth Log (T-Log)", "type": "TXT/LOG", "prioridade": "CRÍTICA", "desc": "Linha bruta da mensagem ISO-8583 (MTI 0110) exibindo o Approval Code (DE 38) emitido pelo emissor e a data, provando que não houve injeção em arquivo batch offline." }
     ],
     "arbitration_risk": 500,
-    "recovery_chance": "Medium",
-    "manualBase": "Mastercard Chargeback Guide",
-    "manualReference": "Section 2: Authorization-Related",
-    "visaManualBase": "VDMG",
-    "visaManualReference": "Condition 11.3: No Authorization"
+    "recovery_chance_pct": 65,
+    "manual": "Mastercard Chargeback Guide — Section 2: Authorization-Related",
+    "visa_manual": "VDMG — Condition 11.3: No Authorization",
+    "prevencao": "Nunca realizar force post após decline. Garantir captura dentro de 24h após autorização para evitar expiração."
   },
   {
     "code": "4870",
     "name": "Chip Liability Shift",
     "category": "Liability",
+    "bandeira": "Mastercard",
     "visa_equivalent": "10.5",
-    "mastercom_stage": "DMAS",
     "visa_stage": "Allocation",
-    "description": "Cartão físico inteligente (EMV/Chip/PIN) foi processado caindo de nível para tarja magnética no terminal POS porque o adquirente estava com chip leitor quebrado. Resultou em fraude e prejuízo jogado contra o lojista.",
-    "doc_required": "O adquirente não consegue reverter se comprovado fallback indevido gerado por hardware defasado (Regra Global EMVCo).",
+    "prazo_defesa_dias": 45,
+    "prazo_preArb_dias": 30,
+    "chance_sucesso": "Muito Baixa",
+    "chance_cor": "#ef4444",
+    "description": "Cartão com chip EMV foi processado em fallback (tarja magnética) por falha do terminal. Resultou em fraude com Liability Shift automático contra o Adquirente por regra EMVCo global.",
+    "causa_raiz": "Leitor de chip do POS com defeito, ou terminal desatualizado que não suporta EMV, forçando fallback para mag stripe.",
+    "contexto_ird": null,
+    "alerta_ird": null,
+    "estrategia_defesa": "Apenas é possível reverter se comprovado que o fallback foi tecnicamente obrigatório (chip do cartão com defeito, não o terminal). Provar isso via TVR Tag 95 e AIP Tag 82. Caso contrário, este chargeback é irrecuperável por design da norma EMVCo.",
+    "acoes_imediatas": [
+      "Extrair Tag 95 (TVR) e Tag 82 (AIP) da transação — verificar se houve EMV Fallback bit ativo",
+      "Verificar laudo de manutenção do terminal POS (se chip leitor estava com defeito documentado)",
+      "Checar se o cartão do portador também estava com chip danificado (evidência do banco emissor)"
+    ],
+    "doc_required": "Tag 95 (TVR) e Tag 82 (AIP) da transação + laudo técnico do terminal ou evidência de chip danificado no cartão.",
     "compelling_evidence": [
-      { "name": "Terminal Fallback TVR", "type": "PDF", "desc": "Prova através da tag 95 (Terminal Verification Results) e tag 82 (AIP) que atestam que o terminal tomou Technical Fallback obrigatório ditado pelo EMV, e não uma fraude induzida." }
+      { "name": "Terminal Fallback TVR (Tag 95 + AIP Tag 82)", "type": "PDF/HEX", "prioridade": "CRÍTICA", "desc": "Prova via Tag 95 e Tag 82 que o terminal tomou Technical Fallback mandatório ditado pelo EMV, não uma fraude induzida. Bit 5 do byte 1 do TVR deve estar setado." }
     ],
     "arbitration_risk": 500,
-    "recovery_chance": "Very Low",
-    "manualBase": "Mastercard Chargeback Guide",
-    "manualReference": "Section 6: Point of Interaction Errors",
-    "visaManualBase": "VDMG",
-    "visaManualReference": "Condition 10.5: Visa Fraud Intelligence Liability"
+    "recovery_chance_pct": 10,
+    "manual": "Mastercard Chargeback Guide — Section 6: Point of Interaction Errors",
+    "visa_manual": "VDMG — Condition 10.5: Visa Fraud Intelligence Liability",
+    "prevencao": "Manter terminais POS atualizados com firmware EMV. Realizar manutenção preventiva semestral nos leitores de chip."
   }
 ]

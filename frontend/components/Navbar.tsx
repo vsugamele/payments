@@ -35,6 +35,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Ferramentas",
     items: [
       { href: "/simulador",   label: "Simulador",      desc: "Calcule intercâmbio Visa, MC e Maestro",     icon: Calculator },
+      { href: "/matrix",      label: "Matriz",         desc: "Decisão de taxa: produto, canal, auth, MCC", icon: BarChart2 },
       { href: "/arquitetura", label: "Arquitetura",    desc: "Diagrama interativo com tour guiado",        icon: LayoutTemplate },
       { href: "/comparativo", label: "Comparativo",    desc: "BASE II vs IPM, VTS vs MDES lado a lado",   icon: BarChart2 },
     ],

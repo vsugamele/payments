@@ -1,0 +1,42 @@
+[
+  {
+    "id": "late_clearing",
+    "name": "Atraso no Clearing (Late Presentment)",
+    "description": "Transações enviadas para captura (settlement) mais de 3 a 7 dias após a autorização.",
+    "impact_pct": 0.15,
+    "reason": "A bandeira penaliza a demora na liquidação pois aumenta o risco de crédito e esquecimento do portador.",
+    "category": "Operacional"
+  },
+  {
+    "id": "missing_3ds",
+    "name": "E-commerce sem Autenticação (No-3DS)",
+    "description": "Transações CNP enviadas como 'Authenticated' mas sem o criptograma ECI 02/05 válido.",
+    "impact_pct": 0.50,
+    "reason": "Sem 3DS, a transação cai de 'Secure' para 'Standard', além de perder o Liability Shift.",
+    "category": "Segurança"
+  },
+  {
+    "id": "missing_cat_level",
+    "name": "CAT Level Ausente (Auto-atendimento)",
+    "description": "Transações em postos ou pedágios sem o indicador de Terminal Ativado pelo Portador (CAT 1, 2 ou 3).",
+    "impact_pct": 0.20,
+    "reason": "Essenciais para as faixas de incentivo de transporte e postos (MCC 5541/5542).",
+    "category": "Mensageria"
+  },
+  {
+    "id": "mcc_mismatch",
+    "name": "Inconsistência de MCC/Produto",
+    "description": "Tentar usar um MCC de incentivo (ex: Educação) com um produto que não permite aquela faixa (ex: Cartão Corporativo T&E).",
+    "impact_pct": 0.35,
+    "reason": "Certos produtos premium (Black/Infinite) têm regras rígidas e não aceitam faixas de incentivo de MCCs básicos.",
+    "category": "Normativa"
+  },
+  {
+    "id": "stalled_authorization",
+    "name": "Autorização Vencida",
+    "description": "A transação foi autorizada, mas o clearing foi enviado após o vencimento da janela de validade da autorização (Auth Life Cycle).",
+    "impact_pct": 0.45,
+    "reason": "A bandeira cobra um 'Misuse of Auth Fee' e rebaixa o intercâmbio para a faixa máxima (Standard).",
+    "category": "Operacional"
+  }
+]

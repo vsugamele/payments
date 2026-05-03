@@ -1,392 +1,255 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Search, Command, ArrowRight, BookOpen, ShieldAlert, Zap, Box, Tag, Key, Sparkles, Loader2, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Search, Command, X, Book, Scale, Calculator, 
+  Terminal, ShieldCheck, ChevronRight, Hash, ExternalLink,
+  Zap, Database, Globe
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import manuaisData from "@/data/manuais.json";
+import glossarioData from "@/data/glossario.json";
+import mccData from "@/data/mcc-list.json";
 
-type SearchResultItem = {
+// Tipos para os resultados da busca
+interface SearchResult {
   id: string;
-  type: "tool" | "manual" | "field" | "program" | "rag";
-  icon: any;
   title: string;
-  subtitle: string;
-  href: string;
-  labels: string[];
-  content?: string;
-  page?: number;
-};
+  description: string;
+  category: "mcc" | "disputa" | "iso" | "ferramenta" | "glossario" | "compliance";
+  url: string;
+  icon: any;
+}
 
-// "Cérebro" de busca rápida: Indexando as ferramentas e dados chave do sistema
-const SEARCH_INDEX: SearchResultItem[] = [
-  {
-    id: "tool-retentativas",
-    type: "tool",
-    icon: ShieldAlert,
-    title: "Matriz de Retentativas e Response Codes",
-    subtitle: "Hard vs Soft Declines (RC 51, RC 05)",
-    href: "/compliance/retentativas",
-    labels: ["Retry", "Multa", "Hard Decline", "Soft Decline", "RC", "Motivo Negada", "Declines"],
-  },
-  {
-    id: "tool-bram",
-    type: "tool",
-    icon: ShieldAlert, // O GlobalSearch component does not import Crosshair usually, will reuse ShieldAlert which is available
-    title: "Auditor BRAM e QMAP (Apostas, Alta Risco)",
-    subtitle: "Risco Legal, Drogas, Adulto",
-    href: "/compliance/bram",
-    labels: ["BRAM", "QMAP", "Aposta", "Bet", "Cassino", "Gambling", "Pharma", "Multa 100k", "Ilegal"],
-  },
-  {
-    id: "tool-quasicash",
-    type: "tool",
-    icon: ShieldAlert,
-    title: "Cripto & Quasi-cash (Funding)",
-    subtitle: "AFT e OCT Arquitetura",
-    href: "/compliance/quasicash",
-    labels: ["AFT", "OCT", "Cripto", "Crypto", "Bitcoin", "Wallet", "6012", "6051", "6540"],
-  },
-  {
-    id: "tool-3ds",
-    type: "tool",
-    icon: ShieldAlert,
-    title: "Matriz 3DS & ECI",
-    subtitle: "Simulador de Liability Shift e Frictionless",
-    href: "/compliance/3ds",
-    labels: ["Fraude", "E-commerce", "RC 4837", "ECI 05"],
-  },
-  {
-    id: "tool-pci",
-    type: "tool",
-    icon: Key,
-    title: "Calculadora de Escopo PCI DSS",
-    subtitle: "Requisitos SAQ A, SAQ D para integrações",
-    href: "/compliance/pci",
-    labels: ["Segurança", "SAQ", "iFrame", "Tokens"],
-  },
-  {
-    id: "tool-emv",
-    type: "tool",
-    icon: Zap,
-    title: "Decodificador EMV (TVR)",
-    subtitle: "Leitura de Tag 95 bit a bit",
-    href: "/compliance/emv",
-    labels: ["Terminal", "POS", "Tag 95", "Falha Pin"],
-  },
-  {
-    id: "tool-settlement",
-    type: "tool",
-    icon: Box,
-    title: "Timeline de Settlement & Clearing",
-    subtitle: "Arquivos IPM, TC46 e D+x",
-    href: "/compliance/settlement",
-    labels: ["Liquidação", "IPM", "SPB", "D+1"],
-  },
-  {
-    id: "tool-disputas",
-    type: "tool",
-    icon: ShieldAlert,
-    title: "Simulador Forense de Disputas DMAS / VROL",
-    subtitle: "Mapas de Representment, Arbitration e CE 3.0",
-    href: "/compliance/disputas",
-    labels: ["Chargeback", "Fraud", "Mastercom", "RC", "CE 3.0", "VDMG", "4837", "4853", "Forense", "Disputa"],
-  },
-  {
-    id: "tool-risco",
-    type: "tool",
-    icon: ShieldAlert,
-    title: "Programas de Risco (VAMP / ECP)",
-    subtitle: "Listagem de Thresholds e Multas",
-    href: "/compliance/programas",
-    labels: ["VAMP", "ECP", "BRAM", "Fraude", "Chargeback"],
-  },
-  {
-    id: "tool-campos",
-    type: "tool",
-    icon: Tag,
-    title: "Lookup de Campos ISO 8583",
-    subtitle: "Dicionário de DEs e PDS Master",
-    href: "/compliance/campos",
-    labels: ["ISO", "DE", "PDS", "MTI"],
-  },
-  {
-    id: "tool-mcc",
-    type: "tool",
-    icon: Tag,
-    title: "Tabela MCC (Merchant Category Code)",
-    subtitle: "Lookup rápido de MCCs Categoria",
-    href: "/compliance/mcc",
-    labels: ["MCC", "Merchant", "TCC", "Alto Risco"],
-  },
-  {
-    id: "tool-intercambio",
-    type: "tool",
-    icon: Zap,
-    title: "Simulador de Intercâmbio",
-    subtitle: "Cálculo de interchange fees SDK/Visa",
-    href: "/simulador",
-    labels: ["Tarifas", "Custo", "MDR", "Clearing"],
-  },
-];
-
-export default function GlobalSearch({ isExposed = false }: { isExposed?: boolean }) {
+export default function GlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [isSearchingRag, setIsSearchingRag] = useState(false);
-  const [ragResults, setRagResults] = useState<SearchResultItem[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debounce for RAG Search
+  // Shortcut Cmd+K ou Ctrl+K
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  // Fetch RAG
-  useEffect(() => {
-    if (debouncedQuery.length > 5 && isOpen) {
-      setIsSearchingRag(true);
-      fetch("http://localhost:8000/api/rag/search_manuals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: debouncedQuery, match_threshold: 0.3, match_count: 2 })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success && data.results) {
-          const mapped = data.results.map((r: any) => ({
-            id: `rag-${r.id}`,
-            type: "rag",
-            icon: Sparkles,
-            title: r.title,
-            subtitle: `Página ${r.page_number} (Similaridade: ${(r.similarity * 100).toFixed(1)}%)`,
-            href: `/acervo`,
-            labels: [],
-            content: r.content,
-            page: r.page_number
-          }));
-          setRagResults(mapped);
-        }
-      })
-      .catch(err => console.error("RAG Error:", err))
-      .finally(() => setIsSearchingRag(false));
-    } else {
-      setRagResults([]);
-    }
-  }, [debouncedQuery, isOpen]);
-
-  // Ctrl+K to open
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setIsOpen((open) => !open);
+        setIsOpen(true);
+      }
+      if (e.key === "Escape") {
+        setIsOpen(false);
       }
     };
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      setQuery("");
     }
   }, [isOpen]);
 
-  const searchResults: SearchResultItem[] = query.length < 2 ? [] : [
-    ...SEARCH_INDEX.filter(item => 
-      item.title.toLowerCase().includes(query.toLowerCase()) || 
-      item.subtitle.toLowerCase().includes(query.toLowerCase()) ||
-      item.labels.some(l => l.toLowerCase().includes(query.toLowerCase()))
-    ),
-    ...(manuaisData as any[]).filter(m => 
-      m.titulo.toLowerCase().includes(query.toLowerCase()) || 
-      m.bandeira.toLowerCase().includes(query.toLowerCase())
-    ).map(m => ({
-      id: `manual-${m.id}`,
-      type: "manual" as const,
-      icon: BookOpen,
-      title: m.titulo,
-      subtitle: `Manual Oficial ${m.bandeira}`,
-      href: `/acervo#${m.id}`,
-      labels: ["Manual", "PDF"],
-    }))
-  ];
+  // Lógica de busca em tempo real nos arquivos JSON
+  const results = useMemo(() => {
+    if (query.length < 2) return [];
 
-  const allResults = [...searchResults, ...ragResults];
+    const searchResults: SearchResult[] = [];
+    const q = query.toLowerCase();
 
-  if (isExposed) {
-    return (
-      <div className="relative w-full">
-        <div className="flex items-center w-full px-4 py-3 bg-code-bg border border-border rounded-xl focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-          <Search size={18} className="text-muted-foreground mr-3" />
-          <input
-            type="text"
-            placeholder="Pesquisar ferramentas, regras, ISO..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="bg-transparent border-none outline-none text-sm text-foreground w-full placeholder:text-muted-foreground"
-          />
-        </div>
-        
-        {query.length >= 2 && (
-          <div className="absolute top-14 left-0 w-full bg-[#0a0f1c] border border-border rounded-xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
-            {isSearchingRag && <div className="p-2 text-xs text-primary flex items-center justify-center gap-2 border-b border-border bg-primary/5"><Loader2 size={12} className="animate-spin" /> IA pesquisando nos manuais...</div>}
-            {allResults.length === 0 ? (
-              <div className="p-4 text-sm text-muted-foreground text-center">Nenhum resultado encontrado.</div>
-            ) : (
-              <ul className="py-2">
-                {allResults.map((res) => {
-                  const Icon = res.icon;
-                  return (
-                    <li key={res.id}>
-                      <Link href={res.href} className={`flex items-start gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group ${res.type === 'rag' ? 'bg-primary/5 border-l-2 border-primary' : ''}`}>
-                        <div className={`p-2 border rounded-lg transition-colors ${res.type === 'rag' ? 'bg-primary/10 border-primary/20 text-primary group-hover:bg-primary/20' : 'bg-background border-border text-muted-foreground group-hover:text-primary group-hover:border-primary/50'}`}>
-                          <Icon size={16} />
-                        </div>
-                        <div className="flex-1 overflow-hidden">
-                          <p className="text-sm font-medium text-foreground group-hover:text-white transition-colors">{res.title}</p>
-                          <p className="text-xs text-muted-foreground">{res.subtitle}</p>
-                          {res.content && (
-                            <p className="mt-2 text-xs text-muted-foreground/80 italic border-l-2 border-primary/30 pl-2 py-1 bg-background/50 rounded-r-md truncate max-w-full">
-                              "{res.content.substring(0, 120)}..."
-                            </p>
-                          )}
-                        </div>
-                        <ArrowRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex-shrink-0" />
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
+    // 1. Buscar no Glossário (Siglas e Termos)
+    glossarioData.forEach(item => {
+      if (item.termo.toLowerCase().includes(q) || item.sigla?.toLowerCase().includes(q)) {
+        searchResults.push({
+          id: `gloss-${item.termo}`,
+          title: item.sigla ? `${item.sigla} - ${item.termo}` : item.termo,
+          description: item.definicao,
+          category: "glossario",
+          url: `/glossario?search=${item.sigla || item.termo}`,
+          icon: Book
+        });
+      }
+    });
+
+    // 2. Buscar nos MCCs
+    mccData.slice(0, 500).forEach(mcc => {
+      if (String(mcc.mcc).includes(q) || mcc.mcName.toLowerCase().includes(q) || mcc.nome?.toLowerCase().includes(q)) {
+        searchResults.push({
+          id: `mcc-${mcc.mcc}`,
+          title: `MCC ${mcc.mcc}`,
+          description: mcc.mcName,
+          category: "mcc",
+          url: `/canais?mcc=${mcc.mcc}`,
+          icon: Hash
+        });
+      }
+    });
+
+    // 3. Ferramentas e Páginas fixas
+    const pages = [
+      { t: "Simulador de Intercâmbio", d: "Cálculo de IC e Scheme Fees", u: "/simulador", c: "ferramenta", i: Calculator },
+      { t: "Advogado Digital (Disputas)", d: "Defesa forense de chargebacks", u: "/compliance/disputas", c: "ferramenta", i: Scale },
+      { t: "Laboratório de Mensageria", d: "Parser de logs ISO 8583 / IPM", u: "/compliance/campos", c: "ferramenta", i: Terminal },
+      { t: "Programa TPE Mastercard", d: "Excelência e Retentativas", u: "/compliance/tpe", c: "compliance", i: Zap },
+      { t: "Explorador GCMS", d: "Tabelas de Clearing Mastercard", u: "/compliance/gcms", c: "compliance", i: Database },
+      { t: "Mapa do Ecossistema", d: "Arquitetura Macro de Pagamentos", u: "/ecossistema", c: "compliance", i: Globe }
+    ];
+
+    pages.forEach(p => {
+      if (p.t.toLowerCase().includes(q) || p.d.toLowerCase().includes(q)) {
+        searchResults.push({
+          id: `page-${p.u}`,
+          title: p.t,
+          description: p.d,
+          category: p.c as any,
+          url: p.u,
+          icon: p.i
+        });
+      }
+    });
+
+    return searchResults.slice(0, 8); // Limitar a 8 resultados para manter limpo
+  }, [query]);
+
+  const handleSelect = (url: string) => {
+    setIsOpen(false);
+    router.push(url);
+  };
 
   return (
     <>
-      {/* Botão Navbar */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="hidden md:flex items-center justify-between w-64 px-3 py-1.5 bg-muted/30 border border-border/50 hover:bg-muted/50 rounded-lg text-sm text-muted-foreground transition-all"
+        className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all text-slate-500 hover:text-slate-400 group"
       >
-        <span className="flex items-center gap-2">
-          <Search size={14} /> Pesquisar ferramentas...
-        </span>
-        <span className="flex items-center gap-1 text-[10px] font-mono border border-border/60 px-1.5 py-0.5 rounded bg-background">
-          <Command size={10} /> K
-        </span>
+        <Search size={14} className="group-hover:text-blue-400 transition-colors" />
+        <span className="text-[11px] font-bold uppercase tracking-wider">Search Brain...</span>
+        <div className="flex items-center gap-1 ml-4 opacity-50">
+          <Command size={10} />
+          <span className="text-[10px] font-bold">K</span>
+        </div>
       </button>
 
-      {/* Modal / Backdrop */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Search Box */}
-          <div className="relative w-full max-w-2xl bg-[#0a0f1c] border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center px-4 py-4 border-b border-border">
-              <Search size={20} className="text-muted-foreground mr-3" />
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Busque por Regras, Simuladores, MCC, ISO..."
-                className="flex-1 bg-transparent border-none outline-none text-lg text-foreground placeholder:text-muted-foreground"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="text-xs text-muted-foreground hover:text-foreground bg-muted/50 px-2 py-1 rounded"
-              >
-                ESC
-              </button>
-            </div>
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[12vh] px-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="absolute inset-0 bg-[#030711]/90 backdrop-blur-md"
+            />
 
-            <div className="max-h-[60vh] overflow-y-auto p-2">
-              {query.length === 0 ? (
-                <div className="py-12 px-6 flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground mb-4">
-                    <Command size={20} />
-                  </div>
-                  <h3 className="text-sm font-medium text-foreground mb-1">Busca Global do Sistema</h3>
-                  <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-                    Pesquise por ferramentas (Ex: "Simulador de Intercâmbio"), regulamentações ("PCI", "3DS") ou referências técnicas ("RC 4837", "Tag 95"). Se buscar frases complexas, a IA analisará os manuais em PDF.
-                  </p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="relative w-full max-w-2xl bg-[#0f172a] border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              {/* Input */}
+              <div className="flex items-center gap-4 px-6 py-5 border-b border-slate-800 bg-[#0f172a]">
+                <Search size={22} className="text-blue-400" />
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Busque por 'GCMS', '4837', 'MCC 5411' ou 'TPE'..."
+                  className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-slate-600 text-lg font-medium"
+                />
+                <div className="flex items-center gap-2">
+                   <kbd className="px-2 py-1 rounded bg-slate-800 text-slate-500 text-[10px] font-bold border border-slate-700">ESC</kbd>
                 </div>
-              ) : allResults.length === 0 && !isSearchingRag ? (
-                <div className="py-12 text-center text-sm text-muted-foreground">
-                  Nenhum resultado encontrado para "{query}"
-                </div>
-              ) : (
-                <ul className="space-y-1">
-                  {isSearchingRag && (
-                    <div className="px-3 py-2 text-xs text-primary flex items-center gap-2 mb-2 bg-primary/5 rounded-lg border border-primary/10">
-                      <Loader2 size={14} className="animate-spin" /> IA analisando os PDFs (Vector Search)...
-                    </div>
-                  )}
-                  {allResults.map((res) => {
-                    const Icon = res.icon;
-                    return (
-                      <li key={res.id}>
-                        <button
-                          onClick={() => {
-                            setIsOpen(false);
-                            router.push(res.href);
-                          }}
-                          className={`w-full flex items-start gap-3 px-3 py-3 hover:bg-muted/50 rounded-xl cursor-pointer transition-colors group text-left ${res.type === 'rag' ? 'bg-primary/5 border border-primary/20' : ''}`}
-                        >
-                          <div className={`p-2 border rounded-lg transition-colors ${res.type === 'rag' ? 'bg-primary/10 border-primary/20 text-primary group-hover:bg-primary/20' : 'bg-background border-border text-muted-foreground group-hover:text-primary group-hover:border-primary/50'}`}>
-                            <Icon size={16} />
-                          </div>
-                          <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-medium text-foreground group-hover:text-white transition-colors flex items-center gap-2">
-                              {res.title} {res.type === 'rag' && <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">RAG Match</span>}
+              </div>
+
+              {/* Resultados */}
+              <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-3">
+                {results.length > 0 ? (
+                  <div className="space-y-1">
+                    {results.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleSelect(result.url)}
+                        className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all group text-left border border-transparent hover:border-slate-800"
+                      >
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-slate-800 group-hover:scale-110 transition-transform ${
+                          result.category === "disputa" ? "bg-red-500/10 text-red-400" :
+                          result.category === "mcc" ? "bg-orange-500/10 text-orange-400" :
+                          result.category === "iso" ? "bg-emerald-500/10 text-emerald-400" :
+                          result.category === "compliance" ? "bg-purple-500/10 text-purple-400" :
+                          "bg-blue-500/10 text-blue-400"
+                        }`}>
+                          <result.icon size={20} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                              {result.title}
                             </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <p className="text-xs text-muted-foreground">{res.subtitle}</p>
-                              {res.type !== 'rag' && <span className="text-[10px] uppercase text-muted-foreground/70 tracking-wider hidden sm:block">• {res.type}</span>}
-                            </div>
-                            {res.content && (
-                              <p className="mt-2 text-xs text-muted-foreground/80 italic border-l-2 border-primary/30 pl-2 py-1 bg-background/50 rounded-r-md leading-relaxed">
-                                "...{res.content}..."
-                              </p>
-                            )}
+                            <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-500">
+                              {result.category}
+                            </span>
                           </div>
-                          <ArrowRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex-shrink-0" />
+                          <p className="text-xs text-slate-500 truncate leading-relaxed">
+                            {result.description}
+                          </p>
+                        </div>
+                        <ChevronRight size={16} className="text-slate-700 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                      </button>
+                    ))}
+                  </div>
+                ) : query.length >= 2 ? (
+                  <div className="py-16 text-center">
+                    <Search size={40} className="text-slate-800 mx-auto mb-4" />
+                    <p className="text-slate-400 font-bold">Nenhum rastro encontrado para "{query}"</p>
+                    <p className="text-xs text-slate-600 mt-2">Tente siglas técnicas como IRD, MTI ou MCC.</p>
+                  </div>
+                ) : (
+                  <div className="p-6">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6">Atalhos Táticos</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { t: "Simulador IC", d: "Cálculos Financeiros", u: "/simulador", i: Calculator },
+                        { t: "Advogado Digital", d: "Chargebacks", u: "/compliance/disputas", i: Scale },
+                        { t: "Programa TPE", d: "Excelência Mastercard", u: "/compliance/tpe", i: Zap },
+                        { t: "Manual GCMS", d: "Tabelas de Clearing", u: "/compliance/gcms", i: Database }
+                      ].map(s => (
+                        <button 
+                          key={s.t}
+                          onClick={() => handleSelect(s.u)}
+                          className="flex items-center gap-4 p-4 rounded-3xl bg-white/5 border border-slate-800/50 hover:border-blue-500/30 transition-all text-left group"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <s.i size={18} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white">{s.t}</p>
+                            <p className="text-[10px] text-slate-500">{s.d}</p>
+                          </div>
                         </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </div>
-            
-            {/* Footer */}
-            <div className="bg-muted/10 border-t border-border px-4 py-2.5 flex items-center justify-between">
-               <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
-                 <span className="flex items-center gap-1"><kbd className="bg-muted px-1.5 py-0.5 rounded font-mono">↑↓</kbd> Navegar</span>
-                 <span className="flex items-center gap-1"><kbd className="bg-muted px-1.5 py-0.5 rounded font-mono">Enter</kbd> Selecionar</span>
-               </div>
-               <span className="text-[10px] text-primary/70 font-medium tracking-wider flex items-center gap-1">
-                 <Sparkles size={10} /> OMNI-SEARCH & AI RAG
-               </span>
-            </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-slate-800 bg-[#0a1120] flex items-center justify-between text-[10px] font-bold text-slate-500">
+                <div className="flex items-center gap-6">
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-white font-mono">ENTER</kbd> Selecionar
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-white font-mono">↑↓</kbd> Navegar
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-500">
+                  <ShieldCheck size={12} />
+                  <span>Cérebro Normativo v2.5</span>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

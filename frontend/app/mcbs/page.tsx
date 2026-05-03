@@ -26,156 +26,8 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-// ── Service ID catalog ────────────────────────────────────────────────────────
-
-type ServiceGroup = {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-  color: string;
-  bg: string;
-  border: string;
-  desc: string;
-  quem: string;
-  coleta: 'IPM 1740' | 'DDA/ACH' | 'Ambos';
-  eventos: { code: string; nome: string; valor: string; unidade: string; obs?: string }[];
-};
-
-const SERVICE_GROUPS: ServiceGroup[] = [
-  {
-    id: 'AA',
-    label: 'Autorização — Adquirente (AA)',
-    icon: Zap,
-    color: '#6366f1',
-    bg: 'rgba(99,102,241,0.06)',
-    border: 'rgba(99,102,241,0.2)',
-    desc: 'Tarifas cobradas do adquirente pelo roteamento de mensagens de autorização na Banknet/Dual Message System.',
-    quem: 'Adquirente',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2AB1006',  nome: 'Authorization Acquirer Access Fee',        valor: 'BRL 0.0272',  unidade: 'por txn doméstica',     obs: 'BRL 0.50 se adquirente BR + emissor internacional' },
-      { code: '2AB1006P', nome: 'Auth Acquirer Fee — Micro (≤ BRL 10)',      valor: 'BRL 0.00196', unidade: 'por txn doméstica' },
-      { code: '2AB1006Q', nome: 'Auth Acquirer Fee — Small (BRL 10–30)',     valor: 'BRL 0.0196',  unidade: 'por txn doméstica' },
-      { code: '2AB1006R', nome: 'Auth Acquirer Fee — Mid (BRL 30–60)',       valor: 'BRL 0.04394', unidade: 'por txn doméstica' },
-      { code: '2AB1006S', nome: 'Auth Acquirer Fee — Large (BRL 60–90)',     valor: 'BRL 0.07501', unidade: 'por txn doméstica' },
-      { code: '2AB1006T', nome: 'Auth Acquirer Fee — Max (> BRL 90)',        valor: 'BRL 0.117',   unidade: 'por txn doméstica' },
-      { code: '2AB1126',  nome: 'Pre-Authorization Fee',                     valor: 'variable',    unidade: 'amount-based',          obs: 'Txns pré-auth ≥ BRL 68.96' },
-    ],
-  },
-  {
-    id: 'AB',
-    label: 'Autorização — Emissor (AB)',
-    icon: CreditCard,
-    color: '#0ea5e9',
-    bg: 'rgba(14,165,233,0.06)',
-    border: 'rgba(14,165,233,0.2)',
-    desc: 'Tarifas cobradas do emissor por responder mensagens de autorização. Mesma escala de valores que o adquirente no doméstico.',
-    quem: 'Emissor',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2AB1001P', nome: 'Auth Issuer Fee — Micro (≤ BRL 10)',        valor: 'BRL 0.00196', unidade: 'por txn doméstica' },
-      { code: '2AB1001Q', nome: 'Auth Issuer Fee — Small (BRL 10–30)',       valor: 'BRL 0.0196',  unidade: 'por txn doméstica' },
-      { code: '2AB1001R', nome: 'Auth Issuer Fee — Mid (BRL 30–60)',         valor: 'BRL 0.04394', unidade: 'por txn doméstica' },
-      { code: '2AB1001S', nome: 'Auth Issuer Fee — Large (BRL 60–90)',       valor: 'BRL 0.07501', unidade: 'por txn doméstica' },
-      { code: '2AB1001T', nome: 'Auth Issuer Fee — Max (> BRL 90)',          valor: 'BRL 0.117',   unidade: 'por txn doméstica' },
-      { code: '2AB1790',  nome: 'SecureCode AAV Validation',                 valor: 'BRL 0.015501',unidade: 'por txn 3DS',           obs: 'Cobrado quando Mastercard valida o CAVV' },
-      { code: '2AB1706',  nome: 'MC Contactless OBS Mapping',                valor: 'BRL 0.019',   unidade: 'por txn NFC',           obs: 'Mapeamento PAN ↔ contactless' },
-      { code: '2AB2600',  nome: 'MDES Lite Mapping Fee',                     valor: 'BRL 0.0002',  unidade: 'amount-based CNP',      obs: 'Txns recorrentes / e-commerce' },
-    ],
-  },
-  {
-    id: 'AN',
-    label: 'Não-Autenticação E-commerce (AN)',
-    icon: AlertTriangle,
-    color: '#ef4444',
-    bg: 'rgba(239,68,68,0.06)',
-    border: 'rgba(239,68,68,0.2)',
-    desc: 'Fee extra cobrado do adquirente em transações e-commerce que NÃO usaram 3DS. Incentivo econômico direto para adoção do SecureCode.',
-    quem: 'Adquirente',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2AB3006M', nome: 'Non-Auth Acquirer Fee (amount-based)',       valor: 'BRL 0.00029', unidade: 'por BRL transacionado',  obs: 'ECI 07 — sem autenticação' },
-      { code: '2AB3006',  nome: 'Non-Auth Acquirer Fee (cap máximo)',         valor: 'BRL 12.00',   unidade: 'cap por txn',            obs: 'Teto do fee por transação' },
-    ],
-  },
-  {
-    id: 'AV',
-    label: 'Address Verification — AVS (AV)',
-    icon: Shield,
-    color: '#10b981',
-    bg: 'rgba(16,185,129,0.06)',
-    border: 'rgba(16,185,129,0.2)',
-    desc: 'Cobrado do adquirente quando o serviço AVS é usado para validar o endereço de cobrança do portador em transações CNP.',
-    quem: 'Adquirente',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2AV3006',  nome: 'Address Verification Service — Doméstico',  valor: 'BRL 0.028682',unidade: 'por consulta' },
-      { code: '2AV3006',  nome: 'Address Verification Service — Internacional', valor: 'BRL 0.19128', unidade: 'por consulta',        obs: 'Emissor fora do Brasil' },
-    ],
-  },
-  {
-    id: 'CF',
-    label: 'Conectividade (CF)',
-    icon: Wifi,
-    color: '#f59e0b',
-    bg: 'rgba(245,158,11,0.06)',
-    border: 'rgba(245,158,11,0.2)',
-    desc: 'Taxa semanal baseada no volume de bytes trafegados na Banknet (Single/Dual Message). Regressiva — quanto mais volume, menor o custo unitário.',
-    quem: 'Adquirente / Emissor',
-    coleta: 'DDA/ACH',
-    eventos: [
-      { code: '2CF1001',  nome: 'Acquirer Single-Msg Connectivity Fee',      valor: 'BRL 0.0000143', unidade: 'por byte (tier 1)',   obs: 'Mín. BRL 1.375/semana' },
-      { code: '2CF2001',  nome: 'Acquirer Auth Connectivity Fee',            valor: 'BRL 0.0000143', unidade: 'por byte (tier 1)',   obs: 'Mín. BRL 1.375/semana' },
-      { code: '2CF1301',  nome: 'Acquirer Mastercard Edge Connectivity',     valor: 'BRL 0.0000172', unidade: 'por byte (tier 1)',   obs: 'Mín. BRL 1.650/semana' },
-    ],
-  },
-  {
-    id: 'BU',
-    label: 'Automated Billing Updater — ABU (BU)',
-    icon: RefreshCw,
-    color: '#8b5cf6',
-    bg: 'rgba(139,92,246,0.06)',
-    border: 'rgba(139,92,246,0.2)',
-    desc: 'Serviço que atualiza automaticamente dados de cartões junto a merchants em recorrência — reduz declínios por expiração/reemissão.',
-    quem: 'Emissor / Adquirente',
-    coleta: 'DDA/ACH',
-    eventos: [
-      { code: '2BU6600',  nome: 'ABU Issuer Record Fee (tier 1, ≤ 500k)',    valor: 'BRL 0.046398', unidade: 'por registro',        obs: 'Mín. BRL 4.400/mês' },
-      { code: '2BU6600',  nome: 'ABU Issuer Record Fee (tier 4, > 5M)',      valor: 'BRL 0.0057997',unidade: 'por registro' },
-      { code: '2BU6500',  nome: 'ABU Merchant Enrollment (automático)',      valor: 'BRL 231.99',   unidade: 'por merchant/mês' },
-      { code: '2BU6501',  nome: 'ABU Merchant Enrollment (manual)',          valor: 'BRL 1.634,47', unidade: 'por merchant/mês' },
-    ],
-  },
-  {
-    id: 'C2',
-    label: 'Chargebacks & Representações (C2)',
-    icon: BarChart2,
-    color: '#dc2626',
-    bg: 'rgba(220,38,38,0.06)',
-    border: 'rgba(220,38,38,0.2)',
-    desc: 'Tarifas de processamento de chargebacks e representações via Single Message Transaction Manager. Cobrada ao emissor por cada item processado.',
-    quem: 'Emissor',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2CI201716', nome: 'Issuer Total Representments',              valor: 'BRL 114.74',   unidade: 'por representação' },
-      { code: '2CI201715', nome: 'Issuer Total Representments Reversal',     valor: 'BRL −114.74',  unidade: 'crédito (estorno)' },
-    ],
-  },
-  {
-    id: 'C1',
-    label: 'MDES Off-Network (C1)',
-    icon: Globe,
-    color: '#64748b',
-    bg: 'rgba(100,116,139,0.06)',
-    border: 'rgba(100,116,139,0.2)',
-    desc: 'Mapeamento de token MDES para transações fora da rede Mastercard — tokenização em redes de terceiros.',
-    quem: 'Emissor',
-    coleta: 'IPM 1740',
-    eventos: [
-      { code: '2C11750',  nome: 'MDES Off-Network Mapping',                  valor: 'BRL 0.13',     unidade: 'por mapeamento' },
-    ],
-  },
-];
+import { fetchMcbsFees } from '@/lib/api';
+import * as Icons from 'lucide-react';
 
 // ── Comparativo MC vs Visa ────────────────────────────────────────────────────
 
@@ -316,7 +168,17 @@ const SECTIONS = [
 
 // ── page ──────────────────────────────────────────────────────────────────────
 
-export default function MCBSPage() {
+export default async function MCBSPage() {
+  
+  // Buscar os grupos do backend
+  let serviceGroups: any[] = [];
+  try {
+    const data = await fetchMcbsFees();
+    serviceGroups = data.grupos || [];
+  } catch (err) {
+    console.error("Erro ao buscar taxas MCBS:", err);
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-6 py-12 pt-28">
@@ -433,10 +295,15 @@ export default function MCBSPage() {
               </p>
 
               <div className="space-y-6">
-                {SERVICE_GROUPS.map((g) => {
-                  const Icon = g.icon;
-                  return (
-                    <div key={g.id}
+                {serviceGroups.length === 0 ? (
+                  <div className="p-4 rounded-xl border bg-muted/20 text-muted-foreground text-center text-sm">
+                    Carregando taxas do MCBS do banco de dados ou backend fora do ar...
+                  </div>
+                ) : (
+                  serviceGroups.map((g) => {
+                    const Icon = (Icons as any)[g.icon] || Icons.HelpCircle;
+                    return (
+                      <div key={g.id}
                       className="rounded-xl border overflow-hidden"
                       style={{ borderColor: g.border }}>
 
@@ -480,7 +347,7 @@ export default function MCBSPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {g.eventos.map((e, i) => (
+                            {g.eventos.map((e: any, i: number) => (
                               <tr key={i} className={`border-t border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
                                 <td className="px-4 py-2.5 font-mono text-xs" style={{ color: g.color }}>{e.code}</td>
                                 <td className="px-4 py-2.5 text-sm text-muted-foreground">{e.nome}</td>
@@ -494,7 +361,8 @@ export default function MCBSPage() {
                       </div>
                     </div>
                   );
-                })}
+                })
+              )}
               </div>
             </Section>
 
