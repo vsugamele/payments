@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { List, Calculator } from "lucide-react";
+import { List, Calculator, Zap } from "lucide-react";
 import McbsCalculator from "@/components/mcbs/McbsCalculator";
+import McbsTranslator from "@/components/mcbs/McbsTranslator";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function McbsTabs({ catalogContent }: { catalogContent: React.ReactNode }) {
-  const [activeTab, setActiveTab] = useState<"catalogo" | "calculadora">("catalogo");
+  const [activeTab, setActiveTab] = useState<"catalogo" | "calculadora" | "tradutor">("catalogo");
 
   return (
     <div className="space-y-8">
@@ -31,6 +32,16 @@ export default function McbsTabs({ catalogContent }: { catalogContent: React.Rea
           }`}
         >
           <Calculator size={16} /> Calculadora de Fatura
+        </button>
+        <button
+          onClick={() => setActiveTab("tradutor")}
+          className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-colors ${
+            activeTab === "tradutor" 
+              ? "border-orange-500 text-orange-400" 
+              : "border-transparent text-slate-500 hover:text-slate-300"
+          }`}
+        >
+          <Zap size={16} /> Tradutor de Eventos
         </button>
       </div>
 
@@ -57,6 +68,18 @@ export default function McbsTabs({ catalogContent }: { catalogContent: React.Rea
             transition={{ duration: 0.2 }}
           >
             <McbsCalculator />
+          </motion.div>
+        )}
+
+        {activeTab === "tradutor" && (
+          <motion.div
+            key="tradutor"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <McbsTranslator />
           </motion.div>
         )}
       </AnimatePresence>

@@ -162,7 +162,8 @@ const COLLECTION_FLOW = [
 
 const SECTIONS = [
   { id: 'visao',    label: 'Visão Geral' },
-  { id: 'catalogo', label: 'Catálogo de Fees' },
+  { id: 'catalogo', label: 'Catálogo & Tradutor' },
+  { id: 'cambio',   label: 'Regra de Câmbio' },
   { id: 'coleta',   label: 'Processo de Cobrança' },
   { id: 'comp',     label: 'MC × Visa' },
 ];
@@ -371,7 +372,47 @@ export default async function MCBSPage() {
               } />
             </Section>
 
-            {/* ── 3. Processo de cobrança ──────────────────────────── */}
+            {/* ── 3. Regra de Câmbio ──────────────────────────────────────── */}
+            <Section id="cambio" title="Regra de Ouro: Conversão USD para BRL">
+              <div className="p-8 rounded-3xl bg-gradient-to-br from-blue-600/10 via-background to-blue-600/5 border border-blue-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <Icons.ArrowRightLeft size={100} className="text-blue-500" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-white mb-4">Como a Mastercard converte sua fatura?</h3>
+                <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-3xl">
+                  Diferente de uma compra comum no cartão de crédito, onde se usa o PTAX ou o câmbio do dia, as faturas institucionais da Mastercard (Scheme Fees) seguem a lógica do <strong>QMR (Quarterly Mastercard Report)</strong>.
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <Icons.DollarSign className="text-emerald-400 mt-1" size={18} />
+                      <div>
+                        <p className="text-sm font-bold text-white">Gross Dollar Volume (GDV)</p>
+                        <p className="text-xs text-slate-500">Todo o volume transacionado é primeiramente consolidado em USD.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <Icons.Calendar className="text-blue-400 mt-1" size={18} />
+                      <div>
+                        <p className="text-sm font-bold text-white">Taxa Média QMR</p>
+                        <p className="text-xs text-slate-500">A conversão para BRL usa a taxa média do trimestre anterior reportada no QMR.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex flex-col justify-center">
+                    <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Impacto no Adquirente</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      "Se o dólar sobe bruscamente no meio do trimestre, o adquirente pode ter um 'ganho' temporário de câmbio na fatura, pois a taxa fixa do QMR será menor que o spot. O inverso também é verdadeiro."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* ── 4. Processo de cobrança ──────────────────────────── */}
             <Section id="coleta" title="Processo de Cobrança — Como o MCBS Coleta">
 
               <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400/90">

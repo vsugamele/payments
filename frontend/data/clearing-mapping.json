@@ -1,0 +1,53 @@
+[
+  {
+    "id": "parcelado",
+    "titulo": "Parcelado Lojista",
+    "auth": {
+      "field": "DE 112",
+      "subelement": "Subelement 01",
+      "value": "70",
+      "desc": "Indica transação parcelada pelo lojista (Installment Payment)"
+    },
+    "clearing": {
+      "field": "IPM 1240",
+      "pds": "PDS 0181",
+      "subelement": "S01",
+      "desc": "Installment Payment Data - Contém o número da parcela e o total de parcelas."
+    },
+    "regra": "O campo que nasce como um sinalizador no DE 112 se torna uma estrutura de dados detalhada no PDS 0181 para liquidação financeira."
+  },
+  {
+    "id": "cnpj",
+    "titulo": "Identificação do Lojista (Tax ID)",
+    "auth": {
+      "field": "DE 43",
+      "subelement": "Merchant Name/Loc",
+      "value": "Varia",
+      "desc": "Contém nome e cidade, mas raramente o CNPJ estruturado."
+    },
+    "clearing": {
+      "field": "IPM 1240",
+      "pds": "PDS 0220",
+      "subelement": "S01",
+      "desc": "Merchant Tax ID - CNPJ do lojista mandatório para o clearing brasileiro."
+    },
+    "regra": "Diferente da autorização onde o DE 43 é texto livre, o Clearing exige o CNPJ estruturado no PDS 0220 para fins regulatórios e fiscais."
+  },
+  {
+    "id": "predatado",
+    "titulo": "Pré-Datado (Service Code 30/31)",
+    "auth": {
+      "field": "DE 112",
+      "subelement": "Subelement 03",
+      "value": "DDMMAA",
+      "desc": "Data para depósito futuro informada na autorização."
+    },
+    "clearing": {
+      "field": "IPM 1240",
+      "pds": "PDS 0183",
+      "subelement": "S01",
+      "desc": "Deferred Delivery / Pre-dated - Define se há garantia de saldo (Service Code 30 ou 31)."
+    },
+    "regra": "Service Code 30 = Com garantia do emissor. Service Code 31 = Sem garantia. O adquirente assume o risco no 31 se houver insolvência."
+  }
+]

@@ -258,6 +258,64 @@ export default function PCIClient() {
         )}
       </AnimatePresence>
 
+      {/* ── Guia: BIN de 8 Dígitos vs PCI DSS ── */}
+      <section className="p-8 rounded-[3rem] bg-indigo-500/5 border border-indigo-500/20 space-y-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+          <Cpu size={120} className="text-indigo-400" />
+        </div>
+        
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+            <Shield size={32} />
+          </div>
+          <div>
+            <h3 className="text-xl font-black text-white uppercase tracking-tight">O Impacto dos BINs de 8 Dígitos</h3>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Compliance & Segurança de Dados</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+          <div className="space-y-4">
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Desde abril de 2022, a expansão do BIN para 8 dígitos é mandatória. No entanto, existe uma confusão comum sobre o <strong>truncamento de dados</strong> para fins de PCI DSS.
+            </p>
+            <div className="p-5 rounded-2xl bg-[#0a1120] border border-slate-800 space-y-3">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle2 size={16} />
+                <span className="text-xs font-bold uppercase tracking-widest">A Regra de Ouro (SDP)</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed italic">
+                "Empresas não são obrigadas a mudar para o formato '8+4' imediatamente se o mascaramento '6+4' (primeiros 6 e últimos 4) ainda atende ao seu negócio."
+              </p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                As regras do programa <strong>Site Data Protection (SDP)</strong> da Mastercard permitem continuar com 6+4 sem alterações para fins de auditoria, desde que o PAN completo não seja exposto.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold text-white flex items-center gap-2">
+              <AlertTriangle size={16} className="text-orange-500" /> Pontos de Atenção PCI v4.0
+            </h4>
+            <ul className="space-y-3">
+              {[
+                { title: "Truncamento 8+4", desc: "Aumenta o risco de exposição do PAN se não houver controles rígidos de acesso." },
+                { title: "Risco de Identificação", desc: "Com 8 dígitos de BIN e 4 finais, sobram poucos dígitos para anonimização real." },
+                { title: "Legacy Systems", desc: "Verifique se seu banco de dados suporta o campo de BIN expandido sem truncar dados reais." }
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-slate-300">{item.title}</p>
+                    <p className="text-[10px] text-slate-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Footer Educativo */}
       <div className="p-6 rounded-3xl bg-blue-600/5 border border-blue-600/10 flex items-start gap-4">
         <Info size={20} className="text-blue-400 shrink-0 mt-1" />

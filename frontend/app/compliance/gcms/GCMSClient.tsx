@@ -22,6 +22,7 @@ import {
 
 import gcmsData from "@/data/gcms-tables.json";
 import GcmsTester from "@/components/gcms/GcmsTester";
+import ClearingTransformer from "@/components/gcms/ClearingTransformer";
 
 export default function GCMSClient() {
   const [selectedTable, setSelectedTable] = useState(gcmsData[0]);
@@ -205,6 +206,23 @@ export default function GCMSClient() {
           O principal desafio operacional do GCMS são os <strong>Edits (Rejeições)</strong>. O adquirente tenta cobrar um intercâmbio (IRD), mas a Mastercard rejeita ou aplica um downgrade porque os dados da transação (POS Entry Mode, ECI) são incompatíveis. Teste os cenários abaixo.
         </p>
         <GcmsTester />
+      </section>
+
+      {/* ── Jabuticabas do Clearing Brasileiro ── */}
+      <section className="space-y-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400">
+            <Cpu size={24} />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-white">Validador de "Jabuticabas"</h3>
+            <p className="text-sm text-slate-500 font-medium tracking-wide uppercase">Engine de Transformação de Dados BR</p>
+          </div>
+        </div>
+        <p className="text-sm text-slate-400 leading-relaxed max-w-4xl">
+          Entenda como a transação nasce na <strong>Autorização (DE 112)</strong> e se transforma estruturalmente no arquivo de <strong>Clearing IPM (Mensagem 1240)</strong>. O mercado brasileiro exige marcações específicas para parcelado, CNPJ e pré-datado que não existem em outros mercados.
+        </p>
+        <ClearingTransformer />
       </section>
 
       {/* ── Guia de Orientação: O Workflow de Auditoria ── */}

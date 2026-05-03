@@ -1,0 +1,44 @@
+[
+  {
+    "event": "2AB1001",
+    "name": "Auth Access Fee",
+    "description": "Taxa de acesso à rede Banknet para autorização. Cobrada por cada tentativa de autorização, aprovada ou não.",
+    "impact": "Custo fixo por transação",
+    "category": "Authorization"
+  },
+  {
+    "event": "2AB1116",
+    "name": "Account Status Inquiry (ASI)",
+    "description": "Consulta de status de conta (validar se o cartão é ativo). Muito usado para verificação de cartões em wallets sem transação financeira.",
+    "impact": "Taxa por consulta",
+    "category": "Services"
+  },
+  {
+    "event": "2PN1011",
+    "name": "Settlement Cut-off Fail",
+    "description": "Penalidade por falha no cumprimento da janela de liquidação (Cut-off). Se o adquirente perde o horário de envio dos arquivos de clearing.",
+    "impact": "Multa operacional pesada",
+    "category": "Penalties"
+  },
+  {
+    "event": "2PN1005",
+    "name": "Excessive Authorization Attempts",
+    "description": "Penalidade por retentativas excessivas de autorização na mesma conta em um curto período (proteção contra brute force).",
+    "impact": "Multa por fraude/segurança",
+    "category": "Penalties"
+  },
+  {
+    "event": "2AB1015",
+    "name": "Cross-Border Fee",
+    "description": "Taxa adicional aplicada quando o país do emissor é diferente do país do adquirente.",
+    "impact": "Markup internacional",
+    "category": "Cross-Border"
+  },
+  {
+    "event": "2DS1001",
+    "name": "Mastercard Identity Check (3DS)",
+    "description": "Cobrança pelo uso do diretório de autenticação 3DS (Mastercom).",
+    "impact": "Custo por transação autenticada",
+    "category": "Security"
+  }
+]

@@ -1,7 +1,8 @@
 import RetriesClient from "./RetriesClient";
+import RetrySimulator from "@/components/retries/RetrySimulator";
 import RuleReference from "@/components/RuleReference";
 import Link from "next/link";
-import { ChevronLeft, GitCompare } from "lucide-react";
+import { ChevronLeft, GitCompare, RefreshCw } from "lucide-react";
 
 export const metadata = {
   title: "Matriz de Retentativas e Response Codes | VS Payments",
@@ -37,8 +38,20 @@ export default function RetriesPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 pt-10 space-y-12">
+      <div className="mx-auto max-w-6xl px-6 pt-10 space-y-20">
         <section>
+          <div className="flex items-center gap-3 mb-8">
+            <RefreshCw className="text-amber-500" size={20} />
+            <h2 className="text-lg font-bold text-white uppercase tracking-widest">Inteligência de Retentativa (MAC)</h2>
+          </div>
+          <RetrySimulator />
+        </section>
+
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <GitCompare className="text-amber-500" size={20} />
+            <h2 className="text-lg font-bold text-white uppercase tracking-widest">Dicionário de Response Codes (DE 39)</h2>
+          </div>
           <RetriesClient />
         </section>
       </div>

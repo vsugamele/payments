@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import disputeCodesData from "../../../data/dispute-codes.json";
-import { Scale, ArrowRight, UploadCloud, Server, ShieldCheck, AlertCircle, CheckCircle2, ChevronRight, FileText, BadgeDollarSign, Calculator, BookOpen } from "lucide-react";
+import { Scale, ArrowRight, UploadCloud, Server, ShieldCheck, AlertCircle, CheckCircle2, ChevronRight, FileText, BadgeDollarSign, Calculator, BookOpen, Info } from "lucide-react";
 import TermTooltip from "@/components/TermTooltip";
 import RuleReference from "@/components/RuleReference";
 import DisputeDecisionTree from "@/components/DisputeDecisionTree";
@@ -287,6 +287,57 @@ export default function DisputeClient() {
                </>
           )}
 
+        </div>
+      </div>
+
+      {/* ── Alertas Normativos Críticos ── */}
+      <div className="col-span-1 lg:col-span-2 mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-border pt-12">
+        <div className="p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 space-y-6">
+          <div className="flex items-center gap-3 text-amber-500">
+            <AlertCircle size={24} />
+            <h3 className="text-lg font-black uppercase tracking-widest">Timeframes & Late Presentment</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-background border border-border">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-white uppercase tracking-widest">Padrão Geral</span>
+                <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-400 font-mono text-[10px] font-bold">7 Dias</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                O prazo padrão para envio do clearing (presentment) é de 7 dias. Ultrapassar este prazo gera o risco de chargeback por <strong>Late Presentment</strong>.
+              </p>
+            </div>
+            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-red-400 uppercase tracking-widest text-nowrap">MoneySend / Gaming</span>
+                <span className="px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 font-mono text-[10px] font-bold">1 Dia Corrido</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                <strong>ATENÇÃO:</strong> Para transações de MoneySend ou Gaming, o envio deve ser feito em até 1 dia corrido. A falha gera perda imediata de disputa.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 rounded-[2.5rem] bg-blue-500/5 border border-blue-500/10 space-y-6">
+          <div className="flex items-center gap-3 text-blue-400">
+            <ShieldCheck size={24} />
+            <h3 className="text-lg font-black uppercase tracking-widest">Nova Regra: Refund Auth</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="p-6 rounded-2xl bg-background border border-border relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-5">
+                <BadgeDollarSign size={80} className="text-blue-500" />
+              </div>
+              <p className="text-sm font-bold text-white mb-2">Autorização Online para Reembolsos</p>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                O mercado brasileiro agora exige autorização online prévia para <strong>Refunds (Proc Code 20)</strong>. Isso garante que o cartão de destino não foi cancelado ou bloqueado, evitando erros de clearing e disputas por crédito não processado.
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-blue-400 uppercase">
+                <Info size={14} /> Mandatório para todos os adquirentes
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

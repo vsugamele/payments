@@ -1,0 +1,34 @@
+[
+  {
+    "responseCode": "05",
+    "mac": "01",
+    "meaning": "Do not honor + New account information available",
+    "action": "Update Credentials",
+    "desc": "O cartão foi substituído ou os dados mudaram. Use o ABU (Automatic Billing Updater) para atualizar o PAN/Data de Expiração antes de tentar novamente.",
+    "recommendation": "STOP & UPDATE: Não retente com os dados atuais. Chame o serviço VAU/ABU."
+  },
+  {
+    "responseCode": "51",
+    "mac": "02",
+    "meaning": "Insufficient funds + Try again later",
+    "action": "Retry (Soft)",
+    "desc": "O portador não tem saldo. O MAC 02 indica que uma retentativa em alguns dias pode ter sucesso.",
+    "recommendation": "RETRY LATER: Agende a retentativa para o próximo dia útil ou data de pagamento comum."
+  },
+  {
+    "responseCode": "14",
+    "mac": "03",
+    "meaning": "Invalid card number + Do not try again",
+    "action": "Block Account",
+    "desc": "O cartão é inválido ou foi cancelado permanentemente. Retentar gera custos desnecessários e risco de penalidades (Excessive Retries).",
+    "recommendation": "STOP PERMANENTLY: Bloqueie este cartão no seu sistema. Peça um novo meio de pagamento ao cliente."
+  },
+  {
+    "responseCode": "05",
+    "mac": "21",
+    "meaning": "Do not honor + Security violation",
+    "action": "Block/Fraud",
+    "desc": "Suspeita de fraude detectada pelo emissor. Retentativas frequentes podem levar ao bloqueio do Merchant ID.",
+    "recommendation": "FRAUD ALERT: Não retente. Marque como potencial fraude."
+  }
+]
