@@ -158,5 +158,37 @@
     "usage": "Documentation / UI",
     "impact": "Traduz códigos como 'HU' para 'E-commerce Standard' e 'AW' para '3DS Authenticated'.",
     "fields": ["IRD Code", "Description", "Region"]
+  },
+  {
+    "table": "T161",
+    "name": "Interchange Program Group",
+    "description": "Agrupa diversos IRDs em programas específicos (ex: Programas de Educação, Utilidade Pública).",
+    "usage": "Relational / Logical",
+    "impact": "Crucial para entender por que certos MCCs têm acesso a taxas preferenciais.",
+    "fields": ["Program ID", "Group Name", "Included IRDs"]
+  },
+  {
+    "table": "T162",
+    "name": "Interchange Program Participation",
+    "description": "Define quais participantes (ICAs) estão habilitados para quais programas de intercâmbio.",
+    "usage": "Membership Validation",
+    "impact": "Se um adquirente não estiver nesta tabela, ele não pode cobrar taxas de programas especiais (ex: Agronegócio).",
+    "fields": ["Member ICA", "Program ID", "Status"]
+  },
+  {
+    "table": "IP0014T1",
+    "name": "IPM Table Metadata",
+    "description": "O catálogo das próprias tabelas. Define o versionamento e a estrutura de cada IPxxxx.",
+    "usage": "System Metadata",
+    "impact": "Usado pelo GCMS para validar se o software de clearing do participante está atualizado.",
+    "fields": ["Table Name", "Version", "Last Update"]
+  },
+  {
+    "table": "IP0081T1",
+    "name": "Terminal/ATM Location Data",
+    "description": "Mapeia a localização física e atributos de terminais (ATMs/POS) para fins de intercâmbio regional.",
+    "usage": "Regional Compliance",
+    "impact": "Impacta o cálculo de intercâmbio em cenários de transações internacionais ou intra-regionais.",
+    "fields": ["Terminal ID", "Postal Code", "Merchant City"]
   }
 ]
