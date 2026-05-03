@@ -310,6 +310,33 @@
               "termos": ["VTS", "DPAN", "Token", "DCV", "Apple Pay", "Provisioning"]
             }
           ]
+        },
+        {
+          "id": "visa-business-intelligence",
+          "titulo": "Visa Business & Intelligence",
+          "numero": 4,
+          "licoes": [
+            {
+              "id": "b2b-connect-e-comercial",
+              "titulo": "B2B Connect e Dados Level 3",
+              "descricao": "Como funcionam as redes não-cartão e a otimização de intercâmbio corporativo",
+              "tempo": "15 min",
+              "tipo": "conceito",
+              "termos": ["B2B Connect", "Level 3 Data", "Purchasing", "Commercial"]
+            },
+            {
+              "id": "vbass-e-daf",
+              "titulo": "VBASS e DAF: O Futuro da Autenticação",
+              "descricao": "Digital Authentication Framework e a inteligência de atributos de BIN",
+              "tempo": "12 min",
+              "tipo": "conceito",
+              "termos": ["VBASS", "DAF", "Frictionless", "BIN Attribute"],
+              "simulador": {
+                "label": "Abrir Laboratório Visa Business",
+                "href": "/compliance/visa-business"
+              }
+            }
+          ]
         }
       ]
     },

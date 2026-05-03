@@ -8,7 +8,7 @@ import {
   AlertTriangle, CheckCircle2, Tag, AlertOctagon, Scale,
   GitCompare, CreditCard, Cpu, DollarSign, Shield, Crosshair,
   Bitcoin, Landmark, Activity, Zap, TrendingUp, Lock,
-  Send, Globe, Smartphone, Database, Server
+  Send, Globe, Smartphone, Database, Server, Briefcase
 } from "lucide-react";
 
 // ─── Dados ────────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ const PILLARS = [
   { icon: Server,      href: "/compliance/visa-infra",  title: "Infraestrutura Core Visa",    subtitle: "VCX · VSS · Base II",              color: "#3b82f6", alert: null },
   { icon: Tag,         href: "/compliance/mcc",         title: "Tabela de MCCs",              subtitle: "1.300+ códigos",                   color: "#2dd4bf", alert: null },
   { icon: AlertOctagon,href: "/compliance/match",       title: "MATCH Pro Simulator",         subtitle: "Onboarding · Reason Codes",        color: "#ef4444", alert: null },
-  { icon: CheckCircle2,href: "/compliance/tokenizacao", title: "DAF & Tokenização",           subtitle: "VTS · Apple Pay · Liability",      color: "#ec4899", alert: null },
+  { icon: Briefcase,   href: "/compliance/visa-business",title: "Visa Business & Intel",       subtitle: "B2B Connect · VBASS · DAF",        color: "#3b82f6", alert: "Novo Módulo" },
   { icon: CreditCard,  href: "/compliance/credenciais", title: "MIT & CIT Framework",         subtitle: "Stored Credentials · SCOF",        color: "#f59e0b", alert: null },
   { icon: Cpu,         href: "/compliance/emv",         title: "Decodificador EMV",           subtitle: "TVR Tag 95 · 40 Bits",            color: "#22d3ee", alert: null },
   { icon: DollarSign,  href: "/compliance/settlement",  title: "Settlement & Clearing",       subtitle: "D+0 · IPM · Base II · EFA",       color: "#4ade80", alert: null },
