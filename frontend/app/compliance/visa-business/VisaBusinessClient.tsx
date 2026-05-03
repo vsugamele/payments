@@ -15,8 +15,11 @@ import {
   Zap,
   Cpu,
   Lock,
-  Building2
+  Building2,
+  Calculator as CalcIcon,
+  FileText
 } from "lucide-react";
+import VisaCalculator from "@/components/visa/VisaCalculator";
 
 export default function VisaBusinessClient() {
   const [searchBin, setSearchBin] = useState("401288");
@@ -233,6 +236,26 @@ export default function VisaBusinessClient() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* ── Visa Billing Simulator (Baseado na Planilha) ── */}
+      <section className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-blue-400">
+              <FileText size={18} />
+              <h2 className="text-sm font-bold uppercase tracking-widest">Visa Invoice Mapping</h2>
+            </div>
+            <h3 className="text-2xl font-black text-white">Simulador de Faturamento (VSS)</h3>
+          </div>
+          <div className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            Data Source: Visa Fee Schedule BRAZIL 2026
+          </div>
+        </div>
+        <p className="text-sm text-slate-400 leading-relaxed max-w-3xl mb-4">
+          Utilizando as <strong>Billing Lines</strong> mapeadas da planilha oficial (5B1106453, 5B1107045, etc.), este simulador projeta o impacto financeiro mensal de uma operação de adquirência Visa no Brasil.
+        </p>
+        <VisaCalculator />
       </section>
 
       {/* ── Footer / CTA ── */}

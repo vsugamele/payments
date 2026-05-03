@@ -1,0 +1,50 @@
+[
+  {
+    "line": "5B1106453",
+    "name": "Domestic Acquiring Service Fee - Credit",
+    "description": "Taxa mensal baseada no volume de pagamentos domésticos (Crédito).",
+    "type": "percentage",
+    "rate": 0.0001,
+    "category": "Service Fees"
+  },
+  {
+    "line": "5B1106456",
+    "name": "Domestic Acquiring Service Fee - Debit",
+    "description": "Taxa mensal baseada no volume de pagamentos domésticos (Débito).",
+    "type": "percentage",
+    "rate": 0.00008,
+    "category": "Service Fees"
+  },
+  {
+    "line": "5B1107045",
+    "name": "Acquiring Marketing Fee - Credit",
+    "description": "Taxa de marketing cobrada sobre o volume de pagamentos e saques.",
+    "type": "percentage",
+    "rate": 0.00005,
+    "category": "Marketing Fees"
+  },
+  {
+    "line": "5B1106602",
+    "name": "Royalty Acquirer Fee - Credit",
+    "description": "Taxa de royalty sobre o volume de pagamentos domésticos.",
+    "type": "percentage",
+    "rate": 0.00003,
+    "category": "Royalty Fees"
+  },
+  {
+    "line": "5B1106458",
+    "name": "Minimum Acquiring Fee",
+    "description": "Taxa mínima mensal caso o volume não atinja o threshold.",
+    "type": "fixed",
+    "rate": 500.00,
+    "category": "Service Fees"
+  },
+  {
+    "line": "VBASS_FEE",
+    "name": "BIN Attribute Sharing Service Fee",
+    "description": "Cobrança por consulta de atributos de BIN (VBASS).",
+    "type": "fixed",
+    "rate": 0.02,
+    "category": "Data Services"
+  }
+]
