@@ -40,35 +40,75 @@
     "fields": ["Transaction Code", "Service ID", "Fee Category"]
   },
   {
-    "table": "IP0001T1",
-    "name": "Run Control Options",
-    "description": "Controla os parâmetros de execução do processamento de clearing para o participante.",
-    "usage": "IPM MPE Configuration",
-    "impact": "Define como o sistema trata duplicidades e janelas de corte.",
-    "fields": ["Run Option", "Override Flag", "Value"]
+    "table": "IP0000T1",
+    "name": "IPM Keys",
+    "description": "Define as chaves primárias para cada tipo de mensagem no arquivo IPM. Determina como o GCMS identifica registros únicos.",
+    "usage": "Data Integrity",
+    "impact": "Erros aqui resultam em 'Duplicate Record' ou 'Record Not Found'.",
+    "fields": ["Message Type", "Function Code", "Key Sequence"]
   },
   {
-    "table": "IP0006T1",
-    "name": "Data Element Attributes",
-    "description": "Define a anatomia de cada campo ISO 8583 (IPM). Comprimento, formato (an, n, b) e se é fixo ou variável.",
-    "usage": "Forensic / Message Layout",
-    "impact": "Fundamental para construir parsers de arquivos IPM sem erros de parsing.",
-    "fields": ["DE Number", "Format", "Fixed/Variable", "Max Length"]
+    "table": "IP0002T1",
+    "name": "Valid Run Option Overrides",
+    "description": "Permite sobrescrever parâmetros de clearing para janelas específicas.",
+    "usage": "Operational Control",
+    "impact": "Usado para processamento de emergência ou reenvio de lotes.",
+    "fields": ["Option ID", "Override Value", "Effective Date"]
   },
   {
-    "table": "IP0015T1",
-    "name": "IPM Error Messages",
-    "description": "Dicionário de códigos de erro retornados pelo GCMS quando um registro falha nos Edits.",
-    "usage": "Troubleshooting / Edits",
-    "impact": "Permite identificar exatamente por que uma transação foi rejeitada no clearing.",
-    "fields": ["Error Code", "Error Severity", "Description"]
+    "table": "IP0003T1",
+    "name": "Run Control Errors",
+    "description": "Lista de erros fatais que impedem o processamento de um lote (Batch) inteiro.",
+    "usage": "Batch Status",
+    "impact": "Causa o 'Rejection' do arquivo IPM completo antes mesmo dos Edits individuais.",
+    "fields": ["Error Code", "Criticality", "Resolution Path"]
   },
   {
-    "table": "IP0016T1",
-    "name": "Brand Product",
-    "description": "Mapeia os BINs e ranges de cartões para os produtos específicos da bandeira (Standard, Gold, Black, Business).",
-    "usage": "Product Validation / IRD Mapping",
-    "impact": "Crucial para validar se o intercâmbio cobrado condiz com o cartão real do portador.",
-    "fields": ["Product ID", "Brand Code", "Product Name"]
+    "table": "IP0007T1",
+    "name": "Data Element Subfield Attributes",
+    "description": "Detalhamento técnico dos subcampos dentro de elementos compostos (como o DE 48 ou DE 120).",
+    "usage": "Sub-field Parsing",
+    "impact": "Necessário para extrair TCC, ECI e outros dados de nível 3.",
+    "fields": ["Parent DE", "Subfield ID", "Format", "Length"]
+  },
+  {
+    "table": "IP0008T1",
+    "name": "PDS Attributes",
+    "description": "Atributos dos Private Data Subelements (PDS). O coração das mensagens IPM modernas.",
+    "usage": "Modern Clearing (PDS)",
+    "impact": "Onde residem os dados de Tokenização, 3DS 2.0 e MCC dinâmico.",
+    "fields": ["PDS Tag", "Format", "Min/Max Length", "Description"]
+  },
+  {
+    "table": "IP0011T1",
+    "name": "Expanded MTI/Function/Reason Code",
+    "description": "Mapeamento completo de combinações válidas de MTI, Function Code e Reason Code.",
+    "usage": "Message Routing",
+    "impact": "Define se uma mensagem é um Presentment, Chargeback ou Reversal.",
+    "fields": ["MTI", "Function Code", "Reason Code", "Action"]
+  },
+  {
+    "table": "IP0012T1",
+    "name": "Life Cycle Time Frame",
+    "description": "Define as janelas de tempo permitidas para cada etapa do ciclo de vida (ex: 45 dias para First Chargeback).",
+    "usage": "Compliance / Disputes",
+    "impact": "Perder este prazo resulta em perda do direito de disputa (Late Presentment).",
+    "fields": ["Activity", "Timeline (Days)", "Reference Point"]
+  },
+  {
+    "table": "IP0017T1",
+    "name": "Currency Codes",
+    "description": "Lista oficial de moedas suportadas para Settlement e Clearing.",
+    "usage": "Global Settlement",
+    "impact": "Garante que o valor transacionado possa ser liquidado em BRL, USD ou EUR.",
+    "fields": ["Currency Code", "Minor Unit", "Country"]
+  },
+  {
+    "table": "IP0088T1",
+    "name": "Mastercom/Global Clearing Linkage",
+    "description": "Liga as tabelas de clearing às IDs de disputa no sistema Mastercom.",
+    "usage": "Forensic Linkage",
+    "impact": "Permite rastrear uma transação financeira até o seu registro de disputa.",
+    "fields": ["Clearing ID", "Dispute ID", "Linking Token"]
   }
 ]
