@@ -207,6 +207,78 @@ export default function GCMSClient() {
         <GcmsTester />
       </section>
 
+      {/* ── Guia de Orientação: O Workflow de Auditoria ── */}
+      <section className="space-y-8 bg-[#0a1120] border border-blue-500/20 rounded-[2.5rem] p-10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[100px] -z-10" />
+        
+        <div className="text-center space-y-3 mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+            Guia de Orientação Forense
+          </div>
+          <h2 className="text-2xl font-black text-white tracking-tight">Como Cruzar os Dados do Clearing</h2>
+          <p className="text-sm text-slate-400 max-w-2xl mx-auto">
+            Para auditar uma transação Mastercard, você não olha apenas uma tabela. Você segue o fluxo de interconectividade abaixo.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+          {/* Linha conectora (Desktop) */}
+          <div className="absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-slate-800 to-transparent hidden md:block" />
+
+          {[
+            {
+              step: "01",
+              title: "Identificação",
+              tables: ["IP0030", "IP0016"],
+              desc: "Comece pelo BIN. O GCMS localiza o emissor e o produto (Gold, Black, etc) para saber qual 'range' de taxas é permitido."
+            },
+            {
+              step: "02",
+              title: "Habilitação",
+              tables: ["T161", "T162"],
+              desc: "Cruze com o Programa de Intercâmbio. O lojista (MCC) e o adquirente participam de programas especiais (Educação, Gov)?"
+            },
+            {
+              step: "03",
+              title: "Qualificação",
+              tables: ["T160", "T164"],
+              desc: "Verifique o IRD. A transação tem os dados necessários (ECI, 3DS) para se qualificar para a melhor taxa ou sofrerá downgrade?"
+            },
+            {
+              step: "04",
+              title: "Execução",
+              tables: ["T165", "T145"],
+              desc: "Aplicação final da taxa e mapeamento para o faturamento MCBS. O ciclo se fecha com o valor líquido de liquidação."
+            }
+          ].map((item, idx) => (
+            <div key={idx} className="relative z-10 p-6 rounded-3xl bg-slate-900/40 border border-slate-800 hover:border-blue-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black text-lg mb-6 group-hover:scale-110 transition-transform">
+                {item.step}
+              </div>
+              <h4 className="text-sm font-bold text-white mb-2">{item.title}</h4>
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {item.tables.map(t => (
+                  <span key={t} className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-400 border border-slate-700">{t}</span>
+                ))}
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Info size={20} className="text-blue-400 shrink-0" />
+            <p className="text-xs text-slate-400 leading-relaxed">
+              <strong>Dica de Especialista:</strong> Sempre valide o <span className="text-blue-300">IP0008 (PDS Attributes)</span> em transações e-commerce. É lá que o dado de 3DS 2.0 é cruzado com a tabela T164 para garantir o IRD AW.
+            </p>
+          </div>
+          <button className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-white text-[10px] font-bold uppercase tracking-wider transition-colors shrink-0">
+            Download do Guia PDF
+          </button>
+        </div>
+      </section>
+
       {/* ── Visual Flow: Do Log ao GCMS ── */}
       <section className="bg-slate-900/40 border border-slate-800 rounded-[2.5rem] p-8">
         <h3 className="text-center text-sm font-bold text-white uppercase tracking-widest mb-10">O Caminho do Dado Financeiro</h3>

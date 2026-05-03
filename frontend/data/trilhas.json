@@ -433,14 +433,14 @@
           "numero": 2,
           "licoes": [
             {
-              "id": "gcms-tabelas-t165",
-              "titulo": "Explorando o GCMS: Tabelas T165/T168",
-              "descricao": "Como interpretar os manuais de clearing e as tabelas de suporte global da Mastercard",
-              "tempo": "15 min",
+              "id": "jornada-dos-dados-gcms",
+              "titulo": "A Jornada do Dado: Do BIN ao Intercâmbio",
+              "descricao": "O 'Guia de Orientação' definitivo: Aprenda a cruzar BINs (IP0030), Programas (T161) e IRDs (T164) para auditar qualquer transação Mastercard.",
+              "tempo": "18 min",
               "tipo": "conceito",
-              "termos": ["GCMS", "T165", "T168", "Clearing", "Mastercard Connect"],
+              "termos": ["Interconectividade", "BIN Mapping", "Program Group", "IRD Validation", "Audit"],
               "simulador": {
-                "label": "Abrir Explorador GCMS",
+                "label": "Abrir Guia Interativo GCMS",
                 "href": "/compliance/gcms"
               }
             },
