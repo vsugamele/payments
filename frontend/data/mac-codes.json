@@ -4,31 +4,55 @@
     "mac": "01",
     "meaning": "Do not honor + New account information available",
     "action": "Update Credentials",
-    "desc": "O cartão foi substituído ou os dados mudaram. Use o ABU (Automatic Billing Updater) para atualizar o PAN/Data de Expiração antes de tentar novamente.",
-    "recommendation": "STOP & UPDATE: Não retente com os dados atuais. Chame o serviço VAU/ABU."
+    "desc": "O cartão foi substituído ou os dados mudaram (PAN novo, nova validade ou novo CVV). Uma retentativa com os dados atuais será negada novamente. Use ABU/VAU para obter os dados atualizados automaticamente antes de tentar novamente.",
+    "recommendation": "STOP & UPDATE: Não retente com os dados atuais. Chame o serviço VAU (Visa Account Updater) ou ABU (Automatic Billing Updater da Mastercard) para sanear a base antes da próxima tentativa."
   },
   {
     "responseCode": "51",
     "mac": "02",
     "meaning": "Insufficient funds + Try again later",
     "action": "Retry (Soft)",
-    "desc": "O portador não tem saldo. O MAC 02 indica que uma retentativa em alguns dias pode ter sucesso.",
-    "recommendation": "RETRY LATER: Agende a retentativa para o próximo dia útil ou data de pagamento comum."
+    "desc": "O portador não tem saldo suficiente agora. O MAC 02 sinaliza que uma retentativa após alguns dias pode ter sucesso — possivelmente no dia de pagamento de salário ou após um depósito. Mastercard permite até 15 retentativas em 30 dias.",
+    "recommendation": "RETRY LATER: Agende a retentativa para D+1 ou o próximo dia útil. Implemente backoff exponencial: 1 dia, 3 dias, 7 dias. Nunca tente mais de 1x por dia."
   },
   {
     "responseCode": "14",
     "mac": "03",
     "meaning": "Invalid card number + Do not try again",
     "action": "Block Account",
-    "desc": "O cartão é inválido ou foi cancelado permanentemente. Retentar gera custos desnecessários e risco de penalidades (Excessive Retries).",
-    "recommendation": "STOP PERMANENTLY: Bloqueie este cartão no seu sistema. Peça um novo meio de pagamento ao cliente."
+    "desc": "O cartão é permanentemente inválido — foi cancelado, expirado definitivamente, ou nunca existiu. Cada retentativa gera custo de autorização e pode levar à cobrança de multa por Excessive Retry pela bandeira. Bloqueie este token no sistema.",
+    "recommendation": "STOP PERMANENTLY: Bloqueie este PAN/token na sua base. Solicite novo meio de pagamento ao cliente. Retentar incorre em custos desnecessários e risco de penalidades do Excessive Chargeback Program."
   },
   {
     "responseCode": "05",
     "mac": "21",
-    "meaning": "Do not honor + Security violation",
+    "meaning": "Do not honor + Violação de segurança detectada",
     "action": "Block/Fraud",
-    "desc": "Suspeita de fraude detectada pelo emissor. Retentativas frequentes podem levar ao bloqueio do Merchant ID.",
-    "recommendation": "FRAUD ALERT: Não retente. Marque como potencial fraude."
+    "desc": "O emissor detectou uma anomalia de segurança nesta transação — possível fraude, uso incomum, ou tentativa de força bruta. Retentar pode resultar em bloqueio do Merchant ID pela bandeira e ativação de alertas no VMSS (Mastercard).",
+    "recommendation": "FRAUD ALERT: Não retente sob hipótese alguma. Marque a transação como potencial fraude no seu sistema antifraude. Considere contato com o cliente por canal alternativo seguro."
+  },
+  {
+    "responseCode": "41",
+    "mac": "24",
+    "meaning": "Lost card + Do not retry, contact cardholder",
+    "action": "Contact Cardholder",
+    "desc": "O cartão foi reportado como perdido pelo portador ao emissor. O emissor solicita que o lojista entre em contato com o cliente por canal fora da cadeia de pagamento (telefone, e-mail) para obter um novo método de pagamento.",
+    "recommendation": "CONTACT CARDHOLDER: Não retente pela rede. Entre em contato com o cliente por e-mail/telefone para solicitar novo meio de pagamento. Útil em assinaturas recorrentes."
+  },
+  {
+    "responseCode": "65",
+    "mac": "04",
+    "meaning": "Exceeds withdrawal frequency + Try again after cycle reset",
+    "action": "Retry (Soft)",
+    "desc": "O cartão excedeu o número de transações permitidas no ciclo de faturamento atual (ex: limite de transações diárias ou mensais configurado pelo emissor). Uma retentativa após a virada do ciclo (geralmente dia 1 do mês) tende a ter sucesso.",
+    "recommendation": "RETRY IN NEW CYCLE: Agende a retentativa para o primeiro dia do próximo mês ou após a virada do ciclo de faturamento do emissor. Comum em cartões pré-pagos e de benefício."
+  },
+  {
+    "responseCode": "12",
+    "mac": "99",
+    "meaning": "Invalid transaction + Verify transaction details",
+    "action": "Retry (Soft)",
+    "desc": "A transação foi considerada inválida por razão desconhecida — pode ser um campo ISO preenchido incorretamente (MCC, currency code, POS Entry Mode) ou um timeout de rede não identificado corretamente. Revisar os dados da transação antes de tentar novamente.",
+    "recommendation": "VERIFY & RETRY: Revise os campos ISO da transação (MCC, DE 22, currency). Se os dados estiverem corretos, 1 retentativa após 24h é permitida. Logs de transação são essenciais para diagnóstico."
   }
 ]

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!trilha) return { title: "Trilha não encontrada" };
   return {
     title: `${trilha.titulo} — Trilhas VS Payments`,
-    description: trilha.descricao,
+    description: trilha.subtitulo,
   };
 }
 
@@ -95,7 +95,7 @@ export default async function TrilhaPage({ params }: Props) {
               marginBottom: "1.75rem",
             }}
           >
-            {trilha.descricao}
+            {trilha.subtitulo}
           </p>
 
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
@@ -173,7 +173,7 @@ export default async function TrilhaPage({ params }: Props) {
                       flexShrink: 0,
                     }}
                   >
-                    {modulo.numero}
+                    {mi + 1}
                   </div>
                   <h2
                     className="font-bold text-white"

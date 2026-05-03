@@ -402,8 +402,63 @@ const EMPTY: Inputs = {
   pef_fraud_brl: "", pef_settled_brl: "", pef_3ds_pct: "",
 };
 
+/* ─── Preset Scenarios ────────────────────────────────────────── */
+const PRESETS = [
+  {
+    id: "saudavel",
+    label: "Lojista Saudável",
+    emoji: "✅",
+    desc: "Portfólio controlado — todos os programas em verde",
+    color: "#4ade80",
+    data: {
+      vamp_tc40: "300", vamp_total: "250000",
+      virp_mcc_wrong: false, virp_volume_usd: "80000",
+      ecp_chargebacks: "40", ecp_approved: "8000",
+      efm_fraud_usd: "30000", efm_settled_usd: "5000000", efm_3ds_pct: "25",
+      ped_disputes: "50", ped_approved: "6000",
+      pef_fraud_brl: "80000", pef_settled_brl: "8000000", pef_3ds_pct: "20",
+    } as Inputs,
+  },
+  {
+    id: "risco",
+    label: "Em Risco (ECP + VAMP)",
+    emoji: "⚠️",
+    desc: "Próximo dos thresholds — monitoramento urgente",
+    color: "#fbbf24",
+    data: {
+      vamp_tc40: "1600", vamp_total: "300000",
+      virp_mcc_wrong: false, virp_volume_usd: "90000",
+      ecp_chargebacks: "110", ecp_approved: "6000",
+      efm_fraud_usd: "65000", efm_settled_usd: "4500000", efm_3ds_pct: "7",
+      ped_disputes: "80", ped_approved: "4500",
+      pef_fraud_brl: "120000", pef_settled_brl: "6000000", pef_3ds_pct: "6",
+    } as Inputs,
+  },
+  {
+    id: "critico",
+    label: "Situação Crítica",
+    emoji: "🚨",
+    desc: "Multas ativas em múltiplos programas",
+    color: "#f87171",
+    data: {
+      vamp_tc40: "2500", vamp_total: "200000",
+      virp_mcc_wrong: true, virp_volume_usd: "150000",
+      ecp_chargebacks: "350", ecp_approved: "9000",
+      efm_fraud_usd: "90000", efm_settled_usd: "4000000", efm_3ds_pct: "3",
+      ped_disputes: "160", ped_approved: "8000",
+      pef_fraud_brl: "250000", pef_settled_brl: "5000000", pef_3ds_pct: "2",
+    } as Inputs,
+  },
+];
+
 export default function RiscoClient() {
   const [inp, setInp] = useState<Inputs>(EMPTY);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
+
+  const loadPreset = (p: typeof PRESETS[0]) => {
+    setInp(p.data);
+    setActivePreset(p.id);
+  };
 
   const set = (k: keyof Inputs) => (v: string) => setInp((p) => ({ ...p, [k]: v }));
   const setBool = (k: keyof Inputs) => (v: boolean) => setInp((p) => ({ ...p, [k]: v }));
@@ -421,6 +476,37 @@ export default function RiscoClient() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 pt-12" style={{ paddingBottom: "4rem" }}>
+
+      {/* ── Cenários de Exemplo ── */}
+      <div style={{ marginBottom: "2rem" }}>
+        <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.875rem" }}>
+          Carregar Cenário de Exemplo
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem" }}>
+          {PRESETS.map(p => (
+            <button
+              key={p.id}
+              onClick={() => loadPreset(p)}
+              style={{
+                background: activePreset === p.id ? `${p.color}12` : "var(--code-bg)",
+                border: `1px solid ${activePreset === p.id ? p.color + "40" : "var(--border)"}`,
+                borderRadius: "0.875rem",
+                padding: "0.875rem 1rem",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                <span>{p.emoji}</span>
+                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: activePreset === p.id ? p.color : "var(--foreground)" }}>{p.label}</span>
+              </div>
+              <p style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", lineHeight: 1.4 }}>{p.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Summary banner (reactive) */}
       {hasAnyInput && results.length > 0 && (
         <div

@@ -1,4 +1,5 @@
 import AdvogadoDigitalClient from "./AdvogadoDigitalClient";
+import { DmasTimeline } from "./DmasTimeline";
 import { Scale, ChevronLeft, BadgeDollarSign } from "lucide-react";
 import Link from "next/link";
 import RuleReference from "@/components/RuleReference";
@@ -20,7 +21,7 @@ export default async function DisputePage({ searchParams }: Props) {
   return (
     <div style={{ background: "#030711", minHeight: "100vh" }} className="pb-20">
 
-      {/* ── Header ────────────────────────────────────────────────────────────── */}
+      {/* ── Header ── */}
       <div
         className="dot-grid"
         style={{
@@ -66,11 +67,11 @@ export default async function DisputePage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* ── Conteúdo Principal ─────────────────────────────────────────────────── */}
+      {/* ── Conteúdo Principal ── */}
       <div className="mx-auto max-w-6xl px-6 pt-10">
         <AdvogadoDigitalClient initialCode={initialCode} />
 
-        {/* ── Sidebar: Custo da Arbitragem ────────────────────────────────────── */}
+        {/* ── Grid: Custo da Arbitragem + Timeline DMAS ── */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* Custo da Arbitragem */}
@@ -107,36 +108,8 @@ export default async function DisputePage({ searchParams }: Props) {
             </div>
           </div>
 
-          {/* Fases do Ciclo */}
-          <div
-            style={{
-              background: "rgba(139,92,246,0.04)", border: "1px solid rgba(139,92,246,0.15)",
-              borderRadius: "1rem", padding: "1.5rem",
-            }}
-          >
-            <h3 className="text-sm font-bold text-white mb-4">Ciclo DMAS (Mastercard)</h3>
-            <div className="space-y-2">
-              {[
-                { n: 1, label: "First Chargeback",  desc: "Emissor debita o Adquirente",            color: "#ef4444" },
-                { n: 2, label: "Representment",     desc: "Adquirente envia Compelling Evidence",   color: "#f59e0b" },
-                { n: 3, label: "Pre-Arbitration",   desc: "Emissor rejeita — escalada opcional",    color: "#6366f1" },
-                { n: 4, label: "Arbitration",       desc: "Bandeira emite veredito + multas",       color: "#a78bfa" },
-              ].map((fase) => (
-                <div key={fase.n} className="flex items-center gap-3">
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0"
-                    style={{ background: `${fase.color}20`, color: fase.color, border: `1px solid ${fase.color}30` }}
-                  >
-                    {fase.n}
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-white">{fase.label}</span>
-                    <p className="text-xs text-slate-500">{fase.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Timeline DMAS Interativa */}
+          <DmasTimeline />
         </div>
       </div>
     </div>

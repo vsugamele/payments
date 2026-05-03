@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Search, AlertTriangle, CheckCircle2, XCircle, ShieldAlert, BadgeInfo, Info } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle2, XCircle, ShieldAlert, BadgeInfo, Info, Zap, Link as LinkIcon } from "lucide-react";
 import data from "@/data/retentativas.json";
+import macCodes from "@/data/mac-codes.json";
 import TermTooltip from "@/components/TermTooltip";
 import RuleReference from "@/components/RuleReference";
+import Link from "next/link";
 
 type RCData = typeof data[0];
+type MacData = typeof macCodes[0];
 
 export default function RetriesClient() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -222,6 +225,48 @@ export default function RetriesClient() {
                   </div>
                 )}
               </div>
+              {/* ── MAC Cross-Reference ──────────────────────────────── */}
+              {(() => {
+                const macMatch = (macCodes as MacData[]).find(m => m.responseCode === selectedRC.code);
+                if (!macMatch) return null;
+                const macActionColor =
+                  macMatch.action === "Block Account" ? "#ef4444" :
+                  macMatch.action === "Block/Fraud" ? "#ef4444" :
+                  macMatch.action === "Update Credentials" ? "#f59e0b" :
+                  macMatch.action === "Contact Cardholder" ? "#a78bfa" :
+                  "#22d3ee";
+                return (
+                  <div className="mt-6">
+                    <h3 className="text-xs uppercase font-bold tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                      <Zap size={14} className="text-orange-400" /> Mastercard Advice Code (MAC)
+                    </h3>
+                    <div
+                      className="p-4 rounded-xl border space-y-2"
+                      style={{ background: `${macActionColor}08`, borderColor: `${macActionColor}30` }}
+                    >
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-lg font-black" style={{ color: macActionColor }}>MAC {macMatch.mac}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: `${macActionColor}15`, color: macActionColor, border: `1px solid ${macActionColor}30` }}>
+                            {macMatch.action}
+                          </span>
+                        </div>
+                        <Link
+                          href="/compliance/retentativas"
+                          className="text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <LinkIcon size={10} /> Ver Simulador →
+                        </Link>
+                      </div>
+                      <p className="text-xs font-semibold text-foreground">{macMatch.meaning}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{macMatch.desc}</p>
+                      <div className="mt-2 p-3 rounded-lg text-xs" style={{ background: `${macActionColor}10`, border: `1px solid ${macActionColor}20`, color: macActionColor }}>
+                        💡 {macMatch.recommendation}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
             </div>
           </div>

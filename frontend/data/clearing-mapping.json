@@ -6,15 +6,16 @@
       "field": "DE 112",
       "subelement": "Subelement 01",
       "value": "70",
-      "desc": "Indica transação parcelada pelo lojista (Installment Payment)"
+      "desc": "Indica transação parcelada pelo lojista (Installment Payment). O valor 70 sinaliza ao emissor que o pagamento será dividido em múltiplas parcelas."
     },
     "clearing": {
       "field": "IPM 1240",
       "pds": "PDS 0181",
       "subelement": "S01",
-      "desc": "Installment Payment Data - Contém o número da parcela e o total de parcelas."
+      "clearingValue": "0181001012010100000",
+      "desc": "Installment Payment Data. Contém: número da parcela atual (01), total de parcelas (12), valor de cada parcela (R$ 100,00) e o valor total (R$ 1.200,00)."
     },
-    "regra": "O campo que nasce como um sinalizador no DE 112 se torna uma estrutura de dados detalhada no PDS 0181 para liquidação financeira."
+    "regra": "O campo que nasce como um sinalizador no DE 112 se torna uma estrutura de dados detalhada no PDS 0181. ATENÇÃO: a soma de todas as parcelas no PDS 0181 DEVE ser igual ao valor total do arquivo. Divergência gera rejeição do lote inteiro pela Mastercard."
   },
   {
     "id": "cnpj",
@@ -22,16 +23,17 @@
     "auth": {
       "field": "DE 43",
       "subelement": "Merchant Name/Loc",
-      "value": "Varia",
-      "desc": "Contém nome e cidade, mas raramente o CNPJ estruturado."
+      "value": "LOJA XYZ*SAO PAULO BR",
+      "desc": "Contém nome e cidade em texto livre, mas raramente o CNPJ estruturado. O emissor não consegue validar o lojista apenas com este campo."
     },
     "clearing": {
       "field": "IPM 1240",
       "pds": "PDS 0220",
       "subelement": "S01",
-      "desc": "Merchant Tax ID - CNPJ do lojista mandatório para o clearing brasileiro."
+      "clearingValue": "022014120345678900195",
+      "desc": "Merchant Tax ID. Formato: CNPJ completo (14 dígitos) para PJ ou CPF (11 dígitos) para PF. Campo MANDATÓRIO para clearing brasileiro — ausência bloqueia a liquidação."
     },
-    "regra": "Diferente da autorização onde o DE 43 é texto livre, o Clearing exige o CNPJ estruturado no PDS 0220 para fins regulatórios e fiscais."
+    "regra": "Diferente da autorização onde o DE 43 é texto livre, o Clearing exige o CNPJ/CPF estruturado no PDS 0220 para fins regulatórios e fiscais do Banco Central. Este é o principal campo de auditoria da Receita Federal para conciliação fiscal."
   },
   {
     "id": "predatado",
@@ -39,15 +41,52 @@
     "auth": {
       "field": "DE 112",
       "subelement": "Subelement 03",
-      "value": "DDMMAA",
-      "desc": "Data para depósito futuro informada na autorização."
+      "value": "150626",
+      "desc": "Data para depósito futuro informada na autorização. Formato: DDMMAA (ex: 150626 = 15 de junho de 2026)."
     },
     "clearing": {
       "field": "IPM 1240",
       "pds": "PDS 0183",
       "subelement": "S01",
-      "desc": "Deferred Delivery / Pre-dated - Define se há garantia de saldo (Service Code 30 ou 31)."
+      "clearingValue": "018330150626",
+      "desc": "Deferred Delivery / Pre-dated. Service Code 30 = Com garantia do emissor. Service Code 31 = Sem garantia. A data DDMMAA é obrigatória e deve coincidir com a autorização."
     },
-    "regra": "Service Code 30 = Com garantia do emissor. Service Code 31 = Sem garantia. O adquirente assume o risco no 31 se houver insolvência."
+    "regra": "Service Code 30 = Com garantia do emissor (o banco bloqueia o saldo até a data). Service Code 31 = Sem garantia — o adquirente assume o risco se houver insolvência do portador na data do crédito. No Brasil, a maioria dos emissores utiliza o código 31."
+  },
+  {
+    "id": "voucher",
+    "titulo": "Voucher / Cartão de Benefício",
+    "auth": {
+      "field": "DE 112",
+      "subelement": "Subelement 04",
+      "value": "MBM",
+      "desc": "Identifica o tipo de benefício: MBM (Refeição/Meal), MBF (Alimentação/Food), MBC (Combustível/Fuel). Essencial para roteamento correto via PAT."
+    },
+    "clearing": {
+      "field": "IPM 1240",
+      "pds": "PDS 0027",
+      "subelement": "S01 (Flex Code)",
+      "clearingValue": "0027MBM01",
+      "desc": "Flex Code / Benefit Type. Contém o código de produto (MBM, MBF, etc) e o identificador do programa de benefício. Determina a rede processadora para liquidação."
+    },
+    "regra": "Cartões de benefício têm regras de liquidação diferentes de cartões de crédito convencional. O PDS 0027 direciona a transação para a processadora de benefício correta (ex: VR, Ticket, Alelo). Ausência do campo causa rejeição no gateway de benefício."
+  },
+  {
+    "id": "recorrencia",
+    "titulo": "Recorrência COF (MIT)",
+    "auth": {
+      "field": "DE 48.22",
+      "subelement": "Stored Credential Use Indicator",
+      "value": "M-R (Merchant/Recurring)",
+      "desc": "Identifica que a transação é uma MIT (Merchant Initiated Transaction) do tipo recorrente. Necessário o networkTransactionId da CIT original."
+    },
+    "clearing": {
+      "field": "IPM 1240",
+      "pds": "PDS 0152",
+      "subelement": "S01 (TIDI)",
+      "clearingValue": "015220240115123456789012",
+      "desc": "Transaction Identifier Data. Contém o TIDI (Token Interchange Data Indicator) que vincula esta MIT à CIT original. Sem este campo, o emissor não reconhece a cadeia de autorização."
+    },
+    "regra": "O TIDI é obrigatório em toda recorrência MIT tokenizada. Ele preserva a cadeia de Liability Shift estabelecida na CIT original com 3DS. Ausência do TIDI converte o ECI para 07 implicitamente, eliminando qualquer proteção contra chargeback de fraude."
   }
 ]

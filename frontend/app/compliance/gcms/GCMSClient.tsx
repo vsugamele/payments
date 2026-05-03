@@ -62,10 +62,10 @@ export default function GCMSClient() {
           </div>
         </div>
 
-        {/* Card de Status do Sistema */}
-        <div className="bg-[#0a1120] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Mastercard Network Status</p>
+        {/* Card de Status + Timeline */}
+        <div className="space-y-4">
+          <div className="bg-[#0a1120] border border-slate-800 rounded-3xl p-6">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Mastercard GCMS — Status</p>
             <div className="flex items-center justify-between py-2 border-b border-slate-800/50">
               <span className="text-xs text-slate-400">Sistema</span>
               <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
@@ -76,14 +76,57 @@ export default function GCMSClient() {
               <span className="text-xs text-slate-400">Próxima Janela</span>
               <span className="text-xs font-mono text-white">23:00 GMT-3</span>
             </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-xs text-slate-400">Ciclos / Dia</span>
+              <span className="text-xs font-bold text-blue-400">6 janelas</span>
+            </div>
           </div>
-          <div className="mt-6 flex items-center gap-3 p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-            <Clock size={16} className="text-blue-400" />
-            <p className="text-[10px] text-blue-300 font-medium leading-tight">
-              Os arquivos IPM são processados em 6 janelas diárias de clearing global.
-            </p>
+
+          {/* Timeline de Janelas de Clearing */}
+          <div className="bg-[#0a1120] border border-slate-800 rounded-3xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock size={14} className="text-blue-400" />
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Janelas de Clearing (GMT-3)</p>
+            </div>
+            <div className="space-y-2">
+              {[
+                { hora: "01:00", label: "Janela 1", risco: "baixo", desc: "Baixo volume" },
+                { hora: "06:00", label: "Janela 2", risco: "médio", desc: "Madrugada BR" },
+                { hora: "11:00", label: "Janela 3", risco: "alto", desc: "Pico matutino" },
+                { hora: "15:00", label: "Janela 4", risco: "alto", desc: "Pico vespertino" },
+                { hora: "19:00", label: "Janela 5", risco: "médio", desc: "Encerramento" },
+                { hora: "23:00", label: "Janela 6", risco: "crítico", desc: "Cut-off final" },
+              ].map((janela, i) => {
+                const colorMap = {
+                  baixo: { bar: "#22c55e", text: "#4ade80", bg: "rgba(34,197,94,0.1)" },
+                  médio: { bar: "#3b82f6", text: "#60a5fa", bg: "rgba(59,130,246,0.1)" },
+                  alto: { bar: "#f59e0b", text: "#fbbf24", bg: "rgba(245,158,11,0.1)" },
+                  crítico: { bar: "#ef4444", text: "#f87171", bg: "rgba(239,68,68,0.1)" },
+                } as const;
+                const c = colorMap[janela.risco as keyof typeof colorMap];
+                return (
+                  <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: c.bg }}>
+                    <span className="font-mono text-[11px] font-bold text-white w-12 shrink-0">{janela.hora}</span>
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.bar }} />
+                    <div className="flex-1">
+                      <span className="text-[11px] font-bold" style={{ color: c.text }}>{janela.label}</span>
+                      <span className="text-[10px] text-slate-600 ml-2">{janela.desc}</span>
+                    </div>
+                    {janela.risco === "crítico" && (
+                      <span className="text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded">CUT-OFF</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-3 p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl">
+              <p className="text-[10px] text-red-400 font-medium">
+                ⚠️ Perder a Janela 6 (23:00) gera cobrança de <strong>2PN1011</strong> na próxima invoice.
+              </p>
+            </div>
           </div>
         </div>
+
       </section>
 
       {/* ── Explorador de Tabelas ── */}

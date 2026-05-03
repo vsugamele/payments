@@ -18,7 +18,7 @@ type EventType = {
   manual_ref?: string;
 };
 
-const EVENTS: EventType[] = [
+const EVENTS_MC: EventType[] = [
   {
     time: "T+0ms", label: "Autorização (Online)", phase: "D0",
     what_happens: "O terminal envia a mensagem ISO 8583 0100/0200. O emissor responde com 0110/0210 (Response Code 00 = Aprovado).",
@@ -65,6 +65,39 @@ const EVENTS: EventType[] = [
   },
 ];
 
+const EVENTS_VISA: EventType[] = [
+  {
+    time: "T+0ms", label: "Autorização (Visa SMS)", phase: "D0",
+    what_happens: "O terminal envia ISO 8583 0100. A Visa processa via VisaNet/SMS (Single Message System). Para débito, o SMS aprova E captura em uma só mensagem.",
+    technical_detail: "Visão Visa: crédito usa Dual Message (0100/0110 + 0220). Débito usa Single Message (0200/0210) — captura instantânea. O CPS (Custom Payment Service) valida o IRD.",
+    iso_fields: { "MTI": "0100 (Auth) ou 0200 (Financial SMS)", "DE 39": "00 (Approved)", "DE 38": "Approval Code", "DE 44": "Additional Response Data (Visa CPS)" },
+    manual: "Visa Core Rules", manual_ref: "Chapter 1: VisaNet — Single Message System"
+  },
+  {
+    time: "T+5s a T+24h", label: "Captura / Apresentação (Base II)", phase: "D0",
+    what_happens: "O adquirente transmite o arquivo Base II (lote diário) para a VisaNet. Cada transação de crédito apresentada no Base II é um 'Transaction Code 05 Record'.",
+    technical_detail: "Base II é arquivo ASCII com campos de comprimento fixo. Diferença-chave do IPM (Mastercard): Base II é mais simples, sem o conceito de PDS (Private Data Subelement).",
+    files: ["Base II: formato ASCII, lote diário, enviado até 23:59 GMT-3", "VisaNet Global Clearing: consolida BASE II de todos os adquirentes", "Elo: formato próprio, diferente do Base II"],
+    risk_note: "Janela de captura Visa: 7 dias para crédito. Após esse prazo, a autorização expira e a Visa não garante o pagamento.",
+    manual: "Visa Core Rules", manual_ref: "Chapter 5: BASE II — Transaction Presentment"
+  },
+  {
+    time: "D+1 Manhã (06h-10h)", label: "Compensação (VisaNet Settlement)", phase: "D1",
+    what_happens: "A VisaNet calcula posições líquidas. O intercambio é creditado ao Banco Emissor e debitado do Adquirente. Visa usa o método de Multilateral Net Settlement.",
+    technical_detail: "Diferente da Mastercard (Banknet): a Visa consolida via VisaNet Central. O CPS Score de cada transação determina a taxa de intercambio qualificada (CPS/Retail, CPS/E-com, etc).",
+    iso_fields: { "CPS": "Custom Payment Service — qualifica a taxa de intercambio", "IRD": "Interchange Rate Designator — código da taxa aplicada", "Net Settlement": "Compensação multilateral líquida" },
+    manual: "Visa Core Rules", manual_ref: "Chapter 8: Settlement — VisaNet Net Settlement"
+  },
+  {
+    time: "D+1 Tarde / D+2", label: "Liquidação (SPB / SWIFT)", phase: "D2",
+    what_happens: "Mesma infraestrutura SPB para transações locais. Visa usa SWIFT para liquidações internacionais. A Visa não tem o conceito de EFA (Expedited Funds Availability) da Mastercard.",
+    technical_detail: "Prazo Visa: crédito ao lojista geralmente em D+1 a D+2. A Visa não define um prazo padrão EFA — o contrato com o adquirente define o prazo de repasse.",
+    risk_note: "Visa não tem EFA obrigatório. O prazo de crédito ao lojista é contratual entre lojista e adquirente.",
+    manual: "Visa Core Rules", manual_ref: "Chapter 8: Settlement — Settlement Timing"
+  },
+];
+
+
 const PHASE_CONFIG = {
   D0: { label: "D+0 (Dia da Transação)", color: "#22d3ee", bg: "rgba(34,211,238,0.08)", border: "rgba(34,211,238,0.2)" },
   D1: { label: "D+1 (Clearing)",        color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.2)" },
@@ -72,13 +105,38 @@ const PHASE_CONFIG = {
   D3: { label: "D+3 (Crédito Lojista)", color: "#4ade80", bg: "rgba(74,222,128,0.08)", border: "rgba(74,222,128,0.2)" },
 };
 
+
 const PHASE_ICONS = { D0: Zap, D1: Database, D2: DollarSign, D3: DollarSign };
 
 export default function SettlementClient() {
   const [expanded, setExpanded] = useState<string | null>("T+0ms");
+  const [scheme, setScheme] = useState<"mastercard" | "visa">("mastercard");
+
+  const EVENTS = scheme === "mastercard" ? EVENTS_MC : EVENTS_VISA;
+  const schemeColor = scheme === "mastercard" ? "#f97316" : "#3b82f6";
+  const schemeName = scheme === "mastercard" ? "Mastercard (IPM)" : "Visa (Base II)";
 
   return (
     <div className="space-y-4">
+
+      {/* ── Toggle Bandeira ── */}
+      <div className="flex gap-1.5 p-1 bg-black/30 rounded-xl border border-slate-800 self-start w-fit mb-2">
+        {(["mastercard", "visa"] as const).map(s => (
+          <button
+            key={s}
+            onClick={() => { setScheme(s); setExpanded(null); }}
+            className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+            style={{
+              background: scheme === s ? (s === "mastercard" ? "rgba(249,115,22,0.2)" : "rgba(59,130,246,0.2)") : "transparent",
+              color: scheme === s ? (s === "mastercard" ? "#fb923c" : "#60a5fa") : "#64748b",
+              border: scheme === s ? `1px solid ${s === "mastercard" ? "#f9741630" : "#3b82f630"}` : "1px solid transparent",
+            }}
+          >
+            {s === "mastercard" ? "🔴 Mastercard (IPM)" : "🔵 Visa (Base II)"}
+          </button>
+        ))}
+      </div>
+
       {EVENTS.map(ev => {
         const { color, bg, border } = PHASE_CONFIG[ev.phase];
         const isOpen = expanded === ev.time;

@@ -24,6 +24,57 @@ export default function GcmsTester() {
 
   const [logs, setLogs] = useState<{type: 'info' | 'success' | 'error', message: string, timestamp: string}[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeScenario, setActiveScenario] = useState<string | null>(null);
+
+  // Cenários pré-definidos
+  const SCENARIOS = [
+    {
+      id: "ok",
+      label: "✅ Transação Perfeita",
+      desc: "Chip EMV + IRD correto",
+      fraud: false,
+      color: "#10b981",
+      data: { posEntryMode: "05", eci: "", mcc: "5411", ird: "IA", amount: "150.00" }
+    },
+    {
+      id: "fraude_campo",
+      label: "🚨 Fraude de Campo",
+      desc: "E-com (81) com IRD físico",
+      fraud: true,
+      color: "#ef4444",
+      data: { posEntryMode: "81", eci: "", mcc: "5411", ird: "IA", amount: "500.00" }
+    },
+    {
+      id: "downgrade_3ds",
+      label: "⚠️ Downgrade 3DS",
+      desc: "ECI 07 com IRD autenticado",
+      fraud: true,
+      color: "#f59e0b",
+      data: { posEntryMode: "81", eci: "07", mcc: "5411", ird: "AW", amount: "250.00" }
+    },
+    {
+      id: "fallback_mag",
+      label: "🔄 Fallback Magstripe",
+      desc: "Tarja magnética (POS Entry 90)",
+      fraud: false,
+      color: "#6366f1",
+      data: { posEntryMode: "90", eci: "", mcc: "5411", ird: "IA", amount: "80.00" }
+    },
+    {
+      id: "parcelado_sem_pds",
+      label: "🇧🇷 Parcelado s/ PDS",
+      desc: "Chip EMV sem PDS 0181",
+      fraud: true,
+      color: "#f97316",
+      data: { posEntryMode: "05", eci: "", mcc: "5411", ird: "IA", amount: "1200.00" }
+    },
+  ];
+
+  const loadScenario = (s: typeof SCENARIOS[0]) => {
+    setFormData(s.data);
+    setActiveScenario(s.id);
+    setLogs([]);
+  };
 
   const posEntryModes = [
     { value: "05", label: "05 - Chip EMV Integrado" },
@@ -176,7 +227,35 @@ export default function GcmsTester() {
 
       {/* Coluna do Terminal */}
       <div className="w-full md:w-2/3 bg-[#05080f] flex flex-col relative font-mono text-xs">
-        {/* Terminal Header */}
+      {/* Cenários pré-definidos */}
+        <div className="border-b border-slate-800 pb-4 mb-4">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Cenários Rápidos</p>
+          <div className="space-y-1.5">
+            {SCENARIOS.map(s => (
+              <button
+                key={s.id}
+                onClick={() => loadScenario(s)}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-2 border ${
+                  activeScenario === s.id
+                    ? "border-opacity-60 font-bold"
+                    : "border-slate-700 hover:border-slate-600"
+                }`}
+                style={{
+                  background: activeScenario === s.id ? `${s.color}15` : "transparent",
+                  borderColor: activeScenario === s.id ? `${s.color}40` : undefined,
+                  color: activeScenario === s.id ? s.color : "#94a3b8",
+                }}
+              >
+                <span className="flex-1 truncate">{s.label}</span>
+                {s.fraud && (
+                  <span className="text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded shrink-0">FRAUDE</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Formulário de campos */}
         <div className="px-4 py-3 bg-[#0f1524] border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Terminal size={14} className="text-slate-500" />

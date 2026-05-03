@@ -15,7 +15,6 @@ interface Trilha {
   id: string;
   titulo: string;
   subtitulo: string;
-  descricao: string;
   nivel: string;
   cor: string;
   cor_fundo: string;

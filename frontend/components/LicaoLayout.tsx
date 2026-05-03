@@ -55,6 +55,14 @@ export function LicaoLayout({
     conceito: "Conceito",
     pratica: "Prática",
     referencia: "Referência",
+    // Tipos novos das trilhas técnicas
+    Teórica: "Teórica",
+    Técnica: "Técnica",
+    Avançada: "Avançada",
+    Financeira: "Financeira",
+    Processual: "Processual",
+    Normativa: "Normativa",
+    Compliance: "Compliance",
   };
 
   return (

@@ -42,28 +42,28 @@ const BAND_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 const PILLARS = [
-  { icon: BarChart2,   href: "/compliance/risco",       title: "Calculadora de Risco",        subtitle: "VAMP · ECP · EFM · PED",          color: "#f59e0b", alert: "Novo threshold Q1 2025" },
-  { icon: Scale,       href: "/compliance/disputas",    title: "Forense de Disputas",         subtitle: "VROL · Mastercom · CE 3.0",        color: "#8b5cf6", alert: null },
-  { icon: Landmark,    href: "/compliance/intercambio", title: "Playbook de Intercâmbio",     subtitle: "IRDs · Doméstico · LAC · Global",  color: "#3b82f6", alert: "IRDs expandidos" },
-  { icon: Search,      href: "/compliance/campos",      title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: null },
-  { icon: Send,        href: "/compliance/payouts",     title: "Push Payments Lab",           subtitle: "Visa Direct · MC Send · AFT",      color: "#ec4899", alert: "Real-time" },
-  { icon: Globe,       href: "/compliance/cross-border",title: "Cross-Border & DCC",          subtitle: "Markup · ISA · IAF",               color: "#0ea5e9", alert: null },
-  { icon: Smartphone,  href: "/compliance/softpos",     title: "Tap to Phone (SoftPOS)",      subtitle: "PCI CPoC · MPoC · Atestação",      color: "#10b981", alert: null },
-  { icon: Database,    href: "/compliance/gcms",        title: "Explorador GCMS",             subtitle: "Clearing · Tabelas T165/T168",     color: "#a855f7", alert: null },
-  { icon: Server,      href: "/compliance/visa-infra",  title: "Infraestrutura Core Visa",    subtitle: "VCX · VSS · Base II",              color: "#3b82f6", alert: null },
-  { icon: Tag,         href: "/compliance/mcc",         title: "Tabela de MCCs",              subtitle: "1.300+ códigos",                   color: "#2dd4bf", alert: null },
-  { icon: AlertOctagon,href: "/compliance/match",       title: "MATCH Pro Simulator",         subtitle: "Onboarding · Reason Codes",        color: "#ef4444", alert: null },
-  { icon: Briefcase,   href: "/compliance/visa-business",title: "Visa Business & Intel",       subtitle: "B2B Connect · VBASS · DAF",        color: "#3b82f6", alert: "Novo Módulo" },
-  { icon: CreditCard,  href: "/compliance/credenciais", title: "MIT & CIT Framework",         subtitle: "Stored Credentials · SCOF",        color: "#f59e0b", alert: null },
-  { icon: Cpu,         href: "/compliance/emv",         title: "Decodificador EMV",           subtitle: "TVR Tag 95 · 40 Bits",            color: "#22d3ee", alert: null },
-  { icon: DollarSign,  href: "/compliance/settlement",  title: "Settlement & Clearing",       subtitle: "D+0 · IPM · Base II · EFA",       color: "#4ade80", alert: null },
-  { icon: ShieldCheck, href: "/compliance/3ds",         title: "Matriz 3DS & ECI",            subtitle: "Liability Shift · E-commerce",    color: "#4ade80", alert: null },
-  { icon: Shield,      href: "/compliance/pci",         title: "Calculadora de Escopo PCI",   subtitle: "SAQ A · SAQ D · v4.0",            color: "#ef4444", alert: "PCI v4.0 vigente" },
-  { icon: GitCompare,  href: "/compliance/retentativas",title: "Matriz de Retentativas",      subtitle: "Hard vs Soft Declines",           color: "#f59e0b", alert: null },
-  { icon: Crosshair,   href: "/compliance/bram",        title: "Auditor BRAM e QMAP",         subtitle: "Risco Legal · Multas",            color: "#ef4444", alert: null },
-  { icon: Bitcoin,     href: "/compliance/quasicash",   title: "Cripto & Quasi-cash",         subtitle: "AFT · OCT · Funding",             color: "#eab308", alert: null },
-  { icon: BookOpen,    href: "/compliance/programas",   title: "Diretório de Programas",      subtitle: "Visa · Mastercard · Elo",         color: "#a78bfa", alert: null },
-  { icon: GitCompare,  href: "/canais",                 title: "Matriz de Canais CP/CNP",     subtitle: "Chip · NFC · MOTO · MIT",         color: "#818cf8", alert: null },
+  { icon: BarChart2,   href: "/compliance/risco",        title: "Calculadora de Risco",        subtitle: "VAMP · ECP · EFM · PED",          color: "#f59e0b", alert: "Novo threshold Q1 2025", updated: true },
+  { icon: Scale,       href: "/compliance/disputas",     title: "Forense de Disputas",         subtitle: "VROL · Mastercom · CE 3.0",        color: "#8b5cf6", alert: null,                  updated: true },
+  { icon: Landmark,    href: "/compliance/intercambio",  title: "Playbook de Intercâmbio",     subtitle: "IRDs · Doméstico · LAC · Global",  color: "#3b82f6", alert: "IRDs expandidos",       updated: false },
+  { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: null,                  updated: true },
+  { icon: Send,        href: "/compliance/payouts",      title: "Push Payments Lab",           subtitle: "Visa Direct · MC Send · AFT",      color: "#ec4899", alert: "Real-time",            updated: false },
+  { icon: Globe,       href: "/compliance/cross-border", title: "Cross-Border & DCC",          subtitle: "Markup · ISA · IAF",               color: "#0ea5e9", alert: null,                  updated: false },
+  { icon: Smartphone,  href: "/compliance/softpos",      title: "Tap to Phone (SoftPOS)",      subtitle: "PCI CPoC · MPoC · Atestação",      color: "#10b981", alert: null,                  updated: false },
+  { icon: Database,    href: "/compliance/gcms",         title: "Explorador GCMS",             subtitle: "Clearing · Tabelas T165/T168",     color: "#a855f7", alert: null,                  updated: true },
+  { icon: Server,      href: "/compliance/visa-infra",   title: "Infraestrutura Core Visa",    subtitle: "VCX · VSS · Base II",              color: "#3b82f6", alert: null,                  updated: false },
+  { icon: Tag,         href: "/compliance/mcc",          title: "Tabela de MCCs",              subtitle: "1.300+ códigos",                   color: "#2dd4bf", alert: null,                  updated: false },
+  { icon: AlertOctagon,href: "/compliance/match",        title: "MATCH Pro Simulator",         subtitle: "Onboarding · Reason Codes",        color: "#ef4444", alert: null,                  updated: false },
+  { icon: Briefcase,   href: "/compliance/visa-business",title: "Visa Business & Intel",       subtitle: "B2B Connect · VBASS · DAF",        color: "#3b82f6", alert: "Novo Módulo",          updated: false },
+  { icon: CreditCard,  href: "/compliance/credenciais",  title: "MIT & CIT Framework",         subtitle: "Stored Credentials · SCOF",        color: "#f59e0b", alert: null,                  updated: false },
+  { icon: Cpu,         href: "/compliance/emv",          title: "Decodificador EMV",           subtitle: "TVR Tag 95 · 40 Bits",            color: "#22d3ee", alert: null,                  updated: true },
+  { icon: DollarSign,  href: "/compliance/settlement",   title: "Settlement & Clearing",       subtitle: "D+0 · IPM · Base II · EFA",       color: "#4ade80", alert: null,                  updated: true },
+  { icon: ShieldCheck, href: "/compliance/3ds",          title: "Matriz 3DS & ECI",            subtitle: "Liability Shift · E-commerce",    color: "#4ade80", alert: null,                  updated: false },
+  { icon: Shield,      href: "/compliance/pci",          title: "Calculadora de Escopo PCI",   subtitle: "SAQ A · SAQ D · v4.0",            color: "#ef4444", alert: "PCI v4.0 vigente",    updated: false },
+  { icon: GitCompare,  href: "/compliance/retentativas", title: "Matriz de Retentativas",      subtitle: "Hard vs Soft Declines · MAC",     color: "#f59e0b", alert: null,                  updated: true },
+  { icon: Crosshair,   href: "/compliance/bram",         title: "Auditor BRAM e QMAP",         subtitle: "Risco Legal · Multas",            color: "#ef4444", alert: null,                  updated: false },
+  { icon: Bitcoin,     href: "/compliance/quasicash",    title: "Cripto & Quasi-cash",         subtitle: "AFT · OCT · Funding",             color: "#eab308", alert: null,                  updated: false },
+  { icon: BookOpen,    href: "/compliance/programas",    title: "Diretório de Programas",      subtitle: "Visa · Mastercard · Elo",         color: "#a78bfa", alert: null,                  updated: false },
+  { icon: GitCompare,  href: "/canais",                  title: "Matriz de Canais CP/CNP",     subtitle: "Chip · NFC · MOTO · MIT",         color: "#818cf8", alert: null,                  updated: false },
 ];
 
 const STATS = [
@@ -316,21 +316,19 @@ export default function ComplianceCommandCenter() {
                       backdropFilter: "blur(8px)",
                     }}
                   >
-                    {/* Glassmorphism icon */}
+                    {/* Icon */}
                     <div style={{
                       width: 42, height: 42, borderRadius: "0.75rem", flexShrink: 0,
                       background: `${p.color}12`, border: `1px solid ${p.color}25`,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       transition: "background 0.2s, border-color 0.2s",
-                    }}
-                      className="group-hover:border-opacity-60"
-                    >
+                    }}>
                       <Icon size={18} style={{ color: p.color }} />
                     </div>
 
                     {/* Text */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <span style={{ fontWeight: 700, fontSize: "0.875rem", color: "white" }} className="truncate">
                           {p.title}
                         </span>
@@ -342,6 +340,16 @@ export default function ComplianceCommandCenter() {
                             whiteSpace: "nowrap", flexShrink: 0,
                           }}>
                             {p.alert}
+                          </span>
+                        )}
+                        {p.updated && !p.alert && (
+                          <span style={{
+                            fontSize: "0.55rem", fontWeight: 700, padding: "0.15rem 0.45rem",
+                            borderRadius: "9999px", background: "rgba(74,222,128,0.12)",
+                            color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)",
+                            whiteSpace: "nowrap", flexShrink: 0,
+                          }}>
+                            ✦ ATUALIZADO
                           </span>
                         )}
                       </div>
@@ -358,6 +366,7 @@ export default function ComplianceCommandCenter() {
             })}
           </div>
         </section>
+
 
         {/* ── Why It Matters (Glassmorphism) ────────────────────────────────── */}
         <section>

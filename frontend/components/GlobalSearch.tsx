@@ -4,12 +4,14 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Command, X, Book, Scale, Calculator, 
-  Terminal, ShieldCheck, ChevronRight, Hash, ExternalLink,
-  Zap, Database, Globe
+  Terminal, ShieldCheck, ChevronRight, Hash,
+  Zap, Database, Globe, RefreshCw, DollarSign,
+  AlertTriangle, FileText, Cpu, Lock, CreditCard
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import glossarioData from "@/data/glossario.json";
 import mccData from "@/data/mcc-list.json";
+import disputeCodesData from "@/data/dispute-codes.json";
 
 // Tipos para os resultados da busca
 interface SearchResult {
@@ -85,14 +87,46 @@ export default function GlobalSearch() {
       }
     });
 
-    // 3. Ferramentas e Páginas fixas
+    // 3. Ferramentas, Compliance e Páginas
     const pages = [
-      { t: "Simulador de Intercâmbio", d: "Cálculo de IC e Scheme Fees", u: "/simulador", c: "ferramenta", i: Calculator },
-      { t: "Advogado Digital (Disputas)", d: "Defesa forense de chargebacks", u: "/compliance/disputas", c: "ferramenta", i: Scale },
-      { t: "Laboratório de Mensageria", d: "Parser de logs ISO 8583 / IPM", u: "/compliance/campos", c: "ferramenta", i: Terminal },
-      { t: "Programa TPE Mastercard", d: "Excelência e Retentativas", u: "/compliance/tpe", c: "compliance", i: Zap },
-      { t: "Explorador GCMS", d: "Tabelas de Clearing Mastercard", u: "/compliance/gcms", c: "compliance", i: Database },
-      { t: "Mapa do Ecossistema", d: "Arquitetura Macro de Pagamentos", u: "/ecossistema", c: "compliance", i: Globe }
+      // Ferramentas principais
+      { t: "Simulador de Intercâmbio", d: "Cálculo de IC e Scheme Fees em tempo real", u: "/simulador", c: "ferramenta", i: Calculator },
+      { t: "Matriz de Intercâmbio", d: "Decisão de taxa passo a passo", u: "/matrix", c: "ferramenta", i: Calculator },
+      { t: "Mapa do Ecossistema", d: "Arquitetura Macro de Pagamentos", u: "/ecossistema", c: "ferramenta", i: Globe },
+      { t: "Jornada da Transação", d: "POS → Clearing → Settlement visual", u: "/jornada", c: "ferramenta", i: FileText },
+      { t: "Comparativo Base II vs IPM", d: "Visa vs Mastercard clearing lado a lado", u: "/comparativo", c: "ferramenta", i: Database },
+      // Compliance — Disputas
+      { t: "Disputas / DMAS / VROL", d: "Ciclo de chargebacks Mastercard e Visa", u: "/compliance/disputas", c: "disputa", i: Scale },
+      { t: "MATCH Program", d: "Terminated Merchant File, lista de alto risco", u: "/compliance/match", c: "disputa", i: AlertTriangle },
+      // Compliance — Técnico
+      { t: "Campos ISO 8583 / DE Fields", d: "Parser de mensagens ISO 8583 e PDS", u: "/compliance/campos", c: "iso", i: Terminal },
+      { t: "EMV / Chip / TVR / TSI", d: "Diagnóstico de chip, ARQC, TVR bitmask", u: "/compliance/emv", c: "iso", i: Cpu },
+      { t: "GCMS / Clearing Mastercard", d: "Tabelas TC05, TC50, TC46", u: "/compliance/gcms", c: "compliance", i: Database },
+      { t: "Settlement / Liquidação", d: "Ciclo D+0 a D+3, IPM vs Base II", u: "/compliance/settlement", c: "compliance", i: DollarSign },
+      { t: "Retentativas / Declines", d: "Matriz de response codes, soft vs hard decline", u: "/compliance/retentativas", c: "compliance", i: RefreshCw },
+      { t: "Intercâmbio / Taxas", d: "Motor de cálculo de taxas, downgrade", u: "/compliance/intercambio", c: "compliance", i: Calculator },
+      { t: "Downgrade de Intercâmbio", d: "Por que a taxa muda silenciosamente", u: "/compliance/downgrade", c: "compliance", i: AlertTriangle },
+      { t: "Programas de Compliance", d: "VAMP, ECP, EFM, QMAP, VMPI", u: "/compliance/programas", c: "compliance", i: ShieldCheck },
+      { t: "TPE / Transaction Processing Excellence", d: "Excelência Mastercard, scoring de retentativas", u: "/compliance/tpe", c: "compliance", i: Zap },
+      { t: "Risco e Fraude", d: "Análise de risco, prevenção a fraudes", u: "/compliance/risco", c: "compliance", i: AlertTriangle },
+      { t: "3DS / Autenticação", d: "3D Secure, Visa Secure, MC Identity Check", u: "/compliance/3ds", c: "compliance", i: Lock },
+      { t: "Tokenização / ABU", d: "Visa Token Service, MDES, ABU atualização", u: "/compliance/tokenizacao", c: "compliance", i: ShieldCheck },
+      { t: "PCI DSS v4", d: "Payment Card Industry Data Security Standard", u: "/compliance/pci", c: "compliance", i: Lock },
+      { t: "Credenciais Armazenadas", d: "MIT, CIT, stored credentials framework", u: "/compliance/credenciais", c: "compliance", i: Database },
+      { t: "Cross-Border / DCC", d: "Transações internacionais, conversão de moeda", u: "/compliance/cross-border", c: "compliance", i: Globe },
+      { t: "Quasi-Cash", d: "Regras para transações de quasi-dinheiro, gaming", u: "/compliance/quasicash", c: "compliance", i: DollarSign },
+      { t: "SoftPOS / Tap to Phone", d: "Certificação SoftPOS, requisitos de segurança", u: "/compliance/softpos", c: "compliance", i: CreditCard },
+      { t: "Payouts / Push Payments", d: "MoneySend, Visa Direct, pagamentos push", u: "/compliance/payouts", c: "compliance", i: DollarSign },
+      { t: "CIP / Clearing Integration", d: "CIP, integração de clearing Mastercard", u: "/compliance/cip", c: "compliance", i: Database },
+      { t: "BRAM Rules", d: "Brasil Merchant Rules Mastercard", u: "/compliance/bram", c: "compliance", i: Book },
+      { t: "Fees / Tarifas de Bandeira", d: "Tarifas e multas MCBS, Scheme Fees", u: "/compliance/fees", c: "compliance", i: DollarSign },
+      { t: "MCC / Categorias de Lojista", d: "Merchant Category Codes e regras por segmento", u: "/compliance/mcc", c: "mcc", i: Hash },
+      { t: "Visa Business Rules", d: "Regras específicas cartões Visa Business", u: "/compliance/visa-business", c: "compliance", i: Globe },
+      { t: "Visa Infra / VisaNet", d: "Infraestrutura VisaNet, SMS, BASE II", u: "/compliance/visa-infra", c: "compliance", i: Globe },
+      { t: "MCBS / Scheme Fees", d: "Tarifas de bandeira Mastercard consolidadas", u: "/mcbs", c: "compliance", i: DollarSign },
+      { t: "Acervo Normativo", d: "Biblioteca de manuais Visa, MC, ISO", u: "/acervo", c: "ferramenta", i: Book },
+      { t: "Trilhas de Aprendizado", d: "Do básico ao Visa/MC Deep Dive", u: "/trilhas", c: "ferramenta", i: Book },
+      { t: "Glossário de Termos", d: "Termos, siglas e definições de pagamentos", u: "/glossario", c: "glossario", i: Book },
     ];
 
     pages.forEach(p => {
@@ -108,7 +142,21 @@ export default function GlobalSearch() {
       }
     });
 
-    return searchResults.slice(0, 8); // Limitar a 8 resultados para manter limpo
+    // 4. Buscar nos Reason Codes de Disputa
+    (disputeCodesData as any[]).forEach((code: any) => {
+      if (String(code.code).includes(q) || code.name?.toLowerCase().includes(q)) {
+        searchResults.push({
+          id: `dispute-${code.code}`,
+          title: `RC ${code.code} — ${code.name}`,
+          description: `Visa equiv.: ${code.visa_equivalent ?? "—"} · ${code.visa_stage ?? ""}`,
+          category: "disputa",
+          url: `/compliance/disputas`,
+          icon: Scale
+        });
+      }
+    });
+
+    return searchResults.slice(0, 12);
   }, [query]);
 
   const handleSelect = (url: string) => {
