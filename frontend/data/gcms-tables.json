@@ -110,5 +110,53 @@
     "usage": "Forensic Linkage",
     "impact": "Permite rastrear uma transação financeira até o seu registro de disputa.",
     "fields": ["Clearing ID", "Dispute ID", "Linking Token"]
+  },
+  {
+    "table": "IP0020T1",
+    "name": "ICA/Member Information",
+    "description": "Contém os detalhes cadastrais de cada ICA (Interbank Card Association) habilitado na rede.",
+    "usage": "Participant Identification",
+    "impact": "Erros aqui bloqueiam o roteamento de arquivos para o adquirente/emissor correto.",
+    "fields": ["ICA Number", "Member Name", "Region Code", "Settlement Bank"]
+  },
+  {
+    "table": "IP0030T1",
+    "name": "BIN/Account Range",
+    "description": "A tabela 'bíblia' de roteamento. Mapeia cada range de BIN (6 a 11 dígitos) ao seu emissor e país de origem.",
+    "usage": "Routing / Identification",
+    "impact": "O coração do Switch. Determina para onde a transação de clearing deve ser enviada.",
+    "fields": ["BIN Low", "BIN High", "Member ID", "Country Code"]
+  },
+  {
+    "table": "IP0040T1",
+    "name": "Technical Currency Mapping",
+    "description": "Mapeamento técnico de moedas para formatos específicos de processamento MPE.",
+    "usage": "Data Normalization",
+    "impact": "Garante consistência em conversões multimoeda automáticas.",
+    "fields": ["Currency Code", "Alpha Code", "Decimal Precision"]
+  },
+  {
+    "table": "IP0091T1",
+    "name": "Acquiring BIN Card Program",
+    "description": "Identifica os programas de cartão aceitos pelo adquirente e suas participações em serviços de business.",
+    "usage": "Program Participation",
+    "impact": "Define se o adquirente pode processar produtos específicos (ex: Fleet, Commercial).",
+    "fields": ["BIN", "Program Identifier", "Service Participation"]
+  },
+  {
+    "table": "T160",
+    "name": "Interchange Compliance Rules",
+    "description": "As regras de 'limpeza' e compliance. Define quais transações estão sujeitas a multas de downgrade.",
+    "usage": "Compliance / Penalty",
+    "impact": "Onde são calculadas as taxas de 'Technical Downgrade' para dados incompletos.",
+    "fields": ["Rule ID", "Penalty Rate", "Criteria"]
+  },
+  {
+    "table": "T164",
+    "name": "IRD Definition Table",
+    "description": "Glossário técnico de códigos de IRD (Interchange Rate Designator).",
+    "usage": "Documentation / UI",
+    "impact": "Traduz códigos como 'HU' para 'E-commerce Standard' e 'AW' para '3DS Authenticated'.",
+    "fields": ["IRD Code", "Description", "Region"]
   }
 ]
