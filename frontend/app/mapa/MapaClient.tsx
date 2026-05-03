@@ -597,7 +597,7 @@ export default function MapaClient() {
         style={{ background: "#05080f" }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#1e293b" gap={30} size={1} opacity={0.2} />
+        <Background color="#1e293b" gap={30} size={1} />
         <Controls
           style={{
             bottom: 30,

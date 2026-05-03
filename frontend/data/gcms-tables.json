@@ -38,5 +38,37 @@
     "usage": "Billing / MCBS",
     "impact": "Determina quais taxas de rede (Scheme Fees) serão aplicadas.",
     "fields": ["Transaction Code", "Service ID", "Fee Category"]
+  },
+  {
+    "table": "IP0001T1",
+    "name": "Run Control Options",
+    "description": "Controla os parâmetros de execução do processamento de clearing para o participante.",
+    "usage": "IPM MPE Configuration",
+    "impact": "Define como o sistema trata duplicidades e janelas de corte.",
+    "fields": ["Run Option", "Override Flag", "Value"]
+  },
+  {
+    "table": "IP0006T1",
+    "name": "Data Element Attributes",
+    "description": "Define a anatomia de cada campo ISO 8583 (IPM). Comprimento, formato (an, n, b) e se é fixo ou variável.",
+    "usage": "Forensic / Message Layout",
+    "impact": "Fundamental para construir parsers de arquivos IPM sem erros de parsing.",
+    "fields": ["DE Number", "Format", "Fixed/Variable", "Max Length"]
+  },
+  {
+    "table": "IP0015T1",
+    "name": "IPM Error Messages",
+    "description": "Dicionário de códigos de erro retornados pelo GCMS quando um registro falha nos Edits.",
+    "usage": "Troubleshooting / Edits",
+    "impact": "Permite identificar exatamente por que uma transação foi rejeitada no clearing.",
+    "fields": ["Error Code", "Error Severity", "Description"]
+  },
+  {
+    "table": "IP0016T1",
+    "name": "Brand Product",
+    "description": "Mapeia os BINs e ranges de cartões para os produtos específicos da bandeira (Standard, Gold, Black, Business).",
+    "usage": "Product Validation / IRD Mapping",
+    "impact": "Crucial para validar se o intercâmbio cobrado condiz com o cartão real do portador.",
+    "fields": ["Product ID", "Brand Code", "Product Name"]
   }
 ]

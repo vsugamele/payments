@@ -16,10 +16,12 @@ import {
   ShieldCheck,
   ChevronRight,
   Clock,
-  DollarSign
+  DollarSign,
+  Terminal
 } from "lucide-react";
 
 import gcmsData from "@/data/gcms-tables.json";
+import GcmsTester from "@/components/gcms/GcmsTester";
 
 export default function GCMSClient() {
   const [selectedTable, setSelectedTable] = useState(gcmsData[0]);
@@ -191,6 +193,18 @@ export default function GCMSClient() {
             </AnimatePresence>
           </div>
         </div>
+      </section>
+
+      {/* ── GCMS Edit Rule Tester ── */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Terminal size={18} className="text-purple-400" />
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest">Simulador Forense: Rejeição T168</h2>
+        </div>
+        <p className="text-sm text-slate-400 leading-relaxed max-w-3xl mb-4">
+          O principal desafio operacional do GCMS são os <strong>Edits (Rejeições)</strong>. O adquirente tenta cobrar um intercâmbio (IRD), mas a Mastercard rejeita ou aplica um downgrade porque os dados da transação (POS Entry Mode, ECI) são incompatíveis. Teste os cenários abaixo.
+        </p>
+        <GcmsTester />
       </section>
 
       {/* ── Visual Flow: Do Log ao GCMS ── */}

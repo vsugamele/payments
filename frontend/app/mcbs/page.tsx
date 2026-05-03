@@ -5,6 +5,7 @@ import {
   RefreshCw, BarChart2, AlertTriangle, Globe,
   ArrowRight, Info,
 } from 'lucide-react';
+import McbsTabs from './McbsTabs';
 
 export const metadata: Metadata = {
   title: 'MCBS — Tarifas Mastercard Brasil | VS Payments',
@@ -285,85 +286,89 @@ export default async function MCBSPage() {
               </div>
             </Section>
 
-            {/* ── 2. Catálogo ──────────────────────────────────────── */}
-            <Section id="catalogo" title="Catálogo de Service IDs — Brasil">
-              <p className="text-sm text-muted-foreground mb-6">
-                Cada Service ID agrupa billing events relacionados. O código do evento começa com{' '}
-                <span className="font-mono font-bold text-foreground">2</span> (evento de cobrança) ou{' '}
-                <span className="font-mono font-bold text-foreground">T</span> (tabela de tier).
-                Abaixo os grupos mais relevantes para adquirentes e emissores no Brasil.
-              </p>
+            {/* ── 2. Catálogo e Calculadora ──────────────────────────────────────── */}
+            <Section id="catalogo" title="Catálogo & Calculadora de Fatura MCBS">
+              <McbsTabs catalogContent={
+                <>
+                  <p className="text-sm text-muted-foreground mb-6 mt-4">
+                    Cada Service ID agrupa billing events relacionados. O código do evento começa com{' '}
+                    <span className="font-mono font-bold text-foreground">2</span> (evento de cobrança) ou{' '}
+                    <span className="font-mono font-bold text-foreground">T</span> (tabela de tier).
+                    Abaixo os grupos mais relevantes para adquirentes e emissores no Brasil.
+                  </p>
 
-              <div className="space-y-6">
-                {serviceGroups.length === 0 ? (
-                  <div className="p-4 rounded-xl border bg-muted/20 text-muted-foreground text-center text-sm">
-                    Carregando taxas do MCBS do banco de dados ou backend fora do ar...
-                  </div>
-                ) : (
-                  serviceGroups.map((g) => {
-                    const Icon = (Icons as any)[g.icon] || Icons.HelpCircle;
-                    return (
-                      <div key={g.id}
-                      className="rounded-xl border overflow-hidden"
-                      style={{ borderColor: g.border }}>
+                  <div className="space-y-6">
+                    {serviceGroups.length === 0 ? (
+                      <div className="p-4 rounded-xl border bg-muted/20 text-muted-foreground text-center text-sm">
+                        Carregando taxas do MCBS do banco de dados ou backend fora do ar...
+                      </div>
+                    ) : (
+                      serviceGroups.map((g) => {
+                        const Icon = (Icons as any)[g.icon] || Icons.HelpCircle;
+                        return (
+                          <div key={g.id}
+                          className="rounded-xl border overflow-hidden"
+                          style={{ borderColor: g.border }}>
 
-                      {/* Group header */}
-                      <div className="px-5 py-4 flex items-start gap-3"
-                        style={{ background: g.bg }}>
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                          style={{ background: `${g.color}20` }}>
-                          <Icon size={16} style={{ color: g.color }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md"
-                              style={{ background: `${g.color}20`, color: g.color }}>
-                              {g.id}
-                            </span>
-                            <span className="text-sm font-bold text-foreground">{g.label}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full border text-muted-foreground"
-                              style={{ borderColor: g.border }}>
-                              {g.quem}
-                            </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-mono"
-                              style={{ background: `${g.color}15`, color: g.color }}>
-                              {g.coleta}
-                            </span>
+                          {/* Group header */}
+                          <div className="px-5 py-4 flex items-start gap-3"
+                            style={{ background: g.bg }}>
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                              style={{ background: `${g.color}20` }}>
+                              <Icon size={16} style={{ color: g.color }} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md"
+                                  style={{ background: `${g.color}20`, color: g.color }}>
+                                  {g.id}
+                                </span>
+                                <span className="text-sm font-bold text-foreground">{g.label}</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full border text-muted-foreground"
+                                  style={{ borderColor: g.border }}>
+                                  {g.quem}
+                                </span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-mono"
+                                  style={{ background: `${g.color}15`, color: g.color }}>
+                                  {g.coleta}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{g.desc}</p>
+                            </div>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{g.desc}</p>
-                        </div>
-                      </div>
 
-                      {/* Events table */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-t border-border bg-muted/20">
-                              <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-32">Código</th>
-                              <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Evento</th>
-                              <th className="text-right px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-36">Tarifa BR</th>
-                              <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-36">Unidade</th>
-                              <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">Obs</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {g.eventos.map((e: any, i: number) => (
-                              <tr key={i} className={`border-t border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
-                                <td className="px-4 py-2.5 font-mono text-xs" style={{ color: g.color }}>{e.code}</td>
-                                <td className="px-4 py-2.5 text-sm text-muted-foreground">{e.nome}</td>
-                                <td className="px-4 py-2.5 text-right font-bold text-foreground tabular-nums">{e.valor}</td>
-                                <td className="px-4 py-2.5 text-xs text-muted-foreground/70">{e.unidade}</td>
-                                <td className="px-4 py-2.5 text-xs text-muted-foreground/60 hidden lg:table-cell">{e.obs ?? '—'}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              </div>
+                          {/* Events table */}
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-t border-border bg-muted/20">
+                                  <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-32">Código</th>
+                                  <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Evento</th>
+                                  <th className="text-right px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-36">Tarifa BR</th>
+                                  <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-36">Unidade</th>
+                                  <th className="text-left px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">Obs</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {g.eventos.map((e: any, i: number) => (
+                                  <tr key={i} className={`border-t border-border/60 ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
+                                    <td className="px-4 py-2.5 font-mono text-xs" style={{ color: g.color }}>{e.code}</td>
+                                    <td className="px-4 py-2.5 text-sm text-muted-foreground">{e.nome}</td>
+                                    <td className="px-4 py-2.5 text-right font-bold text-foreground tabular-nums">{e.valor}</td>
+                                    <td className="px-4 py-2.5 text-xs text-muted-foreground/70">{e.unidade}</td>
+                                    <td className="px-4 py-2.5 text-xs text-muted-foreground/60 hidden lg:table-cell">{e.obs ?? '—'}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              } />
             </Section>
 
             {/* ── 3. Processo de cobrança ──────────────────────────── */}
