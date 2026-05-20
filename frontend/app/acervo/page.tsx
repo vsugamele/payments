@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { BookOpen, Search, ArrowRight, Lock, BookMarked } from "lucide-react";
+import { BookOpen, Search, ArrowRight, Lock, BookMarked, ExternalLink } from "lucide-react";
 import manuais from "@/data/manuais.json";
+
+// IDs que possuem página de leitura detalhada na plataforma
+const MANUAIS_COM_VIEWER = new Set(["mc-interchange-detalhado", "vi-interchange-detalhado"]);
 
 export const metadata = {
   title: "Acervo Normativo — VS Payments",
@@ -90,19 +93,32 @@ export default function AcervoPage() {
                       {manual.bandeira}
                     </span>
                     <span className="text-xs text-indigo-400 font-semibold">{manual.versao}</span>
+                    {MANUAIS_COM_VIEWER.has(manual.id) && (
+                      <span style={{ fontSize: "0.6rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "9999px", background: "rgba(99,102,241,0.15)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.35)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                        ✦ Disponível na Plataforma
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3 leading-tight">{manual.titulo}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">{manual.descricao}</p>
                 </div>
 
-                <div className="shrink-0 flex items-center">
-                  {manual.isPremium ? (
+                <div className="shrink-0 flex items-center gap-2">
+                  {MANUAIS_COM_VIEWER.has(manual.id) ? (
+                    <Link
+                      href={`/acervo/${manual.id}`}
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors"
+                      style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.4)", color: "#818cf8" }}
+                    >
+                      <BookOpen size={15} /> Ler na Plataforma
+                    </Link>
+                  ) : manual.isPremium ? (
                     <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/50 text-yellow-500 text-sm font-semibold rounded-lg transition-colors">
                       <Lock size={14} className="mb-0.5" /> Conteúdo Premium
                     </button>
                   ) : (
                     <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">
-                      <BookOpen size={16} /> Explorar PDF
+                      <ExternalLink size={16} /> Referência PDF
                     </button>
                   )}
                 </div>

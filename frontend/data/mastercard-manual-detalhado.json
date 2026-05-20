@@ -1,0 +1,272 @@
+{
+  "id": "mc-interchange-detalhado",
+  "bandeira": "Mastercard",
+  "titulo": "Manual de Provisionamento de Intercâmbio Mastercard",
+  "versao": "2024.1",
+  "descricao": "Guia técnico exaustivo sobre a lógica de provisionamento, mapeamento de campos IPM/ISO 8583 e tabelas de referência GCMS para cálculo e auditoria de taxas de intercâmbio.",
+  "secoes": [
+    {
+      "id": "visao-geral",
+      "tipo": "intro",
+      "titulo": "1. Visão Geral",
+      "conteudo": "O objetivo é permitir que o Adquirente estime antecipadamente o custo da transação (Interchange Fee) antes do settlement final, valide a qualidade dos dados técnicos enviados para evitar downgrades e realize reconciliação eficiente ao comparar o IRD projetado com o IRD retornado pelo GCMS.",
+      "alerta": {
+        "tipo": "warning",
+        "texto": "PRINCÍPIO FUNDAMENTAL: Na Mastercard, diferente da Visa, o sistema GCMS é quem dita o IRD final. O motor de provisionamento deve armazenar o IRD projetado e compará-lo com o PDS 0158 Subcampo 4 do arquivo de clearing T112. Qualquer divergência significa Downgrade financeiro."
+      }
+    },
+    {
+      "id": "input-mapping",
+      "tipo": "table",
+      "titulo": "2. Dados de Entrada (Input Mapping)",
+      "descricao": "Para executar a lógica de provisionamento, o sistema deve extrair os seguintes dados da mensagem de transação no formato IPM/ISO 8583 (MTI 1240):",
+      "headers": ["Dado Lógico", "Campo ISO / PDS", "Derivação / Fonte", "Notas"],
+      "rows": [
+        ["Card Program ID", "DE 2 (PAN)", "BIN → Tabela IP0040T1", "Identificação primária do produto"],
+        ["GCMS Product ID", "DE 2 (PAN)", "BIN → IP0040T1", "Usar ID técnico, não nome comercial. Ex: MBK ≠ 'Black'"],
+        ["Processing Code", "DE 3", "Enviado pelo terminal", "00=Compra, 09=Cash Back, 20=Refund, 28=MoneySend"],
+        ["Transaction Amount", "DE 4", "Enviado pelo terminal", "Em centavos. Usado para High Ticket e cálculo ad valorem"],
+        ["Cardholder Present", "DE 22, SF5", "Enviado pelo terminal", "0=Present, 1=MOTO, 5=E-commerce. Impacta diretamente o IRD"],
+        ["Card Input Mode", "DE 22, SF7", "Enviado pelo terminal", "Chip, Contactless (NFC), Swipe, etc."],
+        ["Function Code", "DE 24", "Enviado", "200=First Presentment. 697=Fee Collection (custo puro)"],
+        ["MCC", "DE 26", "Enviado pelo adquirente", "Merchant Category Code. Valide na tabela IP0075T1"],
+        ["Country Code", "DE 43, SF6", "Enviado pelo terminal", "País do estabelecimento. Ex: 076=Brasil"],
+        ["UCAF / AAV", "PDS 0052", "Gateway 3DS", "Obrigatório para E-commerce Frictionless / Autenticado (3DS v2)"],
+        ["Installments", "PDS 0195", "Adquirente (Brasil)", "SF1=Num. Parcelas, SF2=Tipo (03=Emissor, 04=Lojista). Campo crítico Brasil"],
+        ["MAID", "PDS 0176", "Mastercard (grandes lojistas)", "Mastercard Assigned ID — para acordos negociados por lojista"]
+      ]
+    },
+    {
+      "id": "de22",
+      "tipo": "table",
+      "titulo": "2.1 DE 22 — Point of Service Data Code",
+      "descricao": "O DE 22 é o campo mais crítico para determinação do IRD. Erros neste campo geram downgrades massivos.",
+      "headers": ["Subcampo", "Valores", "Significado", "Impacto no IRD"],
+      "rows": [
+        ["SF5 (Cardholder)", "0 = Present", "Transação física, cartão presente", "Chip (IA), Contactless (JA)"],
+        ["SF5", "1 = MOTO", "Mail/Phone Order", "Taxa MOTO — maior risco"],
+        ["SF5", "2,3,4 = Recurring", "Recorrente / Credential-on-file", "IRD COF / Recorrente"],
+        ["SF5", "5 = E-commerce", "Transação online", "DEVE vir com PDS 0052 (UCAF) para IRD Frictionless. Sem UCAF → downgrade"],
+        ["SF7 (Card Input)", "A,M = Contactless", "NFC / PayPass", "PAYPASS_IND=1 → IRD JA/JV/JW (contactless)"],
+        ["SF7", "E,C = Chip/EMV", "Leitura de chip", "IRD IA/IV/IW (chip)"],
+        ["SF7", "T,R = Token", "Token MDES", "Requer Digital Payment Data. Sem flag correto → rebaixa para e-comm genérico"]
+      ]
+    },
+    {
+      "id": "pds0195",
+      "tipo": "table",
+      "titulo": "2.2 PDS 0195 — Parcelamento (Brasil)",
+      "descricao": "CAMPO EXCLUSIVO BRASIL: O PDS 0195 é obrigatório para todas as transações parceladas. Erro de formatação causa downgrade automático para Standard à vista.",
+      "headers": ["Subcampo", "Valores Válidos", "Descrição e Impacto"],
+      "rows": [
+        ["SF1 — Num. Parcelas", "02 a 99", "Total de parcelas. Mapeia para faixas de IRD: 2-6x, 7-21x, 22-36x"],
+        ["SF2 — Payment Option", "03 = Crediário (Juros)", "Parcelado com juros do emissor. IRD CR (taxa fixa). Regra 4001 na planilha"],
+        ["SF2 — Payment Option", "04 = Parcelado Lojista", "Sem juros (merchant financed). IRD varia por faixa: 2-6x=IV/AV, 7-21x=IW/AW"]
+      ]
+    },
+    {
+      "id": "fluxo-provisionamento",
+      "tipo": "steps",
+      "titulo": "3. Fluxo Lógico de Provisionamento",
+      "descricao": "O provisionamento segue 5 etapas sequenciais obrigatórias:",
+      "passos": [
+        { "numero": 1, "nome": "Identificação do BSA", "descricao": "Determinar o Business Service Arrangement entre emissor e adquirente usando IP0090T1 + IP0091T1. Se não houver acordo, usar fallback IP0036T1." },
+        { "numero": 2, "nome": "Determinação do IRD", "descricao": "Aplicar as regras da planilha (EXPRESSION_RULE) para qualificar o IRD mais vantajoso. Respeitar a ordem de PRIORITY (menor número = maior prioridade)." },
+        { "numero": 3, "nome": "Consulta IP0052T1", "descricao": "Com BSA + IRD definidos, buscar o Fee Code Pointer e Override Pointer na tabela de grupos de intercâmbio." },
+        { "numero": 4, "nome": "Verificação IP0057T1", "descricao": "Se Override Pointer presente, percorrer hierarquia de exceções (MAID > Product Class > MCC) para encontrar taxa negociada." },
+        { "numero": 5, "nome": "Cálculo IP0053T1", "descricao": "Aplicar a matemática final: (Valor × Taxa%) + Unit Fee, respeitando Min/Max Fee Limits e Tiers." }
+      ]
+    },
+    {
+      "id": "hierarquia-excecoes",
+      "tipo": "table",
+      "titulo": "3.4 Hierarquia de Exceções — IP0057T1",
+      "descricao": "Se houver Override Pointer, o sistema percorre a hierarquia abaixo na ordem indicada (para na primeira correspondência):",
+      "headers": ["Nível", "Critério", "Quando aplicar"],
+      "rows": [
+        ["1", "MAID + Product Class + MCC", "Grande lojista com acordo para cartão específico em MCC específico"],
+        ["2", "MAID + Product Class + AB Program", "Grande lojista + tipo de cartão + grupo de indústria"],
+        ["3", "MAID + Product Class", "Grande lojista com acordo para cartão específico"],
+        ["4", "MAID + MCC", "Grande lojista em MCC específico"],
+        ["5", "MAID + AB Program", "Grande lojista em grupo de indústria"],
+        ["6", "MAID (PDS 0176)", "Acordo global por comerciante (ex: Uber, iFood)"],
+        ["7", "Product Class + MCC", "Tipo de cartão em MCC específico (ex: Black em Restaurante)"],
+        ["8", "Product Class + AB Program", "Tipo de cartão em grupo de indústria"],
+        ["9", "MCC", "Taxa por segmento de estabelecimento"],
+        ["10", "AB Program", "Taxa por grupo de indústria"],
+        ["11", "Product Class", "Taxa padrão por tipo de cartão (Platinum, Black, etc.)"]
+      ]
+    },
+    {
+      "id": "calculo-final",
+      "tipo": "formula",
+      "titulo": "3.5 Cálculo Final — IP0053T1",
+      "descricao": "Com o Fee Code Pointer Final, consulte IP0053T1 para obter os parâmetros monetários:",
+      "campos": [
+        { "campo": "Interchange Rate", "descricao": "Percentual (%) ad valorem sobre o valor da transação" },
+        { "campo": "Unit Fee", "descricao": "Valor fixo por transação (centavos), independente do valor" },
+        { "campo": "Rate/Fee Direction", "descricao": "ISS/DR=custo para o adquirente. ACQ/CR=receita para o adquirente" },
+        { "campo": "Min Fee Limit", "descricao": "Piso: se cálculo < mínimo, cobrar o mínimo" },
+        { "campo": "Max Fee Limit (CAP)", "descricao": "Teto: se cálculo > máximo, cobrar o teto. MIN(Valor×Taxa, CAP)" }
+      ],
+      "formula": "valor_total = (DE4 × interchange_rate) + unit_fee\nif valor_total < min_fee_limit → valor_total = min_fee_limit\nif valor_total > max_fee_limit → valor_total = max_fee_limit  // CAP\nif fee_direction = 'ISS'/'DR' → CUSTO para o Adquirente (débito)\nif fee_direction = 'ACQ'/'CR' → RECEITA para o Adquirente (crédito)"
+    },
+    {
+      "id": "dicionario-variaveis",
+      "tipo": "dict-table",
+      "titulo": "4. Dicionário de Variáveis das Regras",
+      "descricao": "Variáveis utilizadas nas EXPRESSION_RULE da planilha de regras, com mapeamentos técnicos para campos GCMS/ISO 8583.",
+      "grupos": [
+        {
+          "titulo": "4.1 Identificação de País, Produto e Tipo",
+          "headers": ["Variável", "Tipo", "Campo GCMS", "Valores Válidos", "Observação"],
+          "rows": [
+            ["ACQR_COUNTRY", "Numérico(3)", "DE 43, SF6", "76=Brasil, 032=Argentina", "Presente em todas as regras. 76=Brasil intracountry"],
+            ["ISSR_COUNTRY", "Numérico(3)", "DE 63.7 / BIN Range", "76=Brasil, <>76=Intl", "Derivado do BIN. Não enviado diretamente na autorização"],
+            ["PROD_TYPE", "String", "DE 63.1 (Derivado)", "CREDIT | DEBIT | PREPAID", "Mapeado via tabela IP0004T1. Nunca derivar apenas do BIN."],
+            ["PROD_ID", "String(3)", "DE 63.1 / PDS 0002", "MCC, MBK, MPL, MCG, MSI...", "Código técnico de 3 chars. Ver LAC Manual p.180-181"],
+            ["PROD_TIER", "String", "Derivado de PROD_ID", "SUPER_PREMIUM | PREMIUM | CORE", "SUPER_PREMIUM: MBK, MWJ. PREMIUM: MPL, MCG. CORE: MCC, MCS"]
+          ]
+        },
+        {
+          "titulo": "4.2 Dados do Portador e Transação",
+          "headers": ["Variável", "Tipo", "Campo GCMS", "Valores Válidos", "Observação"],
+          "rows": [
+            ["DOCUMENT_TYPE", "Numérico(1)", "DE 48.26", "1=PJ (CNPJ) | 2=PF (CPF)", "Campo específico Brasil, enviado pelo adquirente"],
+            ["CARD_PRESENT_ID", "Numérico(1)", "DE 22, SF5/SF6", "0=CNP (online) | 1=Presencial", "Modos 01,02,05,07,90,91,95 → CP=1"],
+            ["PAYPASS_IND", "Numérico(1)", "DE 22 SF7 / DE 61.10", "1=Contactless NFC | 0=Não NFC", "Presente quando CARD_PRESENT_ID=1. Distingue Contactless (JA) de Chip (IA)"],
+            ["MCC", "Numérico(4)", "DE 18 / DE 26", "4111, 4784, 5411, 5812...", "Ver LAC Manual p.159-169 para tabela de segmentos Brasil"],
+            ["NUM_INST", "Numérico", "PDS 0195, SF1", "1=à vista, 2-6, 7-21, 22-36", "Ranges: 2-6x→IV/AV, 7-21x→IW/AW, 22-36x→IX/AX"],
+            ["AMOUNT_TX", "Decimal", "DE 4", "Em centavos", "High Ticket Debit: ≥200.000 | Credit: ≥2.000.000"]
+          ]
+        },
+        {
+          "titulo": "4.3 Autenticação 3DS",
+          "headers": ["Variável", "Tipo", "Campo GCMS", "Valores Válidos", "Observação"],
+          "rows": [
+            ["ECSLI", "String(3)", "DE 48.42 / PDS 0052", "211=3DS v2 Auth; 212=Attempt; 217=Frictionless", "Outros valores = não autenticado. Necessário para IRD AU"],
+            ["AAV", "String", "DE 48.43 / PDS 0185", "Não vazio = AAV presente", "Ausente → downgrade para HU/Base"]
+          ]
+        }
+      ],
+      "alerta": { "tipo": "info", "texto": "Para qualificar para IRDs AU/AV/AW (Frictionless), AMBAS as condições devem ser verdadeiras: ECSLI em ['211','212','217'] E AAV != ''" }
+    },
+    {
+      "id": "moneysend-tti",
+      "tipo": "table",
+      "titulo": "4.4 MoneySend / Transaction Type Identifier (TTI)",
+      "descricao": "Campo obrigatório quando PROC_CODE=28. Define o subtipo de transferência de fundos.",
+      "headers": ["TTI", "Tipo", "Descrição", "IRD Resultante"],
+      "rows": [
+        ["C07 / F07", "P2P", "Pessoa a Pessoa", "Q2 (MoneySend P2P)"],
+        ["C52 / F52", "A2A", "Conta a Conta", "Q3 (MoneySend A2A)"],
+        ["C54 / F54", "Bill Pay", "Pagamento de Conta (Maestro)", "Q4"],
+        ["C55 / F55", "Biz Disbursement", "Disbursamento Empresarial", "Q5"],
+        ["C57", "Rapid Merchant", "Liquidação Rápida ao Lojista", "Q9"],
+        ["C64", "Fast Refund", "Estorno Rápido ao Cartão Original", "QX"],
+        ["C65 / F65", "B2B Transfer", "Transferência Empresa a Empresa", "Q7"],
+        ["F61", "Wallet Load", "Carregamento de Carteira Digital", "Q6"],
+        ["Ausente", "Fallback", "Nenhum TTI identificado", "MS (MoneySend Fallback Base)"]
+      ]
+    },
+    {
+      "id": "priorities-brasil",
+      "tipo": "table",
+      "titulo": "5.1 Estrutura de Priorities e Grupos de Regras (Brasil)",
+      "descricao": "A planilha Mastercard_30_v2.xlsx organiza as regras em faixas de PRIORITY que correspondem a grupos lógicos:",
+      "headers": ["Range Priority", "Grupo / Tipo", "Exemplos de IRD"],
+      "rows": [
+        ["1000–1399", "Maestro + Prepaid", "MSI_BAS, ME, FD, CO, QR"],
+        ["1400–1999", "Debit (Débito)", "IA, JA, CO, QR, AU, HU, Q2, Q3"],
+        ["3000–3399", "Credit PF (Pessoa Física)", "HU, AU, AV, AW, IA, JA, IV, IW, JV, JW, IP"],
+        ["3400+", "Credit PF High Ticket / Parcelado", "AU, AV, AW, HV, HW, IV, IW"],
+        ["3210–3260", "Credit PJ (Pessoa Jurídica)", "HU, IA, AU, AV, AW, HV, HW, IV, IW"],
+        ["5000–5999", "Special Programs", "CR, BB, 57, E6, ER, EZ, 2A, FI, GG, Q1-Q9..."],
+        ["6000–6099", "Internacional (LAC)", "YA-YI, LD, LF, LS, LT, PF"],
+        ["7000+", "Parcelado Longo (22-36x)", "AX, HX, JX, IX"]
+      ]
+    },
+    {
+      "id": "high-ticket",
+      "tipo": "table",
+      "titulo": "5.2 Lógica de High Ticket",
+      "descricao": "As regras de High Ticket se aplicam quando o valor da transação (AMOUNT_TX) supera os thresholds abaixo (em centavos):",
+      "headers": ["Produto / Modalidade", "Threshold (centavos)", "Valor em R$", "IRDs Qualificados"],
+      "rows": [
+        ["Debit High Ticket (à vista)", "≥ 200.000", "≥ R$ 2.000,00", "AU (frictionless), HU (CNP base), JA (contactless), IA (chip)"],
+        ["Credit PF/PJ High Ticket (1x)", "≥ 2.000.000", "≥ R$ 20.000,00", "AU (frictionless), HU (CNP base), IA (card present)"],
+        ["Credit PF HT Parcelado 2-6x", "≥ 1.000.000 / parcela", "≥ R$ 10.000/parc.", "AV (frictionless), HV (CNP base), IV (card present)"],
+        ["Credit PF HT Parcelado 7-21x", "≥ 285.000 / parcela", "≥ R$ 2.850/parc.", "AW (frictionless), HW (CNP base), IW (card present)"]
+      ],
+      "alerta": { "tipo": "warning", "texto": "ATENÇÃO CRÍTICA: A condição High Ticket verifica AMOUNT_TX/NUM_INST para transações parceladas. Verifique se o motor usa AMOUNT_TX como valor total da transação (não valor da parcela individual)." }
+    },
+    {
+      "id": "mapa-irds",
+      "tipo": "table",
+      "titulo": "5.3 Mapa de IRDs — Resumo Brasil Intracountry",
+      "headers": ["IRD", "Nome", "Condição Principal", "Fallback de"],
+      "rows": [
+        ["AU", "Frictionless (à vista)", "CNP + ECSLI∈[211,212,217] + AAV≠''", "HU (base CNP)"],
+        ["AV", "Frictionless 2-6x", "CNP + 3DS + 2≤NUM_INST≤6", "HV"],
+        ["AW", "Frictionless 7-21x", "CNP + 3DS + 7≤NUM_INST≤21", "HW"],
+        ["AX", "Frictionless 22-36x", "CNP + 3DS + 22≤NUM_INST≤36", "HX"],
+        ["HU", "Base CNP (à vista)", "CNP + sem 3DS ou sem AAV + 1x", "RJ"],
+        ["JA", "Contactless (à vista)", "CP + PAYPASS_IND=1 + 1x", "IA"],
+        ["IA", "Chip (à vista)", "CP + PAYPASS_IND=0 + 1x", "RJ"],
+        ["IV/JV", "Parcelado 2-6x", "CP + 2≤NUM_INST≤6", "RJ/IA"],
+        ["IW/JW", "Parcelado 7-21x", "CP + 7≤NUM_INST≤21", "RJ/IA"],
+        ["CR", "Crediário Emissor", "NUM_INST>1 + INST_W_INT='Y'", "RJ"],
+        ["Q2", "MoneySend P2P", "PROC_CODE=28 + TTI=C07/F07", "MS"],
+        ["QR", "QR Code Merchant", "PROC_CODE=00 + TTI=C67", "IA / MSI_BAS"],
+        ["ME", "Prepaid Meal", "PROD_ID=MRJ/MBM + MCC=5811-5814", "RJ"],
+        ["BB", "Commercial B2B", "PJ + REQUIRED_PDS 0595/0596", "61 (Com. Standard Intl)"]
+      ]
+    },
+    {
+      "id": "gcms-tabelas",
+      "tipo": "table",
+      "titulo": "6. Tabelas de Referência GCMS",
+      "headers": ["Tabela", "Nome", "Uso no Provisionamento"],
+      "rows": [
+        ["IP0040T1", "Issuer Account Range", "PRIMÁRIA: Consultar pelo BIN (DE 2) para descobrir GCMS Product ID. Primeiro passo obrigatório."],
+        ["IP0016T1", "Brand Product", "Usar GCMS Product ID para obter a Product Class. Necessário para exceções na IP0057T1."],
+        ["IP0090T1", "Issuer Participation", "Cruzar com IP0091T1 para encontrar Business Service ID comum."],
+        ["IP0091T1", "Acquirer Participation", "Par obrigatório com IP0090T1 para determinação do BSA."],
+        ["IP0036T1", "Default Business Service", "Fallback quando não há acordo específico nas tabelas 90/91."],
+        ["IP0052T1", "Interchange Fee Group", "Seleção de taxa base. Retorna Fee Code Pointer e Override Pointer."],
+        ["IP0057T1", "Interchange Override Fee Group", "Exceções e acordos especiais. Hierarquia de 11 níveis."],
+        ["IP0053T1", "Interchange Fee Type", "DESTINO FINAL: Contém percentual, Unit Fee, Min/Max Limits e direção."],
+        ["IP0075T1", "Acceptor Business Codes", "Mapeia MCC para Acceptor Business Program."],
+        ["IP0059T1", "Timeliness Code", "Prazos de envio (dias). Atraso causa downgrade de IRD."],
+        ["IP0004T1", "GCMS Product Table", "Mapeamento de GCMS Product Code para PROD_TYPE (CREDIT/DEBIT/PREPAID)."]
+      ]
+    },
+    {
+      "id": "revenue-assurance",
+      "tipo": "cards",
+      "titulo": "7. Regras Avançadas — Revenue Assurance",
+      "cards": [
+        {
+          "titulo": "7.1 Timeliness — Prazos de Liquidação",
+          "cor": "#f59e0b",
+          "conteudo": "Transações padrão (POS, Chip): frequentemente 1 a 3 dias úteis. Atraso na liquidação resulta na perda do IRD original e rebaixamento para IRD Standard. Use o Timeliness Pointer da IP0052T1 para consultar IP0059T1."
+        },
+        {
+          "titulo": "7.2 Tokenização e MDES",
+          "cor": "#6366f1",
+          "conteudo": "Transações via Token (MDES) exigem o Token Flag correto no DE 22. O UCAF (PDS 0052) ainda é obrigatório para e-commerce tokenizado. Transações via Apple Pay, Google Pay, Samsung Pay usam MDES. Ausência rebaixa para taxas de E-commerce genérico."
+        },
+        {
+          "titulo": "7.3 Estornos (Refunds e Reversals)",
+          "cor": "#ef4444",
+          "conteudo": "DE 24 = 200: First Presentment. DE 24 = 697: Fee Collection (não há estorno de intercâmbio). Em estornos: o adquirente recebe o intercâmbio de volta, mas taxas de processamento não são estornadas."
+        },
+        {
+          "titulo": "7.4 Reconciliação Pós-Clearing",
+          "cor": "#10b981",
+          "conteudo": "Após o T112, compare: PDS 0158 SF4 (IRD retornado) vs. IRD projetado. PDS 0146 (valor exato debitado). Divergências indicam: DE 22 incorreto, MCC não qualificado, atraso (Timeliness) ou UCAF ausente."
+        }
+      ]
+    }
+  ]
+}

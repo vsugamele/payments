@@ -28,16 +28,130 @@ function pad(n: number) {
 }
 
 const HIGH_RISK_MCCS = new Set([
-  7995, // Gambling
-  5967, // Adult
-  5912, // Pharmacies
-  5966, // Direct Marketing
-  5962, // Telemarketing
-  6051, // Crypto / Quasi-cash
-  4829, // Wire Transfer
-  5993, // Tobacco
-  7273, // Dating
+  7995, 5967, 5912, 5966, 5962, 6051, 4829, 5993, 7273,
 ]);
+
+// ─── MCC Intelligence Map (Interchange + Monitoring Programs) ─────────────────
+type MccIntel = {
+  interchange: { network: string; product: string; rate: string; condition: string }[];
+  programs: { name: string; threshold: string; color: string; desc: string }[];
+  chargebackRisk: "Muito Baixo" | "Baixo" | "Médio" | "Alto" | "Crítico";
+  highTicketThreshold?: string;
+  notes?: string;
+};
+
+const MCC_INTEL: Record<number, MccIntel> = {
+  5411: {
+    interchange: [
+      { network: "Visa", product: "Visa Classic (CP)", rate: "1.65% + R$0.05", condition: "Chip + PIN" },
+      { network: "Visa", product: "Visa Infinite (CP)", rate: "1.85% + R$0.05", condition: "Chip ou NFC" },
+      { network: "Mastercard", product: "Mastercard Standard (CP)", rate: "1.70%", condition: "EMV present" },
+    ],
+    programs: [{ name: "VAMP", threshold: "CB > 0.75%", color: "#f59e0b", desc: "Monitoramento padrão Visa." }],
+    chargebackRisk: "Baixo",
+    notes: "Grocery recebe tarifa subsidiada por ser categoria de necessidade básica. Transações Chip têm taxa preferencial.",
+  },
+  5812: {
+    interchange: [
+      { network: "Visa", product: "Visa Classic (CP)", rate: "1.80%", condition: "Qualquer terminal EMV" },
+      { network: "Mastercard", product: "MC Standard (CP)", rate: "1.80%", condition: "Terminal PCI aprovado" },
+      { network: "Visa", product: "Visa Classic (CNP)", rate: "2.15%", condition: "E-commerce sem 3DS" },
+    ],
+    programs: [{ name: "VAMP", threshold: "CB > 0.75%", color: "#f59e0b", desc: "Monitoramento padrão." }],
+    chargebackRisk: "Baixo",
+    notes: "Restaurantes têm baixo risco de fraude por serem tipicamente presenciais.",
+  },
+  5814: {
+    interchange: [
+      { network: "Visa", product: "Visa Classic (CP)", rate: "1.55%", condition: "Transação EMV contactless" },
+      { network: "Mastercard", product: "MC Standard (CP)", rate: "1.55%", condition: "Contactless habilitado" },
+    ],
+    programs: [{ name: "VAMP", threshold: "CB > 0.75%", color: "#f59e0b", desc: "Monitoramento padrão." }],
+    chargebackRisk: "Muito Baixo",
+    notes: "Fast food tem o menor MDR por TCC F e ticket médio baixo. Beneficia-se muito do Small Ticket.",
+  },
+  7995: {
+    interchange: [
+      { network: "Visa", product: "Qualquer produto", rate: "Negado*", condition: "Depende de licença especial" },
+      { network: "Mastercard", product: "Qualquer produto", rate: "2.90%+", condition: "Sujeito a aprovação BRAM" },
+    ],
+    programs: [
+      { name: "BRAM", threshold: "Inspeção periódica", color: "#ef4444", desc: "Programa de alto risco Mastercard. Requer EDD e relatório mensal." },
+      { name: "VIRP", threshold: "CB > 1%", color: "#ef4444", desc: "Programa de integridade Visa para apostas." },
+      { name: "ECP", threshold: "CB > 1.5%", color: "#dc2626", desc: "Excessive Chargeback Program — multa de USD 50/CB." },
+    ],
+    chargebackRisk: "Crítico",
+    highTicketThreshold: "USD 500",
+    notes: "Requer licença de jogo válida e aprovação da bandeira ANTES de transacionar. Não há Liability Shift sem 3DS.",
+  },
+  6051: {
+    interchange: [
+      { network: "Mastercard", product: "Quasi-Cash Standard", rate: "Isento*", condition: "TCC U — sem MDR padrão" },
+      { network: "Visa", product: "Cash-Like Txn", rate: "Flat fee", condition: "Aprovação Visa obrigatória" },
+    ],
+    programs: [
+      { name: "BRAM", threshold: "Revisão obrigatória", color: "#ef4444", desc: "Crypto/exchanges são monitorados como Quasi-Cash." },
+      { name: "VIRP", threshold: "CB > 1%", color: "#ef4444", desc: "Monitoramento de integridade Visa." },
+    ],
+    chargebackRisk: "Crítico",
+    notes: "Transações Quasi-Cash não participam de programas de recompensa. Limite de R$500 por transação em alguns emissores.",
+  },
+  5912: {
+    interchange: [
+      { network: "Visa", product: "Visa Classic (CNP)", rate: "2.20%", condition: "E-commerce requer 3DS" },
+      { network: "Mastercard", product: "MC Standard (CNP)", rate: "2.25%", condition: "3DS obrigatório" },
+    ],
+    programs: [
+      { name: "BRAM", threshold: "Supervisão anual", color: "#ef4444", desc: "Farmácias são monitoradas por risco de fraude em medicamentos controlados." },
+    ],
+    chargebackRisk: "Alto",
+    notes: "Medicamentos de venda livre têm MDR padrão. Prescrição controlada requer controles adicionais de KYC.",
+  },
+  4829: {
+    interchange: [
+      { network: "Mastercard", product: "MC Send / AFT", rate: "Invertido: receita de $0.05", condition: "OCT com TTI correto" },
+      { network: "Visa", product: "Visa Direct OCT", rate: "Invertido: receita de $0.10", condition: "BAI = FT, GP, etc." },
+    ],
+    programs: [
+      { name: "BRAM", threshold: "Revisão obrigatória", color: "#ef4444", desc: "Money Transfer é um dos 5 MCCs de maior risco BRAM/MATCH." },
+      { name: "AML Monitor", threshold: "Transações > USD 1000", color: "#dc2626", desc: "Reportável ao COAF/FinCEN conforme regulação local." },
+    ],
+    chargebackRisk: "Crítico",
+    highTicketThreshold: "USD 1.000",
+    notes: "O Intercâmbio em OCTs é INVERTIDO — o adquirente recebe, não paga. Oportunidade de receita para programas de Gig Economy.",
+  },
+  4511: {
+    interchange: [
+      { network: "Visa", product: "Visa Business (CNP)", rate: "2.05%", condition: "3DS preferencial" },
+      { network: "Mastercard", product: "World Elite (CNP)", rate: "2.15%", condition: "UCAF preenchido" },
+    ],
+    programs: [{ name: "VAMP", threshold: "CB > 0.75%", color: "#f59e0b", desc: "Airlines têm monitoramento padrão mas alto ticket." }],
+    chargebackRisk: "Médio",
+    highTicketThreshold: "USD 2.500",
+    notes: "Airlines têm alto ticket. Transações acima de USD 2.500 ativam controles adicionais no emissor. Recomendado 3DS2.",
+  },
+  5966: {
+    interchange: [
+      { network: "Visa", product: "Visa Classic (CNP)", rate: "2.30%", condition: "3DS2 obrigatório" },
+      { network: "Mastercard", product: "MC Standard (CNP)", rate: "2.35%", condition: "UCAF = 2 obrigatório" },
+    ],
+    programs: [
+      { name: "BRAM", threshold: "Revisão trimestral", color: "#ef4444", desc: "Direct Marketing é categoria de risco elevado por alta incidência de disputa." },
+      { name: "ECP", threshold: "CB > 1.5%", color: "#dc2626", desc: "Programa de Excessive Chargeback — penalidade financeira crescente." },
+    ],
+    chargebackRisk: "Alto",
+    notes: "Direct Marketing requer 3DS2 em 100% das transações CNP. Sem 3DS não há Liability Shift — o adquirente assume o risco.",
+  },
+};
+
+
+const RISK_COLOR: Record<string, { color: string; bg: string }> = {
+  "Muito Baixo": { color: "#4ade80", bg: "rgba(74,222,128,0.1)" },
+  "Baixo":       { color: "#60a5fa", bg: "rgba(96,165,250,0.1)" },
+  "Médio":       { color: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
+  "Alto":        { color: "#f97316", bg: "rgba(249,115,22,0.1)" },
+  "Crítico":     { color: "#ef4444", bg: "rgba(239,68,68,0.1)" },
+};
 
 function highlight(text: string, query: string): React.ReactNode {
   if (!query.trim()) return text;
@@ -54,18 +168,22 @@ function highlight(text: string, query: string): React.ReactNode {
 
 function MccDetails({ mcc, onClose }: { mcc: MccEntry; onClose: () => void }) {
   const isHighRisk = HIGH_RISK_MCCS.has(mcc.mcc);
+  const intel = MCC_INTEL[mcc.mcc] ?? null;
+  const riskCfg = intel ? (RISK_COLOR[intel.chargebackRisk] ?? RISK_COLOR["Médio"]) : null;
   
   return (
     <div className="bg-code-bg border border-primary/30 rounded-2xl p-6 space-y-6 animate-in slide-in-from-right-4 duration-300">
+      {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className={`p-3 rounded-xl ${isHighRisk ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
             {isHighRisk ? <ShieldAlert size={24} /> : <Info size={24} />}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2 flex-wrap">
               MCC {String(mcc.mcc).padStart(4, "0")} 
               {isHighRisk && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30 uppercase tracking-widest font-black">High Risk</span>}
+              {intel && <span className="text-[10px] px-2 py-0.5 rounded-full border font-black uppercase tracking-widest" style={{ color: riskCfg!.color, background: riskCfg!.bg, borderColor: `${riskCfg!.color}30` }}>CB Risco: {intel.chargebackRisk}</span>}
             </h2>
             <p className="text-sm text-muted-foreground">{mcc.nome}</p>
           </div>
@@ -73,52 +191,95 @@ function MccDetails({ mcc, onClose }: { mcc: MccEntry; onClose: () => void }) {
         <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg text-muted-foreground"><X size={20} /></button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Compliance Card */}
-        <div className="bg-background/50 border border-border p-4 rounded-xl space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-            <AlertTriangle size={14} className="text-amber-400" /> Compliance & Risco
-          </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {isHighRisk 
-              ? <>Este MCC pertence a uma categoria de alto risco monitorada pelos programas <TermTooltip term="BRAM" definition="Business Risk Assessment and Mitigation. Programa da Mastercard para monitorar lojistas de alto risco (apostas, farmacêuticos, etc)." /> e <TermTooltip term="VIRP" definition="Visa Integrity Risk Program. Equivalente ao BRAM na malha Visa." />. Requer <TermTooltip term="EDD" definition="Enhanced Due Diligence. Diligência aprimorada com checagem de site, KYC profundo e fluxo financeiro." />.</>
-              : "Categoria de risco padrão. Sujeito às regras gerais de monitoramento de fraude e chargeback."}
+      {/* High Ticket Alert */}
+      {intel?.highTicketThreshold && (
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <AlertTriangle size={16} className="text-amber-400 shrink-0" />
+          <p className="text-xs text-amber-300">
+            <span className="font-bold">High Ticket ativo:</span> Transações acima de <span className="font-mono font-black">{intel.highTicketThreshold}</span> ativam controles adicionais no emissor e requerem 3DS2 obrigatório.
           </p>
-          {isHighRisk && (
-            <div className="space-y-2">
-              <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg text-[11px] text-red-400/80 italic">
-                * Monitoria obrigatória de chargeback abaixo de 1% (Visa ECP).
-              </div>
-              <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-lg space-y-1.5">
-                <p className="text-[10px] font-bold text-amber-500 uppercase flex items-center gap-1.5">
-                  <ListFilter size={10} /> Riscos de MATCH (Reason Codes)
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-snug">
-                  Comum nesta categoria: <strong>Code 13</strong> (Illegal Transactions) e <strong>Code 03</strong> (Laundering).
-                </p>
-              </div>
+        </div>
+      )}
+
+      {/* Intelligence Grid */}
+      {intel ? (
+        <div className="space-y-4">
+
+          {/* Interchange Rates Table */}
+          <div className="bg-background/50 border border-border rounded-xl overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-emerald-500/5">
+              <Calculator size={14} className="text-emerald-400" />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-400">Faixas de Intercâmbio — por Produto</h3>
+            </div>
+            <div className="divide-y divide-border/30">
+              {intel.interchange.map((row, i) => (
+                <div key={i} className="grid grid-cols-4 gap-2 px-4 py-2.5 text-[11px] hover:bg-white/3 transition-colors">
+                  <span className="font-bold text-white">{row.network}</span>
+                  <span className="text-slate-400 col-span-1 truncate">{row.product}</span>
+                  <span className="font-mono font-black text-emerald-400">{row.rate}</span>
+                  <span className="text-slate-500 text-[10px] truncate">{row.condition}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Monitoring Programs */}
+          <div className="bg-background/50 border border-border rounded-xl overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-red-500/5">
+              <ShieldAlert size={14} className="text-red-400" />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-red-400">Programas de Monitoramento Ativos</h3>
+            </div>
+            <div className="p-3 space-y-2">
+              {intel.programs.map((prog, i) => (
+                <div key={i} className="flex items-start gap-3 p-2 rounded-lg" style={{ background: `${prog.color}08`, border: `1px solid ${prog.color}20` }}>
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 mt-0.5 font-mono" style={{ color: prog.color, background: `${prog.color}20` }}>{prog.name}</span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold" style={{ color: prog.color }}>{prog.threshold}</p>
+                    <p className="text-[10px] text-slate-500 leading-snug mt-0.5">{prog.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes */}
+          {intel.notes && (
+            <div className="p-3 rounded-xl bg-indigo-500/8 border border-indigo-500/20 flex gap-2">
+              <CheckCircle2 size={14} className="text-indigo-400 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-slate-300 leading-relaxed">{intel.notes}</p>
             </div>
           )}
         </div>
-
-        {/* Interchange Card */}
-        <div className="bg-background/50 border border-border p-4 rounded-xl space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-            <Calculator size={14} className="text-emerald-400" /> Impacto no Pricing
-          </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            O MCC é o principal eixo da cascata de intercâmbio. Alguns ramos possuem taxas subsidiadas por regulamento.
-          </p>
-          <Link 
-            href={`/simulador?mcc=${mcc.mcc}`}
-            className="flex items-center justify-center gap-2 w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold transition-all"
-          >
-            Simular Intercâmbio <ExternalLink size={12} />
-          </Link>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-background/50 border border-border p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <AlertTriangle size={14} className="text-amber-400" /> Compliance & Risco
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {isHighRisk 
+                ? <>Este MCC pertence a uma categoria de alto risco monitorada pelos programas <TermTooltip term="BRAM" definition="Business Risk Assessment and Mitigation." /> e <TermTooltip term="VIRP" definition="Visa Integrity Risk Program." />.</>
+                : "Categoria de risco padrão. Sujeito às regras gerais de monitoramento."}
+            </p>
+          </div>
+          <div className="bg-background/50 border border-border p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <Calculator size={14} className="text-emerald-400" /> Impacto no Pricing
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              O MCC é o principal eixo da cascata de intercâmbio. Consulte o simulador para ver as faixas aplicáveis.
+            </p>
+            <Link 
+              href={`/simulador?mcc=${mcc.mcc}`}
+              className="flex items-center justify-center gap-2 w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold transition-all"
+            >
+              Simular Intercâmbio <ExternalLink size={12} />
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* AI Integration */}
+      {/* AI */}
       <div className="pt-4 border-t border-border/50">
         <p className="text-[11px] text-muted-foreground mb-3 font-medium uppercase tracking-wider">Normativa e Jurisprudência</p>
         <AIAssistant 
@@ -131,6 +292,7 @@ function MccDetails({ mcc, onClose }: { mcc: MccEntry; onClose: () => void }) {
     </div>
   );
 }
+
 
 export default function MccClient() {
   const [query, setQuery] = useState("");

@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Info,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  TrendingUp
 } from "lucide-react";
 import pushData from "@/data/push-payments.json";
 import AIAssistant from "@/components/AIAssistant";
@@ -35,11 +36,11 @@ export default function PayoutClient() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const steps = [
-    { name: "Sender Initiation", icon: Users, desc: "Remetente inicia o envio de R$ 500,00" },
-    { name: "AFT (Pull)", icon: ArrowDownLeft, desc: "Débito no cartão do remetente (Funding)" },
-    { name: "Network Routing", icon: Zap, desc: "Visa Direct / MC Send processando" },
-    { name: "OCT (Push)", icon: ArrowUpRight, desc: "Crédito na conta do destinatário (Payout)" },
-    { name: "Fast Funds", icon: Clock, desc: "Disponibilização em < 30 min" }
+    { name: "Sender Initiation", icon: Users, desc: "Remetente inicia o envio. Sistema valida fundos e KYC." },
+    { name: "AFT - MTI 1100", icon: ArrowDownLeft, desc: "Account Funding Transaction. Débito no cartão (Funding). Exige TTI=01 (Master)." },
+    { name: "Network Routing", icon: Zap, desc: "Processamento via Visa Direct / MC Send com validação de Sanções." },
+    { name: "OCT - MTI 1120", icon: ArrowUpRight, desc: "Original Credit Transaction. Crédito no destino. Exige BAI (Visa) ou TTI (Master)." },
+    { name: "Fast Funds Mandate", icon: Clock, desc: "Disponibilização em < 30 min conforme regulação de rede." }
   ];
 
   const handleSimulate = () => {
@@ -225,6 +226,15 @@ export default function PayoutClient() {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Exemplo Gig Economy</p>
                 <p className="text-xs text-slate-500 leading-relaxed italic">
                   "Um motorista de Uber finaliza a corrida às 23:45. Ele solicita o saque. Através da trilha <strong>Visa Direct</strong>, o saldo cai na conta dele às 23:47, mesmo sendo domingo."
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                   <TrendingUp size={10} /> Interchange Invertido
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Diferente do e-commerce padrão, em transações <strong>OCT</strong> o Intercâmbio pode ser uma receita para o adquirente (originador), variando entre <strong>$0.05 e $0.20</strong> por transação.
                 </p>
               </div>
 

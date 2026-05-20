@@ -3,13 +3,14 @@
 import { useState } from "react";
 import mastercardData from "@/data/mastercard-interchange.json";
 import eloData from "@/data/elo-interchange.json";
-import { CreditCard, AlertTriangle, ChevronDown, CheckCircle2, AlertOctagon, TrendingDown } from "lucide-react";
+import dicionarioData from "@/data/dicionario-provisionamento.json";
+import { CreditCard, AlertTriangle, ChevronDown, CheckCircle2, AlertOctagon, TrendingDown, BookOpen, Fingerprint } from "lucide-react";
 
 export default function IntercambioClient() {
-  const [activeTab, setActiveTab] = useState<"mastercard" | "elo">("mastercard");
+  const [activeTab, setActiveTab] = useState<"mastercard" | "elo" | "dicionario">("mastercard");
   const [region, setRegion] = useState<"brasil" | "intraregional_lac" | "interregional_global">("brasil");
 
-  const data = (activeTab === "mastercard" ? mastercardData : eloData) as any;
+  const data = activeTab === "mastercard" ? mastercardData : (activeTab === "elo" ? eloData : null) as any;
 
   return (
     <div className="space-y-8">
@@ -35,9 +36,86 @@ export default function IntercambioClient() {
         >
           ELO
         </button>
+        <button
+          onClick={() => setActiveTab("dicionario")}
+          className={`flex-1 md:flex-none px-6 py-4 rounded-xl border font-bold transition-all flex items-center justify-center gap-2 ${
+            activeTab === "dicionario"
+              ? "bg-purple-500/10 border-purple-500/50 text-purple-500"
+              : "bg-code-bg border-border text-muted-foreground hover:bg-white/5"
+          }`}
+        >
+          <BookOpen size={18} />
+          DICIONÁRIO DE VARIÁVEIS
+        </button>
       </div>
 
-      <div className="p-5 border border-border bg-code-bg rounded-xl">
+      {activeTab === "dicionario" && (
+        <div className="space-y-6">
+          <div className="p-5 border border-purple-500/20 bg-purple-500/5 rounded-xl">
+            <h2 className="text-xl font-bold text-purple-400 mb-2">{dicionarioData.titulo}</h2>
+            <p className="text-sm text-slate-300">{dicionarioData.descricao}</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {dicionarioData.variaveis.map((v) => (
+              <div key={v.id} className="p-5 border border-border bg-code-bg rounded-xl flex flex-col h-full">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    <Fingerprint className="text-purple-500" size={18} />
+                    <h3 className="font-bold text-foreground">{v.nome}</h3>
+                  </div>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                    v.bandeira === 'visa' ? 'bg-blue-500/20 text-blue-400' :
+                    v.bandeira === 'mastercard' ? 'bg-red-500/20 text-red-400' :
+                    'bg-slate-500/20 text-slate-300'
+                  }`}>
+                    {v.bandeira.toUpperCase()}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                  <div className="p-2 rounded bg-black/40 border border-border">
+                    <span className="text-muted-foreground block mb-1">Localização</span>
+                    <span className="font-mono text-white">{v.localizacao}</span>
+                  </div>
+                  <div className="p-2 rounded bg-black/40 border border-border">
+                    <span className="text-muted-foreground block mb-1">Formato</span>
+                    <span className="font-mono text-white">{v.tipo} ({v.tamanho})</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 flex-1 text-sm">
+                  <div>
+                    <span className="font-bold text-slate-300 block mb-1">Definição:</span>
+                    <p className="text-muted-foreground leading-relaxed">{v.descricao}</p>
+                  </div>
+                  <div>
+                    <span className="font-bold text-amber-500/80 block mb-1">Impacto no Provisionamento:</span>
+                    <p className="text-slate-300 leading-relaxed bg-amber-500/5 p-2 rounded border border-amber-500/10">
+                      {v.impacto}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-border/50">
+                  <span className="text-xs font-bold text-slate-400 block mb-2">Exemplos Comuns:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {v.exemplos.map((ex, idx) => (
+                      <span key={idx} className="text-xs px-2 py-1 bg-white/5 border border-white/10 rounded-md text-slate-300">
+                        {ex}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab !== "dicionario" && data && (
+        <>
+          <div className="p-5 border border-border bg-code-bg rounded-xl">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
@@ -248,6 +326,8 @@ export default function IntercambioClient() {
           ))}
         </div>
       </div>
+        </>
+      )}
 
     </div>
   );

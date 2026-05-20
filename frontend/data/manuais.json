@@ -1,5 +1,49 @@
 [
   {
+    "id": "mc-interchange-detalhado",
+    "bandeira": "Mastercard",
+    "titulo": "Mastercard: Manual de Provisionamento e IRDs",
+    "versao": "2024.1",
+    "descricao": "Guia técnico avançado para motores de cálculo. Detalha a hierarquia de exceções IP0057T1, mapeamento de PDS 0195 (Brasil) e lógica de High Ticket.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Dados de Entrada & PDS Mapping",
+        "resumo": "Mapeamento completo de campos IPM (DE 22, PDS 0195, PDS 0052) para determinação de custo."
+      },
+      {
+        "nome": "Fluxo de Tabelas GCMS",
+        "resumo": "A jornada entre IP0040, IP0052, IP0057 e IP0053 para chegar à taxa final."
+      },
+      {
+        "nome": "Regras Brasil & Revenue Assurance",
+        "resumo": "Lógica de parcelamento, High Ticket e reconciliação pós-clearing."
+      }
+    ]
+  },
+  {
+    "id": "vi-interchange-detalhado",
+    "bandeira": "Visa",
+    "titulo": "Visa: Conceitos de Intercâmbio e FPIs",
+    "versao": "3.0",
+    "descricao": "Manual focado na arquitetura Base II. Disseca o uso de Fee Program Indicators (FPI), o waterfall de prioridades e transações OCT/AFT.",
+    "isPremium": true,
+    "capitulos": [
+      {
+        "nome": "Jurisdições & Schedules",
+        "resumo": "Definição de escopo (NNSS, LAC, Inter) e tipos de serviço (POS, OCT, AFT)."
+      },
+      {
+        "nome": "Lógica Base II (TCRs)",
+        "resumo": "Extração de dados dos registros TCR 0, 1, 2, 3 e 5. Tratamento de parcelas (n+10)."
+      },
+      {
+        "nome": "Programas Brasil (VPP/PAT/Crediário)",
+        "resumo": "Uso de MVV, SPI e PIDs especiais para qualificação de taxas incentivadas."
+      }
+    ]
+  },
+  {
     "id": "mc-trp-2024",
     "bandeira": "Mastercard",
     "titulo": "Mastercard Transaction Processing Rules",

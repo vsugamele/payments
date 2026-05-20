@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Clock, FileText, Shield, Scale, ChevronDown, TrendingUp, GitCompare, AlertTriangle } from "lucide-react";
+import { DollarSign, Clock, FileText, Shield, Scale, ChevronDown, TrendingUp, GitCompare, AlertTriangle, Zap } from "lucide-react";
 
 const MC_FASES = [
   {
@@ -13,6 +13,7 @@ const MC_FASES = [
     desc: "O Banco Emissor debita o valor da transação do Adquirente via rede. O Adquirente tem acesso ao Reason Code e causa raiz pela qual o portador contestou.",
     documentos: ["Notificação automática via Mastercom", "Reason Code e descrição da causa"],
     acao: "Revisar o Reason Code. Decidir: aceitar o chargeback ou contra-atacar com Representment.",
+    intel: "Mastercard usa o Mastercom. Verifique o PDS 0158 (Clearing) para confirmar se o IRD original foi qualificado corretamente antes de contestar.",
   },
   {
     n: 2, label: "Representment", sigla: "REP", prazo: "D+45",
@@ -22,6 +23,7 @@ const MC_FASES = [
     desc: "O Adquirente envia 'Compelling Evidence' para reverter o chargeback. O Emissor analisa e pode aceitar ou rejeitar a evidência.",
     documentos: ["Logs de transação", "Comprovante de entrega / 3DS CAVV", "Política de devolução assinada", "IP, device fingerprint, geolocalização"],
     acao: "Montar o dossiê de evidências e submeter via Mastercom dentro do prazo.",
+    intel: "Para transações Chip (IA/JA), a chance de ganho é > 80% se o ARPC/TC for válido. Para E-commerce, o UCAF/AAV é a prova real.",
   },
   {
     n: 3, label: "Pre-Arbitration", sigla: "PRE-ARB", prazo: "D+30",
@@ -31,6 +33,7 @@ const MC_FASES = [
     desc: "Se o Emissor rejeitou o Representment, qualquer das partes pode escalar para Pré-Arbitragem. É a última chance de acordo antes do veredito final da bandeira.",
     documentos: ["Todos os documentos anteriores", "Notificação formal de Pre-Arb"],
     acao: "Avaliar se o valor da disputa justifica pagar o Filing Fee de USD 150. Se sim, escale. Se não, aceite o chargeback.",
+    intel: "Geralmente usada em 'Fraud Related' onde o emissor alega que o Representment não foi suficiente.",
   },
   {
     n: 4, label: "Arbitration", sigla: "ARB", prazo: "D+45",
@@ -40,6 +43,7 @@ const MC_FASES = [
     desc: "A Mastercard analisa todo o dossiê e emite veredito final e vinculante. O perdedor paga as taxas de arbitragem. Não há recurso após este ponto.",
     documentos: ["Dossiê completo de evidências", "Filing submetido via Mastercom"],
     acao: "Envie toda documentação disponível. O veredito é FINAL. Custos: $150 Filing Fee + $250 Review Fee para o perdedor = USD 400 mínimo.",
+    intel: "Atenção: A Mastercard prioriza provas de entrega física (POD) e autenticação forte (3DS).",
   },
 ];
 
@@ -52,6 +56,7 @@ const VISA_FASES = [
     desc: "Visa Claim Resolution (VCR): o Emissor inicia via VROL. Para disputas de 'Allocation' (fraude), o Adquirente é imediatamente responsável se não houver 3DS.",
     documentos: ["Notificação via VROL", "Reason Code Visa e categoria (Allocation vs Collaboration)"],
     acao: "Identificar a categoria: Allocation (sem defesa sem 3DS) ou Collaboration (há chance de evidência). Responder em até 30 dias.",
+    intel: "Allocation = Fraude/Autorização. Se o FPI for E-commerce sem 3DS (ECI 07), a perda é automática via regras VCR.",
   },
   {
     n: 2, label: "Dispute Response", sigla: "RESP", prazo: "D+30",
@@ -61,6 +66,7 @@ const VISA_FASES = [
     desc: "O Adquirente envia Compelling Evidence 3.0 (CE 3.0) via VROL. Para fraude com CE 3.0 válido (duas transações anteriores do mesmo dispositivo), o Liability Shift é restaurado.",
     documentos: ["Prova de CE 3.0: Device ID + IP + endereço coerente em 2+ transações anteriores", "CAVV/3DS para Liability Shift"],
     acao: "Montar CE 3.0 se disponível. Sem CE 3.0 em disputas de fraude = sem defesa.",
+    intel: "Para Collaboration, use o TCR 5 do clearing para provar que a transação foi enviada corretamente (Timeliness < 32 dias).",
   },
   {
     n: 3, label: "Arbitration (VisaNet)", sigla: "ARB", prazo: "D+30",
@@ -70,6 +76,7 @@ const VISA_FASES = [
     desc: "Visa tem uma única fase de arbitragem — mais simples que Mastercard, mas com Filing Fee muito maior (USD 500). O veredito é final e vinculante.",
     documentos: ["Dossiê completo", "Filing via VROL"],
     acao: "Só escale se tiver confiança TOTAL e o valor for superior a USD 500. Filing Fee de $500 torna inviável para disputas menores.",
+    intel: "O Filing Fee de USD 500 é recuperado se você ganhar, mas o risco de 'Allocation' sem 3DS torna a arbitragem quase impossível de vencer.",
   },
 ];
 
@@ -329,6 +336,17 @@ export function DmasTimeline() {
                         <Shield size={12} style={{ color: f.color }} className="shrink-0 mt-0.5" />
                         <p style={{ color: f.color }}>{f.acao}</p>
                       </div>
+
+                      {(f as any).intel && (
+                        <div className="p-3 rounded-lg border border-indigo-500/30 bg-indigo-500/10 space-y-1.5">
+                          <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1">
+                            <Zap size={10} /> Inteligência Normativa
+                          </p>
+                          <p className="text-[11px] text-slate-300 leading-relaxed italic">
+                            "{ (f as any).intel }"
+                          </p>
+                        </div>
+                      )}
 
                       {f.custo !== "$0" && (
                         <div className="flex items-center gap-2 text-xs text-red-400 font-bold">

@@ -1,0 +1,149 @@
+{
+  "titulo": "Dicionário de Variáveis de Provisionamento",
+  "descricao": "Biblioteca técnica de campos ISO 8583 e variáveis proprietárias utilizadas nos motores de regras de provisionamento da Visa (Base II) e Mastercard (IPM).",
+  "variaveis": [
+    {
+      "id": "fpi",
+      "nome": "Fee Program Indicator (FPI)",
+      "bandeira": "visa",
+      "tipo": "alphanumeric",
+      "tamanho": "3",
+      "localizacao": "Base II - TCR 1, Posições 76-78",
+      "descricao": "O identificador principal do programa de taxas na Visa. Define exatamente qual Tier de intercâmbio foi aplicado pela rede.",
+      "impacto": "Garante a reconciliação. Se o FPI recebido for diferente do FPI projetado no motor de provisionamento, indica um downgrade ou alteração de regra de negócio (ex: VSP, VCR, VS).",
+      "exemplos": ["VSP (Supermarket)", "VCR (Credit Retail)", "B10 (Business)"]
+    },
+    {
+      "id": "ird",
+      "nome": "Interchange Rate Designator (IRD)",
+      "bandeira": "mastercard",
+      "tipo": "alphanumeric",
+      "tamanho": "2",
+      "localizacao": "IPM - PDS 0158 Subcampo 4",
+      "descricao": "O equivalente do FPI para a Mastercard. É o código que a Mastercard devolve no arquivo de Clearing (T112) sinalizando a taxa exata cobrada.",
+      "impacto": "Usado na auditoria final de receita. É a 'prova real' da Mastercard. Diferenças no IRD significam downgrades.",
+      "exemplos": ["02 (Base)", "72 (Consumer Credit)", "B3 (Business)"]
+    },
+    {
+      "id": "eci",
+      "nome": "Electronic Commerce Indicator (ECI)",
+      "bandeira": "ambas",
+      "tipo": "numeric",
+      "tamanho": "2",
+      "localizacao": "ISO 8583 - Variável dependente",
+      "descricao": "Indica o nível de segurança e autenticação (3DS) de uma transação E-commerce.",
+      "impacto": "Crucial para habilitar taxas de 'Secure E-commerce'. ECI 05/06 (Visa) ou ECI 02/01 (Mastercard) ativam proteção de liability e melhoram a taxa. ECI 07 gera downgrade.",
+      "exemplos": ["05 (Fully Authenticated)", "06 (Attempted)", "07 (Non-Authenticated)"]
+    },
+    {
+      "id": "pos_data_code",
+      "nome": "Point of Service Data Code",
+      "bandeira": "ambas",
+      "tipo": "alphanumeric",
+      "tamanho": "12",
+      "localizacao": "ISO 8583 - DE 22",
+      "descricao": "Uma string complexa que descreve o terminal físico ou virtual. O Subcampo 5 informa se o cartão está presente.",
+      "impacto": "Subcampo 5 = '0' ativa taxas de Varejo (Cardholder Present). '1' ativa taxas MOTO. '5' ativa E-commerce.",
+      "exemplos": ["0 (Pan Entry: Unknown)", "1 (Manual)", "5 (Chip)"]
+    },
+    {
+      "id": "installment_data",
+      "nome": "Installment Payment Data",
+      "bandeira": "ambas",
+      "tipo": "numeric",
+      "tamanho": "var",
+      "localizacao": "Visa: TCR 2 (pos 40-41) | Master: PDS 0195",
+      "descricao": "Define o número de parcelas da transação e o plano de financiamento.",
+      "impacto": "O provisionamento varia drasticamente. Mastercard exige '04' no Subcampo 2 do PDS 0195 para Lojista Financiado. Visa soma '10' ao número de parcelas.",
+      "exemplos": ["Visa: 12 = 2 parcelas", "Master: 02 = 2 parcelas"]
+    },
+    {
+      "id": "tcq",
+      "nome": "Transaction Component Qualifier",
+      "bandeira": "visa",
+      "tipo": "alphanumeric",
+      "tamanho": "1",
+      "localizacao": "Base II - TCR 0, Posição 15",
+      "descricao": "Qualifica o tipo de componente transacional na Visa.",
+      "impacto": "Vital para identificar OCTs (Push Payments) onde o TCQ = 2. A direção do dinheiro é inversa.",
+      "exemplos": ["0 (Draft)", "2 (Original Credit)"]
+    },
+    {
+      "id": "function_code",
+      "nome": "Function Code",
+      "bandeira": "mastercard",
+      "tipo": "numeric",
+      "tamanho": "3",
+      "localizacao": "ISO 8583 - DE 24",
+      "descricao": "O código da função financeira na Mastercard.",
+      "impacto": "Identifica se é uma Compra '200', um Estorno '253' ou uma cobrança de Fee pura '697'. O provisionamento deve inverter o sinal em caso de 253.",
+      "exemplos": ["200 (First Presentment)", "253 (Chargeback/Reversal)", "697 (Fee Collection)"]
+    },
+    {
+      "id": "ucaf",
+      "nome": "Universal Cardholder Authentication Field (UCAF)",
+      "bandeira": "mastercard",
+      "tipo": "alphanumeric",
+      "tamanho": "32",
+      "localizacao": "IPM - PDS 0052",
+      "descricao": "Carrega o payload criptográfico gerado durante a autenticação 3DS (Mastercard Identity Check).",
+      "impacto": "Sua ausência em transações E-commerce (DE 22 = 5) impede a Mastercard de aplicar a taxa 'E-commerce Secure', gerando Downgrade severo.",
+      "exemplos": ["j3H5...K9s (Token Base64)"]
+    },
+    {
+      "id": "maid",
+      "nome": "Mastercard Assigned ID (MAID)",
+      "bandeira": "mastercard",
+      "tipo": "numeric",
+      "tamanho": "var",
+      "localizacao": "IPM - PDS 0176",
+      "descricao": "Identificador único atribuído pela Mastercard a grandes lojistas para acordos negociados diretamente.",
+      "impacto": "Habilita a aplicação de taxas de exceção (Interchange Override) definidas na tabela IP0057T1.",
+      "exemplos": ["Identificadores para Uber, iFood, etc."]
+    },
+    {
+      "id": "tti",
+      "nome": "Transaction Type Identifier (TTI)",
+      "bandeira": "mastercard",
+      "tipo": "alphanumeric",
+      "tamanho": "3",
+      "localizacao": "MoneySend / DE 48",
+      "descricao": "Define o subtipo de transferência de fundos em transações MoneySend.",
+      "impacto": "Determina o IRD final (Q1 a Q9, QX, QM, etc) para transações de P2P, A2A e Bill Pay.",
+      "exemplos": ["C07 (P2P)", "C52 (A2A)", "C64 (Fast Refund)"]
+    },
+    {
+      "id": "spi",
+      "nome": "Special Purchase Indicator (SPI)",
+      "bandeira": "visa",
+      "tipo": "alphanumeric",
+      "tamanho": "1",
+      "localizacao": "Base II - TCR 2, Posição 47",
+      "descricao": "Identifica tipos especiais de compra na rede Visa.",
+      "impacto": "Fundamental para identificar Crediário Emissor (SPI=5), que tem taxa fixa independente de parcelas.",
+      "exemplos": ["5 (Crediário)", "1 (Top-Up)"]
+    },
+    {
+      "id": "mvv",
+      "nome": "Merchant Verification Value (MVV)",
+      "bandeira": "visa",
+      "tipo": "alphanumeric",
+      "tamanho": "10",
+      "localizacao": "Base II - TCR 5, Posições 82-91",
+      "descricao": "Valor de verificação do lojista usado para qualificar transações em programas de taxas negociadas (VPP).",
+      "impacto": "Habilita taxas reduzidas para parceiros do Visa Partner Program ou segmentos como Educação e Utilidades.",
+      "exemplos": ["VPP0001234"]
+    },
+    {
+      "id": "bai",
+      "nome": "Business Application Identifier (BAI)",
+      "bandeira": "visa",
+      "tipo": "alphanumeric",
+      "tamanho": "2",
+      "localizacao": "Base II - TCR 3, Posições 15-16",
+      "descricao": "Identifica a aplicação de negócio da transação na Visa.",
+      "impacto": "Diferencia transações de Top-Up (TU), Card Payment (CP) e Bill Pay (CB) para aplicação de taxas específicas.",
+      "exemplos": ["TU (Top-Up)", "CP (Card Payment)", "CB (Bill Pay)"]
+    }
+  ]
+}

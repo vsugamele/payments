@@ -1,0 +1,239 @@
+{
+  "id": "vi-interchange-detalhado",
+  "bandeira": "Visa",
+  "titulo": "Manual de Intercâmbio Visa — Provisionamento e FPIs",
+  "versao": "3.0",
+  "descricao": "Arquitetura técnica para provisionamento de taxas de intercâmbio Visa (Base II), Fee Program Indicators (FPI) e regras específicas para o mercado brasileiro.",
+  "secoes": [
+    {
+      "id": "visao-geral",
+      "tipo": "intro",
+      "titulo": "1. Visão Geral",
+      "conteudo": "A Visa utiliza o conceito de Fee Program Indicator (FPI) e Product ID (PID) como chaves primárias de decisão. O objetivo é estimar o custo da transação (Interchange Reimbursement Fee) e validar a qualidade dos dados enviados para evitar downgrades — reclassificações para taxas mais caras.",
+      "alerta": {
+        "tipo": "info",
+        "texto": "Diferente da Mastercard, na Visa o FPI é a 'prova real'. O TCR 1 (pos 76-78) do arquivo de retorno Base II informa exatamente qual linha da tabela de intercâmbio a Visa utilizou. Divergências entre FPI projetado e FPI retornado indicam falhas de qualificação."
+      }
+    },
+    {
+      "id": "dados-cartao",
+      "tipo": "table",
+      "titulo": "2.A Dados do Cartão (ARDEF)",
+      "descricao": "Fonte: Tabela ARDEF (Account Range Definition) ou tabela interna de BINs.",
+      "headers": ["Campo", "Descrição", "Valores Exemplo"],
+      "rows": [
+        ["PID (Product ID)", "Código de 2 caracteres que define o produto Visa", "I^ = Infinite, F^ = Classic, N^ = Platinum, P^ = Gold"],
+        ["AFS (Account Funding Source)", "Define a modalidade de financiamento da conta", "C = Crédito, D = Débito, P = Pré-pago, H = Charge"],
+        ["Subtype", "Subtipo necessário para cartões específicos", "VA = Vale Alimentação, VR = Vale Refeição, VCUS = Agro"],
+        ["Issuer Country", "País do emissor — define se a transação é Doméstica ou Internacional", "076 = Brasil"]
+      ]
+    },
+    {
+      "id": "dados-transacao",
+      "tipo": "table",
+      "titulo": "2.B Dados da Transação",
+      "headers": ["Campo", "Descrição", "Valores / Observação"],
+      "rows": [
+        ["Amount", "Valor da transação — base de cálculo para taxas Ad Valorem", "Moeda local (BRL para NNSS)"],
+        ["Processing Code", "Tipo da transação", "00 = Compra, 01 = Saque, 10 = AFT, 20 = Estorno"],
+        ["MCC", "Merchant Category Code — segmento do estabelecimento", "5411 = Supermercado, 5541 = Posto, 8211 = Escola"],
+        ["POS Entry Mode", "Tecnologia de captura", "05 = Chip EMV, 07 = Contactless, 10 = Credential on File"],
+        ["ECI (E-commerce Indicator)", "Indicador de comércio eletrônico e autenticação 3DS", "05/06 = Visa Secure (taxas melhores), 07 = Standard"]
+      ]
+    },
+    {
+      "id": "eci-table",
+      "tipo": "table",
+      "titulo": "ECI — Electronic Commerce Indicator",
+      "headers": ["ECI", "Significado Oficial VisaNet", "Impacto no Intercâmbio"],
+      "rows": [
+        ["05", "Fully Authenticated (3DS 2.x)", "Habilita taxas 'Visa Secure' — proteção contra chargebacks de fraude"],
+        ["06", "Attempted Authentication (Emissor não participou)", "Também habilita taxa Visa Secure. Liability shift para o emissor."],
+        ["07", "Non-Authenticated / SSL Criptografado", "Downgrade para 'Standard Electronic' — penaliza o lojista"],
+        ["08", "MOTO / Credential On File", "Taxa específica de MOTO/COF se flags MIT forem enviadas corretamente"]
+      ]
+    },
+    {
+      "id": "dados-brasil",
+      "tipo": "table",
+      "titulo": "2.C Dados Específicos Brasil (Base II)",
+      "headers": ["Campo", "Origem (Base II)", "Lógica / Valores"],
+      "rows": [
+        ["Installments (Parcelas)", "TCR 2, pos. 40-41", "Valor vem +10: ex. '12' = 2 parcelas. Subtrair 10 para obter o real."],
+        ["SPI (Special Purchase Indicator)", "TCR 2, pos. 47", "5 = Crediário (Juros Emissor), 1 = Top-Up Celular, 3 = Carnê Digital"],
+        ["MVV (Merchant Verification Value)", "TCR 5, pos. 82-91 / Field 62.20", "Identificador para taxas negociadas (VPP, Aéreas). 10 chars alfanum."],
+        ["BAI (Business Application Identifier)", "TCR 3, pos. 15-16 / Field 62.21", "TU = Top-Up, CP = Card Payment, AA = Account-to-Account, CB = Bill Pay"],
+        ["TCQ (Transaction Category Qualifier)", "TCR 0", "1 = AFT (Account Funding), 2 = OCT (Original Credit Transaction)"],
+        ["SETTL_FLAG (Settlement Flag)", "TCR 0, pos. 150 / Field 63.7", "8 ou 9 = NNSS (doméstico); 0 = Internacional"]
+      ],
+      "alerta": {
+        "tipo": "info",
+        "texto": "Base II: O arquivo quebra os dados em registros TCR. O parcelamento trafega no TCR 2. A Visa soma 10 à parcela atual para evitar ambiguidade. Exemplo: campo '16' = 6 parcelas (16 − 10 = 6)."
+      }
+    },
+    {
+      "id": "fluxo-waterfall",
+      "tipo": "steps",
+      "titulo": "3. Fluxo Lógico de Cálculo (Waterfall)",
+      "descricao": "O algoritmo de decisão da Visa segue a hierarquia abaixo. O sistema deve parar na primeira regra que der 'Match'.",
+      "passos": [
+        { "numero": 1, "nome": "Determinação da Jurisdição", "descricao": "Doméstica (NNSS): Emissor + Adquirente Brasil + Moeda BRL → Tabela Brazil Domestic. LAC Intra-regional: Adquirente Brasil + Emissor LAC (ISS_REG = 5). Internacional: qualquer outra combinação." },
+        { "numero": 2, "nome": "Definição do Schedule (Tipo de Serviço)", "descricao": "POS (Compras): padrão para varejo. Cash (Saque): Processing Code = 01. AFT (Account Funding): BAI = AA ou TT. OCT (Original Credit): TCQ = 2 — direção do intercâmbio é invertida." },
+        { "numero": 3, "nome": "Seleção da Taxa (Waterfall por PRIORITY)", "descricao": "Percorrer a tabela de regras em ordem de PRIORITY (menor = maior prioridade). Parar no primeiro match. Sequência: Programas Especiais (SPI, BNDES) → Benefícios/Governo → Corporate (MVV) → E-commerce Autenticado → Segmentos Incentivados (MCC) → Standard → Non-Qual." },
+        { "numero": 4, "nome": "Cálculo Matemático", "descricao": "Taxa Base = AMOUNT × (RATE_PCT / 100). Com Fixo = Taxa Base + FIXED_FEE. Final = MIN(Com Fixo, CAP_FEE) [se CAP_FEE > 0]." }
+      ]
+    },
+    {
+      "id": "waterfall-tabela",
+      "tipo": "table",
+      "titulo": "3. Prioridades do Waterfall",
+      "headers": ["Nível", "Tipo de Regra", "Variáveis-chave", "Exemplo"],
+      "rows": [
+        ["1° (Prio < 50)", "Programas Especiais (Crediário SPI, BNDES)", "SPI, PID, AMOUNT", "BR-CRED-SPI5, BR-BNDES-T1..T10"],
+        ["2° (Prio 30-45)", "Benefícios e Governo (PAT, Agro)", "PID=J3, MCC específicos, SUBTYPE", "BR-PAT-ALIM, BR-AGRO-CUST"],
+        ["3° (Prio 40-45)", "Corporate Travel / B2B / VPP (MVV)", "TAD, MVV, PID", "BR-CTA-TRAV, BR-B2B-REG"],
+        ["4° (Prio 80-82)", "E-commerce Autenticado (Visa Secure)", "MOTO_ECI_IND, AFS, PID", "BR-ECOM-INF-SEC, BR-ECOM-CLS-SEC"],
+        ["5° (Prio 100-143)", "Segmentos Incentivados (MCC + Produto)", "MCC, PID, POS_ENTRY_MODE, INST", "BR-SPMKT-INF-CP, BR-CBPS-CR"],
+        ["6° (Prio 200-263)", "Standard (Fallback por produto)", "PID, AFS", "BR-STD-INF, BR-STD-CLS, BR-STD-DEB"],
+        ["7° (Prio 999)", "Non-Qual (Downgrade por atraso)", "TIMELINESS > 32", "BR-NON-QUAL"]
+      ]
+    },
+    {
+      "id": "formula-calculo",
+      "tipo": "formula",
+      "titulo": "3. Cálculo Matemático",
+      "campos": [
+        { "campo": "RATE_PCT", "descricao": "Percentual ad valorem aplicado sobre o valor. Ex: 1.83% para INF STD CR" },
+        { "campo": "FIXED_FEE", "descricao": "Taxa fixa em reais, somada ao resultado. Ex: R$ 5,08 para ATM/Saque" },
+        { "campo": "CAP_FEE", "descricao": "Teto máximo da taxa em reais. Se 0,00 = sem cap." },
+        { "campo": "ACCOUNTING_SIGN", "descricao": "PAY_ISS = custo (débito); REC_ISS = receita (crédito) para o adquirente" }
+      ],
+      "formula": "1. Taxa Base = AMOUNT × (RATE_PCT / 100)\n2. Valor com Fixo = Taxa Base + FIXED_FEE\n3. Valor Final = MIN(Valor com Fixo, CAP_FEE)   [se CAP_FEE > 0]"
+    },
+    {
+      "id": "parcelamento",
+      "tipo": "table",
+      "titulo": "4.1 Parcelado: Lojista vs. Emissor",
+      "headers": ["Modalidade", "Identificação", "Lógica", "Taxa (Exemplo)"],
+      "rows": [
+        ["Lojista (Sem Juros)", "INST ≥ 2 e SPI ≠ 5", "Campo INST determina a faixa. Range 1: INST 2-6. Range 2: INST ≥ 7.", "Range 1: 1.98%, Range 2: 2.17%"],
+        ["Crediário Emissor (SPI 5)", "SPI = '5'", "Taxa fixa independente do número de parcelas. Verificar SPI ANTES de contar INST.", "0.80% (BR-CRED-SPI5)"]
+      ],
+      "alerta": { "tipo": "warning", "texto": "O sistema deve verificar SPI='5' ANTES de avaliar o número de parcelas. Se SPI='5', aplicar a regra de Crediário independentemente de INST." }
+    },
+    {
+      "id": "pat-vale",
+      "tipo": "table",
+      "titulo": "4.2 Programas de Benefício (PAT/Vale) — PID = J3",
+      "headers": ["SUBTYPE", "Segmento", "MCCs Elegíveis", "Taxa"],
+      "rows": [
+        ["VA (Vale Alimentação)", "Alimentação", "5300, 5411, 5422, 5441, 5451, 5462, 5499, 5811", "2.05%"],
+        ["VR (Vale Refeição)", "Refeição", "5812, 5813, 5814", "2.05%"],
+        ["— (Vale Cultura)", "Cultura e Lazer", "4722, 5733, 5735, 5932, 5943", "0.70%"]
+      ],
+      "alerta": { "tipo": "info", "texto": "Desde Out/2025, produtos PAT liquidarão em domínio separado (VCB). Monitorar comunicados Visa." }
+    },
+    {
+      "id": "programas-mvv",
+      "tipo": "table",
+      "titulo": "4.3 Programas Especiais (MVV)",
+      "headers": ["Programa", "Rule ID", "Variável-chave", "Taxa"],
+      "rows": [
+        ["Visa Partner Program (VPP)", "BR-VPP-PROG", "MVV = VALOR_REGISTRADO_1 ou 2", "1.20%"],
+        ["B2B Virtual", "BR-B2B-REG", "PID=X^ + MVV registrado", "1.50%"],
+        ["Corporate Travel (CTA)", "BR-CTA-TRAV", "TAD = A (Air) ou H (Hotel)", "1.83%"],
+        ["BNDES", "BR-BNDES-T1..T10", "PID=S6 + faixa de AMOUNT", "0.65% a 2.00%"]
+      ]
+    },
+    {
+      "id": "visa-direct",
+      "tipo": "table",
+      "titulo": "4.4 Visa Direct (OCT e AFT)",
+      "descricao": "OCTs são transferências do tipo 'Push' (Visa Direct). O adquirente empurra fundos para o cartão do portador. A direção do intercâmbio é invertida em relação à compra.",
+      "headers": ["Tipo", "Rule ID", "BAI / TCQ", "Taxa"],
+      "rows": [
+        ["OCT — Top-Up (Pré-pago)", "BR-OCT-TOPUP", "TCQ=2, BAI=TU", "R$ 2,00 fixo (REC_ISS)"],
+        ["OCT — Card Payment", "BR-OCT-CC-PAY", "TCQ=2, BAI=CP", "R$ 2,00 fixo (REC_ISS)"],
+        ["AFT — Account-to-Account Débito", "BR-AFT-DEB", "TCQ=1, BAI=AA, AFS=D", "R$ 0,05 fixo (PAY_ISS)"],
+        ["CBPS — Consumer Bill Payment (Crédito)", "BR-CBPS-CR", "BAI=CB, AFS=C, INST=1", "1.20% + CAP R$ 0,45"],
+        ["CBPS — Consumer Bill Payment (Débito)", "BR-CBPS-DB", "BAI=CB, AFS=D", "0.50% + CAP R$ 0,35"]
+      ]
+    },
+    {
+      "id": "internacionais",
+      "tipo": "table",
+      "titulo": "4.5 Internacionais (LAC e Inter-regional)",
+      "headers": ["Tipo", "Rule ID", "Prioridade", "Taxa"],
+      "rows": [
+        ["LAC Intra — E-commerce Secure", "INT-INTRA-ECOM-SEC", "400", "1.60%"],
+        ["LAC Intra — Premium Card Present", "INT-INTRA-PREM-CP", "401", "1.90%"],
+        ["LAC Intra — Standard Card Present", "INT-INTRA-STD-CP", "402", "1.65%"],
+        ["LAC Intra — Fallback", "INT-INTRA-FALLBK", "409", "2.00%"],
+        ["Interregional — E-commerce Secure", "INT-INTER-ECOM-SEC", "410", "1.70%"],
+        ["Interregional — Premium Card Present", "INT-INTER-PREM-CP", "411", "2.00%"],
+        ["Interregional — Standard Card Present", "INT-INTER-STD-CP", "412", "1.80%"],
+        ["Interregional — Fallback", "INT-INTER-FALLBK", "419", "2.20%"]
+      ],
+      "alerta": { "tipo": "warning", "texto": "ATENÇÃO: As regras INT-INTRA-PENDING (prio 400) e INT-INTER-PENDING (prio 410) compartilham prioridade com as regras ECOM-SEC. O motor deve verificar STATUS='PENDING_PHASE_2' ANTES das demais condições." }
+    },
+    {
+      "id": "conciliacao",
+      "tipo": "table",
+      "titulo": "5.1 Onde Ler o Valor Oficial (Base II)",
+      "descricao": "Para validar se o cálculo bate com o da Visa, compare com o arquivo de retorno (Incoming Interchange):",
+      "headers": ["Registro", "Posição", "Campo", "Descrição"],
+      "rows": [
+        ["TCR 1", "76-78", "Fee Program Indicator (FPI)", "Código de 3 letras da regra aplicada. A 'prova real' do motor. Ex: VSP = Visa Supermarket Premium."],
+        ["TCR 5", "92-106", "Interchange Fee Amount", "Valor absoluto (monetário) retido pela Visa."],
+        ["TCR 5", "107", "Interchange Fee Sign", "C = Credit (receita para adquirente); D = Debit (custo para adquirente)."],
+        ["TCR 7", "81-83", "Reimbursement Attribute", "Detalha o motivo exato de um eventual Downgrade."]
+      ]
+    },
+    {
+      "id": "downgrades",
+      "tipo": "table",
+      "titulo": "5.2 Causas Comuns de Downgrade",
+      "headers": ["Cenário", "Taxa Esperada", "Taxa Aplicada", "Causa Raiz"],
+      "rows": [
+        ["E-commerce sem 3DS", "INF EMRG3 VBV (1.33%)", "INF STD CR (1.83%)", "ECI não enviado ou = 07 no clearing (MOTO_ECI_IND)"],
+        ["Supermercado MCC errado", "INF SPMKT EM CP (1.56%)", "INF STD CR (1.83%)", "MCC não está na lista 5411/5422/5441..."],
+        ["Parcelado: SPI ignorado", "CRDRIO INST SPI5 (0.80%)", "INF STD CR (1.83%)", "Sistema contou parcelas sem checar SPI='5' primeiro"],
+        ["Timeliness > 32 dias", "Qualquer regra", "NON QUAL DATA (2.50%)", "Arquivo de clearing enviado fora do prazo"]
+      ]
+    },
+    {
+      "id": "issues-identificados",
+      "tipo": "table",
+      "titulo": "6. Issues Identificados na Tabela de Regras (Visa_30_v1)",
+      "descricao": "Pontos de atenção identificados durante a revisão da planilha:",
+      "headers": ["#", "Issue", "Regras Afetadas", "Ação Recomendada"],
+      "rows": [
+        ["1", "PRIORIDADE DUPLICADA: INT-INTRA-PENDING e INT-INTRA-ECOM-SEC compartilham prioridade 400.", "INT-INTRA-PENDING (400), INT-INTRA-ECOM-SEC (400)", "Mover PENDING para prioridade 398 ou 399."],
+        ["2", "PRIORIDADE DUPLICADA: INT-INTER-PENDING e INT-INTER-ECOM-SEC compartilham prioridade 410.", "INT-INTER-PENDING (410), INT-INTER-ECOM-SEC (410)", "Mover PENDING para prioridade 408."],
+        ["3", "VARIÁVEL 'STATUS' não documentada na aba Variável. Usada nas regras PENDING sem campo Base II mapeado.", "INT-INTRA-PENDING, INT-INTER-PENDING", "Adicionar STATUS ao dicionário de variáveis com sua origem."],
+        ["4", "PID duplicado na aba Variável: aparece duas vezes.", "Aba Variável", "Remover entrada duplicada. Manter apenas a entrada completa."],
+        ["5", "Ausência de regra para ATM/Saque Internacional. Apenas BR-ATM-CASH (doméstico) está mapeado.", "— (gap)", "Avaliar se saques internacionais devem cair no INT-INTER-FALLBK ou ter regra própria."]
+      ]
+    },
+    {
+      "id": "glossario",
+      "tipo": "table",
+      "titulo": "7. Glossário de Variáveis",
+      "headers": ["Variável", "Significado", "Tipo", "Campo Base II/Autorização"],
+      "rows": [
+        ["AFS", "Account Funding Source", "String(1)", "TCR 5, pos. 16"],
+        ["AMOUNT", "Valor da transação", "Decimal", "TCR 0, pos. 77-88 / Field 4"],
+        ["ACQR_COUNTRY_CODE", "Código ISO do país do adquirente", "String(3)", "TCR 0, pos. 130-132 / Field 43"],
+        ["BAI", "Business Application Identifier", "String(2)", "TCR 3, pos. 15-16 / Field 62.21"],
+        ["INST", "Número de parcelas", "Numérico", "TCR 2, pos. 40-41 (valor − 10)"],
+        ["MCC", "Merchant Category Code", "Numérico(4)", "TCR 0, pos. 133-136 / Field 18"],
+        ["MOTO_ECI_IND", "ECI indicator no clearing Base II", "String(1)", "TCR 1, pos. 116"],
+        ["MVV", "Merchant Verification Value", "String(10)", "TCR 5, pos. 82-91 / Field 62.20"],
+        ["PID", "Product ID — identificador do produto Visa", "String(2)", "TCR 5, pos. 136-137 / Field 62.23"],
+        ["SPI", "Special Purchase Indicator", "String(1)", "TCR 2, pos. 47"],
+        ["TCQ", "Transaction Category Qualifier", "String(1)", "TCR 0"],
+        ["TIMELINESS", "Dias entre compra e clearing", "Numérico", "CPD vs Purchase Date"]
+      ]
+    }
+  ]
+}

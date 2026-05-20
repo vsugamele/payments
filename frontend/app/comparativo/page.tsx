@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import ClearingSimulatorClient from './ClearingSimulatorClient';
+
 
 export const metadata: Metadata = {
   title: 'Comparativo Visa × Mastercard | VS Payments',
@@ -224,6 +226,7 @@ export default function ComparativoPage() {
                 (Field 62/63 na Visa; DE 48 subtags na MC) diferem completamente — um arquivo não é intercambiável.
               </div>
               <CompTable rows={clearing} />
+              <ClearingSimulatorClient />
             </Section>
 
             <Section id="settlement" title="Settlement">

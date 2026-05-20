@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import { Search, X, BookOpen, Fingerprint } from "lucide-react";
+import { Search, X, BookOpen, Fingerprint, Zap, ShieldAlert, CheckCircle2 } from "lucide-react";
 import deFields from "@/data/de-fields.json";
 import ValidatorTab from "./ValidatorTab";
 import AIAssistant from "@/components/AIAssistant";
@@ -23,6 +23,31 @@ const CAT_COLOR: Record<string, { bg: string; text: string }> = {
   "Local / Nacional": { bg: "rgba(34,197,94,0.12)", text: "#4ade80" },
   "Data/Hora":      { bg: "rgba(100,116,139,0.08)", text: "#64748b" },
   "Dados Adicionais": { bg: "rgba(99,102,241,0.1)", text: "#818cf8" },
+};
+
+// ─── Inteligência Normativa (Deep Dive dos Manuais) ──────────────────────────
+
+const NORMATIVE_INTEL: Record<string, { impact: string; recommendation: string }> = {
+  "DE 22": {
+    impact: "Determina a categoria de Intercâmbio (CP vs CNP). Se o primeiro dígito for '81' ou '90', a bandeira exige 3DS para evitar Downgrade para Standard.",
+    recommendation: "Garanta que transações de e-commerce não usem valores de POS físico para evitar multas de monitoramento de integridade."
+  },
+  "DE 48": {
+    impact: "Contém o PDS 0052 (UCAF) na Mastercard. A ausência deste campo em transações e-commerce causa reclassificação imediata para taxa cheia (Standard).",
+    recommendation: "Verifique se o bit de 'Electronic Commerce Indicator' no SE 42 está coerente com o UCAF enviado."
+  },
+  "DE 61": {
+    impact: "PDS 0195 (Mastercard) define o número da parcela. Erros aqui impedem a antecipação de recebíveis (Settlement) pelo adquirente.",
+    recommendation: "Mapeie corretamente o formato n+10 (Visa) vs PDS 0195 (Mastercard) para conciliação bancária sem atrito."
+  },
+  "TCR 5": {
+    impact: "No clearing Visa, o TCR 5 carrega o MVV (Merchant Verification Value). Sem ele, programas de incentivo (In-App/VPP) são ignorados.",
+    recommendation: "Solicite à Visa o seu ID de programa e garanta que ele esteja nas posições 15-24 do TCR 5."
+  },
+  "PDS 0158": {
+    impact: "Campo de 'Interchange Rate Indicator'. É aqui que a Mastercard 'carimba' a taxa aplicada (ex: IRD 0100).",
+    recommendation: "Use este campo no seu log de clearing para auditar se a taxa cobrada pela bandeira bate com o simulador de Downgrades."
+  }
 };
 
 const ALL_CATS = Array.from(new Set(deFields.map((f) => f.categoria)));
@@ -170,6 +195,33 @@ function FieldCard({ field, query }: { field: Field; query: string }) {
               </div>
             )}
           </div>
+
+          {/* Deep Dive Intel */}
+          {NORMATIVE_INTEL[field.numero] && (
+            <div className="mt-4 p-4 rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-transparent space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-indigo-500 text-white">
+                  <Zap size={14} />
+                </div>
+                <h4 className="text-xs font-black text-indigo-300 uppercase tracking-widest">Impacto Normativo Deep-Dive</h4>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex gap-2 items-start">
+                  <ShieldAlert size={12} className="text-red-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <span className="font-bold text-white">Risco/Impacto:</span> {NORMATIVE_INTEL[field.numero].impact}
+                  </p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <CheckCircle2 size={12} className="text-emerald-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <span className="font-bold text-white">Recomendação:</span> {NORMATIVE_INTEL[field.numero].recommendation}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px dashed var(--border)" }}>
             <AIAssistant 

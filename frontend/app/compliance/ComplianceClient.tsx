@@ -43,10 +43,11 @@ const BAND_COLORS: Record<string, { bg: string; text: string }> = {
 
 const PILLARS = [
   { icon: BarChart2,   href: "/compliance/risco",        title: "Calculadora de Risco",        subtitle: "VAMP · ECP · EFM · PED",          color: "#f59e0b", alert: "Novo threshold Q1 2025", updated: true },
-  { icon: Scale,       href: "/compliance/disputas",     title: "Forense de Disputas",         subtitle: "VROL · Mastercom · CE 3.0",        color: "#8b5cf6", alert: null,                  updated: true },
-  { icon: Landmark,    href: "/compliance/intercambio",  title: "Playbook de Intercâmbio",     subtitle: "IRDs · Doméstico · LAC · Global",  color: "#3b82f6", alert: "IRDs expandidos",       updated: false },
-  { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: null,                  updated: true },
+  { icon: Scale,       href: "/compliance/disputas",     title: "Forense de Disputas",         subtitle: "VROL · Mastercom · Intel VCR/DMAS",color: "#8b5cf6", alert: "IA Normativa Ativa",      updated: true },
+  { icon: Landmark,    href: "/compliance/intercambio",  title: "Playbook de Intercâmbio",     subtitle: "IRDs · Manuais · Lab Downgrades",  color: "#3b82f6", alert: "Manuais Detalhados (v24.1)", updated: true },
+  { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: "Mapeamento TCR/PDS",        updated: true },
   { icon: Send,        href: "/compliance/payouts",      title: "Push Payments Lab",           subtitle: "Visa Direct · MC Send · AFT",      color: "#ec4899", alert: "Real-time",            updated: false },
+  { icon: Landmark,    href: "/compliance/aft",          title: "Simulador AFT (Funding)",     subtitle: "Indicadores ISO · MCCs · BAIs",    color: "#eab308", alert: "Novo Módulo",          updated: true },
   { icon: Globe,       href: "/compliance/cross-border", title: "Cross-Border & DCC",          subtitle: "Markup · ISA · IAF",               color: "#0ea5e9", alert: null,                  updated: false },
   { icon: Smartphone,  href: "/compliance/softpos",      title: "Tap to Phone (SoftPOS)",      subtitle: "PCI CPoC · MPoC · Atestação",      color: "#10b981", alert: null,                  updated: false },
   { icon: Database,    href: "/compliance/gcms",         title: "Explorador GCMS",             subtitle: "Clearing · Tabelas T165/T168",     color: "#a855f7", alert: null,                  updated: true },
@@ -58,6 +59,7 @@ const PILLARS = [
   { icon: Cpu,         href: "/compliance/emv",          title: "Decodificador EMV",           subtitle: "TVR Tag 95 · 40 Bits",            color: "#22d3ee", alert: null,                  updated: true },
   { icon: DollarSign,  href: "/compliance/settlement",   title: "Settlement & Clearing",       subtitle: "D+0 · IPM · Base II · EFA",       color: "#4ade80", alert: null,                  updated: true },
   { icon: ShieldCheck, href: "/compliance/3ds",          title: "Matriz 3DS & ECI",            subtitle: "Liability Shift · E-commerce",    color: "#4ade80", alert: null,                  updated: false },
+  { icon: Shield,      href: "/compliance/daf",          title: "Visa DAF Simulator",          subtitle: "Digital Authentication · VTS",     color: "#60a5fa", alert: "Novo Módulo",          updated: true },
   { icon: Shield,      href: "/compliance/pci",          title: "Calculadora de Escopo PCI",   subtitle: "SAQ A · SAQ D · v4.0",            color: "#ef4444", alert: "PCI v4.0 vigente",    updated: false },
   { icon: GitCompare,  href: "/compliance/retentativas", title: "Matriz de Retentativas",      subtitle: "Hard vs Soft Declines · MAC",     color: "#f59e0b", alert: null,                  updated: true },
   { icon: Crosshair,   href: "/compliance/bram",         title: "Auditor BRAM e QMAP",         subtitle: "Risco Legal · Multas",            color: "#ef4444", alert: null,                  updated: false },
