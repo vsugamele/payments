@@ -51,6 +51,7 @@ const HUB = [
       { icon: BarChart2,     label: "Matriz de Intercâmbio", href: "/matrix",      desc: "Decisão de taxa passo a passo" },
       { icon: LayoutTemplate,label: "Arquitetura",           href: "/arquitetura", desc: "Tour guiado Visa × MC" },
       { icon: BarChart2,     label: "Comparativo",           href: "/comparativo", desc: "BASE II vs IPM lado a lado" },
+      { icon: ShieldCheck,   label: "Regras & CP 522",       href: "/comparativo/facilitadores", desc: "Facilitadores, split e regulação" },
     ],
   },
   {

@@ -48,6 +48,7 @@ const PILLARS = [
   { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: "Mapeamento TCR/PDS",        updated: true },
   { icon: Send,        href: "/compliance/payouts",      title: "Push Payments Lab",           subtitle: "Visa Direct · MC Send · AFT",      color: "#ec4899", alert: "Real-time",            updated: false },
   { icon: Landmark,    href: "/compliance/aft",          title: "Simulador AFT (Funding)",     subtitle: "Indicadores ISO · MCCs · BAIs",    color: "#eab308", alert: "Novo Módulo",          updated: true },
+  { icon: Shield,      href: "/comparativo/facilitadores", title: "Facilitadores & Regulação CP 522", subtitle: "Limites · CP 522 · Tarifas Elo", color: "#6366f1", alert: "Novo Módulo",          updated: true },
   { icon: Globe,       href: "/compliance/cross-border", title: "Cross-Border & DCC",          subtitle: "Markup · ISA · IAF",               color: "#0ea5e9", alert: null,                  updated: false },
   { icon: Smartphone,  href: "/compliance/softpos",      title: "Tap to Phone (SoftPOS)",      subtitle: "PCI CPoC · MPoC · Atestação",      color: "#10b981", alert: null,                  updated: false },
   { icon: Database,    href: "/compliance/gcms",         title: "Explorador GCMS",             subtitle: "Clearing · Tabelas T165/T168",     color: "#a855f7", alert: null,                  updated: true },

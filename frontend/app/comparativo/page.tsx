@@ -202,6 +202,10 @@ export default function ComparativoPage() {
               </a>
             ))}
             <div className="pt-4 border-t border-border mt-4 space-y-2">
+              <Link href="/comparativo/facilitadores"
+                className="block text-xs text-indigo-400 font-semibold hover:underline">
+                → Regras Facilitadores & CP 522
+              </Link>
               <Link href="/arquitetura"
                 className="block text-xs text-primary hover:underline">
                 → Ver Diagrama
@@ -215,6 +219,25 @@ export default function ComparativoPage() {
 
           {/* Content */}
           <div className="flex-1 space-y-12 min-w-0">
+
+            {/* Banner Facilitadores e Regulamentação */}
+            <div className="p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block animate-pulse" />
+                  Regras de Facilitadores & Regulamentação CP 522
+                </h4>
+                <p className="text-xs text-slate-400 mt-1 max-w-xl">
+                  Mapeamento de limites de volume (AN 6495), restrições card-present, exceções de MCCs e os impactos da Consulta Pública CP 522 do BACEN.
+                </p>
+              </div>
+              <Link
+                href="/comparativo/facilitadores"
+                className="inline-flex items-center gap-1 text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl transition-all self-start sm:self-center shrink-0"
+              >
+                Acessar Regras e CP 522 →
+              </Link>
+            </div>
 
             <Section id="autorizacao" title="Autorização">
               <CompTable rows={autorizacao} />
@@ -262,6 +285,10 @@ export default function ComparativoPage() {
 
             {/* Footer links */}
             <div className="pt-4 border-t border-border flex flex-wrap gap-4 text-sm">
+              <Link href="/comparativo/facilitadores"
+                className="text-indigo-400 hover:underline font-semibold">
+                Regras Facilitadores & CP 522 →
+              </Link>
               <Link href="/mcbs"
                 className="text-primary hover:underline">
                 Guia MCBS completo →
