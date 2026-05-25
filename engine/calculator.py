@@ -13,6 +13,7 @@ from .loader import (
     load_rates,
     load_mcc_to_segment,
     eval_rule,
+    lookup_mpe_bin,
 )
 
 # ---------------------------------------------------------------------------
@@ -225,6 +226,7 @@ class InterchangeCalculator:
             bandeira (str): 'mastercard', 'maestro'
 
         Campos da transação (mapeados do ISO 8583):
+            pan (str): opcional - número do cartão de 16 a 19 dígitos (realiza lookup de BIN em tempo real!)
             PRODUCT_TYPE: 'CREDIT', 'DEBIT', 'PREPAID'
             CARD_PROGRAM_ID: 'MSI' para Maestro
             CARD_PRESENT_ID: 0 (CNP/ecommerce) ou 1 (físico)
@@ -239,6 +241,52 @@ class InterchangeCalculator:
             ISSR_COUNTRY_CODE: 76 (doméstico)
             tier: 'Consumer standard/gold/platinum/black' (para lookup de taxa)
         """
+        pan = params.get("pan")
+        bin_detail = {}
+        if pan:
+            bin_info = lookup_mpe_bin(pan)
+            if bin_info:
+                bin_detail = {
+                    "bin_range": f"{bin_info['range_start']} - {bin_info['range_end']}",
+                    "bin_product": bin_info['product_start'],
+                    "bin_country": bin_info['country_alpha'],
+                    "bin_ica": bin_info['issuer_ica'],
+                    "bin_region": bin_info['region']
+                }
+                
+                # Mapeia produto
+                prod = bin_info['product_start'].upper()
+                if prod in ('CIR', 'MSI'):
+                    params["bandeira"] = "maestro"
+                    params["CARD_PROGRAM_ID"] = "MSI"
+                else:
+                    params["bandeira"] = "mastercard"
+                    
+                if prod == 'MCS':
+                    params["PRODUCT_TYPE"] = "CREDIT"
+                    params["tier"] = "Consumer standard"
+                elif prod == 'MCG':
+                    params["PRODUCT_TYPE"] = "CREDIT"
+                    params["tier"] = "Consumer gold"
+                elif prod == 'MPL':
+                    params["PRODUCT_TYPE"] = "CREDIT"
+                    params["tier"] = "Consumer platinum"
+                elif prod == 'MWE':
+                    params["PRODUCT_TYPE"] = "CREDIT"
+                    params["tier"] = "Consumer black"
+                elif prod == 'MDB':
+                    params["PRODUCT_TYPE"] = "DEBIT"
+                    params["tier"] = "Consumer standard"
+                elif prod == 'MDP':
+                    params["PRODUCT_TYPE"] = "PREPAID"
+                    params["tier"] = "Consumer standard"
+                    
+                # Mapeia país emissor
+                try:
+                    params["ISSR_COUNTRY_CODE"] = int(bin_info['country_num'])
+                except (ValueError, TypeError):
+                    params["ISSR_COUNTRY_CODE"] = 76 if bin_info['country_alpha'] == 'BRA' else 840
+
         valor = float(params.get("valor", 0))
         bandeira = str(params.get("bandeira", "mastercard")).lower()
 
@@ -247,9 +295,15 @@ class InterchangeCalculator:
         # Maestro: CARD_PROGRAM_ID="MSI" ou bandeira="maestro"
         include_cascata = params.get("debug", False)
         if bandeira == "maestro" or ctx.get("CARD_PROGRAM_ID") == "MSI":
-            return self._calc_maestro(ctx, valor, bandeira, include_cascata=include_cascata)
+            result = self._calc_maestro(ctx, valor, bandeira, include_cascata=include_cascata)
         else:
-            return self._calc_mastercard(ctx, valor, bandeira, params, include_cascata=include_cascata)
+            result = self._calc_mastercard(ctx, valor, bandeira, params, include_cascata=include_cascata)
+
+        # Mescla informações reais do BIN no dicionário de detalhes do resultado
+        if result.sucesso and bin_detail:
+            result.detalhe.update(bin_detail)
+
+        return result
 
     # ------------------------------------------------------------------
     # API simplificada: termos humanos → parâmetros técnicos

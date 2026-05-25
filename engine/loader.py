@@ -218,3 +218,26 @@ def load_mcbs_events() -> list[dict]:
         print(f"Error fetching ic_mcbs_events: {resp.text}")
     resp.raise_for_status()
     return resp.json()
+
+def lookup_mpe_bin(pan: str) -> Optional[dict]:
+    """
+    Busca as informações de range de cartões (BIN) para um PAN da Mastercard/Maestro no Supabase.
+    Prioriza produtos de compra Mastercard (MWE, MPL, etc.) sobre Cirrus (CIR/ATM) usando ordenação descrescente.
+    """
+    if not pan:
+        return None
+    # Normaliza e preenche com zeros à direita até 19 dígitos
+    pan_str = str(pan).strip().replace(" ", "").replace("-", "")
+    padded_pan = pan_str.ljust(19, '0')
+    
+    url = f"{SUPABASE_URL}/rest/v1/ic_mpe_bins?range_start=lte.{padded_pan}&range_end=gte.{padded_pan}&order=product_start.desc&limit=1"
+    try:
+        resp = httpx.get(url, headers=headers, timeout=10.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            return data[0] if data else None
+        return None
+    except Exception as e:
+        print(f"Erro ao buscar BIN {pan} no Supabase: {e}")
+        return None
+

@@ -31,3 +31,12 @@ pip-delete-this-directory.txt
 .lucid
 .replit
 .now
+
+# Mastercard MPE tables and files
+PRD_MST_*
+scratch/
+~$*
+*.xlsx
+*.docx
+*.pptx
+
