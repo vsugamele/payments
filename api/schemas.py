@@ -60,6 +60,7 @@ class CalcSimplesRequest(BaseModel):
     """Parâmetros simplificados em português."""
 
     valor: float = Field(..., description="Valor da transação em BRL")
+    pan: Optional[str] = Field(None, description="Número do cartão de 16 a 19 dígitos para lookup de BIN")
     bandeira: Literal["mastercard", "maestro"] = "mastercard"
     tipo_cartao: str = Field(
         "standard",

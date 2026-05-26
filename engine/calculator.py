@@ -362,6 +362,9 @@ class InterchangeCalculator:
         canal_params = CANAL_MAP.get(canal, CANAL_MAP["fisico"])
         tech.update(canal_params)
 
+        if params.get("pan"):
+            tech["pan"] = params["pan"]
+
         tech["debug"] = params.get("debug", False)
         return self.calcular(tech)
 

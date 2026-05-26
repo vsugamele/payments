@@ -126,6 +126,22 @@ export function SimulatorForm({ form, onChange, onSubmit, loading }: Props) {
         />
       </Field>
 
+      {/* Número do Cartão (PAN) - Opcional */}
+      {(form.bandeira === "mastercard" || form.bandeira === "maestro") && (
+        <Field label="Número do Cartão / PAN (MPE Lookup)">
+          <input
+            type="text"
+            placeholder="Ex: 2227631234567890"
+            value={form.pan || ""}
+            onChange={(e) => set("pan", e.target.value)}
+            className="input-base font-mono"
+          />
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            💡 Busca instantânea do produto, emissor e país na tabela oficial Mastercard MPE (T068).
+          </p>
+        </Field>
+      )}
+
       {/* ─── Campos Visa ─────────────────────────────────────────────────── */}
       {isVisa && (
         <>

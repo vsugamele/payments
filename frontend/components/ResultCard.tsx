@@ -116,6 +116,33 @@ export function ResultCard({ result }: Props) {
         </div>
       )}
 
+      {/* Detalhes do BIN da MPE */}
+      {(result as any).detalhe?.bin_range && (
+        <div className="rounded-lg bg-blue-950/20 border border-blue-500/20 p-3.5 space-y-2">
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+            🔍 Atributos Reais do Cartão (MPE IP0040T1)
+          </p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+            <div className="flex justify-between border-b border-slate-700/50 pb-1">
+              <span className="text-slate-400">Faixa MPE:</span>
+              <span className="font-mono text-white">{(result as any).detalhe.bin_range.split(" ")[0]}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-700/50 pb-1">
+              <span className="text-slate-400">Produto:</span>
+              <span className="font-bold text-white">{(result as any).detalhe.bin_product}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-700/50 pb-1">
+              <span className="text-slate-400">Origem:</span>
+              <span className="font-bold text-white">{(result as any).detalhe.bin_country}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-700/50 pb-1">
+              <span className="text-slate-400">ICA Emissor:</span>
+              <span className="font-mono text-white">{(result as any).detalhe.bin_ica}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Interconexão: Ver Jornada */}
       <button
         onClick={() => {

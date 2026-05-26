@@ -63,6 +63,7 @@ export async function calcular(form: SimForm): Promise<CalcResult> {
   if (form.bandeira === "mastercard") {
     return post<McResult>("/calcular/simples", {
       valor,
+      pan: form.pan || undefined,
       bandeira: "mastercard",
       tipo_cartao: form.tipo_cartao,
       canal: form.canal_mc,
@@ -77,6 +78,7 @@ export async function calcular(form: SimForm): Promise<CalcResult> {
   // maestro
   return post<McResult>("/calcular/simples", {
     valor,
+    pan: form.pan || undefined,
     bandeira: "maestro",
     tipo_cartao: form.tipo_cartao,
     canal: form.canal_mc,

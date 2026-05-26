@@ -69,6 +69,7 @@ export type CalcResult = VisaResult | McResult;
 export interface SimForm {
   bandeira: Bandeira;
   valor: string;
+  pan?: string;
   // Visa
   produto_visa: string;
   afs: string;

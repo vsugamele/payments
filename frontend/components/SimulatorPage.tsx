@@ -16,6 +16,7 @@ import eloData from "@/data/elo-interchange.json";
 const DEFAULT_FORM: SimForm = {
   bandeira: "visa",
   valor: "200",
+  pan: "",
   // Visa
   produto_visa: "platinum",
   afs: "credito",
