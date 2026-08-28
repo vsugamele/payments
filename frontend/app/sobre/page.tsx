@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   MapPin,
   Mail,
@@ -7,6 +8,12 @@ import {
   Briefcase,
   ArrowRight,
   CheckCircle2,
+  TrendingUp,
+  RefreshCw,
+  ShieldCheck,
+  Zap,
+  Layers,
+  Award,
 } from "lucide-react";
 
 const EXPERIENCE = [
@@ -15,24 +22,24 @@ const EXPERIENCE = [
     company: "EcommIT Integrated Solutions",
     period: "Out 2023 – Presente",
     duration: "2+ anos",
-    desc: "Liderança no relacionamento técnico e de negócios com bandeiras. Responsável por releases, novos produtos, estratégia de intercâmbio e integração de parceiros.",
-    tags: ["Visa", "Mastercard", "Elo", "Amex", "Releases"],
+    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável por releases, novos produtos, estratégia de intercâmbio, liquidação e integração técnica de parceiros e credenciadores.",
+    tags: ["Visa", "Mastercard", "Elo", "Amex", "Releases", "Intercâmbio", "MCBS"],
   },
   {
     role: "Especialista de Operações",
     company: "Bandeira Elo",
     period: "Ago 2020 – Out 2023",
     duration: "3 anos",
-    desc: "Multiplicador das soluções e serviços Elo para adquirentes. Desenvolvimento do novo Portal Elo, monitoramento de autorização e liquidação, facilitador entre Emissores, Credenciadores e Processadoras.",
-    tags: ["Elo", "Qlik Sense", "Tableau", "Autorização", "Liquidação"],
+    desc: "Multiplicador de soluções e serviços da Elo para adquirentes e processadoras. Desenvolvimento do novo Portal Elo, monitoramento e troubleshooting de autorização e liquidação, facilitador entre Emissores, Credenciadores e Processadoras, otimização de taxas de aprovação e suporte operacional crítico.",
+    tags: ["Bandeira Elo", "Autorização", "Liquidação", "Qlik Sense", "Tableau", "Troubleshooting"],
   },
   {
     role: "Analista Sênior / Coordenador de Liquidação",
     company: "Getnet",
     period: "Set 2017 – Out 2020",
     duration: "3 anos",
-    desc: "Responsável pelo desenvolvimento de projetos de Release das Bandeiras (Elo, Visa, Mastercard, Amex, Hipercard). Projetos: QR Code, 3DS, ABU, MarketPlace, Token, Emissão, Consulta BIN.",
-    tags: ["3DS", "QR Code", "ABU", "Token", "Releases"],
+    desc: "Responsável pelo desenvolvimento e homologação de projetos de Release das Bandeiras (Elo, Visa, Mastercard, Amex, Hipercard). Projetos chave: QR Code, 3DS 2.0, ABU/VAU (Account Updater), MarketPlace, Tokenização de Bandeira, Emissão e Consulta de BIN.",
+    tags: ["3DS 2.0", "ABU / VAU", "Tokenização", "Getnet", "Releases", "Consulta BIN"],
   },
   {
     role: "Analista de Produção / Negócios",
@@ -40,22 +47,75 @@ const EXPERIENCE = [
     period: "Ago 2009 – Set 2017",
     duration: "8 anos",
     desc: "Homologação de implementações, criação do processo EDI, implementação de monitorias de autorização/captura. Participação na migração dos servidores globais da Amex para o Bradesco (2014) e no projeto Multivan.",
-    tags: ["Amex", "EDI", "ISO 8583", "Autorização"],
+    tags: ["Amex", "EDI", "ISO 8583", "Autorização", "Processamento"],
+  },
+];
+
+const PAYMENTS_SOLUTIONS = [
+  {
+    icon: TrendingUp,
+    title: "1. Aumento da Taxa de Autorização & Smart Routing",
+    summary: "Como maximizar a aprovação analisando o ecossistema de ponta a ponta.",
+    details: [
+      "Análise granular de taxa de aprovação por BIN, Banco Emissor (Itaú, Bradesco, Nubank, BB, Santander), Adquirente, Bandeira, Canal e MCC.",
+      "Estruturação de Payment Routing por afinidade de emissor e regras de Cascading inteligente com fallback automático em timeouts ou erros sistêmicos.",
+      "Experiência prática na Bandeira Elo e Getnet monitorando e depurando falhas de autorização entre adquirentes e processadoras em tempo real.",
+    ],
+  },
+  {
+    icon: RefreshCw,
+    title: "2. Recorrência, Smart Retries & Combate ao Churn Involuntário",
+    summary: "Recuperação de receita em assinaturas, trials, planos SaaS e DTC.",
+    details: [
+      "Classificação forense de Decline Codes (Hard vs. Soft Declines) evitando retentativas inúteis que geram custos e multas das bandeiras.",
+      "Desenvolvimento de matrizes de Smart Retries sincronizadas com datas de maior liquidez salarial (5º e 20º dias úteis) e horários de menor fricção bancária.",
+      "Parametrização estrita de transações CIT (Customer-Initiated) e MIT (Merchant-Initiated / Recorrência) nos campos técnicos ISO 8583 / IPM (Stored Credentials).",
+    ],
+  },
+  {
+    icon: Zap,
+    title: "3. Network Tokens & Account Updater (VAU, ABU & Elo Token)",
+    summary: "Eliminação de atrito na renovação e atualização automática de credenciais.",
+    details: [
+      "Implementação e homologação de projetos de Tokenização de Bandeira (VTS, MDES e Elo Token), gerando aumento comprovado de 2% a 4% nas taxas de aprovação.",
+      "Configuração de fluxos automatizados de Visa Account Updater (VAU) e Mastercard Automatic Billing Updater (ABU) para atualizar cartões vencidos ou trocados sem interrupção para o cliente.",
+      "Elegibilidade a tarifas de intercâmbio diferenciadas e programas de autenticação digital segura (ex: DAF).",
+    ],
+  },
+  {
+    icon: ShieldCheck,
+    title: "4. Blindagem de Chargeback, Fraude & Programas de Monitoria",
+    summary: "Controle rigoroso de limites para evitar multas e descredenciamento.",
+    details: [
+      "Monitoramento contínuo dos limiares de monitoria das bandeiras: Visa VDMP/VFMP (Early Warning 0.65% / Standard 0.90%) e Mastercard ECP/MDMP (1.50% / 2.00%).",
+      "Implantação de 3DS 2.2 / 2.3 com Liability Shift para o emissor (ECI 05), garantindo proteção total contra chargebacks por fraude não reconhecida.",
+      "Dossiês estruturados de representação e defesa rápida com Compelling Evidence 3.0 para reverter disputas comerciais indevidas.",
+    ],
+  },
+  {
+    icon: Layers,
+    title: "5. Auditoria de Custos de Intercâmbio & Tarifas de Bandeira",
+    summary: "Otimização da margem financeira da infraestrutura de pagamentos.",
+    details: [
+      "Domínio completo das matrizes de Intercâmbio Visa, Mastercard, Elo e Maestro, aplicando a lógica de cascata (waterfall) e caps regulatórios do Banco Central.",
+      "Auditoria minuciosa das faturas de faturamento das bandeiras (Mastercard MCBS e Visa VSS), identificando Service IDs, taxas de processamento e cobranças indevidas.",
+      "Estruturação de inteligência de custos para antecipação de recebíveis, split de pagamentos e modelagem de MDR.",
+    ],
   },
 ];
 
 const SKILLS = [
-  { category: "Protocolos & Padrões", items: ["ISO 8583", "EMV Contactless", "PCI DSS", "PIN Security", "3DS 2.0"] },
-  { category: "Produtos", items: ["Crédito / Débito", "Pré-pago", "Voucher", "QR Code", "Tokenização", "ABU"] },
-  { category: "Processos", items: ["Autorização", "Liquidação", "Chargeback", "Prevenção a Fraudes", "Split de Pagamento"] },
-  { category: "Bandeiras", items: ["Visa", "Mastercard", "Elo", "American Express", "Maestro", "Hipercard"] },
-  { category: "Ferramentas", items: ["Qlik Sense", "Tableau", "DBeaver", "Hue"] },
-  { category: "Gestão", items: ["Projetos", "Treinamento de Equipes", "Elaboração de Manuais", "Relatórios Executivos"] },
+  { category: "Protocolos & Padrões", items: ["ISO 8583", "EMV Contactless", "PCI DSS", "PIN Security", "3DS 2.0 / 2.2", "Network Tokens (VTS/MDES)"] },
+  { category: "Recorrência & Billing", items: ["Smart Retries", "Dunning Flow", "Account Updater (VAU/ABU)", "CIT vs MIT", "Involuntary Churn Recovery"] },
+  { category: "Produtos & Operações", items: ["Crédito / Débito / Pré-pago", "Subscrições & SaaS", "QR Code / Pix", "Split de Pagamento", "Roteamento / Cascata"] },
+  { category: "Disputas & Compliance", items: ["Reason Codes Visa & MC", "VFMP / VDMP / ECP", "Compelling Evidence 3.0", "MATCH Pro / BRAM", "Liability Shift"] },
+  { category: "Bandeiras & Ecossistema", items: ["Bandeira Elo", "Visa", "Mastercard", "American Express", "Maestro", "Hipercard"] },
+  { category: "Dados & Ferramentas", items: ["Qlik Sense", "Tableau", "FastAPI / Python", "SQL / DBeaver / PostgREST", "Supabase", "Git"] },
 ];
 
 export const metadata = {
-  title: "Sobre — Vinícius Sugamele · VS Payments",
-  description: "Head de Bandeiras com 16+ anos de experiência em meios de pagamento: Visa, Mastercard, Elo, Amex. Especialista em intercâmbio, autorização, liquidação e releases.",
+  title: "Sobre — Vinícius Sugamele · Payments & Billing Expert",
+  description: "Head de Bandeiras com 16+ anos de experiência em meios de pagamento: Elo, Visa, Mastercard, Amex, Getnet. Especialista em otimização de autorização, billing recorrente, intercâmbio e chargebacks.",
 };
 
 export default function SobrePage() {
@@ -64,94 +124,95 @@ export default function SobrePage() {
 
       {/* ── Hero bio ──────────────────────────────────────────────────────────── */}
       <section
-        className="dot-grid"
+        className="dot-grid relative overflow-hidden"
         style={{
-          background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,0.15) 0%, transparent 70%)",
-          borderBottom: "1px solid #0f172a",
-          padding: "5rem 1.5rem 4rem",
+          background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,0.18) 0%, transparent 70%)",
+          borderBottom: "1px solid var(--border)",
+          padding: "5.5rem 1.5rem 4.5rem",
         }}
       >
         <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-[auto_1fr] items-start">
-            {/* Avatar */}
-            <div
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: "1.25rem",
-                background: "linear-gradient(135deg, #1e3a5f, #2563eb)",
-                border: "2px solid rgba(37,99,235,0.3)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "2.5rem",
-                fontWeight: 800,
-                color: "#93c5fd",
-                flexShrink: 0,
-              }}
-            >
-              VS
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-[auto_1fr] items-center">
+            
+            {/* Foto Oficial Vinícius Sugamele */}
+            <div className="relative group mx-auto md:mx-0">
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500" />
+              <div className="relative w-44 h-52 sm:w-48 sm:h-56 rounded-2xl overflow-hidden border-2 border-blue-500/30 shadow-2xl bg-slate-900">
+                <Image
+                  src="/vinicius_sugamele.jpg"
+                  alt="Vinícius Sugamele - Payments & Billing Specialist"
+                  fill
+                  sizes="(max-width: 768px) 176px, 192px"
+                  priority
+                  className="object-cover object-top"
+                />
+              </div>
             </div>
 
             {/* Info */}
             <div>
-              <p className="section-eyebrow mb-3">Especialista em Meios de Pagamento</p>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="section-eyebrow">Payments & Billing Specialist</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  16+ Anos de Experiência
+                </span>
+              </div>
+
               <h1
-                className="font-bold text-white mb-2"
-                style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.1 }}
+                className="font-black text-foreground mb-2"
+                style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)", lineHeight: 1.1 }}
               >
                 Vinícius Sugamele
               </h1>
-              <p className="mb-5" style={{ fontSize: "1rem", color: "var(--muted-foreground)", fontStyle: "italic" }}>
-                "A Inovação em pagamentos é a ponte entre o presente e o futuro do mercado."
+              
+              <p className="mb-5 text-sm sm:text-base text-muted-foreground font-medium italic">
+                &ldquo;A inovação em pagamentos é a ponte entre a infraestrutura técnica e o crescimento financeiro do negócio.&rdquo;
               </p>
 
-              <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-1.5" style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
-                  <MapPin size={13} style={{ color: "var(--primary)" }} />
+              {/* Badges de Contato & LinkedIn */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-lg border border-border">
+                  <MapPin size={13} className="text-primary" />
                   São Paulo, Brasil
                 </div>
+                
                 <a
                   href="mailto:vsugamele@gmail.com"
-                  className="flex items-center gap-1.5 hover:text-blue-400 transition-colors"
-                  style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-blue-400 bg-muted/40 px-3 py-1.5 rounded-lg border border-border hover:border-blue-500/40 transition-colors"
                 >
-                  <Mail size={13} style={{ color: "var(--primary)" }} />
+                  <Mail size={13} className="text-primary" />
                   vsugamele@gmail.com
                 </a>
+
                 <a
                   href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-blue-400 transition-colors"
-                  style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 px-3.5 py-1.5 rounded-lg shadow-sm transition-all"
                 >
-                  <ExternalLink size={13} style={{ color: "var(--primary)" }} />
-                  LinkedIn
+                  <ExternalLink size={13} />
+                  linkedin.com/in/vinicius-sugamele-41136617
                 </a>
               </div>
 
-              <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", lineHeight: 1.75, maxWidth: 680 }}>
-                Head de Bandeiras na <strong style={{ color: "var(--muted-foreground)" }}>EcommIT Integrated Solutions</strong> com
-                mais de 16 anos de experiência em meios de pagamento. Passagem por Verifone/American Express,
-                Getnet e Bandeira Elo. Especialista em autorização, liquidação, chargeback, prevenção a fraudes
-                e relacionamento técnico com bandeiras. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
+                Head de Bandeiras na <strong>EcommIT Integrated Solutions</strong>, com passagens estratégicas por <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e <strong>Verifone / American Express</strong>. Especialista em engenharia de pagamentos, otimização de taxas de autorização, arquitetura de billing e recorrência, mitigação de chargebacks, tokenização de bandeira (VTS/MDES/Elo) e auditoria de intercâmbio/MCBS. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
-                <a href="mailto:vsugamele@gmail.com" className="btn-primary inline-flex items-center gap-2">
-                  Entrar em contato
-                  <ArrowRight size={14} />
-                </a>
                 <a
                   href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-outline inline-flex items-center gap-2"
+                  className="btn-primary inline-flex items-center gap-2"
                 >
-                  <ExternalLink size={14} />
-                  Ver LinkedIn
+                  <ExternalLink size={15} />
+                  Conectar no LinkedIn
                 </a>
+                <Link href="/billing" className="btn-outline inline-flex items-center gap-2">
+                  Ver Suite de Billing & Otimização
+                  <ArrowRight size={14} />
+                </Link>
               </div>
             </div>
           </div>
@@ -160,69 +221,90 @@ export default function SobrePage() {
 
       <div className="mx-auto max-w-5xl px-6">
 
+        {/* ── Seção Especial: Como resolvo os desafios de Payments & Billing ──── */}
+        <section className="pt-16">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Award size={20} />
+            </div>
+            <div>
+              <p className="section-eyebrow">Domínio Operacional & Estratégico</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                Como Resolvo os Desafios de Payments & Billing
+              </h2>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground mb-8 max-w-3xl">
+            Soluções práticas desenvolvidas ao longo de 16 anos atuando diretamente no coração das bandeiras, adquirentes e processadoras:
+          </p>
+
+          <div className="grid grid-cols-1 gap-5">
+            {PAYMENTS_SOLUTIONS.map((sol, i) => {
+              const Icon = sol.icon;
+              return (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-border bg-card p-6 relative overflow-hidden transition-all hover:border-blue-500/30"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 mt-1">
+                      <Icon size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base font-bold text-foreground mb-1">{sol.title}</h3>
+                      <p className="text-xs text-primary font-medium mb-3">{sol.summary}</p>
+                      <ul className="space-y-2">
+                        {sol.details.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                            <CheckCircle2 size={14} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* ── Experience ─────────────────────────────────────────────────────── */}
         <section className="pt-16">
-          <div className="flex items-center gap-3 mb-10">
-            <div
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                height: 36, width: 36, borderRadius: "0.5rem",
-                background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.2)",
-              }}
-            >
-              <Briefcase size={16} style={{ color: "var(--code-text)" }} />
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Briefcase size={16} />
             </div>
-            <h2 className="font-bold text-white" style={{ fontSize: "1.25rem" }}>Experiência</h2>
+            <h2 className="font-bold text-foreground text-xl">Trajetória Profissional</h2>
           </div>
 
           <div className="space-y-5">
             {EXPERIENCE.map((e, i) => (
               <div
                 key={i}
-                style={{
-                  background: "var(--code-bg)",
-                  border: "1px solid #0f172a",
-                  borderRadius: "1rem",
-                  padding: "1.75rem",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
+                className="rounded-2xl border border-border bg-card p-6 relative overflow-hidden"
               >
                 {i === 0 && (
-                  <div
-                    style={{
-                      position: "absolute", top: 0, left: 0, right: 0,
-                      height: 2,
-                      background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-                    }}
-                  />
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500" />
                 )}
                 <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
                   <div>
-                    <h3 className="font-semibold text-white" style={{ fontSize: "1rem" }}>{e.role}</h3>
-                    <p style={{ fontSize: "0.875rem", color: "var(--primary)", marginTop: "0.125rem" }}>{e.company}</p>
+                    <h3 className="font-bold text-foreground text-base">{e.role}</h3>
+                    <p className="text-xs font-semibold text-primary mt-0.5">{e.company}</p>
                   </div>
                   <div className="text-right">
-                    <p style={{ fontSize: "0.78rem", color: "var(--border)" }}>{e.period}</p>
-                    <p style={{ fontSize: "0.75rem", color: "#1e3a5f", marginTop: "0.125rem" }}>{e.duration}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{e.period}</p>
+                    <p className="text-[11px] text-muted-foreground/70">{e.duration}</p>
                   </div>
                 </div>
-                <p style={{ fontSize: "0.875rem", color: "var(--muted-foreground)", lineHeight: 1.65, marginBottom: "1rem" }}>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">
                   {e.desc}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {e.tags.map((tag) => (
                     <span
                       key={tag}
-                      style={{
-                        padding: "0.2rem 0.625rem",
-                        borderRadius: "0.375rem",
-                        fontSize: "0.7rem",
-                        fontWeight: 500,
-                        background: "#0d1117",
-                        border: "1px solid #1e293b",
-                        color: "var(--border)",
-                      }}
+                      className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-muted border border-border text-muted-foreground"
                     >
                       {tag}
                     </span>
@@ -235,17 +317,11 @@ export default function SobrePage() {
 
         {/* ── Education ──────────────────────────────────────────────────────── */}
         <section className="pt-14">
-          <div className="flex items-center gap-3 mb-8">
-            <div
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                height: 36, width: 36, borderRadius: "0.5rem",
-                background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.2)",
-              }}
-            >
-              <GraduationCap size={16} style={{ color: "var(--code-text)" }} />
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <GraduationCap size={16} />
             </div>
-            <h2 className="font-bold text-white" style={{ fontSize: "1.25rem" }}>Formação Acadêmica</h2>
+            <h2 className="font-bold text-foreground text-xl">Formação Acadêmica</h2>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -263,16 +339,11 @@ export default function SobrePage() {
             ].map((ed) => (
               <div
                 key={ed.title}
-                style={{
-                  background: "var(--code-bg)",
-                  border: "1px solid #0f172a",
-                  borderRadius: "0.875rem",
-                  padding: "1.5rem",
-                }}
+                className="rounded-2xl border border-border bg-card p-5"
               >
-                <p className="font-semibold text-white mb-1" style={{ fontSize: "0.9rem" }}>{ed.title}</p>
-                <p style={{ fontSize: "0.8rem", color: "var(--primary)" }}>{ed.institution}</p>
-                <p style={{ fontSize: "0.75rem", color: "var(--border)", marginTop: "0.25rem" }}>Conclusão: {ed.year}</p>
+                <p className="font-bold text-foreground text-sm mb-1">{ed.title}</p>
+                <p className="text-xs text-primary font-medium">{ed.institution}</p>
+                <p className="text-[11px] text-muted-foreground mt-2">Conclusão: {ed.year}</p>
               </div>
             ))}
           </div>
@@ -280,26 +351,21 @@ export default function SobrePage() {
 
         {/* ── Skills ─────────────────────────────────────────────────────────── */}
         <section className="pt-14">
-          <h2 className="font-bold text-white mb-8" style={{ fontSize: "1.25rem" }}>
-            Competências
+          <h2 className="font-bold text-foreground text-xl mb-6">
+            Matriz de Competências
           </h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SKILLS.map((s) => (
               <div
                 key={s.category}
-                style={{
-                  background: "var(--code-bg)",
-                  border: "1px solid #0f172a",
-                  borderRadius: "0.875rem",
-                  padding: "1.5rem",
-                }}
+                className="rounded-2xl border border-border bg-card p-5"
               >
-                <p className="section-eyebrow mb-4">{s.category}</p>
-                <ul className="space-y-1.5">
+                <p className="section-eyebrow mb-3">{s.category}</p>
+                <ul className="space-y-2">
                   {s.items.map((item) => (
                     <li key={item} className="flex items-center gap-2">
-                      <CheckCircle2 size={12} style={{ color: "#22d3ee", flexShrink: 0 }} />
-                      <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>{item}</span>
+                      <CheckCircle2 size={13} className="text-cyan-400 shrink-0" />
+                      <span className="text-xs text-muted-foreground">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -308,58 +374,29 @@ export default function SobrePage() {
           </div>
         </section>
 
-        {/* ── Languages ──────────────────────────────────────────────────────── */}
-        <section className="pt-14">
-          <h2 className="font-bold text-white mb-6" style={{ fontSize: "1.25rem" }}>Idiomas</h2>
-          <div className="flex flex-wrap gap-4">
-            {[
-              { lang: "Português", level: "Nativo" },
-              { lang: "Inglês",    level: "Avançado" },
-              { lang: "Espanhol",  level: "Intermediário" },
-            ].map((l) => (
-              <div
-                key={l.lang}
-                style={{
-                  padding: "1rem 1.5rem",
-                  background: "var(--code-bg)",
-                  border: "1px solid #0f172a",
-                  borderRadius: "0.75rem",
-                  textAlign: "center",
-                }}
-              >
-                <p className="font-semibold text-white" style={{ fontSize: "0.9rem" }}>{l.lang}</p>
-                <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", marginTop: "0.25rem" }}>{l.level}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* ── Contact CTA ────────────────────────────────────────────────────── */}
         <section className="pt-16">
-          <div
-            style={{
-              background: "linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.07))",
-              border: "1px solid rgba(37,99,235,0.18)",
-              borderRadius: "1.25rem",
-              padding: "2.5rem",
-              textAlign: "center",
-            }}
-          >
-            <h2 className="font-bold text-white mb-3" style={{ fontSize: "1.4rem" }}>
-              Disponível para novos projetos
+          <div className="rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent p-8 sm:p-10 text-center">
+            <h2 className="font-bold text-foreground text-xl sm:text-2xl mb-3">
+              Vamos conversar sobre a sua operação de pagamentos?
             </h2>
-            <p style={{ color: "var(--muted-foreground)", fontSize: "0.95rem", maxWidth: 460, margin: "0 auto 1.75rem", lineHeight: 1.7 }}>
-              Consultoria, implementação, treinamento ou uma conversa técnica — estou disponível.
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+              Otimização de aprovação, implantação de orquestração, dunning, compliance de bandeiras e auditoria de intercâmbio.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <a href="mailto:vsugamele@gmail.com" className="btn-primary inline-flex items-center gap-2">
-                <Mail size={14} />
+              <a
+                href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <ExternalLink size={15} />
+                LinkedIn de Vinícius Sugamele
+              </a>
+              <a href="mailto:vsugamele@gmail.com" className="btn-outline inline-flex items-center gap-2">
+                <Mail size={15} />
                 vsugamele@gmail.com
               </a>
-              <Link href="/simulador" className="btn-outline inline-flex items-center gap-2">
-                Testar o Simulador
-                <ArrowRight size={13} />
-              </Link>
             </div>
           </div>
         </section>

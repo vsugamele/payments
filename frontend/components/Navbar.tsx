@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import {
   Activity, Menu, X, Sun, Moon, ChevronDown,
   BookOpen, Map, Route, BookMarked, TrendingDown,
-  Calculator, LayoutTemplate, BarChart2,
+  Calculator, LayoutTemplate, BarChart2, RefreshCw,
   ShieldCheck, Search, Radio, Globe, Archive, FileText, AlertTriangle, DollarSign,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -35,6 +35,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Ferramentas",
     items: [
       { href: "/simulador",   label: "Simulador",      desc: "Calcule intercâmbio Visa, MC e Maestro",     icon: Calculator },
+      { href: "/billing",     label: "Billing & Retries", desc: "Decline codes, retries e compliance",    icon: RefreshCw },
       { href: "/matrix",      label: "Matriz",         desc: "Decisão de taxa: produto, canal, auth, MCC", icon: BarChart2 },
       { href: "/arquitetura", label: "Arquitetura",    desc: "Diagrama interativo com tour guiado",        icon: LayoutTemplate },
       { href: "/comparativo", label: "Comparativo",    desc: "BASE II vs IPM, VTS vs MDES lado a lado",   icon: BarChart2 },
