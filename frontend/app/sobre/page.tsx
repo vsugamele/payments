@@ -26,8 +26,25 @@ const EXPERIENCE = [
     company: "EcommIT Integrated Solutions",
     period: "Out 2023 – Presente",
     duration: "2+ anos",
-    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável pela governança de releases semestrais, desenho de novos produtos, estratégia de intercâmbio, liquidação financeira e integração técnica de parceiros, gateways e credenciadores.",
-    tags: ["Visa", "Mastercard", "Elo", "Amex", "Releases", "Intercâmbio", "MCBS", "VSS"],
+    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável pela governança de releases semestrais, desenho de novos produtos, estratégia de intercâmbio, liquidação financeira e integração técnica. Atendimento direto a grandes parceiros e instituições como Checkout.com, Getnet, PicPay, Mercado Pago, Banco BS2, Banco Inter e Entrepay, além de processadoras de pagamento líderes de mercado como DXC Technology, AM53 e Payware.",
+    tags: [
+      "Checkout.com",
+      "Getnet",
+      "PicPay",
+      "Mercado Pago",
+      "Banco Inter",
+      "Banco BS2",
+      "Entrepay",
+      "DXC",
+      "AM53",
+      "Payware",
+      "Visa",
+      "Mastercard",
+      "Elo",
+      "Amex",
+      "Releases",
+      "Intercâmbio",
+    ],
   },
   {
     role: "Especialista de Operações",
@@ -233,7 +250,7 @@ export default function SobrePage() {
               </div>
 
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
-                Head de Bandeiras na <strong>EcommIT Integrated Solutions</strong>, com passagens estratégicas por <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e <strong>Verifone / American Express</strong>. Especialista em engenharia de pagamentos, otimização de taxas de autorização, arquitetura de billing e recorrência, mitigação de chargebacks, tokenização de bandeira (VTS/MDES/Elo) e auditoria de intercâmbio/MCBS. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
+                Head de Bandeiras na <strong>EcommIT Integrated Solutions</strong> (atendendo parceiros como <em>Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay</em> e processadoras como <em>DXC, AM53 e Payware</em>), com passagens estratégicas por <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e <strong>Verifone / American Express</strong>. Especialista em engenharia de pagamentos, otimização de taxas de autorização, arquitetura de billing e recorrência, mitigação de chargebacks, tokenização de bandeira (VTS/MDES/Elo) e auditoria de intercâmbio/MCBS. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
