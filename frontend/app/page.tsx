@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import TermTooltip from "@/components/TermTooltip";
 import {
   ArrowRight,
@@ -380,63 +381,89 @@ export default function HomePage() {
       {/* ── About teaser ──────────────────────────────────────────────────────── */}
       <section
         style={{
-          background: "#050b18",
+          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(37,99,235,0.08) 0%, #050b18 100%)",
           borderTop: "1px solid var(--border)",
           borderBottom: "1px solid #0f172a",
         }}
       >
         <div className="mx-auto max-w-7xl px-6 py-20">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 items-center">
-            {/* Text */}
-            <div>
-              <p className="section-eyebrow mb-4">Quem está por trás</p>
-              <h2
-                className="font-bold text-white mb-5"
-                style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)" }}
-              >
-                Vinícius Sugamele
-              </h2>
-              <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", lineHeight: 1.75, marginBottom: "1rem" }}>
-                Head de Bandeiras na EcommIT Integrated Solutions, com mais de 16 anos de experiência
-                em meios de pagamento. Passagem por Verifone/Amex, Getnet e Bandeira Elo.
-              </p>
-              <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", lineHeight: 1.75 }}>
-                Especialista em autorização, liquidação, chargeback, prevenção a fraudes e
-                relacionamento com bandeiras (Visa, Mastercard, Elo, Amex). MBA em Liderança
-                e Inovação pela PUCRS.
-              </p>
-              <div className="mt-8">
-                <Link href="/sobre" className="btn-outline inline-flex items-center gap-2">
-                  Conheça minha trajetória
-                  <ChevronRight size={14} />
-                </Link>
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 items-center">
+            
+            {/* Foto + Badges */}
+            <div className="lg:col-span-4 flex justify-center lg:justify-start">
+              <div className="relative group">
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500" />
+                <div className="relative w-44 h-52 sm:w-48 sm:h-56 rounded-2xl overflow-hidden border-2 border-blue-500/30 shadow-2xl bg-slate-900">
+                  <Image
+                    src="/vinicius_sugamele.jpg"
+                    alt="Vinícius Sugamele - Payments & Billing Specialist"
+                    fill
+                    sizes="(max-width: 768px) 176px, 192px"
+                    className="object-cover object-top"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Expertise chips */}
-            <div className="flex flex-wrap gap-2">
-              {[
-                "ISO 8583", "EMV Contactless", "PCI DSS", "3DS / Visa Secure",
-                "Chargeback", "Liquidação", "Autorização", "Prevenção a Fraudes",
-                "QR Code", "Tokenização", "ABU", "Marketplace", "Split de Pagamento",
-                "Releases de Bandeiras", "Consultoria Técnica", "Treinamento de Equipes",
-              ].map((skill) => (
-                <span
-                  key={skill}
-                  style={{
-                    padding: "0.35rem 0.75rem",
-                    borderRadius: "0.375rem",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    background: "var(--code-bg)",
-                    border: "1px solid #0f172a",
-                    color: "var(--muted-foreground)",
-                  }}
-                >
-                  {skill}
+            {/* Text + CTA */}
+            <div className="lg:col-span-8">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="section-eyebrow">Quem está por trás</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  16+ Anos de Mercado
                 </span>
-              ))}
+              </div>
+
+              <h2
+                className="font-black text-white mb-4"
+                style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}
+              >
+                Vinícius Sugamele
+              </h2>
+              
+              <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", lineHeight: 1.75, marginBottom: "0.75rem" }}>
+                Head de Bandeiras na <strong>EcommIT Integrated Solutions</strong>, atendendo parceiros como <em>Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2</em> e processadoras como <em>DXC, AM53 e Payware</em>. Passagens estratégicas por <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e <strong>Verifone / American Express</strong>.
+              </p>
+              
+              <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", lineHeight: 1.75, marginBottom: "1.75rem" }}>
+                Especialista em arquitetura de pagamentos, otimização de autorização, billing recorrente, dunning, mitigação de chargebacks e auditoria de intercâmbio/MCBS. MBA em Liderança e Inovação pela PUCRS.
+              </p>
+
+              {/* Botão em Gradiente Vibrante de Alto Contraste */}
+              <div className="flex flex-wrap gap-4 items-center">
+                <Link
+                  href="/sobre"
+                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-400 shadow-xl shadow-blue-600/30 hover:shadow-cyan-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 border border-white/20"
+                >
+                  Conheça minha trajetória
+                  <ArrowRight size={16} />
+                </Link>
+
+                <Link
+                  href="/billing"
+                  className="btn-outline inline-flex items-center gap-2 text-xs py-3 px-4"
+                >
+                  Ver Suite de Billing & Retries
+                  <ChevronRight size={14} />
+                </Link>
+              </div>
+
+              {/* Expertise chips */}
+              <div className="flex flex-wrap gap-1.5 mt-8 pt-6 border-t border-slate-800/80">
+                {[
+                  "ISO 8583", "Visa DAF", "3DS 2.2", "Network Tokens", "Account Updater (VAU/ABU)",
+                  "Smart Retries", "Chargeback & VFMP/ECP", "Intercâmbio & MCBS", "Bandeira Elo", "Getnet", "Amex",
+                ].map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-900/90 border border-slate-800 text-slate-300"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
+
           </div>
         </div>
       </section>
