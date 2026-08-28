@@ -14,6 +14,10 @@ import {
   Zap,
   Layers,
   Award,
+  Globe2,
+  Rocket,
+  Flame,
+  FileCheck,
 } from "lucide-react";
 
 const EXPERIENCE = [
@@ -22,32 +26,59 @@ const EXPERIENCE = [
     company: "EcommIT Integrated Solutions",
     period: "Out 2023 – Presente",
     duration: "2+ anos",
-    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável por releases, novos produtos, estratégia de intercâmbio, liquidação e integração técnica de parceiros e credenciadores.",
-    tags: ["Visa", "Mastercard", "Elo", "Amex", "Releases", "Intercâmbio", "MCBS"],
+    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável pela governança de releases semestrais, desenho de novos produtos, estratégia de intercâmbio, liquidação financeira e integração técnica de parceiros, gateways e credenciadores.",
+    tags: ["Visa", "Mastercard", "Elo", "Amex", "Releases", "Intercâmbio", "MCBS", "VSS"],
   },
   {
     role: "Especialista de Operações",
     company: "Bandeira Elo",
     period: "Ago 2020 – Out 2023",
     duration: "3 anos",
-    desc: "Multiplicador de soluções e serviços da Elo para adquirentes e processadoras. Desenvolvimento do novo Portal Elo, monitoramento e troubleshooting de autorização e liquidação, facilitador entre Emissores, Credenciadores e Processadoras, otimização de taxas de aprovação e suporte operacional crítico.",
-    tags: ["Bandeira Elo", "Autorização", "Liquidação", "Qlik Sense", "Tableau", "Troubleshooting"],
+    desc: "Multiplicador de soluções e serviços da Elo para adquirentes e processadoras. Desenvolvimento do novo Portal Elo, monitoramento e troubleshooting de autorização e liquidação, facilitador entre Emissores (Bradesco, BB, Caixa), Credenciadores (Cielo, Getnet, Rede, Stone, PagBank) e Processadoras, otimização contínua de taxas de aprovação.",
+    tags: ["Bandeira Elo", "Autorização", "Liquidação", "Qlik Sense", "Tableau", "Troubleshooting", "Portal Elo"],
   },
   {
     role: "Analista Sênior / Coordenador de Liquidação",
     company: "Getnet",
     period: "Set 2017 – Out 2020",
     duration: "3 anos",
-    desc: "Responsável pelo desenvolvimento e homologação de projetos de Release das Bandeiras (Elo, Visa, Mastercard, Amex, Hipercard). Projetos chave: QR Code, 3DS 2.0, ABU/VAU (Account Updater), MarketPlace, Tokenização de Bandeira, Emissão e Consulta de BIN.",
-    tags: ["3DS 2.0", "ABU / VAU", "Tokenização", "Getnet", "Releases", "Consulta BIN"],
+    desc: "Responsável pelo desenvolvimento, homologação e rollout de projetos de Release das Bandeiras (Elo, Visa, Mastercard, Amex, Hipercard). Liderança em projetos estratégicos: QR Code, 3DS 2.0, ABU/VAU (Account Updater), Marketplace, Tokenização de Bandeira, Emissão e Consulta de BIN.",
+    tags: ["3DS 2.0", "ABU / VAU", "Tokenização", "Getnet", "Releases", "Marketplace", "Consulta BIN"],
   },
   {
     role: "Analista de Produção / Negócios",
     company: "Verifone / American Express",
     period: "Ago 2009 – Set 2017",
     duration: "8 anos",
-    desc: "Homologação de implementações, criação do processo EDI, implementação de monitorias de autorização/captura. Participação na migração dos servidores globais da Amex para o Bradesco (2014) e no projeto Multivan.",
-    tags: ["Amex", "EDI", "ISO 8583", "Autorização", "Processamento"],
+    desc: "Homologação de implementações, criação do processo EDI, implementação de monitorias de autorização/captura. Participação na migração dos servidores globais da Amex para o Bradesco (2014) e no projeto Multivan. Suporte operacional a terminais POS, gateways e processamento ISO 8583.",
+    tags: ["Amex", "EDI", "ISO 8583", "Autorização", "Processamento", "Multivan"],
+  },
+];
+
+const KEY_PROJECTS = [
+  {
+    title: "Novo Portal Elo & Monitoramento Operacional",
+    company: "Bandeira Elo",
+    desc: "Desenvolvimento da plataforma centralizada de monitoria de autorização e liquidação em Qlik Sense e Tableau, conectando emissores e credenciadores para troubleshooting em tempo real.",
+    icon: Rocket,
+  },
+  {
+    title: "Implantação de ABU, VAU e 3DS 2.0",
+    company: "Getnet",
+    desc: "Rollout do Automatic Billing Updater da Mastercard, Visa Account Updater e protocolo 3-D Secure 2.0, reduzindo perdas em cartões vencidos e garantindo liability shift.",
+    icon: Zap,
+  },
+  {
+    title: "Migração Global Amex para o Bradesco (2014)",
+    company: "American Express / Verifone",
+    desc: "Participação ativa na migração de infraestrutura de servidores globais para o datacenter do Bradesco, arquitetando processos EDI e monitoramento de captura.",
+    icon: Flame,
+  },
+  {
+    title: "Motor de Intercâmbio & Tarifação MCBS/VSS",
+    company: "EcommIT",
+    desc: "Construção de motor de cálculo de intercâmbio em cascata (waterfall) e auditoria de tarifas de processamento das bandeiras com 224k+ ranges de BINs.",
+    icon: FileCheck,
   },
 ];
 
@@ -105,12 +136,18 @@ const PAYMENTS_SOLUTIONS = [
 ];
 
 const SKILLS = [
-  { category: "Protocolos & Padrões", items: ["ISO 8583", "EMV Contactless", "PCI DSS", "PIN Security", "3DS 2.0 / 2.2", "Network Tokens (VTS/MDES)"] },
-  { category: "Recorrência & Billing", items: ["Smart Retries", "Dunning Flow", "Account Updater (VAU/ABU)", "CIT vs MIT", "Involuntary Churn Recovery"] },
-  { category: "Produtos & Operações", items: ["Crédito / Débito / Pré-pago", "Subscrições & SaaS", "QR Code / Pix", "Split de Pagamento", "Roteamento / Cascata"] },
-  { category: "Disputas & Compliance", items: ["Reason Codes Visa & MC", "VFMP / VDMP / ECP", "Compelling Evidence 3.0", "MATCH Pro / BRAM", "Liability Shift"] },
-  { category: "Bandeiras & Ecossistema", items: ["Bandeira Elo", "Visa", "Mastercard", "American Express", "Maestro", "Hipercard"] },
+  { category: "Protocolos & Padrões", items: ["ISO 8583", "EMV Contactless", "PCI DSS", "PIN Security", "3DS 2.0 / 2.2", "Network Tokens (VTS/MDES/Elo)"] },
+  { category: "Recorrência & Billing", items: ["Smart Retries", "Dunning Flow", "Account Updater (VAU/ABU)", "CIT vs MIT", "Involuntary Churn Recovery", "Payment Routing"] },
+  { category: "Produtos & Operações", items: ["Crédito / Débito / Pré-pago", "Subscrições & SaaS", "QR Code / Pix", "Split de Pagamento", "Roteamento / Cascata", "Marketplace"] },
+  { category: "Disputas & Compliance", items: ["Reason Codes Visa & MC", "VFMP / VDMP / ECP", "Compelling Evidence 3.0", "MATCH Pro / BRAM", "Liability Shift", "VROL / MCOM"] },
+  { category: "Bandeiras & Ecossistema", items: ["Bandeira Elo", "Visa", "Mastercard", "American Express", "Maestro", "Hipercard", "Regulatório Bacen"] },
   { category: "Dados & Ferramentas", items: ["Qlik Sense", "Tableau", "FastAPI / Python", "SQL / DBeaver / PostgREST", "Supabase", "Git"] },
+];
+
+const LANGUAGES = [
+  { lang: "Português", level: "Nativo", desc: "Comunicação executiva e técnica fluente" },
+  { lang: "Inglês", level: "Avançado", desc: "Negociação com bandeiras globais e documentação técnica" },
+  { lang: "Espanhol", level: "Intermediário", desc: "Compreensão e comunicação profissional para América Latina" },
 ];
 
 export const metadata = {
@@ -269,6 +306,40 @@ export default function SobrePage() {
           </div>
         </section>
 
+        {/* ── Key Milestones & Projects ───────────────────────────────────────── */}
+        <section className="pt-16">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Rocket size={16} />
+            </div>
+            <div>
+              <p className="section-eyebrow">Histórico Comprovado</p>
+              <h2 className="font-bold text-foreground text-xl">Destaques de Projetos & Inovação</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {KEY_PROJECTS.map((proj, idx) => {
+              const Icon = proj.icon;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-border bg-card p-5 flex items-start gap-3.5 hover:border-blue-500/30 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
+                    <Icon size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-sm mb-0.5">{proj.title}</h3>
+                    <p className="text-[11px] font-semibold text-primary mb-1.5">{proj.company}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{proj.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* ── Experience ─────────────────────────────────────────────────────── */}
         <section className="pt-16">
           <div className="flex items-center gap-3 mb-8">
@@ -330,11 +401,13 @@ export default function SobrePage() {
                 title: "MBA — Liderança, Inovação e Gestão 3.0",
                 institution: "PUCRS",
                 year: "2020",
+                desc: "Foco em liderança de produtos digitais, inovação corporativa e frameworks ágeis.",
               },
               {
                 title: "Gestão da Tecnologia da Informação",
                 institution: "UNIP — Universidade Paulista",
                 year: "2011",
+                desc: "Engenharia de sistemas, governança de TI, bancos de dados e telecomunicações financeiras.",
               },
             ].map((ed) => (
               <div
@@ -343,7 +416,8 @@ export default function SobrePage() {
               >
                 <p className="font-bold text-foreground text-sm mb-1">{ed.title}</p>
                 <p className="text-xs text-primary font-medium">{ed.institution}</p>
-                <p className="text-[11px] text-muted-foreground mt-2">Conclusão: {ed.year}</p>
+                <p className="text-[11px] text-muted-foreground/80 mt-1.5">{ed.desc}</p>
+                <p className="text-[11px] text-muted-foreground mt-2 font-mono">Conclusão: {ed.year}</p>
               </div>
             ))}
           </div>
@@ -369,6 +443,29 @@ export default function SobrePage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Languages ──────────────────────────────────────────────────────── */}
+        <section className="pt-14">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Globe2 size={16} />
+            </div>
+            <h2 className="font-bold text-foreground text-xl">Idiomas</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {LANGUAGES.map((l) => (
+              <div
+                key={l.lang}
+                className="p-5 rounded-2xl bg-card border border-border space-y-1 text-center sm:text-left"
+              >
+                <p className="font-bold text-foreground text-sm">{l.lang}</p>
+                <p className="text-xs font-semibold text-primary">{l.level}</p>
+                <p className="text-[11px] text-muted-foreground/80 leading-relaxed pt-1">{l.desc}</p>
               </div>
             ))}
           </div>
