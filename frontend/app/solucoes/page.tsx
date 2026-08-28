@@ -8,92 +8,103 @@ import {
   Bell,
   ArrowRight,
   CheckCircle2,
+  RefreshCw,
+  Cpu,
+  Sparkles,
+  Zap,
+  Activity,
 } from "lucide-react";
 
 const SOLUTIONS = [
   {
-    icon: Calculator,
-    title: "Motor de Intercâmbio",
-    desc: "Simulador de taxas em tempo real para Visa, Mastercard e Maestro. Motor com cascata de regras, debug completo e hot-reload de tabelas.",
+    icon: RefreshCw,
+    title: "Otimização de Autorização & Smart Retries",
+    badge: "Solução Estratégica",
+    desc: "Diagnóstico profundo de decline codes, classificação de recusas (Hard vs Soft), esteira de retentativas inteligentes sincronizada com datas salariais e recuperação de receita.",
     items: [
-      "Cálculo por PID, AFS, canal e MCC",
-      "Cascata de avaliação com debug",
-      "Suporte a Visa, Mastercard e Maestro",
-      "Atualização de tabelas sem restart",
+      "Análise forense de Decline Codes (51, 05, 54, 14, 65, 82)",
+      "Smart Retries sincronizados com 5º e 20º dias úteis",
+      "Gatilhos automáticos para Account Updater (VAU / ABU)",
+      "Recuperação de até 35% de transações recorrentes recusadas",
     ],
-    cta: { label: "Acessar Simulador", href: "/simulador" },
+    cta: { label: "Testar Suite de Billing & Retries", href: "/billing" },
     highlight: true,
   },
   {
-    icon: ShieldCheck,
-    title: "Consultoria em Bandeiras",
-    desc: "Interpretação e aplicação de releases trimestrais. Suporte técnico e de negócios no relacionamento com Visa, Mastercard, Elo e Amex.",
+    icon: Cpu,
+    title: "Engenharia de Autorização & Visa DAF",
+    badge: "Alta Performance",
+    desc: "Arquitetura avançada de mensageria ISO 8583, implementação de Visa DAF, STIP Switch On-Behalf e parametrização correta de POS Entry Mode (DE 22).",
     items: [
-      "Leitura e interpretação de releases",
-      "Relacionamento técnico com bandeiras",
-      "Suporte à implementação de novas regras",
-      "Gestão de roadmap regulatório",
+      "Visa DAF & MDES DAA para aprovação acima de 97%",
+      "Parametrização do POS Entry Mode (DE 22) e CAT Levels",
+      "Otimização de STIP para evitar erros de timeout (91/96)",
+      "Zero-Dollar Account Verification para validação de trials",
     ],
-    cta: { label: "Falar com especialista", href: "mailto:vsugamele@gmail.com" },
+    cta: { label: "Ver Engenharia de Autorização", href: "/billing" },
+    highlight: true,
+  },
+  {
+    icon: Calculator,
+    title: "Motor de Intercâmbio & Pricing",
+    badge: "Motor Proprietário",
+    desc: "Simulador de taxas em tempo real para Visa, Mastercard e Maestro. Motor com cascata de regras, debug completo e lookup de 224k+ ranges de BINs reais (MPE IP0040T1).",
+    items: [
+      "Cálculo por PID, AFS, canal e MCC",
+      "Cascata de avaliação por prioridade (waterfall)",
+      "Caps regulatórios do Banco Central (0.50% / 0.70%)",
+      "Auditoria de tarifas de processamento MCBS e VSS",
+    ],
+    cta: { label: "Acessar Simulador de Intercâmbio", href: "/simulador" },
     highlight: false,
   },
   {
-    icon: TrendingUp,
-    title: "Análise de Custos & Otimização",
-    desc: "Identificação de oportunidades de redução de custo em intercâmbio. Análise de portfólio e estratégias de otimização de tarifas.",
+    icon: ShieldCheck,
+    title: "Blindagem de Chargeback & Compliance",
+    badge: "Proteção de Bandeira",
+    desc: "Monitoramento contínuo de Dispute Ratio (CTR) e Fraud Ratio para manter o merchant fora dos programas punitivos Visa VDMP/VFMP e Mastercard ECP.",
     items: [
-      "Diagnóstico do portfólio atual",
-      "Identificação de perdas em intercâmbio",
-      "Estratégias de otimização de tarifas",
-      "Relatórios executivos e dashboards",
+      "Calculadora de limiares Early Warning e Standard Warning",
+      "Estimativa de multas e custos de arbitragem",
+      "Implementação de 3DS 2.2 com Liability Shift (ECI 05)",
+      "Estratégia de defesa com Compelling Evidence 3.0",
     ],
-    cta: { label: "Solicitar análise", href: "mailto:vsugamele@gmail.com" },
+    cta: { label: "Ver Monitor de Compliance", href: "/chargeback" },
     highlight: false,
   },
   {
     icon: Layers,
-    title: "Implementação de Projetos",
-    desc: "Liderança técnica em projetos estratégicos de pagamentos: 3DS, QR Code, Tokenização, ABU, Marketplace, Split de Pagamento e Emissão.",
+    title: "Implementação & Releases de Bandeiras",
+    badge: "Projetos Críticos",
+    desc: "Liderança técnica em homologação de releases semestrais e projetos de grande porte: Tokenização de Bandeira, ABU, QR Code, Marketplace e Split.",
     items: [
-      "3DS 2.0 / Visa Secure / Mastercard ID Check",
-      "QR Code (Pix e QR proprietário)",
-      "Tokenização e ABU",
-      "Marketplace e Split de Pagamento",
+      "Rollout de Network Tokens (VTS, MDES e Elo Token)",
+      "Governança e homologação de releases semestrais",
+      "Arquitetura de Split de Pagamento e Marketplace",
+      "Integração de gateways, PSPs e subadquirentes",
     ],
-    cta: { label: "Ver portfólio", href: "/sobre" },
+    cta: { label: "Ver Trajetória & Cases", href: "/sobre" },
     highlight: false,
   },
   {
-    icon: Users,
-    title: "Treinamento & Capacitação",
-    desc: "Formação de equipes técnicas e de negócios em meios de pagamento. ISO 8583, EMV, PCI DSS, fluxo de autorização e liquidação.",
+    icon: TrendingUp,
+    title: "Auditoria Financeira & Revenue Recovery",
+    badge: "Gestão de Receita",
+    desc: "Simulação de impacto financeiro em SaaS e assinaturas através da redução de churn involuntário, queda de decline rate e expansão de LTV.",
     items: [
-      "Treinamento em ISO 8583 e EMV",
-      "Fluxo end-to-end de pagamentos",
-      "PCI DSS e segurança em cartões",
-      "Workshops customizados por área",
+      "Simulador de ARR recuperado por alavanca",
+      "Modelagem de LTV e redução de churn involuntário",
+      "Auditoria de faturas e desvios de liquidação",
+      "Relatórios executivos para C-Level e investidores",
     ],
-    cta: { label: "Solicitar treinamento", href: "mailto:vsugamele@gmail.com" },
-    highlight: false,
-  },
-  {
-    icon: Bell,
-    title: "Inteligência Regulatória",
-    desc: "Monitoramento contínuo de releases e atualizações das bandeiras. Alertas proativos sobre mudanças que impactam o seu negócio.",
-    items: [
-      "Acompanhamento de releases trimestrais",
-      "Alertas de mudanças regulatórias",
-      "Resumos executivos por bandeira",
-      "Análise de impacto nos sistemas",
-    ],
-    cta: { label: "Saber mais", href: "mailto:vsugamele@gmail.com" },
+    cta: { label: "Simular Revenue Recovery", href: "/billing" },
     highlight: false,
   },
 ];
 
 export const metadata = {
-  title: "Soluções — VS Payments",
-  description: "Soluções especializadas em meios de pagamento: simulador de intercâmbio, consultoria em bandeiras, análise de custos, implementação de projetos e treinamento.",
+  title: "Soluções — Otimização de Pagamentos & Billing | VS Payments",
+  description: "Soluções especializadas em autorização, smart retries, análise de recusas, motor de intercâmbio, mitigação de chargebacks e engenharia de pagamentos.",
 };
 
 export default function SolucoesPage() {
@@ -101,22 +112,28 @@ export default function SolucoesPage() {
     <main className="bg-background pb-24">
       {/* Header */}
       <section
-        className="dot-grid relative"
+        className="dot-grid relative overflow-hidden"
         style={{
           background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,0.18) 0%, transparent 70%)",
-          padding: "5rem 1.5rem 4rem",
+          padding: "5.5rem 1.5rem 4.5rem",
           textAlign: "center",
-          borderBottom: "1px solid #0f172a",
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <div className="mx-auto max-w-3xl">
-          <p className="section-eyebrow mb-4">O que ofereço</p>
-          <h1 className="font-bold text-white mb-4" style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}>
-            Soluções em Meios de Pagamento
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <span className="section-eyebrow">Soluções & Consultoria</span>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Pronto para Escala
+            </span>
+          </div>
+          
+          <h1 className="font-black text-foreground mb-4" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.15 }}>
+            Soluções em Meios de Pagamento, <br />
+            <span className="text-blue-500">Autorização & Billing</span>
           </h1>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.75 }}>
-            Do cálculo de intercâmbio até a estratégia com bandeiras. Ferramentas técnicas e
-            consultoria especializada para adquirentes, emissores e bandeiras.
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+            Da engenharia de mensageria ISO 8583 e otimização de taxas de aprovação até a auditoria de intercâmbio e mitigação de chargebacks. Soluções práticas para empresas que exigem máxima eficiência financeira.
           </p>
         </div>
       </section>
@@ -124,18 +141,15 @@ export default function SolucoesPage() {
       {/* Solutions grid */}
       <section className="mx-auto max-w-7xl px-6 pt-16">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {SOLUTIONS.map((s) => {
+          {SOLUTIONS.map((s, idx) => {
             const Icon = s.icon;
             return (
               <div
                 key={s.title}
-                className="card-hover flex flex-col"
+                className="card-hover flex flex-col rounded-2xl border p-7 relative transition-all"
                 style={{
-                  background: s.highlight ? "rgba(37,99,235,0.07)" : "#0a1120",
-                  border: s.highlight ? "1px solid rgba(37,99,235,0.3)" : "1px solid #0f172a",
-                  borderRadius: "1rem",
-                  padding: "2rem",
-                  position: "relative",
+                  background: s.highlight ? "rgba(37,99,235,0.06)" : "var(--card)",
+                  borderColor: s.highlight ? "rgba(59,130,246,0.35)" : "var(--border)",
                 }}
               >
                 {s.highlight && (
@@ -152,48 +166,45 @@ export default function SolucoesPage() {
                   />
                 )}
 
-                {/* Icon */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: 48,
-                    width: 48,
-                    borderRadius: "0.75rem",
-                    background: "rgba(37,99,235,0.12)",
-                    border: "1px solid rgba(37,99,235,0.2)",
-                    marginBottom: "1.25rem",
-                  }}
-                >
-                  <Icon size={22} style={{ color: "var(--code-text)" }} />
+                {/* Top header with badge */}
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                    <Icon size={24} />
+                  </div>
+                  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-muted border border-border text-muted-foreground">
+                    {s.badge}
+                  </span>
                 </div>
 
-                <h2 className="font-semibold text-white mb-2" style={{ fontSize: "1.05rem" }}>
+                <h2 className="font-bold text-foreground text-lg mb-2">
                   {s.title}
                 </h2>
-                <p style={{ fontSize: "0.875rem", color: "var(--muted-foreground)", lineHeight: 1.65, marginBottom: "1.25rem" }}>
+                
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-5">
                   {s.desc}
                 </p>
 
                 {/* Items */}
-                <ul className="space-y-1.5 flex-1">
+                <ul className="space-y-2 flex-1 mb-6">
                   {s.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <CheckCircle2 size={13} style={{ color: "#22d3ee", marginTop: 2, flexShrink: 0 }} />
-                      <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>{item}</span>
+                    <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                      <CheckCircle2 size={13} className="text-emerald-400 mt-0.5 shrink-0" />
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
 
-                {/* CTA */}
-                <div className="mt-6 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+                {/* CTA Button */}
+                <div className="pt-4 border-t border-border mt-auto">
                   <Link
                     href={s.cta.href}
-                    className="flex items-center gap-1.5"
-                    style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--primary)" }}
+                    className={`inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      s.highlight
+                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                        : "bg-muted/60 hover:bg-muted text-foreground"
+                    }`}
                   >
-                    {s.cta.label}
+                    <span>{s.cta.label}</span>
                     <ArrowRight size={13} />
                   </Link>
                 </div>
@@ -204,20 +215,30 @@ export default function SolucoesPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="mx-auto max-w-3xl px-6 pt-20 text-center">
-        <h2 className="font-bold text-white mb-3" style={{ fontSize: "1.5rem" }}>
-          Precisa de algo personalizado?
-        </h2>
-        <p style={{ color: "var(--muted-foreground)", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "1.75rem" }}>
-          Cada empresa tem um desafio único. Vamos conversar sobre o seu caso específico.
-        </p>
-        <a
-          href="mailto:vsugamele@gmail.com"
-          className="btn-primary inline-flex items-center gap-2"
-        >
-          Enviar mensagem
-          <ArrowRight size={14} />
-        </a>
+      <section className="mx-auto max-w-4xl px-6 pt-20 text-center">
+        <div className="rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent p-8 sm:p-12">
+          <h2 className="font-bold text-foreground text-xl sm:text-2xl mb-3">
+            Precisa de uma análise personalizada para sua operação?
+          </h2>
+          <p className="text-muted-foreground text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+            Diagnóstico de declínios, otimização de retentativas, auditoria de intercâmbio ou integração de novos processadores e bandeiras.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/billing" className="btn-primary inline-flex items-center gap-2">
+              Explorar Suite de Billing
+              <ArrowRight size={14} />
+            </Link>
+            <a
+              href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline inline-flex items-center gap-2"
+            >
+              Falar no LinkedIn
+              <ArrowRight size={14} />
+            </a>
+          </div>
+        </div>
       </section>
     </main>
   );
