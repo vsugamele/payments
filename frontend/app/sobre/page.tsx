@@ -102,12 +102,12 @@ const KEY_PROJECTS = [
 const PAYMENTS_SOLUTIONS = [
   {
     icon: TrendingUp,
-    title: "1. Aumento da Taxa de Autorização & Smart Routing",
-    summary: "Como maximizar a aprovação analisando o ecossistema de ponta a ponta.",
+    title: "1. Engenharia de Autorização, Visa DAF & Smart Routing",
+    summary: "Como maximizar a aprovação para além de 97% com inteligência de mensageria.",
     details: [
-      "Análise granular de taxa de aprovação por BIN, Banco Emissor (Itaú, Bradesco, Nubank, BB, Santander), Adquirente, Bandeira, Canal e MCC.",
-      "Estruturação de Payment Routing por afinidade de emissor e regras de Cascading inteligente com fallback automático em timeouts ou erros sistêmicos.",
-      "Experiência prática na Bandeira Elo e Getnet monitorando e depurando falhas de autorização entre adquirentes e processadoras em tempo real.",
+      "Aplicação de Visa DAF (Digital Authentication Framework) e Mastercard DAA: união de 3DS na 1ª compra (CIT) com Network Tokens nas recorrências (MIT), eliminando recusas por 'Do Not Honor' (05).",
+      "Formatação rigorosa do POS Entry Mode (DE 22): envio correto como Token E-commerce (81) ou Credencial Salva (10), evitando que o motor de risco trate a transação como digitação manual fraudulenta (01).",
+      "Maximização de aprovações em Stand-In Processing (STIP da VisaNet/Banknet) durante timeouts de emissores e roteamento por afinidade de adquirente.",
     ],
   },
   {
@@ -116,8 +116,8 @@ const PAYMENTS_SOLUTIONS = [
     summary: "Recuperação de receita em assinaturas, trials, planos SaaS e DTC.",
     details: [
       "Classificação forense de Decline Codes (Hard vs. Soft Declines) evitando retentativas inúteis que geram custos e multas das bandeiras.",
-      "Desenvolvimento de matrizes de Smart Retries sincronizadas com datas de maior liquidez salarial (5º e 20º dias úteis) e horários de menor fricção bancária.",
-      "Parametrização estrita de transações CIT (Customer-Initiated) e MIT (Merchant-Initiated / Recorrência) nos campos técnicos ISO 8583 / IPM (Stored Credentials).",
+      "Desenvolvimento de matrizes de Smart Retries sincronizadas com datas de maior liquidez salarial (5º e 20º dias úteis) e horários de menor fricção bancária (06h às 09h).",
+      "Validação limpa de trials via Zero-Dollar Account Verification (MTI 0100 com valor zero), eliminando o atrito e risco de Card Testing gerados por cobranças temporárias de R$ 1,00.",
     ],
   },
   {
@@ -127,7 +127,7 @@ const PAYMENTS_SOLUTIONS = [
     details: [
       "Implementação e homologação de projetos de Tokenização de Bandeira (VTS, MDES e Elo Token), gerando aumento comprovado de 2% a 4% nas taxas de aprovação.",
       "Configuração de fluxos automatizados de Visa Account Updater (VAU) e Mastercard Automatic Billing Updater (ABU) para atualizar cartões vencidos ou trocados sem interrupção para o cliente.",
-      "Elegibilidade a tarifas de intercâmbio diferenciadas e programas de autenticação digital segura (ex: DAF).",
+      "Elegibilidade a tarifas de intercâmbio diferenciadas e programas de autenticação digital segura.",
     ],
   },
   {

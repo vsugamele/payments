@@ -22,6 +22,13 @@ import {
   Lock,
   Database,
   HelpCircle,
+  Cpu,
+  ShieldCheck,
+  Check,
+  AlertOctagon,
+  ArrowUpRight,
+  KeyRound,
+  FileCode2,
 } from "lucide-react";
 
 // ── DATA: Decline Codes & Smart Retries ──────────────────────────────────────
@@ -67,7 +74,7 @@ const DECLINE_CODES: DeclineCodeInfo[] = [
     recoveryRate: 28,
     vauAbuEligible: false,
     networkTokenEligible: true,
-    tips: "Emissores como Itaú e Bradesco frequentemente aprovam no retry se enviado como Network Token.",
+    tips: "Emissores como Itaú e Bradesco frequentemente aprovam no retry se enviado como Network Token com DAF.",
   },
   {
     code: "54",
@@ -132,7 +139,7 @@ const DECLINE_CODES: DeclineCodeInfo[] = [
     recoveryRate: 82,
     vauAbuEligible: false,
     networkTokenEligible: false,
-    tips: "Falha puramente técnica. Quase 85% são recuperadas no mesmo dia sem percepção do cliente.",
+    tips: "Falha puramente técnica. Saber configurar STIP na bandeira aprova grande parte dessas transações.",
   },
   {
     code: "MAC 01",
@@ -163,7 +170,7 @@ const DECLINE_CODES: DeclineCodeInfo[] = [
 ];
 
 export default function BillingClient() {
-  const [activeTab, setActiveTab] = useState<"decline" | "recovery" | "compliance">("decline");
+  const [activeTab, setActiveTab] = useState<"decline" | "recovery" | "compliance" | "authorization">("decline");
 
   // ── ESTADOS DA ABA 1: Decline Codes
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,8 +239,6 @@ export default function BillingClient() {
 
   const visaStatus = getVisaStatus();
   const mcStatus = getMastercardStatus();
-  const totalFinesUSD = visaStatus.fineUSD + mcStatus.fineUSD;
-  const totalFinesBRL = totalFinesUSD * 5.65; // Cotação média
 
   // Filtro de Decline codes
   const filteredCodes = DECLINE_CODES.filter((c) => {
@@ -270,7 +275,7 @@ export default function BillingClient() {
                 Billing, Retries & <span className="text-blue-500">Revenue Recovery</span>
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-2xl">
-                Otimização da esteira de pagamentos: inteligência de recusas (Decline Codes), estratégias de Smart Retries para assinaturas e controle rigoroso de compliance (VFMP/ECP).
+                Otimização da esteira de pagamentos: inteligência de recusas (Decline Codes), estratégias de Smart Retries para assinaturas, controle de compliance (VFMP/ECP) e engenharia de autorização (DAF, STIP, DE 22).
               </p>
             </div>
 
@@ -317,6 +322,18 @@ export default function BillingClient() {
             >
               <ShieldAlert size={16} className={activeTab === "compliance" ? "text-rose-400" : ""} />
               3. Monitor de Compliance & Multas (VFMP / ECP)
+            </button>
+
+            <button
+              onClick={() => setActiveTab("authorization")}
+              className={`flex items-center gap-2 px-5 py-3 rounded-t-xl text-xs sm:text-sm font-bold transition-all border-b-2 ${
+                activeTab === "authorization"
+                  ? "bg-muted/40 border-indigo-500 text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/20"
+              }`}
+            >
+              <Cpu size={16} className={activeTab === "authorization" ? "text-indigo-400" : ""} />
+              4. Engenharia de Autorização & Performance
             </button>
           </div>
         </div>
@@ -928,6 +945,188 @@ export default function BillingClient() {
                   </ul>
                 </div>
 
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════ */}
+        {/* ABA 4: ENGENHARIA DE AUTORIZAÇÃO & PERFORMANCE */}
+        {/* ══════════════════════════════════════════════════════════════════════ */}
+        {activeTab === "authorization" && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300 flex items-center gap-3">
+              <Cpu size={18} className="text-indigo-400 shrink-0" />
+              <span>
+                <strong>Deep Tech em Pagamentos:</strong> Como a engenharia de mensageria ISO 8583, o Visa DAF, o STIP e o correto envio do POS Entry Mode (DE 22) elevam a taxa de aprovação para patamares superiores a 97%.
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Card 1: Visa DAF & Mastercard DAA */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-base">Visa DAF & Mastercard DAA</h3>
+                    <p className="text-xs text-primary font-semibold">Digital Authentication Framework</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Ao vincular a autenticação inicial com 3DS ao <strong>Network Token (VTS/MDES)</strong> na primeira compra (CIT), todas as renovações subsequentes (MIT) recebem as flags oficiais do DAF.
+                </p>
+
+                <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-muted-foreground">Aprovação Média em MIT:</span>
+                    <span className="text-emerald-400 font-bold">97.4% a 98.9%</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-muted-foreground">Proteção de Fraude:</span>
+                    <span className="text-blue-400 font-bold">Liability Shift Total</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-muted-foreground">Recusa por &apos;Do Not Honor&apos; (05):</span>
+                    <span className="text-emerald-400 font-bold">Bloqueada contratualmente</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-muted-foreground leading-relaxed bg-blue-500/5 p-3 rounded-lg border border-blue-500/10">
+                  💡 <strong>Benefício Direto:</strong> O emissor é contratualmente impedido de declinar a transação recorrente por suspeita genérica de fraude.
+                </div>
+              </div>
+
+              {/* Card 2: Maximização de STIP (Stand-In Processing) */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <Zap size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-base">Otimização de STIP</h3>
+                    <p className="text-xs text-amber-400 font-semibold">Stand-In Processing & Switch On-Behalf</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Quando o banco emissor entra em timeout (&gt;2.5 segundos), o switch da VisaNet ou Mastercard pode autorizar a transação automaticamente em nome do banco (*On-Behalf*).
+                </p>
+
+                <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2">
+                  <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">Requisitos para Aprovação no STIP:</p>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Criptograma dinâmico de Network Token (TAVV / UCAF) válido.</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Indicador de validação de CVV Match no payload.</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Score de risco da rede dentro da janela de confiança do emissor.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="text-[11px] text-muted-foreground leading-relaxed bg-amber-500/5 p-3 rounded-lg border border-amber-500/10">
+                  ⚡ <strong>Impacto:</strong> Evita erros `91` (System Error) e recupera de 3% a 5% de autorizações em horários de pico.
+                </div>
+              </div>
+
+              {/* Card 3: POS Entry Mode (DE 22) & CAT Levels (DE 61) */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                    <FileCode2 size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-base">POS Entry Mode (DE 22)</h3>
+                    <p className="text-xs text-indigo-400 font-semibold">Formatação Rigorosa de Mensageria</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  O campo **DE 22** informa ao motor de risco do emissor a forma exata como o cartão foi capturado.
+                </p>
+
+                <div className="overflow-x-auto rounded-xl border border-border">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/60 text-muted-foreground font-bold">
+                      <tr>
+                        <th className="p-2.5">Código</th>
+                        <th className="p-2.5">Tipo de Captura</th>
+                        <th className="p-2.5">Impacto no Emissor</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      <tr>
+                        <td className="p-2.5 font-mono text-primary font-bold">81</td>
+                        <td className="p-2.5">Network Token E-commerce</td>
+                        <td className="p-2.5 text-emerald-400 font-semibold">Aprovação Máxima (&gt;96%)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-primary font-bold">10</td>
+                        <td className="p-2.5">Credencial Salva (COF / MIT)</td>
+                        <td className="p-2.5 text-blue-400 font-semibold">Aprovação Alta (~91%)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-rose-400 font-bold">01</td>
+                        <td className="p-2.5">Digitação Manual (Keyed)</td>
+                        <td className="p-2.5 text-rose-400 font-semibold">Alta Fricção e Recusa (72%)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="text-[11px] text-muted-foreground leading-relaxed bg-indigo-500/5 p-3 rounded-lg border border-indigo-500/10">
+                  ⚠️ <strong>Atenção:</strong> Enviar recorrência como `01` faz o emissor tratar como digitação fraudulenta manual.
+                </div>
+              </div>
+
+              {/* Card 4: Zero-Dollar Auth & Prevenção a Card Testing */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <KeyRound size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-base">Zero-Dollar Verification</h3>
+                    <p className="text-xs text-emerald-400 font-semibold">Validação de Cartões em Trials & Cadastros</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Em vez de debitar e estornar R$ 1,00 (que aciona alarmes de fraude no banco do cliente), utiliza-se o formato oficial de **Account Verification (MTI 0100 com valor zero)**.
+                </p>
+
+                <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2">
+                  <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">Benefícios da Verificação Zero-Dollar:</p>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Não deixa registro temporário de cobrança de R$ 1,00 na fatura.</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Gera o Token de Bandeira imediatamente no cadastro inicial.</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <Check size={13} className="text-emerald-400" />
+                      <span>Blindagem contra bots de *Card Testing Attack* através de rate limiting e velocity checks.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="text-[11px] text-muted-foreground leading-relaxed bg-emerald-500/5 p-3 rounded-lg border border-emerald-500/10">
+                  🛡️ <strong>Compliance:</strong> Em conformidade com o manual de segurança e autorização da Visa e Mastercard.
+                </div>
               </div>
 
             </div>
