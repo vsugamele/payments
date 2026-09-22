@@ -52,7 +52,8 @@ import {
   Unlock,
   PanelLeftClose,
   PanelLeftOpen,
-  Link as LinkIcon,
+  Bookmark,
+  Hash,
 } from "lucide-react";
 import { exportHtmlToDocx } from "@/components/editor/DocxExporter";
 import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/components/editor/TemplateSelector";
@@ -71,7 +72,6 @@ export default function DocStudioEditor() {
   // Document State
   const [docId, setDocId] = useState<string>("doc-default");
   const [docTitle, setDocTitle] = useState<string>("Documento Estratégico — Proposta de Pagamentos");
-  const [contentHtml, setContentHtml] = useState<string>("");
   const [savedDocs, setSavedDocs] = useState<SavedDoc[]>([]);
   const [isSaved, setIsSaved] = useState<boolean>(true);
   const [lastSavedTime, setLastSavedTime] = useState<string>("agora");
@@ -112,9 +112,13 @@ export default function DocStudioEditor() {
   // Word Counts
   const [stats, setStats] = useState({ words: 0, chars: 0, readTimeMinutes: 1, estimatedPages: 1 });
 
+  // DOM Refs
   const editorRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const tocDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitializedRef = useRef<boolean>(false);
 
   // Close all popovers
   const closeAllMenus = () => {
@@ -125,48 +129,97 @@ export default function DocStudioEditor() {
     setShowBadgesMenu(false);
   };
 
-  // Parse Headings to generate "Neste Documento" (TOC)
-  const extractToc = useCallback((html: string) => {
-    if (typeof window === "undefined") return;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    const headings = doc.querySelectorAll("h1, h2, h3");
+  // Extract Headings for Table of Contents with IDs
+  const extractTocFromDom = useCallback(() => {
+    if (!editorRef.current) return;
+    const headings = editorRef.current.querySelectorAll("h1, h2, h3");
     const items: TocItem[] = [];
 
     headings.forEach((h, idx) => {
       const text = h.textContent?.trim() || `Seção ${idx + 1}`;
       const level = parseInt(h.tagName.replace("H", ""), 10);
-      const id = `heading-${idx}`;
+      const id = `toc-sec-${idx}`;
+      h.setAttribute("id", id);
+      h.setAttribute("style", "scroll-margin-top: 100px;");
       items.push({ id, text, level });
     });
 
     setTocList(items);
-    if (items.length > 0 && !activeHeadingId) {
-      setActiveHeadingId(items[0].id);
-    }
-  }, [activeHeadingId]);
+  }, []);
 
-  // Sync headings with IDs in the live DOM
-  const syncHeadingIds = () => {
-    if (!editorRef.current) return;
-    const headings = editorRef.current.querySelectorAll("h1, h2, h3");
-    headings.forEach((h, idx) => {
-      h.setAttribute("id", `heading-${idx}`);
-    });
-  };
-
-  // Scroll to heading on TOC click
+  // Smooth Scroll to Section with Visual Glow
   const scrollToHeading = (id: string) => {
     setActiveHeadingId(id);
     if (!editorRef.current) return;
     const el = editorRef.current.querySelector(`#${id}`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
+      
+      // Temporary highlight pulse
+      el.classList.add("ring-4", "ring-purple-400/50", "rounded-lg", "transition-all", "duration-500");
+      setTimeout(() => {
+        el.classList.remove("ring-4", "ring-purple-400/50");
+      }, 1400);
     }
   };
 
-  // Initialize from LocalStorage or Default Template & check URL query
+  // Update Stats
+  const updateStats = useCallback((text: string) => {
+    const plainText = text.replace(/<[^>]*>?/gm, " ").trim();
+    const words = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
+    const chars = plainText.length;
+    const readTimeMinutes = Math.max(1, Math.ceil(words / 200));
+    const estimatedPages = Math.max(1, Math.ceil(words / 450));
+    setStats({ words, chars, readTimeMinutes, estimatedPages });
+  }, []);
+
+  // Save Document to LocalStorage
+  const saveDocument = useCallback((html: string, title: string, id: string) => {
+    const now = new Date().toISOString();
+    setSavedDocs((prev) => {
+      const existingIdx = prev.findIndex((d) => d.id === id);
+      let updated: SavedDoc[];
+      if (existingIdx >= 0) {
+        updated = [...prev];
+        updated[existingIdx] = { id, title, content: html, updatedAt: now };
+      } else {
+        updated = [{ id, title, content: html, updatedAt: now }, ...prev];
+      }
+      localStorage.setItem("vs_saved_documents", JSON.stringify(updated));
+      return updated;
+    });
+    setIsSaved(true);
+    setLastSavedTime(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
+  }, []);
+
+  // Handle Uncontrolled Input (NO state update on every keystroke to prevent cursor jump!)
+  const handleEditorInput = () => {
+    if (!editorRef.current) return;
+    setIsSaved(false);
+
+    // Debounced TOC extraction (updates outline smoothly without interrupting typing)
+    if (tocDebounceRef.current) clearTimeout(tocDebounceRef.current);
+    tocDebounceRef.current = setTimeout(() => {
+      extractTocFromDom();
+      if (editorRef.current) {
+        updateStats(editorRef.current.innerText);
+      }
+    }, 400);
+
+    // Debounced save
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      if (editorRef.current) {
+        saveDocument(editorRef.current.innerHTML, docTitle, docId);
+      }
+    }, 1200);
+  };
+
+  // Initialize once on mount
   useEffect(() => {
+    if (isInitializedRef.current) return;
+    isInitializedRef.current = true;
+
     // Check url params for read-only / public mode
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -184,79 +237,33 @@ export default function DocStudioEditor() {
     setAiModel(storedModel);
 
     const rawDocs = localStorage.getItem("vs_saved_documents");
+    let initialContent = DOCUMENT_TEMPLATES[1].content;
+    let initialTitle = DOCUMENT_TEMPLATES[1].defaultTitle;
+    let initialId = "doc-" + Date.now();
+
     if (rawDocs) {
       try {
         const parsed: SavedDoc[] = JSON.parse(rawDocs);
         setSavedDocs(parsed);
         if (parsed.length > 0) {
           const first = parsed[0];
-          setDocId(first.id);
-          setDocTitle(first.title);
-          setContentHtml(first.content);
-          if (editorRef.current) {
-            editorRef.current.innerHTML = first.content;
-            syncHeadingIds();
-          }
-          extractToc(first.content);
-          return;
+          initialId = first.id;
+          initialTitle = first.title;
+          initialContent = first.content;
         }
       } catch (e) {
         console.error("Error loading saved docs", e);
       }
     }
 
-    const defaultTmpl = DOCUMENT_TEMPLATES[1]; // Proposta de pagamentos
-    setDocId("doc-" + Date.now());
-    setDocTitle(defaultTmpl.defaultTitle);
-    setContentHtml(defaultTmpl.content);
+    setDocId(initialId);
+    setDocTitle(initialTitle);
     if (editorRef.current) {
-      editorRef.current.innerHTML = defaultTmpl.content;
-      syncHeadingIds();
+      editorRef.current.innerHTML = initialContent;
+      extractTocFromDom();
+      updateStats(editorRef.current.innerText);
     }
-    extractToc(defaultTmpl.content);
-  }, [extractToc]);
-
-  const updateStats = useCallback((text: string) => {
-    const plainText = text.replace(/<[^>]*>?/gm, " ").trim();
-    const words = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
-    const chars = plainText.length;
-    const readTimeMinutes = Math.max(1, Math.ceil(words / 200));
-    const estimatedPages = Math.max(1, Math.ceil(words / 450));
-    setStats({ words, chars, readTimeMinutes, estimatedPages });
-  }, []);
-
-  const handleEditorInput = () => {
-    if (!editorRef.current) return;
-    const newHtml = editorRef.current.innerHTML;
-    setContentHtml(newHtml);
-    setIsSaved(false);
-    updateStats(newHtml);
-    extractToc(newHtml);
-    syncHeadingIds();
-
-    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-    autoSaveTimerRef.current = setTimeout(() => {
-      saveDocument(newHtml, docTitle, docId);
-    }, 1200);
-  };
-
-  const saveDocument = (html: string, title: string, id: string) => {
-    const now = new Date().toISOString();
-    setSavedDocs((prev) => {
-      const existingIdx = prev.findIndex((d) => d.id === id);
-      let updated: SavedDoc[];
-      if (existingIdx >= 0) {
-        updated = [...prev];
-        updated[existingIdx] = { id, title, content: html, updatedAt: now };
-      } else {
-        updated = [{ id, title, content: html, updatedAt: now }, ...prev];
-      }
-      localStorage.setItem("vs_saved_documents", JSON.stringify(updated));
-      return updated;
-    });
-    setIsSaved(true);
-    setLastSavedTime(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
-  };
+  }, [extractTocFromDom, updateStats]);
 
   const handleMouseUp = () => {
     if (isReadOnly) return;
@@ -517,7 +524,7 @@ export default function DocStudioEditor() {
             <tr style="background:#ffffff;">
               <td style="padding:10px 14px; border:1px solid #a7f3d0; font-weight:bold;">Índice de Chargeback</td>
               <td style="padding:10px 14px; border:1px solid #a7f3d0;">1.20% (Zona de Alerta)</td>
-              <td style="padding:10px 14px; border:1px solid #a7f3d0; font-weight:bold; color:#047857;">0.45% (Seguro)</td>
+              <td style="padding:10px 14px; border:1px solid #a7f3d0;">0.45% (Seguro)</td>
               <td style="padding:10px 14px; border:1px solid #a7f3d0; color:#059669; font-weight:bold;">Isenção total de multas</td>
             </tr>
           </tbody>
@@ -666,27 +673,23 @@ export default function DocStudioEditor() {
     const newId = "doc-" + Date.now();
     setDocId(newId);
     setDocTitle(tmpl.defaultTitle);
-    setContentHtml(tmpl.content);
     if (editorRef.current) {
       editorRef.current.innerHTML = tmpl.content;
-      syncHeadingIds();
+      extractTocFromDom();
+      updateStats(tmpl.content);
       editorRef.current.focus();
     }
-    extractToc(tmpl.content);
     saveDocument(tmpl.content, tmpl.defaultTitle, newId);
-    updateStats(tmpl.content);
   };
 
   const handleSelectDocument = (doc: SavedDoc) => {
     setDocId(doc.id);
     setDocTitle(doc.title);
-    setContentHtml(doc.content);
     if (editorRef.current) {
       editorRef.current.innerHTML = doc.content;
-      syncHeadingIds();
+      extractTocFromDom();
+      updateStats(doc.content);
     }
-    extractToc(doc.content);
-    updateStats(doc.content);
     setIsSaved(true);
   };
 
@@ -716,7 +719,7 @@ export default function DocStudioEditor() {
   const handleSharePublicLink = () => {
     const url = `${window.location.origin}/editor?view=public`;
     navigator.clipboard.writeText(url);
-    setCopiedNotification("Link público de leitura copiado! Qualquer pessoa poderá ler sem editar.");
+    setCopiedNotification("Link público copiado! Aberto para leitura sem edição.");
     setTimeout(() => setCopiedNotification(null), 3000);
   };
 
@@ -777,7 +780,9 @@ export default function DocStudioEditor() {
                   setDocTitle(e.target.value);
                   setIsSaved(false);
                 }}
-                onBlur={() => saveDocument(contentHtml, docTitle, docId)}
+                onBlur={() => {
+                  if (editorRef.current) saveDocument(editorRef.current.innerHTML, docTitle, docId);
+                }}
                 className="font-bold text-xs sm:text-sm text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-blue-500 outline-none px-1 py-0.5 max-w-[200px] sm:max-w-md truncate"
                 placeholder="Nome do documento..."
               />
@@ -930,11 +935,19 @@ export default function DocStudioEditor() {
                 })
               )}
             </div>
+
+            {/* Helper Footer on TOC */}
+            <div className="p-3 border-t border-border/50 bg-muted/10 text-[10.5px] text-muted-foreground leading-relaxed">
+              💡 <strong>Como criar seções:</strong> Qualquer linha formatada com <strong>H1, H2 ou H3</strong> na barra superior vira automaticamente uma seção numerada aqui.
+            </div>
           </aside>
         )}
 
         {/* Center: Editor Canvas Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto scroll-smooth"
+        >
           
           {/* Read-Only Alert Banner */}
           {isReadOnly && (
@@ -977,26 +990,26 @@ export default function DocStudioEditor() {
                 </button>
               </div>
 
-              {/* Block Styles */}
+              {/* Block Styles / Headings */}
               <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
                 <button
                   onClick={() => execCmd("formatBlock", "<h1>")}
                   className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                  title="Título 1 (H1)"
+                  title="Título Principal 1 (Vira Seção no Índice)"
                 >
                   H1
                 </button>
                 <button
                   onClick={() => execCmd("formatBlock", "<h2>")}
                   className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                  title="Título 2 (H2)"
+                  title="Título de Seção 2 (Vira Seção no Índice)"
                 >
                   H2
                 </button>
                 <button
                   onClick={() => execCmd("formatBlock", "<h3>")}
                   className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                  title="Título 3 (H3)"
+                  title="Subtítulo 3 (Vira Seção no Índice)"
                 >
                   H3
                 </button>
@@ -1006,6 +1019,18 @@ export default function DocStudioEditor() {
                   title="Parágrafo Normal"
                 >
                   P
+                </button>
+              </div>
+
+              {/* Direct Section Marker Button */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1">
+                <button
+                  onClick={() => execCmd("formatBlock", "<h2>")}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 text-xs font-semibold transition-colors"
+                  title="Definir a linha atual como uma Nova Seção (H2) que aparece no menu 'Neste Documento'"
+                >
+                  <Bookmark size={13} />
+                  <span>+ Seção (H2)</span>
                 </button>
               </div>
 
@@ -1413,11 +1438,11 @@ export default function DocStudioEditor() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
+              {/* Native Uncontrolled contentEditable with smooth typing */}
               <div
                 ref={editorRef}
                 contentEditable={!isReadOnly}
                 suppressContentEditableWarning
-                dangerouslySetInnerHTML={{ __html: contentHtml || DOCUMENT_TEMPLATES[1].content }}
                 onInput={handleEditorInput}
                 onMouseUp={handleMouseUp}
                 onKeyUp={handleMouseUp}
@@ -1465,7 +1490,7 @@ export default function DocStudioEditor() {
         {/* Right Side: Derick-style AI Copilot Panel */}
         {isCopilotOpen && (
           <AiCopilotSidebar
-            fullDocumentHtml={contentHtml}
+            fullDocumentHtml={editorRef.current?.innerHTML || ""}
             onInsertContent={handleCopilotInsert}
             onReplaceContent={handleCopilotReplace}
             apiKey={aiApiKey}
@@ -1513,7 +1538,6 @@ export default function DocStudioEditor() {
             </h3>
 
             <div className="space-y-4">
-              {/* Option 1: File from computer */}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full p-4 rounded-2xl border-2 border-dashed border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/5 transition-all text-center group cursor-pointer"
@@ -1529,7 +1553,6 @@ export default function DocStudioEditor() {
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              {/* Option 2: Image URL */}
               <div className="space-y-2">
                 <input
                   type="url"
