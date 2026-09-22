@@ -981,7 +981,7 @@ export default function DocStudioEditor() {
 
   const handleExportDocx = async () => {
     if (!editorRef.current) return;
-    await exportHtmlToDocx(editorRef.current.innerHTML, docTitle);
+    await exportHtmlToDocx(editorRef.current.innerHTML, docTitle, showBulletinCard ? bulletinMeta : null);
   };
 
   const handleCopyFormatted = () => {
