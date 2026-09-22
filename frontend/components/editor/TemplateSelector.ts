@@ -123,74 +123,19 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     description: "Estrutura corporativa completa para análise e parecer executivo de boletins mandatórios e operacionais de bandeiras.",
     category: "Pagamentos",
     defaultTitle: "Parecer Técnico — GLB 10362.3: Atualização de Chaves Públicas M/Chip (Mastercard)",
-    content: `<h1>PARECER TÉCNICO & DIRETRIZES OPERACIONAIS: BOLETIM DE BANDEIRA</h1>
-<p style="font-size:0.9rem; color:#64748b;"><strong>Documento de Análise Regulatória & Engenharia Transacional</strong> | Versão 1.0</p>
+    content: `<h1>PARECER TÉCNICO: ATUALIZAÇÃO DE CHAVES PÚBLICAS M/CHIP (GLB 10362.3)</h1>
+<p style="font-size:0.9rem; color:#64748b;"><strong>Bandeira:</strong> Mastercard® | <strong>Referência Regulatória:</strong> GLB 10362.3 (EMVCo Notice Bulletin No. 30)</p>
+<hr/>
 
-<!-- Tabela de Ficha Cadastral / Metadados -->
-<table style="width:100%; border-collapse:collapse; margin:16px 0; font-size:13px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-  <tbody>
-    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-      <td style="padding:8px 12px; font-weight:bold; width:25%; color:#334155;">Bandeira</td>
-      <td style="padding:8px 12px; width:75%;"><span style="display:inline-block; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">Mastercard®</span> <span style="font-size:11.5px; color:#64748b;">(Debit Mastercard, Maestro®, Cirrus®)</span></td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Título Oficial</td>
-      <td style="padding:8px 12px; font-weight:600; color:#0f172a;">Updated Payment System Public Keys for M/Chip</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Identificação / Referência</td>
-      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#2563eb;">GLB 10362.3 <span style="font-size:11px; font-weight:normal; color:#64748b;">(Ref: AN 8242 / EMVCo Notice Bulletin No. 30)</span></td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Data de Publicação</td>
-      <td style="padding:8px 12px; color:#334155;">22/09/2026</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Data de Vigência / Go-Live</td>
-      <td style="padding:8px 12px; font-weight:bold; color:#d97706;"><span style="display:inline-block; background:#fef3c7; color:#92400e; border:1px solid #fde68a; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">01/11/2026</span> (Extensão efetiva da chave até 31/12/2036)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Tags de Classificação</td>
-      <td style="padding:8px 12px;">
-        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">M/Chip</span>
-        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">EMV Contact/Contactless</span>
-        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">CAPK RSA 1984-bit</span>
-        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">Segurança & POI</span>
-      </td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Categoria / Área</td>
-      <td style="padding:8px 12px; color:#334155;">Operations • Point of Interaction (POI) • Security • Chip & Contactless</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Público Impactado (Rol)</td>
-      <td style="padding:8px 12px; color:#334155;">Adquirentes, Subadquirentes/PSPs, Emissores, Processadoras de Bandeira, Fabricantes de Terminais POS/ATM e Desenvolvedores de Kernel EMV</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Região de Aplicação</td>
-      <td style="padding:8px 12px; color:#334155;"><span style="display:inline-block; background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; padding:1px 6px; border-radius:99px; font-size:10.5px; font-weight:bold;">GLOBAL</span> (Aplica-se a transações domésticas e internacionais)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #e2e8f0;">
-      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Requerimento / Status</td>
-      <td style="padding:8px 12px;"><span style="display:inline-block; background:#dcfce7; color:#166534; border:1px solid #86efac; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">INFORMATIVO / MANUTENÇÃO OPERACIONAL</span></td>
-    </tr>
-  </tbody>
-</table>
+<h2>1. Sumário Executivo & Diagnóstico Técnico</h2>
+<p>A Mastercard anunciou a prorrogação oficial da data de validade da <strong>Chave Pública do Sistema de Pagamentos de 1.984 bits (Índice 6)</strong> para o ecossistema M/Chip por mais um ano, passando de <strong>31 de Dezembro de 2035 para 31 de Dezembro de 2036</strong>.</p>
+<p>O valor binário da chave (módulo e expoente público) permanece exatamente o mesmo. Esta atualização segue as diretrizes da EMVCo para manutenção do ciclo de vida das chaves de sistema, assegurando que as chaves de emissores certificadas sob esta raiz permaneçam válidas para autenticação offline em terminais POS e caixas eletrônicos (ATM).</p>
 
-<!-- Quadro Destaque: Resumo Executivo -->
-<div style="border-left:4px solid #2563eb; background:#eff6ff; padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0;">
-  <strong style="color:#1d4ed8; font-size:14px;">📌 Resumo Executivo & Síntese da Mudança</strong>
-  <p style="margin:6px 0 0 0; font-size:13.5px; line-height:1.6; color:#1e293b;">
-    A Mastercard anunciou a prorrogação oficial da data de validade da <strong>Chave Pública do Sistema de Pagamentos de 1.984 bits (Índice 6)</strong> para o ecossistema M/Chip por mais um ano, passando de <strong>31 de Dezembro de 2035 para 31 de Dezembro de 2036</strong>. O valor numérico e o expoente público da chave permanecem exatamente os mesmos. Esta atualização segue as recomendações anuais de avaliação criptográfica da EMVCo (Notice Bulletin No. 30, Julho/2026), estendendo a vida útil de chaves de emissores certificadas sob esta raiz e assegurando a continuidade operacional de aceitação offline em terminais POS/ATM.
-  </p>
-</div>
-
-<h2>1. Contexto Criptográfico & Padrões EMVCo</h2>
+<h2>2. Contexto Criptográfico & Padrões EMVCo</h2>
 <p>No protocolo EMV (M/Chip Contact e Contactless), a autenticação offline de cartões (SDA, DDA e CDA) depende da verificação de certificados digitais baseados em criptografia assimétrica RSA. O terminal de pagamento precisa ter carregado em sua memória protegida o conjunto operacional de Chaves Públicas da Autoridade Certificadora da Bandeira (<strong>CAPK — CA Public Keys</strong>).</p>
+<p>Com a expiração anterior da chave de 1.408 bits, o conjunto operacional da Mastercard é composto exclusivamente pela chave de <strong>1.984 bits</strong>. A avaliação periódica de poder computacional conduzida pela EMVCo concluiu que o comprimento de 1.984 bits mantém margem de segurança criptográfica adequada para suportar operações comerciais com segurança até o final de 2036.</p>
 
-<p>Com a expiração anterior da chave histórica de 1.408 bits, o conjunto operacional da Mastercard é composto exclusivamente pela chave robusta de <strong>1.984 bits</strong>. A avaliação periódica de poder computacional conduzida pela EMVCo concluiu que o comprimento de 1.984 bits mantém margem de segurança criptográfica adequada para suportar operações comerciais com segurança até o final de 2036.</p>
-
-<h2>2. Detalhamento Técnico das Chaves Públicas Mastercard</h2>
+<h2>3. Especificação das Chaves Públicas Mastercard</h2>
 <p>Abaixo, a comparação entre a configuração vigente e a atualização que entra em vigor em <strong>01/11/2026</strong>:</p>
 
 <table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; text-align:left; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
@@ -218,7 +163,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
   ⚠️ <strong>Nota Técnica de Engenharia:</strong> Como o valor binário da chave permanece inalterado, não há necessidade de gerar novos pares de chaves assimétricas imediatas, apenas sincronizar as tabelas de data de expiração e certificados autoassinados no gerenciamento de chaves.
 </div>
 
-<h2>3. Impacto Operacional por Agente da Cadeia</h2>
+<h2>4. Impacto Operacional por Agente da Cadeia</h2>
 
 <h3>A. Adquirentes, Subadquirentes e Gateways</h3>
 <ul>
@@ -239,7 +184,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
   <li>Homologação em ambiente de testes de regressão de transações de contato e por aproximação (NFC).</li>
 </ul>
 
-<h2>4. Cronograma de Ações & Recomendações</h2>
+<h2>5. Cronograma de Ações & Recomendações</h2>
 
 <table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; text-align:left; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
   <thead>
@@ -278,7 +223,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
   </tbody>
 </table>
 
-<h2>5. Parecer Técnico Conclusivo</h2>
+<h2>6. Parecer Técnico Conclusivo</h2>
 <div style="border-left:4px solid #10b981; background:#ecfdf5; padding:14px 18px; border-radius:0 12px 12px 0; margin:16px 0;">
   <strong style="color:#065f46; font-size:14px;">✅ Conclusão & Avaliação de Impacto Regulatório</strong>
   <p style="margin:6px 0 0 0; font-size:13.5px; line-height:1.6; color:#064e3b;">

@@ -1001,7 +1001,7 @@ export default function DocStudioEditor() {
   return (
     <div
       onClick={closeAllMenus}
-      className="flex flex-col h-[calc(100vh-64px)] bg-muted/20 text-foreground overflow-hidden font-sans"
+      className="flex flex-col h-[calc(100vh-64px)] bg-muted/20 text-foreground overflow-hidden font-sans print:h-auto print:overflow-visible print:bg-white print:text-black print:m-0 print:p-0"
     >
       {/* Hidden file input for local image upload */}
       <input
@@ -1013,7 +1013,7 @@ export default function DocStudioEditor() {
       />
 
       {/* ── Top Header Bar ──────────────────────────────────────────────────────── */}
-      <header className="h-14 border-b border-border bg-background/95 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-20">
+      <header className="h-14 border-b border-border bg-background/95 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-20 print:hidden">
         
         {/* Left: Document Info & Name */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -1179,11 +1179,11 @@ export default function DocStudioEditor() {
       </header>
 
       {/* ── Main Workspace Body ─────────────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex overflow-hidden relative print:overflow-visible print:h-auto print:block">
 
         {/* ── Left Rail: "NESTE DOCUMENTO" (Table of Contents - Derick Style) ───── */}
         {isTocOpen && (
-          <aside className="w-64 border-r border-border bg-card/60 backdrop-blur-md flex flex-col shrink-0 overflow-hidden transition-all select-none">
+          <aside className="w-64 border-r border-border bg-card/60 backdrop-blur-md flex flex-col shrink-0 overflow-hidden transition-all select-none print:hidden">
             <div className="p-4 border-b border-border/60 flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
                 NESTE DOCUMENTO
@@ -1236,12 +1236,12 @@ export default function DocStudioEditor() {
         {/* Center: Editor Canvas Area */}
         <div
           ref={scrollContainerRef}
-          className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto scroll-smooth"
+          className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto scroll-smooth print:overflow-visible print:h-auto print:bg-white print:p-0 print:block"
         >
           
           {/* Read-Only Alert Banner */}
           {isReadOnly && (
-            <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
+            <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300 print:hidden">
               <span className="flex items-center gap-1.5 font-medium">
                 <Lock size={14} />
                 <strong>Modo Leitura / Público:</strong> Este documento está protegido contra edição acidental.
@@ -1259,7 +1259,7 @@ export default function DocStudioEditor() {
           {!isReadOnly && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border px-4 py-2 flex flex-wrap items-center gap-1 shadow-xs"
+              className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border px-4 py-2 flex flex-wrap items-center gap-1 shadow-xs print:hidden"
             >
               
               {/* History */}
@@ -1820,7 +1820,7 @@ export default function DocStudioEditor() {
           )}
 
           {/* The A4 Paper Canvas & Metadata Card */}
-          <div className="flex-1 py-8 px-4 flex flex-col items-center">
+          <div className="flex-1 py-8 px-4 flex flex-col items-center print:p-0 print:m-0 print:block print:w-full">
             
             {/* Visual Bulletin Metadata Card (Outside the Document) */}
             {showBulletinCard && (
@@ -1833,7 +1833,7 @@ export default function DocStudioEditor() {
 
             {/* The A4 Paper Card (Parecer Técnico) */}
             <div
-              className="w-full max-w-[850px] min-h-[1050px] bg-card text-foreground rounded-2xl shadow-xl border border-border p-10 sm:p-14 transition-all focus-within:ring-2 focus-within:ring-blue-500/30"
+              className="w-full max-w-[850px] min-h-[1050px] bg-card text-foreground rounded-2xl shadow-xl border border-border p-10 sm:p-14 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-none print:w-full print:bg-white print:text-black"
               style={{
                 boxShadow: "0 10px 35px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border)",
               }}
@@ -1849,7 +1849,7 @@ export default function DocStudioEditor() {
                 onMouseUp={handleMouseUp}
                 onKeyUp={handleMouseUp}
                 onContextMenu={handleContextMenu}
-                className={`outline-none min-h-[950px] leading-relaxed text-[15px] prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-blockquote:my-3 prose-hr:my-4 ${
+                className={`outline-none min-h-[950px] leading-relaxed text-[15px] prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-blockquote:my-3 prose-hr:my-4 print:prose-neutral print:text-black print:max-w-none ${
                   isReadOnly ? "cursor-default select-text" : "cursor-text"
                 }`}
               />
@@ -1858,7 +1858,7 @@ export default function DocStudioEditor() {
           </div>
 
           {/* Footer Stats Bar */}
-          <footer className="h-8 border-t border-border bg-background/80 px-4 flex items-center justify-between text-[11px] text-muted-foreground shrink-0 select-none">
+          <footer className="h-8 border-t border-border bg-background/80 px-4 flex items-center justify-between text-[11px] text-muted-foreground shrink-0 select-none print:hidden">
             <div className="flex items-center gap-4">
               <span>{stats.words} palavras</span>
               <span>{stats.chars} caracteres</span>
@@ -1985,13 +1985,38 @@ export default function DocStudioEditor() {
         </div>
       )}
 
-      {/* Toast Notification */}
-      {copiedNotification && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3">
-          <CheckCircle2 size={16} className="text-emerald-400" />
-          <span>{copiedNotification}</span>
-        </div>
-      )}
+      {/* Global Print Isolation Styles */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 12mm 15mm 12mm 15mm;
+          }
+          html, body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            overflow: visible !important;
+            height: auto !important;
+            font-size: 11pt;
+          }
+          h1, h2, h3, h4 {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+          table, tr, td, th {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .print-card-break {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}} />
 
     </div>
   );

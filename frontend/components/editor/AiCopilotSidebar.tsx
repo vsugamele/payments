@@ -146,7 +146,7 @@ Tenho visão completa do que você está escrevendo no editor ao lado.
   };
 
   return (
-    <aside className="w-96 flex flex-col h-full bg-card/60 backdrop-blur-md border-l border-border transition-all">
+    <aside className="w-96 flex flex-col h-full bg-card/60 backdrop-blur-md border-l border-border transition-all print:hidden">
       {/* Header */}
       <div className="p-3.5 border-b border-border flex items-center justify-between bg-muted/20">
         <div className="flex items-center gap-2">

@@ -89,7 +89,7 @@ export default function AiFloatingToolbar({
   return (
     <div
       ref={containerRef}
-      className="fixed z-50 transition-all duration-150 animate-in fade-in zoom-in-95"
+      className="fixed z-50 transition-all duration-150 animate-in fade-in zoom-in-95 print:hidden"
       style={{
         top: Math.max(10, position.top),
         left: Math.max(20, Math.min(position.left, window.innerWidth - 480)),
