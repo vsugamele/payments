@@ -97,6 +97,52 @@ export default function DocStudioEditor() {
     tags: ["M/Chip", "CAPK", "RSA 1984-bit", "Offline Auth", "EMV Contactless", "Kernel L2"],
     executiveSummary: "A Mastercard estende por mais 1 ano a validade da Chave Pública do Sistema de Pagamentos de 1.984 bits (passando de 31/12/2035 para 31/12/2036), mantendo o valor da chave inalterado e preservando a vida útil de chaves de emissores sob a mesma raiz.",
     recommendedAction: "Atualizar tabelas CAPK nos sistemas TMS dos adquirentes e solicitar novos certificados para emissores com vigência estendida a partir de 01/11/2026.",
+    versionHistory: [
+      {
+        version: "GLB 10362.3",
+        date: "22/09/2026",
+        description: "Atualização da data de vigência para 01/11/2026 em todo o comunicado; extensão da data limite de expiração da chave de 1.984 bits de 31/12/2035 para 31/12/2036; atualização da referência ao EMVCo Notice Bulletin nº 30 (Julho/2026); remoção do texto sobre certificação de chaves menores que 1.024 bits.",
+        isCurrent: true,
+      },
+      {
+        version: "GLB 10362.2",
+        date: "23/09/2025",
+        description: "Anúncio prévio da prorrogação da chave pública de 1.984 bits com vigência para emissores e adquirentes.",
+        isCurrent: false,
+      },
+      {
+        version: "GLB 10362.1",
+        date: "24/09/2024",
+        description: "Publicação inicial do boletim de chaves públicas de sistema de pagamentos para M/Chip.",
+        isCurrent: false,
+      },
+    ],
+    dateExplanations: [
+      {
+        date: "22/09/2026",
+        event: "Publicação Oficial da Versão .3",
+        impactType: "Publicação",
+        explanation: "Comunicação formal do boletim técnico aos emissores, adquirentes e processadoras globais.",
+      },
+      {
+        date: "01/11/2026",
+        event: "Vigência Operacional / Suporte MPKCS",
+        impactType: "Go-Live",
+        explanation: "Abertura oficial do portal Mastercard Public Key Certification Service para requisições de certificados de emissor válidos até 2036. Prazo para adquirentes sincronizarem tabelas CAPK em TMS.",
+      },
+      {
+        date: "31/12/2035",
+        event: "Expiração Original da Chave 1.984-bit",
+        impactType: "Transição",
+        explanation: "Data limite anterior de expiração da chave pública de sistema Mastercard (Índice 6) antes da extensão concedida por este comunicado.",
+      },
+      {
+        date: "31/12/2036",
+        event: "Nova Data Limite de Expiração da Chave",
+        impactType: "Expiração",
+        explanation: "Data máxima de validade criptográfica da chave de 1.984 bits, ampliando a vida útil de cartões M/Chip emitidos sob esta raiz.",
+      },
+    ],
   });
 
   // Table of Contents (Neste Documento) State
