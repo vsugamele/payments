@@ -8,6 +8,7 @@ import {
   BookOpen, Map, Route, BookMarked, TrendingDown,
   Calculator, LayoutTemplate, BarChart2, RefreshCw,
   ShieldCheck, Search, Radio, Globe, Archive, FileText, AlertTriangle, DollarSign,
+  FileEdit,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import GlobalSearch from "@/components/GlobalSearch";
@@ -34,6 +35,7 @@ const NAV_GROUPS: NavGroup[] = [
     key: "ferramentas",
     label: "Ferramentas",
     items: [
+      { href: "/editor",      label: "Doc Studio IA",  desc: "Editor de documentos e Word com IA Copilot", icon: FileEdit },
       { href: "/simulador",   label: "Simulador",      desc: "Calcule intercâmbio Visa, MC e Maestro",     icon: Calculator },
       { href: "/billing",     label: "Billing & Retries", desc: "Decline codes, retries e compliance",    icon: RefreshCw },
       { href: "/matrix",      label: "Matriz",         desc: "Decisão de taxa: produto, canal, auth, MCC", icon: BarChart2 },

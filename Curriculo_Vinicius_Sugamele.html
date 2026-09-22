@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currículo — Vinícius Sugamele</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --primary: #0F2C59;
+      --accent: #2563EB;
+      --text: #1E293B;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --bg: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #F8FAFC;
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .cv-container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: var(--bg);
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    /* Actions Bar */
+    .actions-bar {
+      max-width: 850px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #1E3A8A;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 0.35rem;
+    }
+
+    .headline {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .contact-info a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 1.75rem;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid var(--primary);
+      padding-bottom: 0.35rem;
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    p {
+      font-size: 0.925rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Skills Grid */
+    .skills-list {
+      list-style: none;
+    }
+
+    .skills-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.45rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .skills-list li::before {
+      content: "▪";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+
+    .skills-list strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Jobs */
+    .job {
+      margin-bottom: 1.35rem;
+    }
+
+    .job-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.35rem;
+    }
+
+    .job-title {
+      font-size: 0.975rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .job-role {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .job-period {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .job-bullets {
+      list-style: none;
+    }
+
+    .job-bullets li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .job-bullets li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
+
+    .job-bullets strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Education & Languages */
+    .edu-item, .lang-item {
+      margin-bottom: 0.45rem;
+      font-size: 0.9rem;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .edu-item::before, .lang-item::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
+
+    .edu-item strong, .lang-item strong {
+      color: var(--primary);
+    }
+
+    @media print {
+      body {
+        background: transparent;
+        padding: 0;
+      }
+      .actions-bar {
+        display: none;
+      }
+      .cv-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      @page {
+        margin: 1.5cm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="actions-bar">
+    <button onclick="window.print()" class="btn btn-primary">
+      🖨️ Imprimir / Salvar em PDF
+    </button>
+  </div>
+
+  <div class="cv-container">
+    <header>
+      <h1>VINÍCIUS SUGAMELE</h1>
+      <div class="headline">Head de Bandeiras | Especialista em Meios de Pagamento, Billing & Performance</div>
+      <div class="contact-info">
+        <span>São Paulo, SP</span>
+        <span>•</span>
+        <span>(11) 99628-0159</span>
+        <span>•</span>
+        <a href="mailto:vsugamele@gmail.com">vsugamele@gmail.com</a>
+        <span>•</span>
+        <a href="https://www.linkedin.com/in/vinicius-sugamele-41136617" target="_blank">linkedin.com/in/vinicius-sugamele-41136617</a>
+      </div>
+    </header>
+
+    <!-- Resumo Executivo -->
+    <section>
+      <div class="section-title">Resumo Executivo</div>
+      <p>
+        Executivo e Especialista em Meios de Pagamento com mais de 16 anos de sólida trajetória em Bandeiras (Elo, Amex, Visa, Mastercard), Adquirência (Getnet, EcommIT) e Infraestrutura Transacional (Verifone). Especialista em engenharia de pagamentos, otimização de taxas de autorização, arquitetura de billing/recorrência, governança de releases mandatórios, tokenização de bandeira, mitigação de chargebacks e auditoria de intercâmbio/tarifas (MCBS/VSS).
+      </p>
+      <p>
+        Histórico comprovado na liderança do relacionamento técnico-operacional entre Emissores (Bradesco, BB, Caixa), Credenciadores (Cielo, Rede, Getnet, Stone, PagBank) e Processadoras globais (DXC, AM53, Payware), além de consultoria estratégica para grandes fintechs e gateways (Checkout.com, PicPay, Mercado Pago, Banco Inter, Banco BS2). MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
+      </p>
+    </section>
+
+    <!-- Áreas de Expertise -->
+    <section>
+      <div class="section-title">Áreas de Expertise & Domínio Técnico</div>
+      <ul class="skills-list">
+        <li><strong>Performance & Engenharia de Autorização:</strong> Otimização de conversão transacional, análise forense de Decline Codes, POS Entry Mode (DE 22), mensageria ISO 8583, Stand-In Processing (STIP) e roteamento inteligente (Smart Routing).</li>
+        <li><strong>Inovação, Billing & Tokenização:</strong> Network Tokens (VTS, MDES, Elo Token), Account Updater (Mastercard ABU e Visa VAU), 3-D Secure (3DS 2.0/2.2/2.3), Smart Retries, QR Code EMVCo e Split de Pagamento para Marketplaces.</li>
+        <li><strong>Governança de Bandeiras & Regulatório:</strong> Gestão de Releases Semestrais/Mandatórios (Visa, Mastercard, Elo, Amex, Hipercard), conformidade Bacen, intercâmbio em cascata (waterfall) e auditoria de faturas de processamento (Mastercard MCBS e Visa VSS).</li>
+        <li><strong>Prevenção a Fraude & Disputas:</strong> Programas de monitoria de Chargeback (Visa VFMP/VDMP, Mastercard ECP/MDMP), garantia de Liability Shift (ECI 05), Compelling Evidence 3.0 e MATCH Pro / BRAM.</li>
+        <li><strong>Analytics, Dados & Ferramentas:</strong> Qlik Sense, Tableau, DBeaver, SQL, Apache Hue, PostgREST/Supabase, monitoria em tempo real e troubleshooting de causa-raiz.</li>
+      </ul>
+    </section>
+
+    <!-- Trajetória Profissional -->
+    <section>
+      <div class="section-title">Trajetória Profissional</div>
+
+      <!-- Job 1 -->
+      <div class="job">
+        <div class="job-header">
+          <span class="job-title">ECOMMIT INTEGRATED SOLUTIONS <span style="color:var(--text-muted); font-weight:normal;">|</span> <span class="job-role">Head de Bandeiras</span></span>
+          <span class="job-period">Outubro 2023 – Presente</span>
+        </div>
+        <ul class="job-bullets">
+          <li>Liderança estratégica no relacionamento técnico e de negócios com bandeiras globais (Visa, Mastercard, Elo, American Express), assegurando conformidade normativa e evolução contínua dos produtos.</li>
+          <li><strong>Consultoria técnica e atendimento a parceiros:</strong> Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay, além de processadoras líderes como DXC Technology, AM53 e Payware.</li>
+          <li>Governança dos Releases Semestrais Mandatórios, desenho de produtos transacionais, parametrizações de intercâmbio, liquidação financeira e integrações de core bancário/adquirente.</li>
+          <li>Idealização e arquitetura de motor de cálculo de intercâmbio em cascata (waterfall) e auditoria de faturas de processamento das bandeiras cobrindo mais de 224 mil faixas de BINs.</li>
+        </ul>
+      </div>
+
+      <!-- Job 2 -->
+      <div class="job">
+        <div class="job-header">
+          <span class="job-title">BANDEIRA ELO <span style="color:var(--text-muted); font-weight:normal;">|</span> <span class="job-role">Especialista de Operações (Performance & Troubleshooting)</span></span>
+          <span class="job-period">Agosto 2020 – Outubro 2023</span>
+        </div>
+        <ul class="job-bullets">
+          <li>Atuação consultiva focada na <strong>maximização de performance e taxas de aprovação transacional</strong> junto a grandes Credenciadores (Cielo, Getnet, Rede, Stone, PagBank) e Emissores (Bradesco, Banco do Brasil, Caixa).</li>
+          <li><strong>Troubleshooting & Análise de Falhas:</strong> Identificação contínua de causas-raiz de recusas (Do Not Honor, divergências no POS Entry Mode DE 22, timeouts de adquirente/emissor), mapeando oportunidades de incremento de conversão e receita.</li>
+          <li><strong>Analytics & Monitoria Operacional:</strong> Construção e acompanhamento diário de dashboards analíticos em Qlik Sense, Tableau, Apache Hue e DBeaver, garantindo visibilidade em tempo real sobre autorização, compensação e liquidação.</li>
+          <li><strong>Portal Elo para Adquirentes:</strong> Liderança no desenvolvimento do novo Portal Elo, centralizando ferramentas de suporte, relatórios e autosserviço operacional para os parceiros.</li>
+          <li>Atuação como ponto focal de Operações em squads multidisciplinares de Negócios e Aceitação para homologação e lançamento de novas soluções de mercado.</li>
+        </ul>
+      </div>
+
+      <!-- Job 3 -->
+      <div class="job">
+        <div class="job-header">
+          <span class="job-title">GETNET <span style="color:var(--text-muted); font-weight:normal;">|</span> <span class="job-role">Analista de Sistemas Sênior / Coordenador de Liquidação & Bandeiras</span></span>
+          <span class="job-period">Setembro 2017 – Outubro 2020</span>
+        </div>
+        <ul class="job-bullets">
+          <li>Gestão completa do ciclo de desenvolvimento, homologação e rollout dos Releases Mandatórios das Bandeiras Elo, Visa, Mastercard, Amex e Hipercard.</li>
+          <li><strong>Projetos Estratégicos de Produtos:</strong> Liderança na implantação de 3DS 2.0 (Autenticação), Tokenização de Bandeira (VTS/MDES), Account Updater (ABU/VAU), pagamentos via QR Code EMVCo, Split de Pagamento para Marketplace e Consulta de BIN.</li>
+          <li>Condução técnica da criação, certificação e homologação de processadora/adquirente dedicada (Amadeus).</li>
+          <li>Responsável pela entrega dos reportes estatísticos e regulatórios trimestrais das bandeiras (QMR/GMR/EIR) e auditoria técnica das invoices de bandeiras junto à diretoria Financeira.</li>
+        </ul>
+      </div>
+
+      <!-- Job 4 -->
+      <div class="job">
+        <div class="job-header">
+          <span class="job-title">VERIFONE / AMERICAN EXPRESS <span style="color:var(--text-muted); font-weight:normal;">|</span> <span class="job-role">Analista de Produção e Negócios</span></span>
+          <span class="job-period">Agosto 2009 – Setembro 2017</span>
+        </div>
+        <ul class="job-bullets">
+          <li><strong>Migração Global Amex (2014):</strong> Participação chave na migração dos servidores globais da American Express para a infraestrutura do Banco Bradesco, assegurando estabilidade operacional contínua na captura e liquidação de vendas.</li>
+          <li>Criação e implantação de processos de EDI (Electronic Data Interchange) entre clientes corporativos e Bradesco para submissão de vendas e cancelamentos.</li>
+          <li>Homologação e certificação de produtos de submissão transacional junto a Visa, Mastercard, bancos emissores e processadoras de meios de pagamento.</li>
+          <li>Atuação no projeto Multivan, mapeamento de fluxos operacionais e suporte a terminais POS, gateways e mensageria ISO 8583.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Formação -->
+    <section>
+      <div class="section-title">Formação Acadêmica</div>
+      <div class="edu-item">
+        <strong>MBA em Liderança, Inovação e Gestão 3.0</strong> — PUCRS (Conclusão: 2020)
+      </div>
+      <div class="edu-item">
+        <strong>Graduação em Gestão da Tecnologia da Informação</strong> — UNIP · Universidade Paulista (Conclusão: 2011)
+      </div>
+    </section>
+
+    <!-- Idiomas -->
+    <section>
+      <div class="section-title">Idiomas</div>
+      <div class="lang-item">
+        <strong>Português:</strong> Nativo
+      </div>
+      <div class="lang-item">
+        <strong>Inglês:</strong> Avançado (Negociação técnica e documentação com bandeiras internacionais)
+      </div>
+      <div class="lang-item">
+        <strong>Espanhol:</strong> Intermediário (Comunicação corporativa para América Latina)
+      </div>
+    </section>
+  </div>
+
+</body>
+</html>
