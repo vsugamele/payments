@@ -118,6 +118,175 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
 </ol>`,
   },
   {
+    id: "boletim_parecer_tecnico",
+    name: "Parecer Técnico — Boletim de Bandeira (Mastercard / Visa / Elo)",
+    description: "Estrutura corporativa completa para análise e parecer executivo de boletins mandatórios e operacionais de bandeiras.",
+    category: "Pagamentos",
+    defaultTitle: "Parecer Técnico — GLB 10362.3: Atualização de Chaves Públicas M/Chip (Mastercard)",
+    content: `<h1>PARECER TÉCNICO & DIRETRIZES OPERACIONAIS: BOLETIM DE BANDEIRA</h1>
+<p style="font-size:0.9rem; color:#64748b;"><strong>Documento de Análise Regulatória & Engenharia Transacional</strong> | Versão 1.0</p>
+
+<!-- Tabela de Ficha Cadastral / Metadados -->
+<table style="width:100%; border-collapse:collapse; margin:16px 0; font-size:13px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:8px 12px; font-weight:bold; width:25%; color:#334155;">Bandeira</td>
+      <td style="padding:8px 12px; width:75%;"><span style="display:inline-block; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">Mastercard®</span> <span style="font-size:11.5px; color:#64748b;">(Debit Mastercard, Maestro®, Cirrus®)</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Título Oficial</td>
+      <td style="padding:8px 12px; font-weight:600; color:#0f172a;">Updated Payment System Public Keys for M/Chip</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Identificação / Referência</td>
+      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#2563eb;">GLB 10362.3 <span style="font-size:11px; font-weight:normal; color:#64748b;">(Ref: AN 8242 / EMVCo Notice Bulletin No. 30)</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Data de Publicação</td>
+      <td style="padding:8px 12px; color:#334155;">22/09/2026</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Data de Vigência / Go-Live</td>
+      <td style="padding:8px 12px; font-weight:bold; color:#d97706;"><span style="display:inline-block; background:#fef3c7; color:#92400e; border:1px solid #fde68a; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">01/11/2026</span> (Extensão efetiva da chave até 31/12/2036)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Tags de Classificação</td>
+      <td style="padding:8px 12px;">
+        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">M/Chip</span>
+        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">EMV Contact/Contactless</span>
+        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">CAPK RSA 1984-bit</span>
+        <span style="display:inline-block; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 7px; border-radius:6px; font-size:11px; margin-right:4px;">Segurança & POI</span>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Categoria / Área</td>
+      <td style="padding:8px 12px; color:#334155;">Operations • Point of Interaction (POI) • Security • Chip & Contactless</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Público Impactado (Rol)</td>
+      <td style="padding:8px 12px; color:#334155;">Adquirentes, Subadquirentes/PSPs, Emissores, Processadoras de Bandeira, Fabricantes de Terminais POS/ATM e Desenvolvedores de Kernel EMV</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Região de Aplicação</td>
+      <td style="padding:8px 12px; color:#334155;"><span style="display:inline-block; background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; padding:1px 6px; border-radius:99px; font-size:10.5px; font-weight:bold;">GLOBAL</span> (Aplica-se a transações domésticas e internacionais)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 12px; font-weight:bold; color:#334155;">Requerimento / Status</td>
+      <td style="padding:8px 12px;"><span style="display:inline-block; background:#dcfce7; color:#166534; border:1px solid #86efac; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:bold;">INFORMATIVO / MANUTENÇÃO OPERACIONAL</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Quadro Destaque: Resumo Executivo -->
+<div style="border-left:4px solid #2563eb; background:#eff6ff; padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0;">
+  <strong style="color:#1d4ed8; font-size:14px;">📌 Resumo Executivo & Síntese da Mudança</strong>
+  <p style="margin:6px 0 0 0; font-size:13.5px; line-height:1.6; color:#1e293b;">
+    A Mastercard anunciou a prorrogação oficial da data de validade da <strong>Chave Pública do Sistema de Pagamentos de 1.984 bits (Índice 6)</strong> para o ecossistema M/Chip por mais um ano, passando de <strong>31 de Dezembro de 2035 para 31 de Dezembro de 2036</strong>. O valor numérico e o expoente público da chave permanecem exatamente os mesmos. Esta atualização segue as recomendações anuais de avaliação criptográfica da EMVCo (Notice Bulletin No. 30, Julho/2026), estendendo a vida útil de chaves de emissores certificadas sob esta raiz e assegurando a continuidade operacional de aceitação offline em terminais POS/ATM.
+  </p>
+</div>
+
+<h2>1. Contexto Criptográfico & Padrões EMVCo</h2>
+<p>No protocolo EMV (M/Chip Contact e Contactless), a autenticação offline de cartões (SDA, DDA e CDA) depende da verificação de certificados digitais baseados em criptografia assimétrica RSA. O terminal de pagamento precisa ter carregado em sua memória protegida o conjunto operacional de Chaves Públicas da Autoridade Certificadora da Bandeira (<strong>CAPK — CA Public Keys</strong>).</p>
+
+<p>Com a expiração anterior da chave histórica de 1.408 bits, o conjunto operacional da Mastercard é composto exclusivamente pela chave robusta de <strong>1.984 bits</strong>. A avaliação periódica de poder computacional conduzida pela EMVCo concluiu que o comprimento de 1.984 bits mantém margem de segurança criptográfica adequada para suportar operações comerciais com segurança até o final de 2036.</p>
+
+<h2>2. Detalhamento Técnico das Chaves Públicas Mastercard</h2>
+<p>Abaixo, a comparação entre a configuração vigente e a atualização que entra em vigor em <strong>01/11/2026</strong>:</p>
+
+<table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; text-align:left; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+  <thead>
+    <tr style="background:#1e3a8a; color:#ffffff;">
+      <th style="padding:10px 12px; font-weight:600;">Índice (Key Index)</th>
+      <th style="padding:10px 12px; font-weight:600;">Expoente Público</th>
+      <th style="padding:10px 12px; font-weight:600;">Comprimento (RSA)</th>
+      <th style="padding:10px 12px; font-weight:600;">Validade Anterior</th>
+      <th style="padding:10px 12px; font-weight:600;">Nova Validade Efetiva</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:10px 12px; font-family:monospace; font-weight:bold; color:#1e40af;">06 (hex)</td>
+      <td style="padding:10px 12px; font-family:monospace;">3</td>
+      <td style="padding:10px 12px; font-weight:bold;">1.984 bits</td>
+      <td style="padding:10px 12px; color:#64748b; text-decoration:line-through;">31/12/2035</td>
+      <td style="padding:10px 12px; font-weight:bold; color:#16a34a;">31/12/2036</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="border-left:4px solid #f59e0b; background:#fffbeb; padding:12px 16px; border-radius:0 10px 10px 0; margin:12px 0; font-size:13px; color:#92400e;">
+  ⚠️ <strong>Nota Técnica de Engenharia:</strong> Como o valor binário da chave permanece inalterado, não há necessidade de gerar novos pares de chaves assimétricas imediatas, apenas sincronizar as tabelas de data de expiração e certificados autoassinados no gerenciamento de chaves.
+</div>
+
+<h2>3. Impacto Operacional por Agente da Cadeia</h2>
+
+<h3>A. Adquirentes, Subadquirentes e Gateways</h3>
+<ul>
+  <li><strong>Carga de Tabelas CAPK em Terminais:</strong> Garantir que os sistemas de TMS (Terminal Management System) e os kernels EMV instalados no parque de POS/mPOS/SmartPOS reconheçam a data de expiração 31/12/2036 para o índice 6 da Mastercard.</li>
+  <li><strong>Mitigação de Recusas Indevidas:</strong> Se um terminal mantiver a data anterior gravada de forma estrita em hardware seguro, cartões emitidos futuramente com certificados que ultrapassem 2035 poderiam sofrer falha de autenticação offline (fallback ou declínio). A atualização preventiva elimina esse risco.</li>
+  <li><strong>Download de Guias:</strong> O manual atualizado está disponível no portal <em>Mastercard Connect &gt; Technical Resource Center &gt; Guides &gt; Payment System Public Keys for M/Chip Contact and Contactless</em>.</li>
+</ul>
+
+<h3>B. Emissores de Cartão e Bureaus de Personalização</h3>
+<ul>
+  <li><strong>Certificação de Chaves de Emissor:</strong> A partir de 01/11/2026, os emissores poderão solicitar à Autoridade Certificadora da Mastercard a emissão de certificados de chaves públicas de emissor com validade estendida até 31/12/2036.</li>
+  <li><strong>Limites de Tamanho de Chave RSA:</strong> Relembra-se que a Mastercard não certifica chaves públicas de emissor com tamanho inferior a 1.408 bits (conforme GLB 12623.1) e o limite máximo para emissores é de 1.976 bits (conforme Anexo D1 do Livro 2 EMV).</li>
+</ul>
+
+<h3>C. Processadoras & Fornecedores de Software de Terminal (L2 Kernel)</h3>
+<ul>
+  <li>Acesso ao portal <em>Mastercard Public Key Certification Service (MPKCS)</em> via Key Management Portal para obter o certificado autoassinado (.cer) atualizado.</li>
+  <li>Homologação em ambiente de testes de regressão de transações de contato e por aproximação (NFC).</li>
+</ul>
+
+<h2>4. Cronograma de Ações & Recomendações</h2>
+
+<table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; text-align:left; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f172a; color:#ffffff;">
+      <th style="padding:9px 12px;">Data / Janela</th>
+      <th style="padding:9px 12px;">Ação Recomendada</th>
+      <th style="padding:9px 12px;">Responsável</th>
+      <th style="padding:9px 12px;">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:9px 12px; font-weight:bold;">22/09/2026</td>
+      <td style="padding:9px 12px;">Publicação oficial do Boletim GLB 10362.3 e notificação às equipes de engenharia.</td>
+      <td style="padding:9px 12px;">Compliance / Regulação</td>
+      <td style="padding:9px 12px;"><span style="display:inline-block; background:#dcfce7; color:#166534; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">CONCLUÍDO</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:9px 12px; font-weight:bold;">Até 25/10/2026</td>
+      <td style="padding:9px 12px;">Download do certificado no Mastercard Connect e conferência nas tabelas de CAPK do TMS.</td>
+      <td style="padding:9px 12px;">Engenharia de Terminais / TMS</td>
+      <td style="padding:9px 12px;"><span style="display:inline-block; background:#dbeafe; color:#1e40af; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">EM ANDAMENTO</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:9px 12px; font-weight:bold; color:#16a34a;">01/11/2026</td>
+      <td style="padding:9px 12px;">Entrada em vigor do suporte a certificações com vigência até 31/12/2036 no portal MPKCS.</td>
+      <td style="padding:9px 12px;">Mastercard / Emissores</td>
+      <td style="padding:9px 12px;"><span style="display:inline-block; background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">PROGRAMADO</span></td>
+    </tr>
+    <tr>
+      <td style="padding:9px 12px; font-weight:bold;">31/12/2036</td>
+      <td style="padding:9px 12px;">Data limite de expiração da chave pública Mastercard de 1.984 bits (Índice 6).</td>
+      <td style="padding:9px 12px;">Ecossistema Global EMV</td>
+      <td style="padding:9px 12px;"><span style="display:inline-block; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">VIGÊNCIA</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. Parecer Técnico Conclusivo</h2>
+<div style="border-left:4px solid #10b981; background:#ecfdf5; padding:14px 18px; border-radius:0 12px 12px 0; margin:16px 0;">
+  <strong style="color:#065f46; font-size:14px;">✅ Conclusão & Avaliação de Impacto Regulatório</strong>
+  <p style="margin:6px 0 0 0; font-size:13.5px; line-height:1.6; color:#064e3b;">
+    A mudança possui <strong>baixo risco operacional</strong> e <strong>impacto técnico favorável</strong>, permitindo estender o ciclo de vida dos cartões emitidos e preservando a infraestrutura existente de terminais. Recomenda-se apenas a rotina padrão de sincronização de tabelas CAPK nas próximas janelas de release de software dos adquirentes e a ciência dos times de personalização de cartões.
+  </p>
+</div>`,
+  },
+  {
     id: "copy_vsl",
     name: "Roteiro de VSL / Copywriting de Alta Conversão",
     description: "Estrutura mestre para roteiros de vídeo de vendas e cartas de resposta direta com ganchos e mecanismo.",
