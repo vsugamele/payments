@@ -1154,6 +1154,7 @@ export default function DocStudioEditor() {
                 ref={editorRef}
                 contentEditable
                 suppressContentEditableWarning
+                dangerouslySetInnerHTML={{ __html: contentHtml || DOCUMENT_TEMPLATES[1].content }}
                 onInput={handleEditorInput}
                 onMouseUp={handleMouseUp}
                 onKeyUp={handleMouseUp}

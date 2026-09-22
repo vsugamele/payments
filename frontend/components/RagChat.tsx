@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Send, Bot, User, Loader2, Sparkles, X, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -12,7 +13,10 @@ type Message = {
 };
 
 export default function RagChat() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  if (pathname === "/editor") return null;
   const [isMaximized, setIsMaximized] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([

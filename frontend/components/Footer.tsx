@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Activity, ExternalLink, Mail } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname === "/editor") return null;
+
   return (
     <footer
       style={{
