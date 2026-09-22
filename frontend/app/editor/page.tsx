@@ -112,6 +112,7 @@ export default function DocStudioEditor() {
   // Dropdown States for Colors, Cards, Tables, Badges, Images
   const [showTextColorPicker, setShowTextColorPicker] = useState<boolean>(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState<boolean>(false);
+  const [showTableCellColorPicker, setShowTableCellColorPicker] = useState<boolean>(false);
   const [showCardsMenu, setShowCardsMenu] = useState<boolean>(false);
   const [showTablesMenu, setShowTablesMenu] = useState<boolean>(false);
   const [showBadgesMenu, setShowBadgesMenu] = useState<boolean>(false);
@@ -144,6 +145,7 @@ export default function DocStudioEditor() {
   const closeAllMenus = () => {
     setShowTextColorPicker(false);
     setShowBgColorPicker(false);
+    setShowTableCellColorPicker(false);
     setShowCardsMenu(false);
     setShowTablesMenu(false);
     setShowBadgesMenu(false);
@@ -542,8 +544,42 @@ export default function DocStudioEditor() {
     execCmd("insertHTML", cardHtml);
   };
 
+  // Apply Background Color to Table Cell / Row / Header
+  const handleApplyCellColor = (color: string, isDark: boolean = false) => {
+    setShowTableCellColorPicker(false);
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+
+    let node: Node | null = sel.anchorNode;
+    let targetEl: HTMLElement | null = null;
+
+    while (node && node !== editorRef.current) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        const tag = el.tagName.toLowerCase();
+        if (tag === "td" || tag === "th") {
+          targetEl = el;
+          break;
+        }
+      }
+      node = node.parentNode;
+    }
+
+    if (targetEl) {
+      targetEl.style.backgroundColor = color;
+      if (isDark) {
+        targetEl.style.color = "#ffffff";
+      } else if (color === "transparent" || color === "#ffffff") {
+        targetEl.style.color = "";
+      }
+      handleEditorInput();
+    } else {
+      execCmd("hiliteColor", color);
+    }
+  };
+
   // Insert Styled Table
-  const handleInsertStyledTable = (theme: "blue" | "emerald" | "slate" | "matrix") => {
+  const handleInsertStyledTable = (theme: "blue" | "emerald" | "slate" | "purple" | "matrix" | "matrix-dark" | "matrix-emerald") => {
     closeAllMenus();
     let tableHtml = "";
 
@@ -583,7 +619,7 @@ export default function DocStudioEditor() {
       `;
     } else if (theme === "emerald") {
       tableHtml = `
-        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #a7f3d0;">
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #a7f3d0; border-radius:8px; overflow:hidden;">
           <thead>
             <tr style="background:#065f46; color:#ffffff;">
               <th style="padding:10px 14px; text-align:left; border:1px solid #047857;">Métrica Financeira</th>
@@ -609,9 +645,34 @@ export default function DocStudioEditor() {
         </table>
         <p></p>
       `;
+    } else if (theme === "purple") {
+      tableHtml = `
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #e9d5ff; border-radius:8px; overflow:hidden;">
+          <thead>
+            <tr style="background:#4c1d95; color:#ffffff;">
+              <th style="padding:10px 14px; text-align:left; border:1px solid #581c87;">Fase do Projeto</th>
+              <th style="padding:10px 14px; text-align:left; border:1px solid #581c87;">Entregável Chave</th>
+              <th style="padding:10px 14px; text-align:left; border:1px solid #581c87;">Governança</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#faf5ff;">
+              <td style="padding:10px 14px; border:1px solid #e9d5ff; font-weight:bold; color:#581c87;">Discovery & Auditoria</td>
+              <td style="padding:10px 14px; border:1px solid #e9d5ff;">Relatório de Falhas de Autorização ISO 8583</td>
+              <td style="padding:10px 14px; border:1px solid #e9d5ff;"><span style="background:#f3e8ff; color:#6b21a8; padding:3px 8px; border-radius:99px; font-size:11px; font-weight:bold;">Semana 1</span></td>
+            </tr>
+            <tr style="background:#ffffff;">
+              <td style="padding:10px 14px; border:1px solid #e9d5ff; font-weight:bold; color:#581c87;">Implementação Técnica</td>
+              <td style="padding:10px 14px; border:1px solid #e9d5ff;">Rollout de Smart Routing & Network Tokens</td>
+              <td style="padding:10px 14px; border:1px solid #e9d5ff;"><span style="background:#dbeafe; color:#1e40af; padding:3px 8px; border-radius:99px; font-size:11px; font-weight:bold;">Semana 3</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p></p>
+      `;
     } else if (theme === "slate") {
       tableHtml = `
-        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #e2e8f0;">
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
           <thead>
             <tr style="background:#1e293b; color:#ffffff;">
               <th style="padding:10px 14px; text-align:left;">Componente</th>
@@ -634,10 +695,100 @@ export default function DocStudioEditor() {
         </table>
         <p></p>
       `;
-    } else {
-      // 2x2 Matrix
+    } else if (theme === "matrix-dark") {
+      // 2x2 Matrix Dark
       tableHtml = `
-        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:2px solid #cbd5e1;">
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:2px solid #334155; border-radius:8px; overflow:hidden;">
+          <thead>
+            <tr style="background:#0f172a; color:#f8fafc;">
+              <th colspan="2" style="padding:12px; text-align:center; font-size:0.95rem; font-weight:bold; letter-spacing:0.5px;">MATRIZ DE DECISÃO ESTRATÉGICA (2x2)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="width:50%; padding:14px; background:#1e293b; color:#f1f5f9; border:1px solid #334155; vertical-align:top;">
+                <strong style="color:#60a5fa; font-size:0.9rem;">🚀 ALTO IMPACTO / BAIXO ESFORÇO (Prioridade 1)</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#cbd5e1;">
+                  <li>Ajuste do POS Entry Mode (DE 22 = 81)</li>
+                  <li>Ativação de Smart Retries nos horários 06h-09h</li>
+                </ul>
+              </td>
+              <td style="width:50%; padding:14px; background:#1e1b4b; color:#f1f5f9; border:1px solid #334155; vertical-align:top;">
+                <strong style="color:#c084fc; font-size:0.9rem;">💎 ALTO IMPACTO / ALTO ESFORÇO (Prioridade 2)</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#cbd5e1;">
+                  <li>Integração direta com Network Tokens (VTS/MDES)</li>
+                  <li>Motor de Cascata e Roteamento Inteligente</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td style="width:50%; padding:14px; background:#0f172a; color:#f1f5f9; border:1px solid #334155; vertical-align:top;">
+                <strong style="color:#94a3b8; font-size:0.9rem;">⚙️ BAIXO IMPACTO / BAIXO ESFORÇO (Quick Wins)</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#94a3b8;">
+                  <li>Higienização de cadastros de trials</li>
+                  <li>Alertas de webhook em tempo real</li>
+                </ul>
+              </td>
+              <td style="width:50%; padding:14px; background:#2e1065; color:#f1f5f9; border:1px solid #334155; vertical-align:top;">
+                <strong style="color:#f87171; font-size:0.9rem;">🚫 BAIXO IMPACTO / ALTO ESFORÇO (Evitar)</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#fca5a5;">
+                  <li>Retentativas cegas em cartões cancelados (Hard Declines)</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p></p>
+      `;
+    } else if (theme === "matrix-emerald") {
+      // 2x2 Matrix Emerald & Amber
+      tableHtml = `
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:2px solid #059669; border-radius:8px; overflow:hidden;">
+          <thead>
+            <tr style="background:#065f46; color:#ffffff;">
+              <th colspan="2" style="padding:12px; text-align:center; font-size:0.95rem; font-weight:bold;">MATRIZ DE PRIORIZAÇÃO FINANCEIRA & RISCO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="width:50%; padding:14px; background:#ecfdf5; border:1px solid #a7f3d0; vertical-align:top;">
+                <strong style="color:#047857; font-size:0.9rem;">🟢 GANHO RÁPIDO DE RECEITA (Execução Imediata)</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#064e3b;">
+                  <li>Recuperação de Churn por Account Updater</li>
+                  <li>Adequação de regras de 3DS 2.2</li>
+                </ul>
+              </td>
+              <td style="width:50%; padding:14px; background:#eff6ff; border:1px solid #bfdbfe; vertical-align:top;">
+                <strong style="color:#1e40af; font-size:0.9rem;">🔵 ESTRUTURAÇÃO DE LONGO PRAZO</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#1e3a8a;">
+                  <li>Arquitetura Multiadquirente com Fallback</li>
+                  <li>Conciliação automatizada de Intercâmbio MCBS/VSS</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td style="width:50%; padding:14px; background:#fffbeb; border:1px solid #fde68a; vertical-align:top;">
+                <strong style="color:#b45309; font-size:0.9rem;">🟡 CONTROLE DE COMPLIANCE & MONITORIA</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#92400e;">
+                  <li>Auditoria de limites regulatórios de débito BCB nº 150</li>
+                  <li>Revisão mensal de chargebacks por MCC</li>
+                </ul>
+              </td>
+              <td style="width:50%; padding:14px; background:#fef2f2; border:1px solid #fecaca; vertical-align:top;">
+                <strong style="color:#b91c1c; font-size:0.9rem;">🔴 VULNERABILIDADE & RISCO CRÍTICO</strong>
+                <ul style="margin:8px 0 0 16px; padding:0; font-size:0.85rem; color:#7f1d1d;">
+                  <li>Processamento sem parâmetros de token em e-commerce</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p></p>
+      `;
+    } else {
+      // 2x2 Matrix Clássica
+      tableHtml = `
+        <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:2px solid #cbd5e1; border-radius:8px; overflow:hidden;">
           <thead>
             <tr style="background:#0f2c59; color:#fff;">
               <th colspan="2" style="padding:10px; text-align:center; font-size:0.95rem;">MATRIZ DE DECISÃO ESTRATÉGICA (2x2)</th>
@@ -1385,9 +1536,10 @@ export default function DocStudioEditor() {
                     setShowTablesMenu(!showTablesMenu);
                     setShowCardsMenu(false);
                     setShowBadgesMenu(false);
+                    setShowTableCellColorPicker(false);
                   }}
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors"
-                  title="Inserir Tabelas Estilizadas"
+                  title="Inserir Tabelas e Matrizes Estilizadas"
                 >
                   <TableIcon size={14} />
                   <span>+ Tabela Colorida</span>
@@ -1395,9 +1547,9 @@ export default function DocStudioEditor() {
                 </button>
 
                 {showTablesMenu && (
-                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-60 space-y-1">
+                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-64 space-y-1">
                     <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
-                      Estilos de Tabela
+                      Modelos de Tabela Executiva
                     </div>
                     <button
                       onClick={() => handleInsertStyledTable("blue")}
@@ -1416,6 +1568,14 @@ export default function DocStudioEditor() {
                     </button>
 
                     <button
+                      onClick={() => handleInsertStyledTable("purple")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Tabela Roxo & Dourado</div>
+                      <div className="text-[10px] text-muted-foreground">Governança e entregáveis</div>
+                    </button>
+
+                    <button
                       onClick={() => handleInsertStyledTable("slate")}
                       className="w-full text-left p-2 rounded-xl text-xs hover:bg-muted text-foreground transition-colors"
                     >
@@ -1423,13 +1583,107 @@ export default function DocStudioEditor() {
                       <div className="text-[10px] text-muted-foreground">Linhas limpas e modernas</div>
                     </button>
 
+                    <div className="border-t border-border/80 my-1 pt-1 text-[10px] font-bold text-muted-foreground px-2 uppercase tracking-wider">
+                      Matrizes 2x2 Estratégicas
+                    </div>
+
                     <button
                       onClick={() => handleInsertStyledTable("matrix")}
-                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors"
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-500 text-foreground transition-colors"
                     >
-                      <div className="font-bold">Matriz de Decisão 2x2</div>
-                      <div className="text-[10px] text-muted-foreground">4 quadrantes estratégicos</div>
+                      <div className="font-bold">Matriz 2x2 Clássica (Azul & Roxo)</div>
+                      <div className="text-[10px] text-muted-foreground">Priorização e 4 quadrantes</div>
                     </button>
+
+                    <button
+                      onClick={() => handleInsertStyledTable("matrix-dark")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-slate-800 hover:text-white text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Matriz 2x2 Dark & Neon</div>
+                      <div className="text-[10px] text-muted-foreground">Visual escuro moderno com alto contraste</div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertStyledTable("matrix-emerald")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-500 text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Matriz 2x2 Finanças & Compliance</div>
+                      <div className="text-[10px] text-muted-foreground">Foco em ganhos, riscos e alertas</div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Table / Cell Background Color Picker */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowTableCellColorPicker(!showTableCellColorPicker);
+                    setShowTablesMenu(false);
+                    setShowCardsMenu(false);
+                    setShowBadgesMenu(false);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold transition-colors"
+                  title="Pintar o Fundo da Célula, Cabeçalho ou Quadrante Selecionado"
+                >
+                  <Palette size={14} />
+                  <span>🎨 Cor da Célula</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {showTableCellColorPicker && (
+                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-3 z-50 w-72 space-y-2.5">
+                    <div>
+                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+                        Tons Fortes (Cabeçalhos / Destaques)
+                      </div>
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {[
+                          { name: "Azul Marinho", color: "#0f2c59", dark: true },
+                          { name: "Slate Escuro", color: "#0f172a", dark: true },
+                          { name: "Esmeralda", color: "#065f46", dark: true },
+                          { name: "Roxo Real", color: "#4c1d95", dark: true },
+                          { name: "Vinho / Vermelho", color: "#7f1d1d", dark: true },
+                          { name: "Âmbar Escuro", color: "#78350f", dark: true },
+                        ].map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => handleApplyCellColor(c.color, c.dark)}
+                            className="w-8 h-8 rounded-lg border border-border/80 hover:scale-110 transition-transform flex items-center justify-center shadow-xs"
+                            style={{ backgroundColor: c.color }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-border/80 pt-2">
+                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+                        Tons Suaves (Fundo de Células / Quadrantes)
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[
+                          { name: "Azul Suave", color: "#eff6ff", label: "Azul" },
+                          { name: "Roxo Suave", color: "#faf5ff", label: "Roxo" },
+                          { name: "Verde Suave", color: "#ecfdf5", label: "Verde" },
+                          { name: "Âmbar Suave", color: "#fffbeb", label: "Âmbar" },
+                          { name: "Rosa Alerta", color: "#fff1f2", label: "Alerta" },
+                          { name: "Slate Suave", color: "#f8fafc", label: "Slate" },
+                          { name: "Branco Puro", color: "#ffffff", label: "Branco" },
+                          { name: "Transparente", color: "transparent", label: "Limpar" },
+                        ].map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => handleApplyCellColor(c.color, false)}
+                            className="p-1.5 rounded-lg border border-border/80 hover:border-blue-500 text-[10px] font-bold text-slate-800 transition-all text-center flex items-center justify-center shadow-2xs"
+                            style={{ backgroundColor: c.color === "transparent" ? "#fff" : c.color }}
+                            title={c.name}
+                          >
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
