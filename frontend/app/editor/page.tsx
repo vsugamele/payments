@@ -47,6 +47,12 @@ import {
   ChevronDown,
   Layers,
   Box,
+  Image as ImageIcon,
+  Lock,
+  Unlock,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Link as LinkIcon,
 } from "lucide-react";
 import { exportHtmlToDocx } from "@/components/editor/DocxExporter";
 import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/components/editor/TemplateSelector";
@@ -54,6 +60,12 @@ import AiFloatingToolbar from "@/components/editor/AiFloatingToolbar";
 import AiCopilotSidebar from "@/components/editor/AiCopilotSidebar";
 import DocManagerModal, { SavedDoc } from "@/components/editor/DocManagerModal";
 import AiSettingsModal from "@/components/editor/AiSettingsModal";
+
+interface TocItem {
+  id: string;
+  text: string;
+  level: number;
+}
 
 export default function DocStudioEditor() {
   // Document State
@@ -64,17 +76,27 @@ export default function DocStudioEditor() {
   const [isSaved, setIsSaved] = useState<boolean>(true);
   const [lastSavedTime, setLastSavedTime] = useState<string>("agora");
 
+  // Read-Only / Public Mode State
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
+
+  // Table of Contents (Neste Documento) State
+  const [tocList, setTocList] = useState<TocItem[]>([]);
+  const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);
+  const [isTocOpen, setIsTocOpen] = useState<boolean>(true);
+
   // Selection & Floating AI Toolbar State
   const [selectedText, setSelectedText] = useState<string>("");
   const [floatingPos, setFloatingPos] = useState<{ top: number; left: number } | null>(null);
   const savedRangeRef = useRef<Range | null>(null);
 
-  // Dropdown States for Colors, Cards, Tables, Badges
+  // Dropdown States for Colors, Cards, Tables, Badges, Images
   const [showTextColorPicker, setShowTextColorPicker] = useState<boolean>(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState<boolean>(false);
   const [showCardsMenu, setShowCardsMenu] = useState<boolean>(false);
   const [showTablesMenu, setShowTablesMenu] = useState<boolean>(false);
   const [showBadgesMenu, setShowBadgesMenu] = useState<boolean>(false);
+  const [showImageModal, setShowImageModal] = useState<boolean>(false);
+  const [imageUrlInput, setImageUrlInput] = useState<string>("");
 
   // UI Modals & Sidebar State
   const [isCopilotOpen, setIsCopilotOpen] = useState<boolean>(true);
@@ -91,9 +113,10 @@ export default function DocStudioEditor() {
   const [stats, setStats] = useState({ words: 0, chars: 0, readTimeMinutes: 1, estimatedPages: 1 });
 
   const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Close all popovers when clicking outside
+  // Close all popovers
   const closeAllMenus = () => {
     setShowTextColorPicker(false);
     setShowBgColorPicker(false);
@@ -102,8 +125,57 @@ export default function DocStudioEditor() {
     setShowBadgesMenu(false);
   };
 
-  // Initialize from LocalStorage or Default Template
+  // Parse Headings to generate "Neste Documento" (TOC)
+  const extractToc = useCallback((html: string) => {
+    if (typeof window === "undefined") return;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const headings = doc.querySelectorAll("h1, h2, h3");
+    const items: TocItem[] = [];
+
+    headings.forEach((h, idx) => {
+      const text = h.textContent?.trim() || `Seção ${idx + 1}`;
+      const level = parseInt(h.tagName.replace("H", ""), 10);
+      const id = `heading-${idx}`;
+      items.push({ id, text, level });
+    });
+
+    setTocList(items);
+    if (items.length > 0 && !activeHeadingId) {
+      setActiveHeadingId(items[0].id);
+    }
+  }, [activeHeadingId]);
+
+  // Sync headings with IDs in the live DOM
+  const syncHeadingIds = () => {
+    if (!editorRef.current) return;
+    const headings = editorRef.current.querySelectorAll("h1, h2, h3");
+    headings.forEach((h, idx) => {
+      h.setAttribute("id", `heading-${idx}`);
+    });
+  };
+
+  // Scroll to heading on TOC click
+  const scrollToHeading = (id: string) => {
+    setActiveHeadingId(id);
+    if (!editorRef.current) return;
+    const el = editorRef.current.querySelector(`#${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Initialize from LocalStorage or Default Template & check URL query
   useEffect(() => {
+    // Check url params for read-only / public mode
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("view") === "public" || urlParams.get("readonly") === "true") {
+        setIsReadOnly(true);
+        setIsCopilotOpen(false);
+      }
+    }
+
     const storedKey = localStorage.getItem("vs_ai_api_key") || "";
     const storedProvider = localStorage.getItem("vs_ai_provider") || "openai";
     const storedModel = localStorage.getItem("vs_ai_model") || "gpt-4o-mini";
@@ -123,7 +195,9 @@ export default function DocStudioEditor() {
           setContentHtml(first.content);
           if (editorRef.current) {
             editorRef.current.innerHTML = first.content;
+            syncHeadingIds();
           }
+          extractToc(first.content);
           return;
         }
       } catch (e) {
@@ -137,8 +211,10 @@ export default function DocStudioEditor() {
     setContentHtml(defaultTmpl.content);
     if (editorRef.current) {
       editorRef.current.innerHTML = defaultTmpl.content;
+      syncHeadingIds();
     }
-  }, []);
+    extractToc(defaultTmpl.content);
+  }, [extractToc]);
 
   const updateStats = useCallback((text: string) => {
     const plainText = text.replace(/<[^>]*>?/gm, " ").trim();
@@ -155,6 +231,8 @@ export default function DocStudioEditor() {
     setContentHtml(newHtml);
     setIsSaved(false);
     updateStats(newHtml);
+    extractToc(newHtml);
+    syncHeadingIds();
 
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
@@ -181,6 +259,7 @@ export default function DocStudioEditor() {
   };
 
   const handleMouseUp = () => {
+    if (isReadOnly) return;
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !editorRef.current) {
       setFloatingPos(null);
@@ -206,10 +285,55 @@ export default function DocStudioEditor() {
   };
 
   const execCmd = (command: string, value: string = "") => {
+    if (isReadOnly) return;
     document.execCommand(command, false, value);
     if (editorRef.current) {
       editorRef.current.focus();
       handleEditorInput();
+    }
+  };
+
+  // Image Upload / Drag & Drop Handler
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      insertImageHtml(base64);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const insertImageHtml = (src: string, caption: string = "") => {
+    const imgHtml = `
+      <div style="margin:1.5rem 0; text-align:center;">
+        <img src="${src}" alt="Imagem" style="max-width:100%; height:auto; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); border:1px solid #e2e8f0; display:inline-block;" />
+        ${caption ? `<p style="font-size:0.8rem; color:#64748b; margin-top:6px; font-style:italic;">${caption}</p>` : ""}
+      </div>
+      <p></p>
+    `;
+    execCmd("insertHTML", imgHtml);
+    setShowImageModal(false);
+    setImageUrlInput("");
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (isReadOnly) return;
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64 = event.target?.result as string;
+          insertImageHtml(base64);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -545,8 +669,10 @@ export default function DocStudioEditor() {
     setContentHtml(tmpl.content);
     if (editorRef.current) {
       editorRef.current.innerHTML = tmpl.content;
+      syncHeadingIds();
       editorRef.current.focus();
     }
+    extractToc(tmpl.content);
     saveDocument(tmpl.content, tmpl.defaultTitle, newId);
     updateStats(tmpl.content);
   };
@@ -557,7 +683,9 @@ export default function DocStudioEditor() {
     setContentHtml(doc.content);
     if (editorRef.current) {
       editorRef.current.innerHTML = doc.content;
+      syncHeadingIds();
     }
+    extractToc(doc.content);
     updateStats(doc.content);
     setIsSaved(true);
   };
@@ -585,42 +713,75 @@ export default function DocStudioEditor() {
     setTimeout(() => setCopiedNotification(null), 2500);
   };
 
+  const handleSharePublicLink = () => {
+    const url = `${window.location.origin}/editor?view=public`;
+    navigator.clipboard.writeText(url);
+    setCopiedNotification("Link público de leitura copiado! Qualquer pessoa poderá ler sem editar.");
+    setTimeout(() => setCopiedNotification(null), 3000);
+  };
+
   return (
     <div
       onClick={closeAllMenus}
       className="flex flex-col h-[calc(100vh-64px)] bg-muted/20 text-foreground overflow-hidden font-sans"
     >
-      
+      {/* Hidden file input for local image upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageFileChange}
+        className="hidden"
+      />
+
       {/* ── Top Header Bar ──────────────────────────────────────────────────────── */}
       <header className="h-14 border-b border-border bg-background/95 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-20">
         
         {/* Left: Document Info & Name */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          
+          {/* Toggle Outline / TOC */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsDocManagerOpen(true);
-            }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0"
+            onClick={() => setIsTocOpen(!isTocOpen)}
+            className={`p-2 rounded-xl border transition-colors ${
+              isTocOpen ? "bg-purple-500/10 text-purple-600 border-purple-500/20" : "bg-muted/50 text-muted-foreground border-border"
+            }`}
+            title={isTocOpen ? "Ocultar Sumário 'Neste Documento'" : "Mostrar Sumário 'Neste Documento'"}
           >
-            <FolderOpen size={14} className="text-blue-500" />
-            <span className="hidden sm:inline">Meus Documentos</span>
+            {isTocOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
           </button>
+
+          {!isReadOnly && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDocManagerOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0"
+            >
+              <FolderOpen size={14} className="text-blue-500" />
+              <span className="hidden sm:inline">Meus Docs</span>
+            </button>
+          )}
 
           <div className="h-4 w-px bg-border shrink-0" />
 
           <div className="flex items-center gap-2 min-w-0">
-            <input
-              type="text"
-              value={docTitle}
-              onChange={(e) => {
-                setDocTitle(e.target.value);
-                setIsSaved(false);
-              }}
-              onBlur={() => saveDocument(contentHtml, docTitle, docId)}
-              className="font-bold text-xs sm:text-sm text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-blue-500 outline-none px-1 py-0.5 max-w-[240px] sm:max-w-md truncate"
-              placeholder="Nome do documento..."
-            />
+            {isReadOnly ? (
+              <span className="font-bold text-xs sm:text-sm text-foreground truncate">{docTitle}</span>
+            ) : (
+              <input
+                type="text"
+                value={docTitle}
+                onChange={(e) => {
+                  setDocTitle(e.target.value);
+                  setIsSaved(false);
+                }}
+                onBlur={() => saveDocument(contentHtml, docTitle, docId)}
+                className="font-bold text-xs sm:text-sm text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-blue-500 outline-none px-1 py-0.5 max-w-[200px] sm:max-w-md truncate"
+                placeholder="Nome do documento..."
+              />
+            )}
             <span className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
               {isSaved ? (
                 <>
@@ -634,18 +795,54 @@ export default function DocStudioEditor() {
           </div>
         </div>
 
-        {/* Right: Actions (Export, New, AI Settings, Toggle Copilot) */}
+        {/* Right: Actions (ReadOnly toggle, Export PDF, DOCX, Settings, Copilot) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           
+          {/* Read-Only / Edit Toggle Button */}
           <button
-            onClick={() => handleNewDocument()}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-medium text-foreground transition-colors"
-            title="Criar novo documento em branco"
+            onClick={() => setIsReadOnly(!isReadOnly)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              isReadOnly
+                ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                : "bg-muted/40 text-muted-foreground hover:text-foreground border-border"
+            }`}
+            title={isReadOnly ? "Bloqueado para Leitura / Público. Clique para editar." : "Modo Edição Ativo. Clique para alternar para modo público/leitura."}
           >
-            <Plus size={14} />
-            <span className="hidden lg:inline">Novo</span>
+            {isReadOnly ? <Lock size={13} className="text-amber-500" /> : <Unlock size={13} />}
+            <span className="hidden md:inline">{isReadOnly ? "Modo Leitura (Bloqueado)" : "Modo Edição"}</span>
           </button>
 
+          {/* Share Public Link */}
+          <button
+            onClick={handleSharePublicLink}
+            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors"
+            title="Copiar Link de Compartilhamento Público"
+          >
+            <Share2 size={15} />
+          </button>
+
+          {!isReadOnly && (
+            <button
+              onClick={() => handleNewDocument()}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-medium text-foreground transition-colors"
+              title="Criar novo documento em branco"
+            >
+              <Plus size={14} />
+              <span className="hidden lg:inline">Novo</span>
+            </button>
+          )}
+
+          {/* PDF Generation (Direct Print / Save PDF) */}
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold transition-all"
+            title="Gerar e Salvar em PDF"
+          >
+            <Printer size={14} />
+            <span className="hidden sm:inline">Gerar PDF</span>
+          </button>
+
+          {/* Word Download */}
           <button
             onClick={handleExportDocx}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
@@ -655,35 +852,22 @@ export default function DocStudioEditor() {
             <span className="hidden sm:inline">Baixar .DOCX</span>
           </button>
 
-          <button
-            onClick={() => window.print()}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="Imprimir ou Salvar em PDF"
-          >
-            <Printer size={16} />
-          </button>
-
-          <button
-            onClick={handleCopyFormatted}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="Copiar texto puro"
-          >
-            <Copy size={16} />
-          </button>
-
           <div className="h-4 w-px bg-border" />
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsSettingsOpen(true);
-            }}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="Configurações de IA Copilot"
-          >
-            <Settings size={16} />
-          </button>
+          {!isReadOnly && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSettingsOpen(true);
+              }}
+              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Configurações de IA Copilot"
+            >
+              <Settings size={16} />
+            </button>
+          )}
 
+          {/* Toggle Right Copilot */}
           <button
             onClick={() => setIsCopilotOpen(!isCopilotOpen)}
             className={`p-2 rounded-xl transition-all ${
@@ -702,443 +886,520 @@ export default function DocStudioEditor() {
       {/* ── Main Workspace Body ─────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden relative">
 
+        {/* ── Left Rail: "NESTE DOCUMENTO" (Table of Contents - Derick Style) ───── */}
+        {isTocOpen && (
+          <aside className="w-64 border-r border-border bg-card/60 backdrop-blur-md flex flex-col shrink-0 overflow-hidden transition-all select-none">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                NESTE DOCUMENTO
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
+                {tocList.length}
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2.5 space-y-1">
+              {tocList.length === 0 ? (
+                <div className="p-6 text-center text-xs text-muted-foreground leading-relaxed">
+                  Adicione títulos (H1, H2, H3) no texto para gerar o índice automático.
+                </div>
+              ) : (
+                tocList.map((item, idx) => {
+                  const num = String(idx + 1).padStart(2, "0");
+                  const isActive = activeHeadingId === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToHeading(item.id)}
+                      className={`w-full text-left flex items-start gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                        isActive
+                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-300 font-bold border border-purple-500/30 shadow-xs"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium"
+                      } ${item.level === 2 ? "pl-5 text-[11.5px]" : item.level === 3 ? "pl-7 text-[11px]" : ""}`}
+                    >
+                      <span
+                        className={`font-mono text-[10px] shrink-0 mt-0.5 ${
+                          isActive ? "text-purple-600 dark:text-purple-300 font-bold" : "text-muted-foreground/60"
+                        }`}
+                      >
+                        {num}
+                      </span>
+                      <span className="truncate leading-snug">{item.text}</span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </aside>
+        )}
+
         {/* Center: Editor Canvas Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto">
           
-          {/* WYSIWYG Ribbon Toolbar */}
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border px-4 py-2 flex flex-wrap items-center gap-1 shadow-xs"
-          >
-            
-            {/* History */}
-            <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+          {/* Read-Only Alert Banner */}
+          {isReadOnly && (
+            <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Lock size={14} />
+                <strong>Modo Leitura / Público:</strong> Este documento está protegido contra edição acidental.
+              </span>
               <button
-                onClick={() => execCmd("undo")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Desfazer (Ctrl+Z)"
+                onClick={() => setIsReadOnly(false)}
+                className="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[11px] font-bold hover:bg-amber-600 transition-colors"
               >
-                <Undo size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("redo")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Refazer (Ctrl+Y)"
-              >
-                <Redo size={14} />
+                Habilitar Edição
               </button>
             </div>
+          )}
 
-            {/* Block Styles */}
-            <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
-              <button
-                onClick={() => execCmd("formatBlock", "<h1>")}
-                className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                title="Título 1 (H1)"
-              >
-                H1
-              </button>
-              <button
-                onClick={() => execCmd("formatBlock", "<h2>")}
-                className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                title="Título 2 (H2)"
-              >
-                H2
-              </button>
-              <button
-                onClick={() => execCmd("formatBlock", "<h3>")}
-                className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
-                title="Título 3 (H3)"
-              >
-                H3
-              </button>
-              <button
-                onClick={() => execCmd("formatBlock", "<p>")}
-                className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground"
-                title="Parágrafo Normal"
-              >
-                P
-              </button>
-            </div>
-
-            {/* Inline Formats */}
-            <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
-              <button
-                onClick={() => execCmd("bold")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Negrito (Ctrl+B)"
-              >
-                <Bold size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("italic")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Itálico (Ctrl+I)"
-              >
-                <Italic size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("underline")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Sublinhado (Ctrl+U)"
-              >
-                <Underline size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("strikeThrough")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Tachado"
-              >
-                <Strikethrough size={14} />
-              </button>
-
-              {/* Text Color Picker */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setShowTextColorPicker(!showTextColorPicker);
-                    setShowBgColorPicker(false);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-0.5"
-                  title="Cor da Fonte"
-                >
-                  <Palette size={14} className="text-blue-500" />
-                  <ChevronDown size={10} />
-                </button>
-                {showTextColorPicker && (
-                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-xl rounded-xl p-2 z-50 grid grid-cols-4 gap-1.5 w-44">
-                    {textColors.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => {
-                          execCmd("foreColor", c.color);
-                          setShowTextColorPicker(false);
-                        }}
-                        className="w-8 h-8 rounded-lg border border-border/60 hover:scale-110 transition-transform flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: c.color, color: c.color === "#f8fafc" ? "#000" : "#fff" }}
-                        title={c.name}
-                      >
-                        A
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Background Highlight Picker */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setShowBgColorPicker(!showBgColorPicker);
-                    setShowTextColorPicker(false);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-0.5"
-                  title="Cor de Fundo / Marca-Texto"
-                >
-                  <Highlighter size={14} className="text-amber-500" />
-                  <ChevronDown size={10} />
-                </button>
-                {showBgColorPicker && (
-                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-xl rounded-xl p-2 z-50 grid grid-cols-4 gap-1.5 w-44">
-                    {bgHighlightColors.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => {
-                          execCmd("hiliteColor", c.color);
-                          setShowBgColorPicker(false);
-                        }}
-                        className="w-8 h-8 rounded-lg border border-border/60 hover:scale-110 transition-transform flex items-center justify-center text-[9px] font-bold text-slate-800"
-                        style={{ backgroundColor: c.color === "transparent" ? "#fff" : c.color }}
-                        title={c.name}
-                      >
-                        {c.color === "transparent" ? "∅" : "ab"}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* Alignments */}
-            <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
-              <button
-                onClick={() => execCmd("justifyLeft")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Alinhar à Esquerda"
-              >
-                <AlignLeft size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("justifyCenter")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Centralizar"
-              >
-                <AlignCenter size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("justifyRight")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Alinhar à Direita"
-              >
-                <AlignRight size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("justifyFull")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Justificar"
-              >
-                <AlignJustify size={14} />
-              </button>
-            </div>
-
-            {/* Lists */}
-            <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
-              <button
-                onClick={() => execCmd("insertUnorderedList")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Lista com Marcadores"
-              >
-                <List size={14} />
-              </button>
-              <button
-                onClick={() => execCmd("insertOrderedList")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-                title="Lista Numerada"
-              >
-                <ListOrdered size={14} />
-              </button>
-            </div>
-
-            {/* Visual Components: Quadros / Cards & Callouts */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowCardsMenu(!showCardsMenu);
-                  setShowTablesMenu(false);
-                  setShowBadgesMenu(false);
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold transition-colors"
-                title="Inserir Quadros e Caixas Temáticas"
-              >
-                <Box size={14} />
-                <span>+ Quadro / Card</span>
-                <ChevronDown size={11} />
-              </button>
-
-              {showCardsMenu && (
-                <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-64 space-y-1">
-                  <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
-                    Modelos de Quadros Visuais
-                  </div>
-                  <button
-                    onClick={() => handleInsertCard("blue")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-500 text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-blue-500 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Azul (Insight)</div>
-                      <div className="text-[10px] text-muted-foreground">Fundo azul claro e borda royal</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertCard("green")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-500 text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Verde (Métricas & ROI)</div>
-                      <div className="text-[10px] text-muted-foreground">Foco em números e ganhos</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertCard("amber")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-500 text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Âmbar (Alerta & Compliance)</div>
-                      <div className="text-[10px] text-muted-foreground">Normas, riscos e regras</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertCard("purple")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-purple-500 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Roxo (Arquitetura & Mecanismo)</div>
-                      <div className="text-[10px] text-muted-foreground">Tecnologia e diferenciais</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertCard("dark")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-slate-800 hover:text-white text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-slate-900 border border-slate-700 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Dark Executivo</div>
-                      <div className="text-[10px] text-muted-foreground">Fundo escuro premium</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertCard("gradient")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-indigo-500/10 hover:text-indigo-500 text-foreground transition-colors flex items-center gap-2"
-                  >
-                    <span className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shrink-0" />
-                    <div>
-                      <div className="font-bold">Quadro Gradiente Premium</div>
-                      <div className="text-[10px] text-muted-foreground">Borda colorida moderna</div>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Visual Components: Tabelas Estilizadas */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowTablesMenu(!showTablesMenu);
-                  setShowCardsMenu(false);
-                  setShowBadgesMenu(false);
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors"
-                title="Inserir Tabelas Estilizadas"
-              >
-                <TableIcon size={14} />
-                <span>+ Tabela Colorida</span>
-                <ChevronDown size={11} />
-              </button>
-
-              {showTablesMenu && (
-                <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-60 space-y-1">
-                  <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
-                    Estilos de Tabela
-                  </div>
-                  <button
-                    onClick={() => handleInsertStyledTable("blue")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-500 text-foreground transition-colors"
-                  >
-                    <div className="font-bold">Tabela Azul Executiva</div>
-                    <div className="text-[10px] text-muted-foreground">Cabeçalho marinho e zebrada</div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertStyledTable("emerald")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-500 text-foreground transition-colors"
-                  >
-                    <div className="font-bold">Tabela Esmeralda (ROI & Métricas)</div>
-                    <div className="text-[10px] text-muted-foreground">Cabeçalho verde financeiro</div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertStyledTable("slate")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-muted text-foreground transition-colors"
-                  >
-                    <div className="font-bold">Tabela Minimalista Slate</div>
-                    <div className="text-[10px] text-muted-foreground">Linhas limpas e modernas</div>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertStyledTable("matrix")}
-                    className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors"
-                  >
-                    <div className="font-bold">Matriz de Decisão 2x2</div>
-                    <div className="text-[10px] text-muted-foreground">4 quadrantes estratégicos</div>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Badges / Status Pills */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowBadgesMenu(!showBadgesMenu);
-                  setShowCardsMenu(false);
-                  setShowTablesMenu(false);
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold transition-colors"
-                title="Inserir Pílulas / Badges de Status"
-              >
-                <Tag size={13} />
-                <span>+ Tag / Badge</span>
-                <ChevronDown size={11} />
-              </button>
-
-              {showBadgesMenu && (
-                <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-56 space-y-1">
-                  <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
-                    Pílulas de Status
-                  </div>
-                  <button
-                    onClick={() => handleInsertBadge("APROVADO", "#dcfce7", "#166534", "#86efac")}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
-                  >
-                    <span>Aprovado</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      APROVADO
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertBadge("EM ANÁLISE", "#dbeafe", "#1e40af", "#93c5fd")}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
-                  >
-                    <span>Em Análise</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                      EM ANÁLISE
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertBadge("CRÍTICO", "#fee2e2", "#991b1b", "#fca5a5")}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
-                  >
-                    <span>Crítico</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">
-                      CRÍTICO
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertBadge("COMPLIANCE BACEN", "#f3e8ff", "#6b21a8", "#d8b4fe")}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
-                  >
-                    <span>Compliance Bacen</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
-                      BACEN
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleInsertBadge("RELEASE MANDATÓRIO", "#fef3c7", "#92400e", "#fde68a")}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
-                  >
-                    <span>Release Mandatório</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                      MANDATÓRIO
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => execCmd("insertHorizontalRule")}
-              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
-              title="Linha Divisória"
+          {/* WYSIWYG Ribbon Toolbar (Hidden in Read-Only mode) */}
+          {!isReadOnly && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border px-4 py-2 flex flex-wrap items-center gap-1 shadow-xs"
             >
-              <Minus size={14} />
-            </button>
+              
+              {/* History */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+                <button
+                  onClick={() => execCmd("undo")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Desfazer (Ctrl+Z)"
+                >
+                  <Undo size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("redo")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Refazer (Ctrl+Y)"
+                >
+                  <Redo size={14} />
+                </button>
+              </div>
 
-          </div>
+              {/* Block Styles */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+                <button
+                  onClick={() => execCmd("formatBlock", "<h1>")}
+                  className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
+                  title="Título 1 (H1)"
+                >
+                  H1
+                </button>
+                <button
+                  onClick={() => execCmd("formatBlock", "<h2>")}
+                  className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
+                  title="Título 2 (H2)"
+                >
+                  H2
+                </button>
+                <button
+                  onClick={() => execCmd("formatBlock", "<h3>")}
+                  className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground"
+                  title="Título 3 (H3)"
+                >
+                  H3
+                </button>
+                <button
+                  onClick={() => execCmd("formatBlock", "<p>")}
+                  className="px-2 py-1 rounded-lg hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground"
+                  title="Parágrafo Normal"
+                >
+                  P
+                </button>
+              </div>
+
+              {/* Inline Formats */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+                <button
+                  onClick={() => execCmd("bold")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Negrito (Ctrl+B)"
+                >
+                  <Bold size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("italic")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Itálico (Ctrl+I)"
+                >
+                  <Italic size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("underline")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Sublinhado (Ctrl+U)"
+                >
+                  <Underline size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("strikeThrough")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Tachado"
+                >
+                  <Strikethrough size={14} />
+                </button>
+
+                {/* Text Color Picker */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowTextColorPicker(!showTextColorPicker);
+                      setShowBgColorPicker(false);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-0.5"
+                    title="Cor da Fonte"
+                  >
+                    <Palette size={14} className="text-blue-500" />
+                    <ChevronDown size={10} />
+                  </button>
+                  {showTextColorPicker && (
+                    <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-xl rounded-xl p-2 z-50 grid grid-cols-4 gap-1.5 w-44">
+                      {textColors.map((c) => (
+                        <button
+                          key={c.name}
+                          onClick={() => {
+                            execCmd("foreColor", c.color);
+                            setShowTextColorPicker(false);
+                          }}
+                          className="w-8 h-8 rounded-lg border border-border/60 hover:scale-110 transition-transform flex items-center justify-center text-[10px] font-bold"
+                          style={{ backgroundColor: c.color, color: c.color === "#f8fafc" ? "#000" : "#fff" }}
+                          title={c.name}
+                        >
+                          A
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Background Highlight Picker */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowBgColorPicker(!showBgColorPicker);
+                      setShowTextColorPicker(false);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-0.5"
+                    title="Cor de Fundo / Marca-Texto"
+                  >
+                    <Highlighter size={14} className="text-amber-500" />
+                    <ChevronDown size={10} />
+                  </button>
+                  {showBgColorPicker && (
+                    <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-xl rounded-xl p-2 z-50 grid grid-cols-4 gap-1.5 w-44">
+                      {bgHighlightColors.map((c) => (
+                        <button
+                          key={c.name}
+                          onClick={() => {
+                            execCmd("hiliteColor", c.color);
+                            setShowBgColorPicker(false);
+                          }}
+                          className="w-8 h-8 rounded-lg border border-border/60 hover:scale-110 transition-transform flex items-center justify-center text-[9px] font-bold text-slate-800"
+                          style={{ backgroundColor: c.color === "transparent" ? "#fff" : c.color }}
+                          title={c.name}
+                        >
+                          {c.color === "transparent" ? "∅" : "ab"}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Alignments */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+                <button
+                  onClick={() => execCmd("justifyLeft")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Alinhar à Esquerda"
+                >
+                  <AlignLeft size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("justifyCenter")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Centralizar"
+                >
+                  <AlignCenter size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("justifyRight")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Alinhar à Direita"
+                >
+                  <AlignRight size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("justifyFull")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Justificar"
+                >
+                  <AlignJustify size={14} />
+                </button>
+              </div>
+
+              {/* Lists */}
+              <div className="flex items-center border-r border-border/80 pr-1.5 mr-1 space-x-0.5">
+                <button
+                  onClick={() => execCmd("insertUnorderedList")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Lista com Marcadores"
+                >
+                  <List size={14} />
+                </button>
+                <button
+                  onClick={() => execCmd("insertOrderedList")}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Lista Numerada"
+                >
+                  <ListOrdered size={14} />
+                </button>
+              </div>
+
+              {/* Image Inserter Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowImageModal(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition-colors"
+                  title="Inserir Imagem do Computador ou por Link"
+                >
+                  <ImageIcon size={14} />
+                  <span>+ Imagem</span>
+                </button>
+              </div>
+
+              {/* Visual Components: Quadros / Cards & Callouts */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowCardsMenu(!showCardsMenu);
+                    setShowTablesMenu(false);
+                    setShowBadgesMenu(false);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold transition-colors"
+                  title="Inserir Quadros e Caixas Temáticas"
+                >
+                  <Box size={14} />
+                  <span>+ Quadro / Card</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {showCardsMenu && (
+                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-64 space-y-1">
+                    <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+                      Modelos de Quadros Visuais
+                    </div>
+                    <button
+                      onClick={() => handleInsertCard("blue")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-500 text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-blue-500 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Azul (Insight)</div>
+                        <div className="text-[10px] text-muted-foreground">Fundo azul claro e borda royal</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertCard("green")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-500 text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Verde (Métricas & ROI)</div>
+                        <div className="text-[10px] text-muted-foreground">Foco em números e ganhos</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertCard("amber")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-500 text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Âmbar (Alerta & Compliance)</div>
+                        <div className="text-[10px] text-muted-foreground">Normas, riscos e regras</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertCard("purple")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-purple-500 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Roxo (Arquitetura & Mecanismo)</div>
+                        <div className="text-[10px] text-muted-foreground">Tecnologia e diferenciais</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertCard("dark")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-slate-800 hover:text-white text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-slate-900 border border-slate-700 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Dark Executivo</div>
+                        <div className="text-[10px] text-muted-foreground">Fundo escuro premium</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertCard("gradient")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-indigo-500/10 hover:text-indigo-500 text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shrink-0" />
+                      <div>
+                        <div className="font-bold">Quadro Gradiente Premium</div>
+                        <div className="text-[10px] text-muted-foreground">Borda colorida moderna</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Visual Components: Tabelas Estilizadas */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowTablesMenu(!showTablesMenu);
+                    setShowCardsMenu(false);
+                    setShowBadgesMenu(false);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors"
+                  title="Inserir Tabelas Estilizadas"
+                >
+                  <TableIcon size={14} />
+                  <span>+ Tabela Colorida</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {showTablesMenu && (
+                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-60 space-y-1">
+                    <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+                      Estilos de Tabela
+                    </div>
+                    <button
+                      onClick={() => handleInsertStyledTable("blue")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-500 text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Tabela Azul Executiva</div>
+                      <div className="text-[10px] text-muted-foreground">Cabeçalho marinho e zebrada</div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertStyledTable("emerald")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-500 text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Tabela Esmeralda (ROI & Métricas)</div>
+                      <div className="text-[10px] text-muted-foreground">Cabeçalho verde financeiro</div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertStyledTable("slate")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-muted text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Tabela Minimalista Slate</div>
+                      <div className="text-[10px] text-muted-foreground">Linhas limpas e modernas</div>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertStyledTable("matrix")}
+                      className="w-full text-left p-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-500 text-foreground transition-colors"
+                    >
+                      <div className="font-bold">Matriz de Decisão 2x2</div>
+                      <div className="text-[10px] text-muted-foreground">4 quadrantes estratégicos</div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Badges / Status Pills */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowBadgesMenu(!showBadgesMenu);
+                    setShowCardsMenu(false);
+                    setShowTablesMenu(false);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold transition-colors"
+                  title="Inserir Pílulas / Badges de Status"
+                >
+                  <Tag size={13} />
+                  <span>+ Tag / Badge</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {showBadgesMenu && (
+                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border shadow-2xl rounded-2xl p-2 z-50 w-56 space-y-1">
+                    <div className="text-[10px] font-bold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+                      Pílulas de Status
+                    </div>
+                    <button
+                      onClick={() => handleInsertBadge("APROVADO", "#dcfce7", "#166534", "#86efac")}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
+                    >
+                      <span>Aprovado</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        APROVADO
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertBadge("EM ANÁLISE", "#dbeafe", "#1e40af", "#93c5fd")}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
+                    >
+                      <span>Em Análise</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                        EM ANÁLISE
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertBadge("CRÍTICO", "#fee2e2", "#991b1b", "#fca5a5")}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
+                    >
+                      <span>Crítico</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">
+                        CRÍTICO
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertBadge("COMPLIANCE BACEN", "#f3e8ff", "#6b21a8", "#d8b4fe")}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
+                    >
+                      <span>Compliance Bacen</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
+                        BACEN
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleInsertBadge("RELEASE MANDATÓRIO", "#fef3c7", "#92400e", "#fde68a")}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-muted flex items-center justify-between"
+                    >
+                      <span>Release Mandatório</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                        MANDATÓRIO
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => execCmd("insertHorizontalRule")}
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                title="Linha Divisória"
+              >
+                <Minus size={14} />
+              </button>
+
+            </div>
+          )}
 
           {/* The A4 Paper Canvas */}
           <div className="flex-1 py-8 px-4 flex justify-center">
@@ -1149,16 +1410,20 @@ export default function DocStudioEditor() {
               style={{
                 boxShadow: "0 10px 35px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border)",
               }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
             >
               <div
                 ref={editorRef}
-                contentEditable
+                contentEditable={!isReadOnly}
                 suppressContentEditableWarning
                 dangerouslySetInnerHTML={{ __html: contentHtml || DOCUMENT_TEMPLATES[1].content }}
                 onInput={handleEditorInput}
                 onMouseUp={handleMouseUp}
                 onKeyUp={handleMouseUp}
-                className="outline-none min-h-[950px] leading-relaxed text-[15px] prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-blockquote:my-3 prose-hr:my-4"
+                className={`outline-none min-h-[950px] leading-relaxed text-[15px] prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-blockquote:my-3 prose-hr:my-4 ${
+                  isReadOnly ? "cursor-default select-text" : "cursor-text"
+                }`}
               />
             </div>
 
@@ -1173,27 +1438,29 @@ export default function DocStudioEditor() {
               <span>~{stats.readTimeMinutes} min de leitura</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Modo Executivo & Design System Ativo</span>
+              <span className={`inline-block w-2 h-2 rounded-full ${isReadOnly ? "bg-amber-500" : "bg-emerald-500"}`} />
+              <span>{isReadOnly ? "Modo Leitura (Bloqueado)" : "Modo Executivo & Design System Ativo"}</span>
             </div>
           </footer>
 
         </div>
 
         {/* Floating Selection AI Toolbar */}
-        <AiFloatingToolbar
-          selectedText={selectedText}
-          onApplyReplacement={handleApplyReplacement}
-          onInsertBelow={handleInsertBelow}
-          onClose={() => {
-            setFloatingPos(null);
-            setSelectedText("");
-          }}
-          position={floatingPos}
-          apiKey={aiApiKey}
-          provider={aiProvider}
-          model={aiModel}
-        />
+        {!isReadOnly && (
+          <AiFloatingToolbar
+            selectedText={selectedText}
+            onApplyReplacement={handleApplyReplacement}
+            onInsertBelow={handleInsertBelow}
+            onClose={() => {
+              setFloatingPos(null);
+              setSelectedText("");
+            }}
+            position={floatingPos}
+            apiKey={aiApiKey}
+            provider={aiProvider}
+            model={aiModel}
+          />
+        )}
 
         {/* Right Side: Derick-style AI Copilot Panel */}
         {isCopilotOpen && (
@@ -1235,6 +1502,62 @@ export default function DocStudioEditor() {
           localStorage.setItem("vs_ai_model", model);
         }}
       />
+
+      {/* Image Inserter Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-background border border-border shadow-2xl rounded-3xl w-full max-w-md p-6 text-foreground">
+            <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
+              <ImageIcon size={18} className="text-indigo-500" />
+              Inserir Imagem no Documento
+            </h3>
+
+            <div className="space-y-4">
+              {/* Option 1: File from computer */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full p-4 rounded-2xl border-2 border-dashed border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/5 transition-all text-center group cursor-pointer"
+              >
+                <Upload size={24} className="mx-auto text-indigo-500 mb-2 group-hover:scale-110 transition-transform" />
+                <div className="text-xs font-bold text-foreground">Carregar imagem do computador</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">PNG, JPG, SVG, WebP ou GIF (ou arraste na folha)</div>
+              </button>
+
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex-1 h-px bg-border" />
+                <span>OU VIA LINK WEB</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
+              {/* Option 2: Image URL */}
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  placeholder="https://exemplo.com/imagem.png"
+                  value={imageUrlInput}
+                  onChange={(e) => setImageUrlInput(e.target.value)}
+                  className="w-full bg-muted/40 border border-border rounded-xl p-2.5 text-xs text-foreground outline-none focus:border-indigo-500"
+                />
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => setShowImageModal(false)}
+                    className="px-3 py-1.5 rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    disabled={!imageUrlInput.trim()}
+                    onClick={() => insertImageHtml(imageUrlInput)}
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                  >
+                    Inserir por Link
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification */}
       {copiedNotification && (
