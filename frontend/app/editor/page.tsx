@@ -61,6 +61,7 @@ import AiFloatingToolbar from "@/components/editor/AiFloatingToolbar";
 import AiCopilotSidebar from "@/components/editor/AiCopilotSidebar";
 import DocManagerModal, { SavedDoc } from "@/components/editor/DocManagerModal";
 import AiSettingsModal from "@/components/editor/AiSettingsModal";
+import BulletinMetadataCard, { BulletinMetadata } from "@/components/editor/BulletinMetadataCard";
 
 interface TocItem {
   id: string;
@@ -78,6 +79,25 @@ export default function DocStudioEditor() {
 
   // Read-Only / Public Mode State
   const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
+
+  // Bulletin Metadata Visual Card State (outside A4 document)
+  const [showBulletinCard, setShowBulletinCard] = useState<boolean>(true);
+  const [bulletinMeta, setBulletinMeta] = useState<BulletinMetadata>({
+    brand: "mastercard",
+    title: "Updated Payment System Public Keys for M/Chip",
+    referenceId: "GLB 10362.3",
+    publicationDate: "22/09/2026",
+    effectiveDate: "01/11/2026",
+    keyExpirationDate: "31/12/2036",
+    category: "Operations • Security • Chip & Contactless • POI",
+    audience: ["Adquirentes", "Subadquirentes / PSPs", "Emissores", "Processadoras", "Terminais POS / ATM"],
+    region: "Global (Doméstico e Internacional)",
+    requirement: "Informativo",
+    riskLevel: "Baixo",
+    tags: ["M/Chip", "CAPK", "RSA 1984-bit", "Offline Auth", "EMV Contactless", "Kernel L2"],
+    executiveSummary: "A Mastercard estende por mais 1 ano a validade da Chave Pública do Sistema de Pagamentos de 1.984 bits (passando de 31/12/2035 para 31/12/2036), mantendo o valor da chave inalterado e preservando a vida útil de chaves de emissores sob a mesma raiz.",
+    recommendedAction: "Atualizar tabelas CAPK nos sistemas TMS dos adquirentes e solicitar novos certificados para emissores com vigência estendida a partir de 01/11/2026.",
+  });
 
   // Table of Contents (Neste Documento) State
   const [tocList, setTocList] = useState<TocItem[]>([]);
@@ -302,29 +322,50 @@ export default function DocStudioEditor() {
     }
   }, [extractTocFromDom, updateStats]);
 
+  // Mouse Selection Tracking: Silent tracking without annoying popups on regular clicks/selection
   const handleMouseUp = () => {
     if (isReadOnly) return;
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !editorRef.current) {
-      setFloatingPos(null);
-      setSelectedText("");
-      savedRangeRef.current = null;
       return;
     }
 
     const text = selection.toString().trim();
-    if (text.length > 2) {
+    if (text.length > 1) {
       const range = selection.getRangeAt(0);
       savedRangeRef.current = range.cloneRange();
-      const rect = range.getBoundingClientRect();
+      setSelectedText(text);
+    }
+  };
+
+  // Right-Click Context Menu: Fast AI Assistant Action on Right Click!
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (isReadOnly) return;
+    const selection = window.getSelection();
+    let text = selection?.toString().trim() || "";
+
+    // If no text was manually highlighted, check if right clicking inside a paragraph/block
+    if (!text && editorRef.current) {
+      const target = e.target as HTMLElement;
+      if (target && target.innerText && target !== editorRef.current) {
+        text = target.innerText.trim();
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        savedRangeRef.current = range.cloneRange();
+      }
+    }
+
+    if (text.length > 0) {
+      e.preventDefault();
+      const range = selection?.getRangeAt(0);
+      if (range) savedRangeRef.current = range.cloneRange();
       setSelectedText(text);
       setFloatingPos({
-        top: rect.top - 60,
-        left: rect.left,
+        top: e.clientY + 8,
+        left: Math.min(e.clientX, window.innerWidth - 460),
       });
-    } else {
-      setFloatingPos(null);
-      setSelectedText("");
     }
   };
 
@@ -792,16 +833,31 @@ export default function DocStudioEditor() {
           </button>
 
           {!isReadOnly && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDocManagerOpen(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0"
-            >
-              <FolderOpen size={14} className="text-blue-500" />
-              <span className="hidden sm:inline">Meus Docs</span>
-            </button>
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDocManagerOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0"
+              >
+                <FolderOpen size={14} className="text-blue-500" />
+                <span className="hidden sm:inline">Meus Docs</span>
+              </button>
+
+              <button
+                onClick={() => setShowBulletinCard(!showBulletinCard)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all shrink-0 ${
+                  showBulletinCard
+                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-300 border-purple-500/30"
+                    : "bg-muted/40 text-muted-foreground hover:text-foreground border-border"
+                }`}
+                title="Mostrar ou ocultar ficha visual de metadados do boletim"
+              >
+                <Tag size={13} className="text-purple-500" />
+                <span className="hidden md:inline">Ficha do Boletim</span>
+              </button>
+            </>
           )}
 
           <div className="h-4 w-px bg-border shrink-0" />
@@ -1463,10 +1519,19 @@ export default function DocStudioEditor() {
             </div>
           )}
 
-          {/* The A4 Paper Canvas */}
-          <div className="flex-1 py-8 px-4 flex justify-center">
+          {/* The A4 Paper Canvas & Metadata Card */}
+          <div className="flex-1 py-8 px-4 flex flex-col items-center">
             
-            {/* The A4 Paper Card */}
+            {/* Visual Bulletin Metadata Card (Outside the Document) */}
+            {showBulletinCard && (
+              <BulletinMetadataCard
+                metadata={bulletinMeta}
+                onUpdateMetadata={(updated) => setBulletinMeta(updated)}
+                isReadOnly={isReadOnly}
+              />
+            )}
+
+            {/* The A4 Paper Card (Parecer Técnico) */}
             <div
               className="w-full max-w-[850px] min-h-[1050px] bg-card text-foreground rounded-2xl shadow-xl border border-border p-10 sm:p-14 transition-all focus-within:ring-2 focus-within:ring-blue-500/30"
               style={{
@@ -1483,6 +1548,7 @@ export default function DocStudioEditor() {
                 onInput={handleEditorInput}
                 onMouseUp={handleMouseUp}
                 onKeyUp={handleMouseUp}
+                onContextMenu={handleContextMenu}
                 className={`outline-none min-h-[950px] leading-relaxed text-[15px] prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-blockquote:my-3 prose-hr:my-4 ${
                   isReadOnly ? "cursor-default select-text" : "cursor-text"
                 }`}
