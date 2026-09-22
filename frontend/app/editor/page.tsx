@@ -148,18 +148,55 @@ export default function DocStudioEditor() {
   }, []);
 
   // Smooth Scroll to Section with Visual Glow
-  const scrollToHeading = (id: string) => {
+  const scrollToHeading = (id: string, index?: number) => {
     setActiveHeadingId(id);
     if (!editorRef.current) return;
-    const el = editorRef.current.querySelector(`#${id}`);
+
+    // 1. Find element by ID or by matching index
+    let el: HTMLElement | null = editorRef.current.querySelector(`#${id}`);
+    if (!el) {
+      el = document.getElementById(id);
+    }
+    if (!el && typeof index === "number") {
+      const allHeadings = editorRef.current.querySelectorAll("h1, h2, h3");
+      if (allHeadings[index]) {
+        el = allHeadings[index] as HTMLElement;
+      }
+    }
+
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      
-      // Temporary highlight pulse
-      el.classList.add("ring-4", "ring-purple-400/50", "rounded-lg", "transition-all", "duration-500");
+      // 2. Scroll container directly by computing exact pixel offset
+      const container = scrollContainerRef.current;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const targetTop = container.scrollTop + (elRect.top - containerRect.top) - 75;
+        container.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: "smooth",
+        });
+      } else {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      // 3. High-visibility highlight pulse
+      const originalTransition = el.style.transition;
+      const originalOutline = el.style.outline;
+      const originalOutlineOffset = el.style.outlineOffset;
+      const originalBg = el.style.backgroundColor;
+
+      el.style.transition = "all 0.3s ease";
+      el.style.outline = "3px solid #8b5cf6";
+      el.style.outlineOffset = "4px";
+      el.style.backgroundColor = "rgba(139, 92, 246, 0.15)";
+      el.style.borderRadius = "6px";
+
       setTimeout(() => {
-        el.classList.remove("ring-4", "ring-purple-400/50");
-      }, 1400);
+        el.style.outline = originalOutline || "";
+        el.style.outlineOffset = originalOutlineOffset || "";
+        el.style.backgroundColor = originalBg || "";
+        el.style.transition = originalTransition || "";
+      }, 1600);
     }
   };
 
@@ -915,7 +952,7 @@ export default function DocStudioEditor() {
                   return (
                     <button
                       key={item.id}
-                      onClick={() => scrollToHeading(item.id)}
+                      onClick={() => scrollToHeading(item.id, idx)}
                       className={`w-full text-left flex items-start gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
                         isActive
                           ? "bg-purple-500/15 text-purple-600 dark:text-purple-300 font-bold border border-purple-500/30 shadow-xs"
