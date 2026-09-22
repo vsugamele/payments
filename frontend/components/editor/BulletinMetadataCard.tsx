@@ -277,69 +277,69 @@ export default function BulletinMetadataCard({
   const getRiskBadge = (risk: string) => {
     switch (risk.toLowerCase()) {
       case "crítico":
-        return "bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30";
+        return "bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border-red-200 dark:border-red-500/30 shadow-2xs";
       case "alto":
-        return "bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/30";
+        return "bg-orange-50 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-500/30 shadow-2xs";
       case "médio":
-        return "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30";
+        return "bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-500/30 shadow-2xs";
       default:
-        return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30";
+        return "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30 shadow-2xs";
     }
   };
 
   const getRequirementBadge = (req: string) => {
     switch (req.toLowerCase()) {
       case "mandatório":
-        return "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
+        return "bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30 shadow-2xs";
       case "alerta de risco":
-        return "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30";
+        return "bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-500/30 shadow-2xs";
       default:
-        return "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30";
+        return "bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 shadow-2xs";
     }
   };
 
   const getDateBadge = (type: string) => {
     switch (type) {
       case "Go-Live":
-        return "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
+        return "bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-500/30 shadow-2xs";
       case "Publicação":
-        return "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30";
+        return "bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30 shadow-2xs";
       case "Expiração":
-        return "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30";
+        return "bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border-red-200 dark:border-red-500/30 shadow-2xs";
       default:
-        return "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
+        return "bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30 shadow-2xs";
     }
   };
 
   return (
-    <div className="w-full max-w-[850px] mb-6 rounded-2xl border border-border bg-card shadow-lg overflow-hidden transition-all text-foreground print:shadow-none print:border print:border-slate-300 print:bg-white print:text-black print:mb-4 print-card-break">
+    <div className="w-full max-w-[850px] mb-6 rounded-2xl border border-slate-200 dark:border-border bg-white dark:bg-card shadow-md dark:shadow-xl overflow-hidden transition-all text-foreground print:shadow-none print:border print:border-slate-300 print:bg-white print:text-black print:mb-4 print-card-break">
       
       {/* ── Top Bar / Header Summary ─────────────────────────────────────────── */}
-      <div className="p-4 sm:p-5 border-b border-border/80 bg-muted/30 flex flex-wrap items-center justify-between gap-3 print:bg-slate-50 print:border-slate-200">
+      <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-border/80 bg-slate-50/70 dark:bg-muted/30 flex flex-wrap items-center justify-between gap-3 print:bg-slate-50 print:border-slate-200">
         
         {/* Brand & Reference */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="p-2 rounded-xl bg-card border border-border shadow-xs flex items-center justify-center shrink-0 print:border-slate-200 print:bg-white">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-card border border-slate-200 dark:border-border shadow-xs flex items-center justify-center shrink-0 print:border-slate-200 print:bg-white">
             {brandStyle.icon}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-extrabold text-xs tracking-wide uppercase text-foreground print:text-black">
+              <span className="font-extrabold text-xs tracking-wide uppercase text-slate-800 dark:text-foreground print:text-black">
                 {brandStyle.name}
               </span>
               <button
                 onClick={copyId}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted text-[11px] font-mono font-bold text-blue-600 dark:text-blue-400 border border-border/80 hover:bg-muted/80 transition-colors print:border-slate-300 print:text-blue-700"
+                className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-muted text-[11px] font-mono font-bold text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-border/80 hover:bg-slate-200/70 transition-colors shadow-2xs print:border-slate-300 print:text-blue-700"
                 title="Copiar Código de Referência"
               >
                 <span>{metadata.referenceId}</span>
                 {isCopiedId ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} className="print:hidden" />}
               </button>
-              <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold border ${getRequirementBadge(metadata.requirement)}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border ${getRequirementBadge(metadata.requirement)}`}>
                 {metadata.requirement.toUpperCase()}
               </span>
             </div>
-            <h2 className="text-sm sm:text-base font-bold text-foreground truncate mt-0.5 max-w-xl print:text-black">
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-foreground truncate mt-0.5 max-w-xl print:text-black">
               {metadata.title}
             </h2>
           </div>
@@ -349,37 +349,37 @@ export default function BulletinMetadataCard({
         <div className="flex items-center gap-2 shrink-0 ml-auto print:hidden">
           {/* Tabs switch */}
           {isExpanded && !isEditing && (
-            <div className="hidden sm:flex items-center bg-muted/60 p-1 rounded-xl border border-border/60 text-xs font-semibold">
+            <div className="hidden sm:flex items-center bg-slate-100 dark:bg-muted/60 p-1 rounded-xl border border-slate-200 dark:border-border/60 text-xs font-semibold">
               <button
                 onClick={() => setActiveTab("overview")}
-                className={`px-2.5 py-1 rounded-lg transition-colors ${
+                className={`px-3 py-1 rounded-lg transition-all ${
                   activeTab === "overview"
-                    ? "bg-card text-foreground shadow-2xs font-bold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white dark:bg-card text-slate-900 dark:text-foreground shadow-xs font-bold border border-slate-200/80 dark:border-transparent"
+                    : "text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
                 }`}
               >
                 Visão Geral
               </button>
               <button
                 onClick={() => setActiveTab("dates")}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                   activeTab === "dates"
-                    ? "bg-card text-foreground shadow-2xs font-bold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white dark:bg-card text-slate-900 dark:text-foreground shadow-xs font-bold border border-slate-200/80 dark:border-transparent"
+                    : "text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
                 }`}
               >
-                <CalendarDays size={12} />
+                <CalendarDays size={13} className="text-amber-500" />
                 <span>Datas ({metadata.dateExplanations?.length || 0})</span>
               </button>
               <button
                 onClick={() => setActiveTab("versions")}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                   activeTab === "versions"
-                    ? "bg-card text-foreground shadow-2xs font-bold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white dark:bg-card text-slate-900 dark:text-foreground shadow-xs font-bold border border-slate-200/80 dark:border-transparent"
+                    : "text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
                 }`}
               >
-                <History size={12} />
+                <History size={13} className="text-blue-500" />
                 <span>Versões ({metadata.versionHistory?.length || 0})</span>
               </button>
             </div>
@@ -388,17 +388,17 @@ export default function BulletinMetadataCard({
           {!isReadOnly && (
             <button
               onClick={isEditing ? () => setIsEditing(false) : handleStartEditing}
-              className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors text-xs font-semibold flex items-center gap-1"
+              className="px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground bg-white dark:bg-card hover:bg-slate-50 dark:hover:bg-muted border border-slate-200 dark:border-border/60 transition-all text-xs font-bold flex items-center gap-1.5 shadow-2xs"
               title="Editar Campos de Metadados"
             >
-              <Edit3 size={13} />
+              <Edit3 size={13} className="text-blue-500" />
               <span className="hidden sm:inline">{isEditing ? "Cancelar" : "Editar Ficha"}</span>
             </button>
           )}
 
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors"
+            className="p-1.5 rounded-xl text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground bg-white dark:bg-card hover:bg-slate-50 dark:hover:bg-muted border border-slate-200 dark:border-border/60 transition-all shadow-2xs"
             title={isExpanded ? "Recolher Ficha Cadastral" : "Expandir Ficha Cadastral"}
           >
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -442,46 +442,62 @@ export default function BulletinMetadataCard({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:grid-cols-4 print:gap-2">
                 
                 {/* Publicação */}
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1 print:text-slate-600">
-                    <Calendar size={12} className="text-blue-500" />
-                    Publicação
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-muted/30 border border-slate-200 dark:border-border/60 shadow-xs hover:border-blue-300 dark:hover:border-border transition-all flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-md bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                      <Calendar size={12} />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Publicação
+                    </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-foreground mt-1 print:text-black">
+                  <div className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-foreground mt-2 print:text-black">
                     {metadata.publicationDate}
                   </div>
                 </div>
 
                 {/* Vigência / Go-Live */}
-                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex flex-col justify-between print:bg-amber-50/50 print:border-amber-200 print:p-2">
-                  <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase flex items-center gap-1 print:text-amber-800">
-                    <Clock size={12} />
-                    Vigência / Go-Live
+                <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 shadow-xs ring-1 ring-amber-400/20 hover:border-amber-400 transition-all flex flex-col justify-between print:bg-amber-50/50 print:border-amber-200 print:p-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+                      <Clock size={12} />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider print:text-amber-800">
+                      Vigência / Go-Live
+                    </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-extrabold text-amber-600 dark:text-amber-400 mt-1 print:text-amber-800">
+                  <div className="text-xs sm:text-sm font-black text-amber-700 dark:text-amber-400 mt-2 print:text-amber-800">
                     {metadata.effectiveDate}
                   </div>
                 </div>
 
                 {/* Região */}
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1 print:text-slate-600">
-                    <Globe size={12} className="text-indigo-500" />
-                    Região
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-muted/30 border border-slate-200 dark:border-border/60 shadow-xs hover:border-indigo-300 dark:hover:border-border transition-all flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                      <Globe size={12} />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Região
+                    </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-foreground mt-1 print:text-black">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground mt-2 leading-tight print:text-black">
                     {metadata.region}
                   </div>
                 </div>
 
                 {/* Nível de Risco */}
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1 print:text-slate-600">
-                    <ShieldCheck size={12} className="text-emerald-500" />
-                    Risco Operacional
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-muted/30 border border-slate-200 dark:border-border/60 shadow-xs hover:border-emerald-300 dark:hover:border-border transition-all flex flex-col justify-between print:bg-slate-50 print:border-slate-200 print:p-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <ShieldCheck size={12} />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Risco Operacional
+                    </span>
                   </div>
-                  <div className="mt-1">
-                    <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold border ${getRiskBadge(metadata.riskLevel)}`}>
+                  <div className="mt-2">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${getRiskBadge(metadata.riskLevel)}`}>
                       {metadata.riskLevel}
                     </span>
                   </div>
@@ -493,16 +509,20 @@ export default function BulletinMetadataCard({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 print:grid-cols-2 print:gap-2">
                 
                 {/* Rol Impactado */}
-                <div className="p-3.5 rounded-xl bg-muted/20 border border-border/60 print:bg-slate-50 print:border-slate-200 print:p-2.5">
-                  <div className="text-[11px] font-bold text-muted-foreground uppercase flex items-center gap-1.5 mb-2 print:text-slate-600">
-                    <Users size={13} className="text-blue-500" />
-                    Público / Rol Impactado
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-muted/20 border border-slate-200 dark:border-border/60 shadow-xs hover:border-slate-300 dark:hover:border-border transition-all print:bg-slate-50 print:border-slate-200 print:p-2.5">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                      <Users size={13} />
+                    </div>
+                    <span className="text-[11px] font-extrabold text-slate-700 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Público / Rol Impactado
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {metadata.audience.map((item, idx) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 rounded-lg bg-card text-foreground font-medium text-xs border border-border shadow-2xs print:border-slate-300 print:bg-white print:text-black"
+                        className="px-2.5 py-1 rounded-lg bg-white dark:bg-card text-slate-800 dark:text-foreground font-semibold text-xs border border-slate-200 dark:border-border shadow-2xs hover:border-slate-300 transition-colors print:border-slate-300 print:bg-white print:text-black"
                       >
                         {item}
                       </span>
@@ -511,16 +531,20 @@ export default function BulletinMetadataCard({
                 </div>
 
                 {/* Tags / Classificação */}
-                <div className="p-3.5 rounded-xl bg-muted/20 border border-border/60 print:bg-slate-50 print:border-slate-200 print:p-2.5">
-                  <div className="text-[11px] font-bold text-muted-foreground uppercase flex items-center gap-1.5 mb-2 print:text-slate-600">
-                    <Tag size={13} className="text-purple-500" />
-                    Tags de Classificação
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-muted/20 border border-slate-200 dark:border-border/60 shadow-xs hover:border-slate-300 dark:hover:border-border transition-all print:bg-slate-50 print:border-slate-200 print:p-2.5">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                      <Tag size={13} />
+                    </div>
+                    <span className="text-[11px] font-extrabold text-slate-700 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Tags de Classificação
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {metadata.tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-300 text-[11px] font-semibold border border-purple-500/20 print:border-purple-300 print:text-purple-800"
+                        className="px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 text-[11px] font-bold border border-purple-200 dark:border-purple-500/20 shadow-2xs hover:border-purple-300 transition-colors print:border-purple-300 print:text-purple-800"
                       >
                         #{tag}
                       </span>
@@ -532,18 +556,22 @@ export default function BulletinMetadataCard({
 
               {/* Custom Fields Section (if any exist) */}
               {metadata.customFields && metadata.customFields.length > 0 && (
-                <div className="p-3.5 rounded-xl bg-muted/20 border border-border/60 print:bg-slate-50 print:border-slate-200 print:p-2.5">
-                  <div className="text-[11px] font-bold text-muted-foreground uppercase flex items-center gap-1.5 mb-2.5 print:text-slate-600">
-                    <Layers size={13} className="text-indigo-500" />
-                    Campos & Especificações Adicionais
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-muted/20 border border-slate-200 dark:border-border/60 shadow-xs print:bg-slate-50 print:border-slate-200 print:p-2.5">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                      <Layers size={13} />
+                    </div>
+                    <span className="text-[11px] font-extrabold text-slate-700 dark:text-muted-foreground uppercase tracking-wider print:text-slate-600">
+                      Campos & Especificações Adicionais
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {metadata.customFields.map((field) => (
-                      <div key={field.id} className="p-2.5 rounded-lg bg-card border border-border/80 text-xs print:bg-white print:border-slate-200">
-                        <span className="font-bold text-muted-foreground block text-[10.5px] uppercase print:text-slate-600">
+                      <div key={field.id} className="p-3 rounded-xl bg-white dark:bg-card border border-slate-200 dark:border-border/80 shadow-2xs text-xs print:bg-white print:border-slate-200">
+                        <span className="font-extrabold text-slate-600 dark:text-muted-foreground block text-[10.5px] uppercase tracking-wider print:text-slate-600">
                           {field.label}:
                         </span>
-                        <span className="text-foreground font-medium mt-0.5 block print:text-black">
+                        <span className="text-slate-900 dark:text-foreground font-semibold mt-1 block print:text-black">
                           {field.value}
                         </span>
                       </div>
@@ -553,10 +581,12 @@ export default function BulletinMetadataCard({
               )}
 
               {/* Executive Summary Box */}
-              <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start gap-3 print:bg-blue-50/50 print:border-blue-200 print:p-3">
-                <Sparkles size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                <div className="text-xs sm:text-[13px] leading-relaxed text-foreground print:text-black">
-                  <strong className="font-bold text-blue-600 dark:text-blue-400 block mb-0.5 print:text-blue-900">
+              <div className="p-4.5 rounded-xl bg-blue-50/70 dark:bg-blue-500/5 border border-blue-200/90 dark:border-blue-500/20 shadow-xs flex items-start gap-3.5 print:bg-blue-50/50 print:border-blue-200 print:p-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                  <Sparkles size={16} />
+                </div>
+                <div className="text-xs sm:text-[13px] leading-relaxed text-slate-700 dark:text-foreground print:text-black">
+                  <strong className="font-extrabold text-blue-800 dark:text-blue-400 block mb-1 text-xs sm:text-sm print:text-blue-900">
                     Síntese do Boletim:
                   </strong>
                   {metadata.executiveSummary}
@@ -576,22 +606,22 @@ export default function BulletinMetadataCard({
               {(metadata.dateExplanations || []).map((d, idx) => (
                 <div
                   key={d.id || idx}
-                  className="p-3.5 rounded-xl bg-muted/20 border border-border flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:bg-muted/30 transition-colors print:bg-slate-50 print:border-slate-200 print:p-2.5 print-card-break"
+                  className="p-3.5 rounded-xl bg-slate-50 dark:bg-muted/20 border border-slate-200 dark:border-border shadow-xs flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-slate-300 dark:hover:bg-muted/30 transition-all print:bg-slate-50 print:border-slate-200 print:p-2.5 print-card-break"
                 >
                   <div className="min-w-[130px] shrink-0">
-                    <div className="font-mono text-xs sm:text-sm font-extrabold text-foreground print:text-black">
+                    <div className="font-mono text-xs sm:text-sm font-extrabold text-slate-900 dark:text-foreground print:text-black">
                       {d.date}
                     </div>
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${getDateBadge(d.impactType)}`}>
+                    <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${getDateBadge(d.impactType)}`}>
                       {d.impactType}
                     </span>
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs sm:text-sm font-bold text-foreground print:text-black">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-foreground print:text-black">
                       {d.event}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed print:text-slate-700">
+                    <p className="text-xs text-slate-600 dark:text-muted-foreground mt-1 leading-relaxed print:text-slate-700">
                       {d.explanation}
                     </p>
                   </div>
@@ -613,26 +643,26 @@ export default function BulletinMetadataCard({
                   key={v.id || idx}
                   className={`p-3.5 rounded-xl border transition-all print:bg-white print:border-slate-200 print:p-2.5 print-card-break ${
                     v.isCurrent
-                      ? "bg-blue-500/5 border-blue-500/30 ring-1 ring-blue-500/20 print:border-blue-400"
-                      : "bg-muted/20 border-border"
+                      ? "bg-blue-50/80 dark:bg-blue-500/5 border-blue-300 dark:border-blue-500/30 ring-1 ring-blue-500/20 shadow-xs print:border-blue-400"
+                      : "bg-slate-50 dark:bg-muted/20 border-slate-200 dark:border-border shadow-xs hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-foreground print:text-black">
+                      <span className="font-mono text-xs font-bold text-slate-900 dark:text-foreground print:text-black">
                         {v.version}
                       </span>
                       {v.isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold print:border-emerald-400 print:text-emerald-800">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-[10px] font-bold shadow-2xs print:border-emerald-400 print:text-emerald-800">
                           VERSÃO ATUAL
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-muted-foreground font-mono print:text-slate-600">
+                    <span className="text-[11px] text-slate-500 dark:text-muted-foreground font-mono print:text-slate-600">
                       {v.date}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed print:text-slate-700">
+                  <p className="text-xs text-slate-600 dark:text-muted-foreground leading-relaxed print:text-slate-700">
                     {v.description}
                   </p>
                 </div>

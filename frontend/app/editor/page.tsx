@@ -1001,7 +1001,7 @@ export default function DocStudioEditor() {
   return (
     <div
       onClick={closeAllMenus}
-      className="flex flex-col h-[calc(100vh-64px)] bg-muted/20 text-foreground overflow-hidden font-sans print:h-auto print:overflow-visible print:bg-white print:text-black print:m-0 print:p-0"
+      className="flex flex-col h-[calc(100vh-64px)] bg-slate-100/60 dark:bg-muted/20 text-foreground overflow-hidden font-sans print:h-auto print:overflow-visible print:bg-white print:text-black print:m-0 print:p-0"
     >
       {/* Hidden file input for local image upload */}
       <input
@@ -1236,7 +1236,7 @@ export default function DocStudioEditor() {
         {/* Center: Editor Canvas Area */}
         <div
           ref={scrollContainerRef}
-          className="flex-1 flex flex-col min-w-0 bg-muted/30 overflow-y-auto scroll-smooth print:overflow-visible print:h-auto print:bg-white print:p-0 print:block"
+          className="flex-1 flex flex-col min-w-0 bg-slate-100/80 dark:bg-muted/30 overflow-y-auto scroll-smooth print:overflow-visible print:h-auto print:bg-white print:p-0 print:block"
         >
           
           {/* Read-Only Alert Banner */}
