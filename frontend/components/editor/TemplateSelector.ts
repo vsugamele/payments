@@ -2,12 +2,219 @@ export interface DocumentTemplate {
   id: string;
   name: string;
   description: string;
-  category: "Geral" | "Pagamentos" | "Copywriting" | "Técnico" | "Jurídico";
+  category: "Geral" | "Pagamentos" | "Copywriting" | "Técnico" | "Jurídico" | "Artigos";
   defaultTitle: string;
   content: string;
 }
 
 export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
+  {
+    id: "artigo_ia_conhecimento",
+    name: "Artigo: Quando a IA responde, quem realmente sabe?",
+    description: "Ensaio analítico sobre a perda do atrito cognitivo, a ilusão de competência e a urgência de governança de conhecimento em pagamentos.",
+    category: "Artigos",
+    defaultTitle: "Quando a IA responde, quem realmente sabe?",
+    content: `<h1>Quando a IA responde, quem realmente sabe?</h1>
+<p style="color:#64748b; font-size:0.95rem; margin-top:-0.5rem; margin-bottom:1.25rem;">
+  <strong>Ensaio Estratégico:</strong> Inteligência Artificial, Engenharia Cognitiva & Governança em Pagamentos • <strong>Tempo de Leitura:</strong> 6 min
+</p>
+<hr/>
+
+<div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #2563eb; border-radius:12px; padding:18px 22px; margin:1.5rem 0;">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; color:#1e40af; font-weight:bold; font-size:0.95rem; letter-spacing:0.5px;">
+    <span>💡</span>
+    <span>A PROVOCAÇÃO CENTRAL</span>
+  </div>
+  <p style="margin:0; color:#1e293b; font-size:0.95rem; line-height:1.65; font-weight:500;">
+    A Inteligência Artificial já mudou a forma como trabalhamos — e, na indústria de pagamentos, não é diferente. Hoje, uma IA consegue ler um boletim de bandeira, resumir uma alteração, interpretar uma regra, comparar documentos e até sugerir quais áreas podem ser impactadas. Isso é extraordinário. Mas surge um risco sobre o qual talvez estejamos falando pouco: <strong>o que acontece quando a IA começa a substituir não apenas o trabalho operacional, mas também parte do processo de aprendizado e construção de conhecimento das pessoas?</strong>
+  </p>
+</div>
+
+<h2>1. A Ilusão da Facilidade: O Atalho do Prompt</h2>
+<p>Imagine um profissional júnior entrando hoje na indústria de pagamentos.</p>
+<p>Antes, para entender uma alteração de bandeira, ele precisava abrir o boletim de dezenas de páginas, procurar a regra relacionada, entender o fluxo de autorização, clearing ou settlement, identificar campos e mensagens envolvidos, discutir com profissionais mais experientes e, muitas vezes, errar a interpretação até realmente compreender como aquela engrenagem funcionava.</p>
+<p>Esse processo era trabalhoso. Mas era exatamente o que construía conhecimento, intuição técnica e bagagem duradoura.</p>
+<p>Hoje existe um caminho muito mais curto:</p>
+
+<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 18px; margin:1.25rem 0; font-family:monospace; color:#0f172a; font-size:0.9rem;">
+  💬 <em>“IA, leia esse boletim e me diga o impacto operacional para a nossa adquirente.”</em>
+</div>
+
+<p>Em segundos, temos uma resposta extremamente bem escrita, estruturada e aparentemente convincente. E é justamente aí que mora o risco.</p>
+
+<table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f2c59; color:#ffffff;">
+      <th style="padding:12px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:22%;">Dimensão</th>
+      <th style="padding:12px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:39%;">Formação Tradicional (Atrito Cognitivo)</th>
+      <th style="padding:12px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:39%;">Ciclo do Prompt Rápido (Assistido por IA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#f8fafc;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Processo de Estudo</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Leitura da documentação original, rastreamento de campos e subcampos ISO 8583.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Prompt imediato; leitura passiva de uma síntese em tópicos.</td>
+    </tr>
+    <tr style="background:#ffffff;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Relação com o Erro</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">O erro inicial gerava debate com seniores e consolidava a arquitetura na memória.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">A resposta aparentemente perfeita inibe o questionamento e gera falsa certeza.</td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Visão de Conjunto</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Conexão sistêmica entre captura, mensageria, conciliação e liquidação final.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Respostas isoladas e desconectadas da realidade do legado tecnológico da empresa.</td>
+    </tr>
+    <tr style="background:#ffffff;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Subproduto Real</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; color:#16a34a; font-weight:bold;">Profissionais capazes de conceber soluções novas e diagnosticar falhas complexas.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">Profissionais eficientes para obter respostas, mas despreparados para construí-las.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="background:#fffbeb; border:1px solid #fde68a; border-left:5px solid #d97706; border-radius:12px; padding:18px 22px; margin:1.5rem 0;">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; color:#b45309; font-weight:bold; font-size:0.95rem;">
+    <span>⚠️</span>
+    <span>A PRIMEIRA ARMADILHA: FORMA VS. DOMÍNIO REAL</span>
+  </div>
+  <p style="margin:0; color:#1e293b; font-size:0.92rem; line-height:1.65;">
+    <strong>Uma resposta bem escrita não significa necessariamente uma resposta correta.</strong> E talvez exista um segundo problema ainda mais difícil de perceber: <strong>uma boa entrega também não significa necessariamente domínio do assunto.</strong>
+  </p>
+</div>
+
+<h2>2. A Ilusão de Competência e o Teste da Segunda Pergunta</h2>
+<p>Um profissional pode produzir excelentes análises, apresentações e respostas utilizando Inteligência Artificial. Para seu gestor, supervisor ou até mesmo para seus pares, ele pode demonstrar uma aparente profundidade técnica muito maior do que aquela que realmente possui.</p>
+<p>Enquanto a IA estiver disponível para ajudá-lo, talvez essa diferença nem seja percebida.</p>
+<p>O problema aparece quando a discussão sai do roteiro pré-fabricado:</p>
+
+<ul>
+  <li>Quando alguém faz <strong>a segunda pergunta</strong>, exigindo detalhamento de arquitetura.</li>
+  <li>Depois <strong>a terceira pergunta</strong>, buscando correlação com o fluxo financeiro.</li>
+  <li>Quando é necessário <strong>conectar aquela regra com outro processo interno</strong> da empresa.</li>
+  <li>Quando surge uma <strong>exceção operacional</strong> ou fallback não previsto.</li>
+  <li>Quando é preciso <strong>defender uma interpretação técnica</strong> perante a auditoria da bandeira.</li>
+  <li>Ou quando ninguém sabe exatamente qual é a resposta e o profissional precisa <strong>construir uma hipótese a partir da sua própria experiência</strong>.</li>
+</ul>
+
+<p>É nesse momento que <strong>conhecimento, repertório, criatividade e capacidade de raciocínio técnico</strong> começam a fazer a verdadeira diferença.</p>
+
+<div style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:14px; padding:20px 24px; margin:1.5rem 0; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
+  <div style="color:#38bdf8; font-weight:bold; font-size:1rem; margin-bottom:8px; letter-spacing:0.5px;">
+    🛡️ O IMPACTO NA EVOLUÇÃO PROFISSIONAL
+  </div>
+  <p style="margin:0; color:#cbd5e1; font-size:0.92rem; line-height:1.65;">
+    Conhecimento técnico não serve apenas para responder perguntas prontas. Ele permite <strong>fazer conexões, questionar uma regra, perceber uma inconsistência, imaginar impactos que não estavam explícitos no documento, propor caminhos alternativos, antecipar problemas</strong> e participar de uma discussão profunda sem precisar interrompê-la para consultar uma ferramenta a cada nova frase.<br/><br/>
+    Se toda dificuldade imediatamente vira um prompt, existe o risco real de que parte desse processo cognitivo simplesmente deixe de acontecer.
+  </p>
+</div>
+
+<h2>3. Em Pagamentos, a Teoria Vira Prejuízo Imediato</h2>
+<p>Em ambientes como o de meios de pagamento, essa questão ganha uma dimensão crítica. Uma interpretação equivocada de uma regra de bandeira não termina necessariamente em um documento errado — <strong>ela pode virar uma implementação errada em ambiente de produção</strong>.</p>
+<p>As consequências práticas de análises cegas incluem:</p>
+
+<ul>
+  <li>Interpretar incorretamente uma data limite de vigência ou janela de transição.</li>
+  <li>Confundir regras aplicáveis na <strong>autorização online</strong> com parâmetros exclusivos de <strong>clearing (compensação)</strong>.</li>
+  <li>Não perceber que determinado subcampo (DE 22, DE 48, DE 60) precisa ser enviado ou recebido.</li>
+  <li>Ignorar condições específicas de elegibilidade tarifária ou programas de segurança (3DS, Token, BRAM, MATCH).</li>
+  <li>Não identificar necessidade obrigatória de homologação ou recadastro junto à bandeira.</li>
+  <li>Interpretar incorretamente uma obrigação de compliance regulatório.</li>
+  <li>Ou, pior: <strong>concluir que determinado boletim não impacta a empresa quando, na realidade, impacta diretamente</strong>.</li>
+</ul>
+
+<table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.875rem; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f2c59; color:#ffffff;">
+      <th style="padding:11px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:22%;">Domínio Crítico</th>
+      <th style="padding:11px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:28%;">O Que a IA Sintetiza</th>
+      <th style="padding:11px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:25%;">O Ponto Cego Oculto</th>
+      <th style="padding:11px 14px; text-align:left; font-weight:bold; border:1px solid #1e3a8a; width:25%;">Impacto Financeiro / Operacional</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#f8fafc;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Cronograma de Chaves CAPK</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">"A validade da chave foi estendida pela bandeira até 2036."</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">O adquirente precisa sincronizar o TMS e emissores precisam requerer novos certificados.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">Transações recusadas nos terminais por falha de autenticação offline do chip.</td>
+    </tr>
+    <tr style="background:#ffffff;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Incentivos Tarifários & Intercâmbio</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">"Redução de tarifa anunciada para compras sem fricção."</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Exigência de preenchimento de flags específicas de token e ECI 05 para evitar downgrade.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">Perda silenciosa de margem operacional e cobrança retroativa no clearing.</td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; font-weight:bold; color:#0f2c59;">Compliance de Disputas & Chargebacks</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">"Atualização nos fluxos de contestação de compras não reconhecidas."</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1;">Novos prazos rígidos de pré-arbitragem e envio de evidências obrigatórias.</td>
+      <td style="padding:10px 14px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">Penalidades financeiras diretas por perda de prazo de defesa regulatória.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Alguns desses erros podem aparecer meses depois, na forma de <strong>non-compliance, penalidades das bandeiras, aumento de custos, perda de receita ou impacto operacional severo</strong>.</p>
+
+<h2>4. Potencializar vs. Substituir Conhecimento</h2>
+<p>Quem conhece profundamente determinado assunto consegue utilizar IA como um multiplicador sem precedentes:</p>
+<ul>
+  <li>Lê a resposta do modelo e confronta imediatamente com a documentação oficial.</li>
+  <li>Percebe interpretações equivocadas ou excessivamente genéricas.</li>
+  <li>Identifica exceções de fluxo que o modelo desconsiderou.</li>
+  <li>Sabe exatamente quando é mandatório voltar à fonte primária e auditar o manual técnico.</li>
+</ul>
+
+<p>Mas e quem ainda está formando esse conhecimento? Como um profissional júnior — ou até mesmo pleno ou sênior que não domina aquele tema específico — identifica que a resposta da IA está errada?</p>
+<p>Esse profissional corre o risco de começar a confiar na ferramenta antes de desenvolver conhecimento suficiente para <strong>questionar a própria ferramenta</strong>.</p>
+<p>E surge o paradoxo central:</p>
+
+<div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #2563eb; border-radius:12px; padding:16px 20px; margin:1.25rem 0;">
+  <p style="margin:0; color:#1e40af; font-size:0.95rem; line-height:1.65; font-weight:bold;">
+    "Quanto mais usamos IA para evitar o esforço de construir conhecimento, menos preparados ficamos para validar aquilo que a própria IA produz."
+  </p>
+</div>
+
+<p>Não acredito que a solução seja reduzir o uso de Inteligência Artificial. Muito pelo contrário. A IA pode ser uma das maiores ferramentas de produtividade que já tivemos. Mas existe uma diferença monumental entre:</p>
+<ol>
+  <li><strong>Usar IA para potencializar conhecimento existente</strong> (alavanca técnica).</li>
+  <li><strong>Usar IA para substituir a construção do conhecimento</strong> (muleta cognitiva).</li>
+</ol>
+<p><strong>IA sem conhecimento especializado para fazer a curadoria cria uma falsa sensação de segurança.</strong> Alguém precisa avaliar não apenas se a resposta parece correta, mas se a fonte é adequada, se a interpretação faz sentido dentro daquele fluxo, se existem documentos complementares, exceções e impactos sistêmicos não descritos.</p>
+
+<h2>5. As Perguntas Urgentes de Governança para as Empresas</h2>
+<p>A discussão dentro das organizações de pagamentos precisa evoluir. A pergunta não deveria ser apenas: <em>“Como podemos usar IA para ganhar produtividade?”</em></p>
+<p>As lideranças precisam colocar na mesa perguntas mais profundas e desconfortáveis:</p>
+
+<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-left:5px solid #16a34a; border-radius:12px; padding:18px 22px; margin:1.5rem 0;">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; color:#15803d; font-weight:bold; font-size:0.95rem;">
+    <span>📋</span>
+    <span>DIRETRIZES DE GOVERNANÇA DE CONHECIMENTO</span>
+  </div>
+  <ul style="margin:0; padding-left:1.25rem; color:#1e293b; font-size:0.92rem; line-height:1.7;">
+    <li><strong>Quem está validando aquilo que a IA está produzindo?</strong> Essa pessoa realmente domina o assunto ou apenas domina a ferramenta?</li>
+    <li><strong>Se retirarmos a IA dessa discussão, quanto desse conhecimento continua vivo dentro da empresa?</strong> Quanto existe realmente na organização e quanto está apenas sendo temporariamente acessado via API externa?</li>
+    <li><strong>Quais análises podem ser feitas exclusivamente com apoio de IA</strong> e quais precisam obrigatoriamente de revisão humana especializada?</li>
+    <li><strong>Como garantir que os profissionais em início de carreira continuem desenvolvendo profundidade</strong>, repertório e senso crítico mesmo tendo respostas instantâneas à disposição?</li>
+    <li><strong>Até que ponto a empresa está disposta a colocar sua operação, seu compliance e seu resultado financeiro na confiança de uma IA sem curadoria técnica por trás?</strong></li>
+  </ul>
+</div>
+
+<h2>6. Conclusão: Onde Vive o Verdadeiro Diferencial</h2>
+<p>A IA continuará evoluindo em velocidade impressionante. E certamente fará cada vez mais parte do nosso trabalho diário na indústria de pagamentos.</p>
+<p>Mas talvez o verdadeiro diferencial competitivo não esteja em quem sabe perguntar melhor para uma IA.</p>
+<p><strong>Pode estar em quem possui conhecimento, bagagem e discernimento suficientes para saber quando a resposta dela não é boa o bastante.</strong></p>
+
+<div style="background:linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.08) 100%); border:1.5px solid #818cf8; border-radius:14px; padding:20px 24px; margin:1.5rem 0; text-align:center;">
+  <h3 style="margin:0 0 8px 0; color:#4338ca; font-size:1.05rem; font-weight:bold;">💬 COMO VOCÊS ESTÃO ENXERGANDO ISSO NO DIA A DIA?</h3>
+  <p style="margin:0 auto 10px auto; color:#1e293b; font-size:0.925rem; line-height:1.6; max-width:650px;">
+    A IA está acelerando a formação dos profissionais ou criando uma dependência antes que eles desenvolvam conhecimento suficiente para caminhar sozinhos?<br/>
+    <strong>E dentro das empresas: quem está fazendo a curadoria técnica da IA?</strong>
+  </p>
+  <p style="margin:0; font-size:0.85rem; color:#6366f1; font-weight:bold;">Compartilhe sua reflexão com seus pares e lideranças do ecossistema de pagamentos.</p>
+</div>`,
+  },
   {
     id: "blank",
     name: "Documento em Branco",

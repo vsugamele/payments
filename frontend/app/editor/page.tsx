@@ -69,6 +69,60 @@ interface TocItem {
   level: number;
 }
 
+export const ARTIGO_IA_METADATA: BulletinMetadata = {
+  brand: "geral",
+  brandName: "Ensaio Estratégico",
+  title: "Quando a IA responde, quem realmente sabe?",
+  referenceId: "ART-2026-IA",
+  publicationDate: "24/09/2026",
+  effectiveDate: "Imediato / Contínuo",
+  category: "Inteligência Artificial • Engenharia Cognitiva • Governança em Pagamentos",
+  audience: [
+    "Lideranças de Pagamentos",
+    "Engenharia de Software",
+    "Times de Compliance & Risco",
+    "Profissionais em Formação",
+    "Gestores de Adquirência & Gateways",
+  ],
+  region: "Global & Brasil",
+  requirement: "Informativo",
+  riskLevel: "Médio",
+  tags: [
+    "Inteligência Artificial",
+    "Engenharia Cognitiva",
+    "Governança",
+    "Formação de Talentos",
+    "Boletins de Bandeira",
+    "Compliance",
+  ],
+  executiveSummary:
+    "Reflexão crítica sobre o risco da substituição precoce do esforço cognitivo por ferramentas de IA na indústria de pagamentos, analisando a diferença entre potencializar conhecimento versus criar falsa sensação de competência sem domínio técnico real.",
+  recommendedAction:
+    "Instituir diretrizes de governança de conhecimento e curadoria técnica mandatória em análises regulatórias e de mensageria crítica.",
+  versionHistory: [
+    {
+      version: "1.0",
+      date: "24/09/2026",
+      description: "Publicação do ensaio estratégico sobre governança de conhecimento e inteligência artificial.",
+      isCurrent: true,
+    },
+  ],
+  dateExplanations: [
+    {
+      date: "24/09/2026",
+      event: "Publicação Oficial do Ensaio",
+      impactType: "Publicação",
+      explanation: "Lançamento da reflexão setorial sobre governança cognitiva na indústria de adquirência e meios de pagamento.",
+    },
+    {
+      date: "01/10/2026",
+      event: "Reunião de Governança de Conhecimento",
+      impactType: "Go-Live",
+      explanation: "Prazo para alinhamento de políticas de curadoria humana nas equipes de engenharia e compliance.",
+    },
+  ],
+};
+
 export default function DocStudioEditor() {
   // Document State
   const [docId, setDocId] = useState<string>("doc-default");
@@ -323,15 +377,15 @@ export default function DocStudioEditor() {
   // Initialize once on mount
   useEffect(() => {
     if (isInitializedRef.current) return;
-    isInitializedRef.current = true;
-
-    // Check url params for read-only / public mode
+    // Check url params for read-only / public mode & requested document
+    let queryDoc: string | null = null;
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("view") === "public" || urlParams.get("readonly") === "true") {
         setIsReadOnly(true);
         setIsCopilotOpen(false);
       }
+      queryDoc = urlParams.get("doc") || urlParams.get("template");
     }
 
     const storedKey = localStorage.getItem("vs_ai_api_key") || "";
@@ -341,24 +395,66 @@ export default function DocStudioEditor() {
     setAiProvider(storedProvider);
     setAiModel(storedModel);
 
+    const artigoTmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "artigo_ia_conhecimento") || DOCUMENT_TEMPLATES[0];
+
     const rawDocs = localStorage.getItem("vs_saved_documents");
-    let initialContent = DOCUMENT_TEMPLATES[1].content;
-    let initialTitle = DOCUMENT_TEMPLATES[1].defaultTitle;
-    let initialId = "doc-" + Date.now();
+    let initialContent = artigoTmpl.content;
+    let initialTitle = artigoTmpl.defaultTitle;
+    let initialId = "doc-artigo-ia";
+    let isArtigoActive = true;
 
     if (rawDocs) {
       try {
-        const parsed: SavedDoc[] = JSON.parse(rawDocs);
+        let parsed: SavedDoc[] = JSON.parse(rawDocs);
+        // Ensure article is present in list
+        const existingArticle = parsed.find(
+          (d) => d.id === "doc-artigo-ia" || d.title.includes("Quando a IA responde")
+        );
+        if (!existingArticle) {
+          parsed = [
+            {
+              id: "doc-artigo-ia",
+              title: artigoTmpl.defaultTitle,
+              content: artigoTmpl.content,
+              updatedAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+            },
+            ...parsed,
+          ];
+          localStorage.setItem("vs_saved_documents", JSON.stringify(parsed));
+        }
+
         setSavedDocs(parsed);
-        if (parsed.length > 0) {
+
+        if (queryDoc === "artigo-ia" || queryDoc === "artigo_ia_conhecimento") {
+          initialId = "doc-artigo-ia";
+          initialTitle = artigoTmpl.defaultTitle;
+          initialContent = artigoTmpl.content;
+          isArtigoActive = true;
+        } else if (parsed.length > 0) {
           const first = parsed[0];
           initialId = first.id;
           initialTitle = first.title;
           initialContent = first.content;
+          isArtigoActive = first.id === "doc-artigo-ia" || first.title.includes("Quando a IA responde");
         }
       } catch (e) {
         console.error("Error loading saved docs", e);
       }
+    } else {
+      const initialSeed: SavedDoc[] = [
+        {
+          id: "doc-artigo-ia",
+          title: artigoTmpl.defaultTitle,
+          content: artigoTmpl.content,
+          updatedAt: "agora",
+        },
+      ];
+      setSavedDocs(initialSeed);
+      localStorage.setItem("vs_saved_documents", JSON.stringify(initialSeed));
+    }
+
+    if (isArtigoActive) {
+      setBulletinMeta(ARTIGO_IA_METADATA);
     }
 
     setDocId(initialId);
@@ -948,6 +1044,9 @@ export default function DocStudioEditor() {
     const newId = "doc-" + Date.now();
     setDocId(newId);
     setDocTitle(tmpl.defaultTitle);
+    if (tmpl.id === "artigo_ia_conhecimento") {
+      setBulletinMeta(ARTIGO_IA_METADATA);
+    }
     if (editorRef.current) {
       editorRef.current.innerHTML = tmpl.content;
       extractTocFromDom();
@@ -960,6 +1059,9 @@ export default function DocStudioEditor() {
   const handleSelectDocument = (doc: SavedDoc) => {
     setDocId(doc.id);
     setDocTitle(doc.title);
+    if (doc.id === "doc-artigo-ia" || doc.title.includes("Quando a IA responde")) {
+      setBulletinMeta(ARTIGO_IA_METADATA);
+    }
     if (editorRef.current) {
       editorRef.current.innerHTML = doc.content;
       extractTocFromDom();
@@ -975,7 +1077,8 @@ export default function DocStudioEditor() {
       return updated;
     });
     if (docId === id) {
-      handleNewDocument(DOCUMENT_TEMPLATES[0]);
+      const blankTmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "blank") || DOCUMENT_TEMPLATES[0];
+      handleNewDocument(blankTmpl);
     }
   };
 
@@ -1053,6 +1156,18 @@ export default function DocStudioEditor() {
               >
                 <Tag size={13} className="text-purple-500" />
                 <span className="hidden md:inline">Ficha do Boletim</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  const tmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "artigo_ia_conhecimento");
+                  if (tmpl) handleNewDocument(tmpl);
+                }}
+                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-500/20 transition-all shrink-0"
+                title="Carregar o ensaio: 'Quando a IA responde, quem realmente sabe?'"
+              >
+                <Sparkles size={13} className="text-blue-500" />
+                <span>Artigo IA</span>
               </button>
             </>
           )}

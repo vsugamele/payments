@@ -3,6 +3,17 @@ import { Calendar, Clock, ChevronRight, BookOpen } from "lucide-react";
 
 const ARTICLES = [
   {
+    slug: "quando-a-ia-responde-quem-realmente-sabe",
+    tag: "Estratégico",
+    title: "Quando a IA responde, quem realmente sabe?",
+    excerpt:
+      "A perda do atrito cognitivo, a ilusão de competência técnica e a urgência de governança de conhecimento em meios de pagamento.",
+    date: "24 Set 2026",
+    readTime: "6 min",
+    featured: true,
+    published: true,
+  },
+  {
     slug: "passo-a-passo-transacao",
     tag: "Educacional",
     title: "Passo a Passo de uma Transação de Pagamento",
@@ -82,12 +93,14 @@ const ARTICLES = [
 ];
 
 const TAG_COLORS: Record<string, string> = {
+  "Estratégico": "rgba(99,102,241,0.15)",
   "Regulatório": "rgba(234,179,8,0.12)",
   "Técnico":     "rgba(37,99,235,0.15)",
   "Educacional": "rgba(34,197,94,0.12)",
   "Segurança":   "rgba(239,68,68,0.12)",
 };
 const TAG_TEXT: Record<string, string> = {
+  "Estratégico": "#818cf8",
   "Regulatório": "#fbbf24",
   "Técnico":     "#60a5fa",
   "Educacional": "#4ade80",
