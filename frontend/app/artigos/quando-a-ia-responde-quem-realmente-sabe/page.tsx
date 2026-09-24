@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArticleLayout } from "@/components/ArticleLayout";
-import { Edit3, Sparkles, AlertTriangle, ShieldAlert, CheckCircle2, ArrowRight } from "lucide-react";
+import { LinkedInCarouselViewer } from "@/components/LinkedInCarouselViewer";
+import { Edit3, Sparkles, AlertTriangle, ShieldAlert, CheckCircle2, ArrowRight, Download } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Quando a IA responde, quem realmente sabe? | VS Payments",
@@ -52,6 +53,9 @@ export default function ArtigoQuandoAIARespondePage() {
           </strong>
         </p>
       </div>
+
+      {/* Visual LinkedIn Carousel Component */}
+      <LinkedInCarouselViewer />
 
       {/* Seção 1 */}
       <section className="mb-10 space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
