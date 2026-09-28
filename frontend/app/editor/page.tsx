@@ -54,6 +54,9 @@ import {
   PanelLeftOpen,
   Bookmark,
   Hash,
+  GitCompare,
+  Cpu,
+  FileCode,
 } from "lucide-react";
 import { exportHtmlToDocx } from "@/components/editor/DocxExporter";
 import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/components/editor/TemplateSelector";
@@ -62,6 +65,9 @@ import AiCopilotSidebar from "@/components/editor/AiCopilotSidebar";
 import DocManagerModal, { SavedDoc } from "@/components/editor/DocManagerModal";
 import AiSettingsModal from "@/components/editor/AiSettingsModal";
 import BulletinMetadataCard, { BulletinMetadata } from "@/components/editor/BulletinMetadataCard";
+import ReleaseDiffModal from "@/components/editor/ReleaseDiffModal";
+import SnippetsDrawer from "@/components/editor/SnippetsDrawer";
+import BehaviorEngineModal from "@/components/editor/BehaviorEngineModal";
 
 interface TocItem {
   id: string;
@@ -224,6 +230,12 @@ export default function DocStudioEditor() {
   const [isDocManagerOpen, setIsDocManagerOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
+
+  // Payment Release, Snippets and Behavior Modals
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
+  const [isSnippetsDrawerOpen, setIsSnippetsDrawerOpen] = useState<boolean>(false);
+  const [isBehaviorModalOpen, setIsBehaviorModalOpen] = useState<boolean>(false);
+  const [showExportMenu, setShowExportMenu] = useState<boolean>(false);
 
   // AI Configuration State
   const [aiApiKey, setAiApiKey] = useState<string>("");
@@ -520,6 +532,61 @@ export default function DocStudioEditor() {
       editorRef.current.focus();
       handleEditorInput();
     }
+  };
+
+  // Insert Custom Structured HTML at Cursor
+  const handleInsertCustomHtml = (htmlContent: string) => {
+    if (isReadOnly) return;
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+    document.execCommand("insertHTML", false, htmlContent);
+    handleEditorInput();
+  };
+
+  // Standalone Executive Clean HTML Exporter
+  const handleExportCleanHtml = () => {
+    if (!editorRef.current) return;
+    const bodyContent = editorRef.current.innerHTML;
+    const fullHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>${docTitle || "Documento Executivo de Meios de Pagamento"}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #0f172a; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 13px; }
+    th { background: #0f2c59; color: #ffffff; padding: 10px 12px; text-align: left; }
+    td { padding: 9px 12px; border-bottom: 1px solid #cbd5e1; }
+    code { font-family: monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    @media print {
+      @page { size: A4; margin: 15mm; }
+      body { margin: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div style="border-bottom: 2px solid #0f2c59; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <span style="font-size: 11px; font-weight: bold; color: #2563eb; text-transform: uppercase;">VS Payments • Relatório Executivo</span>
+      <h1 style="margin: 4px 0; font-size: 22px; color: #0f172a;">${docTitle}</h1>
+    </div>
+    <div style="font-size: 12px; color: #64748b; text-align: right;">
+      Data: ${new Date().toLocaleDateString("pt-BR")}<br>
+      Status: Homologado
+    </div>
+  </div>
+  ${bodyContent}
+</body>
+</html>`;
+    const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${(docTitle || "documento-executivo").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.html`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
   };
 
   // Image Upload / Drag & Drop Handler
@@ -1242,11 +1309,43 @@ export default function DocStudioEditor() {
             </button>
           )}
 
+          {/* Release Diff Tool Button */}
+          <button
+            onClick={() => setIsDiffModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/25 text-xs font-semibold transition-all shadow-2xs"
+            title="Comparador Automático de Releases e Boletins de Bandeira (Release Diff)"
+          >
+            <GitCompare size={14} />
+            <span className="hidden xl:inline">Diff Releases</span>
+          </button>
+
+          {/* Behavior Engine Button */}
+          <button
+            onClick={() => setIsBehaviorModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-xs font-semibold transition-all shadow-2xs"
+            title="Motor de Comportamento de Campos ISO 8583 / IPM (Behavior Engine)"
+          >
+            <Cpu size={14} />
+            <span className="hidden xl:inline">Motor de Campos</span>
+          </button>
+
+          {/* Snippets & Blocks Button */}
+          <button
+            onClick={() => setIsSnippetsDrawerOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-xs font-semibold transition-all shadow-2xs"
+            title="Biblioteca de Blocos Prontos, Cronogramas e Tabelas ISO"
+          >
+            <Layers size={14} />
+            <span className="hidden xl:inline">Blocos & Snippets</span>
+          </button>
+
+          <div className="h-4 w-px bg-border hidden sm:block" />
+
           {/* PDF Generation (Direct Print / Save PDF) */}
           <button
             onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold transition-all"
-            title="Gerar e Salvar em PDF"
+            title="Gerar e Salvar em PDF Executivo (A4 Isolado)"
           >
             <Printer size={14} />
             <span className="hidden sm:inline">Gerar PDF</span>
@@ -1260,6 +1359,16 @@ export default function DocStudioEditor() {
           >
             <Download size={14} />
             <span className="hidden sm:inline">Baixar .DOCX</span>
+          </button>
+
+          {/* Clean HTML Export */}
+          <button
+            onClick={handleExportCleanHtml}
+            className="hidden 2xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold border border-border transition-all"
+            title="Exportar como Relatório HTML Autônomo com Estilos"
+          >
+            <FileCode size={14} />
+            <span>.HTML</span>
           </button>
 
           <div className="h-4 w-px bg-border" />
@@ -1931,6 +2040,28 @@ export default function DocStudioEditor() {
                 <Minus size={14} />
               </button>
 
+              <div className="h-4 w-px bg-border/80 mx-1" />
+
+              {/* Botão de Snippets Rápidos */}
+              <button
+                onClick={() => setIsSnippetsDrawerOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold transition-colors"
+                title="Abrir Biblioteca de Blocos & Snippets Executivos"
+              >
+                <Layers size={13} />
+                <span>+ Blocos Prontos</span>
+              </button>
+
+              {/* Botão de Motor de Comportamento */}
+              <button
+                onClick={() => setIsBehaviorModalOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors"
+                title="Inserir Ficha Técnica de Campo ISO / Comportamento"
+              >
+                <Cpu size={13} />
+                <span>+ Ficha de Campo</span>
+              </button>
+
             </div>
           )}
 
@@ -2100,29 +2231,54 @@ export default function DocStudioEditor() {
         </div>
       )}
 
+      {/* ── Payment Engine & Automation Modals ───────────────────────────────── */}
+      <ReleaseDiffModal
+        isOpen={isDiffModalOpen}
+        onClose={() => setIsDiffModalOpen(false)}
+        onInsertHtml={handleInsertCustomHtml}
+      />
+
+      <SnippetsDrawer
+        isOpen={isSnippetsDrawerOpen}
+        onClose={() => setIsSnippetsDrawerOpen(false)}
+        onInsertHtml={handleInsertCustomHtml}
+      />
+
+      <BehaviorEngineModal
+        isOpen={isBehaviorModalOpen}
+        onClose={() => setIsBehaviorModalOpen(false)}
+        onInsertHtml={handleInsertCustomHtml}
+      />
+
       {/* Global Print Isolation Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page {
             size: A4 portrait;
-            margin: 12mm 15mm 12mm 15mm;
+            margin: 15mm 15mm 18mm 15mm;
+          }
+          header, nav, footer, aside, .print\\:hidden, [role="dialog"], button {
+            display: none !important;
           }
           html, body {
             background-color: #ffffff !important;
-            color: #000000 !important;
+            color: #0f172a !important;
             overflow: visible !important;
             height: auto !important;
             font-size: 11pt;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           h1, h2, h3, h4 {
             page-break-after: avoid !important;
             break-after: avoid !important;
+            color: #0f172a !important;
           }
           table, tr, td, th {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          .print-card-break {
+          .print-card-break, blockquote, div[style*="border-left"] {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }

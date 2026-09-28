@@ -42,7 +42,7 @@ export default function RootLayout({
         >
           <Navbar />
           {/* pt-16 compensa o navbar fixo */}
-          <div className="flex-1 pt-16">{children}</div>
+          <div className="flex-1 pt-16 print:pt-0">{children}</div>
           <Footer />
           <RagChat />
         </ThemeProvider>
