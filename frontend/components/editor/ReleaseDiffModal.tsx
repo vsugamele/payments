@@ -15,6 +15,11 @@ import {
   X,
   Sparkles,
   Download,
+  UploadCloud,
+  FileUp,
+  Loader2,
+  Trash2,
+  File as FileIcon,
 } from "lucide-react";
 
 export interface ReleaseDiffData {
@@ -289,9 +294,55 @@ export default function ReleaseDiffModal({
   const [activeTab, setActiveTab] = useState<"overview" | "fields" | "mandates" | "fees" | "roles">("overview");
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  if (!isOpen) return null;
+  // Upload & Drag-and-Drop state
+  const [mode, setMode] = useState<"presets" | "upload">("presets");
+  const [fileA, setFileA] = useState<File | null>(null);
+  const [fileB, setFileB] = useState<File | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [customDiffData, setCustomDiffData] = useState<ReleaseDiffData | null>(null);
 
-  const currentDiff = PRESET_DIFFS[selectedPresetKey] || PRESET_DIFFS.mastercard_data_integrity;
+  const currentDiff =
+    mode === "upload" && customDiffData
+      ? customDiffData
+      : PRESET_DIFFS[selectedPresetKey] || PRESET_DIFFS.mastercard_data_integrity;
+
+  const handleAnalyzePdfs = async () => {
+    if (!fileB) {
+      setAnalysisError("Selecione pelo menos o PDF da nova versão.");
+      return;
+    }
+
+    try {
+      setIsAnalyzing(true);
+      setAnalysisError(null);
+
+      const formData = new FormData();
+      if (fileA) formData.append("fileA", fileA);
+      formData.append("fileB", fileB);
+
+      const res = await fetch("/api/editor/parse-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || "Falha ao analisar os PDFs.");
+      }
+
+      const data: ReleaseDiffData = await res.json();
+      setCustomDiffData(data);
+      setActiveTab("overview");
+    } catch (err: any) {
+      console.error("Erro na análise de PDFs:", err);
+      setAnalysisError(err.message || "Erro inesperado ao processar os arquivos.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   // Generates clean HTML to insert into document
   const generateDiffHtml = (): string => {
@@ -431,34 +482,175 @@ export default function ReleaseDiffModal({
           </button>
         </div>
 
-        {/* Preset Selector */}
-        <div className="px-5 py-3 border-b border-border bg-background/50 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground">Selecione o Comparativo:</span>
-            <select
-              value={selectedPresetKey}
-              onChange={(e) => setSelectedPresetKey(e.target.value)}
-              className="bg-card border border-border rounded-xl px-3 py-1.5 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
+        {/* Mode Switcher: Presets vs Drag-and-Drop Upload */}
+        <div className="px-5 py-2.5 border-b border-border bg-muted/40 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl">
+            <button
+              onClick={() => setMode("presets")}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                mode === "presets"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <option value="mastercard_data_integrity">
-                Mastercard: Data Integrity Edits 30/31 (V1 vs V2)
-              </option>
-              <option value="capk_key_extension">
-                Mastercard: CAPK M/Chip Key Extension (2025 vs 2026)
-              </option>
-              <option value="visa_daf_tokenization">
-                Visa: DAF & 3DS E-Commerce Mandates (2024 vs 2026)
-              </option>
-            </select>
+              Modelos Prontos (Presets)
+            </button>
+            <button
+              onClick={() => setMode("upload")}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                mode === "upload"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <UploadCloud size={13} />
+              <span>Subir 2 PDFs (Drag & Drop)</span>
+            </button>
           </div>
 
-          {/* Quick Stats Pill */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-red-500 font-semibold">{currentDiff.sourceRelease}</span>
-            <ArrowRight size={13} className="text-muted-foreground" />
-            <span className="text-emerald-500 font-bold">{currentDiff.targetRelease}</span>
-          </div>
+          {mode === "upload" && customDiffData && (
+            <button
+              onClick={() => {
+                setCustomDiffData(null);
+                setFileA(null);
+                setFileB(null);
+              }}
+              className="text-xs text-blue-500 hover:underline font-semibold flex items-center gap-1"
+            >
+              <FileUp size={13} />
+              <span>+ Analisar Outros Arquivos</span>
+            </button>
+          )}
         </div>
+
+        {/* Presets Mode Bar */}
+        {mode === "presets" && (
+          <div className="px-5 py-3 border-b border-border bg-background/50 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground">Selecione o Comparativo:</span>
+              <select
+                value={selectedPresetKey}
+                onChange={(e) => setSelectedPresetKey(e.target.value)}
+                className="bg-card border border-border rounded-xl px-3 py-1.5 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="mastercard_data_integrity">
+                  Mastercard: Data Integrity Edits 30/31 (V1 vs V2)
+                </option>
+                <option value="capk_key_extension">
+                  Mastercard: CAPK M/Chip Key Extension (2025 vs 2026)
+                </option>
+                <option value="visa_daf_tokenization">
+                  Visa: DAF & 3DS E-Commerce Mandates (2024 vs 2026)
+                </option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-red-500 font-semibold">{currentDiff.sourceRelease}</span>
+              <ArrowRight size={13} className="text-muted-foreground" />
+              <span className="text-emerald-500 font-bold">{currentDiff.targetRelease}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Mode Dropzones when not yet analyzed */}
+        {mode === "upload" && !customDiffData && (
+          <div className="p-6 bg-card border-b border-border space-y-5">
+            <div className="text-center max-w-lg mx-auto">
+              <h3 className="text-sm font-bold text-foreground">Arraste e Solte os Boletins em PDF</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Envie o PDF da versão anterior (base) e o PDF da nova versão (alvo). O motor analisará campos ISO, mandatórios e taxas automaticamente.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Dropzone A: Versão Anterior */}
+              <div
+                className={`relative border-2 border-dashed rounded-2xl p-5 text-center transition-all ${
+                  fileA ? "border-blue-500/50 bg-blue-500/5" : "border-border hover:border-blue-500/40 hover:bg-muted/30"
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setFileA(e.target.files?.[0] || null)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+                <div className="flex flex-col items-center justify-center pointer-events-none">
+                  <div className="p-3 rounded-full bg-muted text-muted-foreground mb-2">
+                    <FileIcon size={20} />
+                  </div>
+                  <span className="text-xs font-bold text-foreground">PDF 1: Versão Anterior (Base)</span>
+                  <span className="text-[11px] text-muted-foreground mt-0.5">Opcional para comparação delta</span>
+                  {fileA ? (
+                    <div className="mt-3 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-semibold flex items-center gap-1.5 max-w-full truncate">
+                      <Check size={12} />
+                      <span className="truncate">{fileA.name}</span>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-blue-500 mt-2 font-semibold">Clique ou arraste o PDF aqui</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Dropzone B: Versão Nova */}
+              <div
+                className={`relative border-2 border-dashed rounded-2xl p-5 text-center transition-all ${
+                  fileB ? "border-emerald-500/50 bg-emerald-500/5" : "border-border hover:border-emerald-500/40 hover:bg-muted/30"
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setFileB(e.target.files?.[0] || null)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+                <div className="flex flex-col items-center justify-center pointer-events-none">
+                  <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-2">
+                    <FileUp size={20} />
+                  </div>
+                  <span className="text-xs font-bold text-foreground">PDF 2: Versão Nova (Alvo)</span>
+                  <span className="text-[11px] text-muted-foreground mt-0.5">Obrigatório para extração</span>
+                  {fileB ? (
+                    <div className="mt-3 px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-semibold flex items-center gap-1.5 max-w-full truncate">
+                      <Check size={12} />
+                      <span className="truncate">{fileB.name}</span>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-emerald-500 mt-2 font-semibold">Clique ou arraste o PDF aqui</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {analysisError && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-500 flex items-center gap-2">
+                <AlertTriangle size={14} className="shrink-0" />
+                <span>{analysisError}</span>
+              </div>
+            )}
+
+            <div className="flex justify-center pt-2">
+              <button
+                disabled={!fileB || isAnalyzing}
+                onClick={handleAnalyzePdfs}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-40 text-white text-xs font-bold shadow-lg shadow-blue-500/25 transition-all transform active:scale-95"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>Extraindo e Comparando Textos dos PDFs...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={15} />
+                    <span>Analisar e Gerar Diff Automático</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex border-b border-border px-5 bg-muted/20 text-xs font-semibold">

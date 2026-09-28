@@ -6,7 +6,8 @@ import {
   Search, Command, X, Book, Scale, Calculator, 
   Terminal, ShieldCheck, ChevronRight, Hash,
   Zap, Database, Globe, RefreshCw, DollarSign,
-  AlertTriangle, FileText, Cpu, Lock, CreditCard
+  AlertTriangle, FileText, Cpu, Lock, CreditCard,
+  FileEdit, GitCompare, Layers
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import glossarioData from "@/data/glossario.json";
@@ -18,7 +19,7 @@ interface SearchResult {
   id: string;
   title: string;
   description: string;
-  category: "mcc" | "disputa" | "iso" | "ferramenta" | "glossario" | "compliance";
+  category: "mcc" | "disputa" | "iso" | "ferramenta" | "glossario" | "compliance" | "artigo";
   url: string;
   icon: any;
 }
@@ -89,15 +90,30 @@ export default function GlobalSearch() {
 
     // 3. Ferramentas, Compliance e Páginas
     const pages = [
+      // Ferramentas do Doc Studio / Editor
+      { t: "Doc Studio: Editor de Pareceres & Boletins", d: "Editor de documentos executivos com IA Copilot e exportação DOCX/PDF", u: "/editor", c: "ferramenta", i: FileEdit },
+      { t: "Diff Automático de Releases & Boletins", d: "Comparador de comunicados técnicos, detecção de campos ISO e mandatórios", u: "/editor?tool=diff", c: "ferramenta", i: GitCompare },
+      { t: "Motor de Comportamento de Campos ISO", d: "Consulta e injeção de fichas de comportamento (o que envia x o que recebe)", u: "/editor?tool=behavior", c: "ferramenta", i: Cpu },
+      { t: "Biblioteca de Blocos & Snippets", d: "Inserção em 1 clique de cronogramas, tabelas ISO e callouts de compliance", u: "/editor?tool=snippets", c: "ferramenta", i: Layers },
+      
+      // Artigos Técnicos e Estratégicos
+      { t: "Artigo: Quando a IA responde, quem realmente sabe?", d: "A perda do atrito cognitivo e a ilusão de competência técnica em pagamentos", u: "/artigos/quando-a-ia-responde-quem-realmente-sabe", c: "artigo", i: FileText },
+      { t: "Artigo: Compelling Evidence 3.0", d: "O novo paradigma de disputas e combate à fraude amigável na Visa", u: "/artigos/compelling-evidence-3-0", c: "artigo", i: FileText },
+      { t: "Artigo: Guia Completo de Intercâmbio", d: "Entenda o waterfall de decisão de tarifas Visa, MC e Elo no Brasil", u: "/artigos/intercambio-guia-completo", c: "artigo", i: FileText },
+      { t: "Artigo: Passo a Passo da Transação", d: "Do POS ao settlement: captura, autorização, clearing e liquidação", u: "/artigos/passo-a-passo-transacao", c: "artigo", i: FileText },
+      { t: "Artigo: VDCAP, TAF e SCOF", d: "A sopa de letrinhas das taxas e tarifas de rede das bandeiras", u: "/artigos/vdcap-taf-scof", c: "artigo", i: FileText },
+
       // Ferramentas principais
       { t: "Simulador de Intercâmbio", d: "Cálculo de IC e Scheme Fees em tempo real", u: "/simulador", c: "ferramenta", i: Calculator },
       { t: "Matriz de Intercâmbio", d: "Decisão de taxa passo a passo", u: "/matrix", c: "ferramenta", i: Calculator },
       { t: "Mapa do Ecossistema", d: "Arquitetura Macro de Pagamentos", u: "/ecossistema", c: "ferramenta", i: Globe },
       { t: "Jornada da Transação", d: "POS → Clearing → Settlement visual", u: "/jornada", c: "ferramenta", i: FileText },
       { t: "Comparativo Base II vs IPM", d: "Visa vs Mastercard clearing lado a lado", u: "/comparativo", c: "ferramenta", i: Database },
+      
       // Compliance — Disputas
       { t: "Disputas / DMAS / VROL", d: "Ciclo de chargebacks Mastercard e Visa", u: "/compliance/disputas", c: "disputa", i: Scale },
       { t: "MATCH Program", d: "Terminated Merchant File, lista de alto risco", u: "/compliance/match", c: "disputa", i: AlertTriangle },
+      
       // Compliance — Técnico
       { t: "Campos ISO 8583 / DE Fields", d: "Parser de mensagens ISO 8583 e PDS", u: "/compliance/campos", c: "iso", i: Terminal },
       { t: "EMV / Chip / TVR / TSI", d: "Diagnóstico de chip, ARQC, TVR bitmask", u: "/compliance/emv", c: "iso", i: Cpu },
@@ -138,6 +154,46 @@ export default function GlobalSearch() {
           category: p.c as any,
           url: p.u,
           icon: p.i
+        });
+      }
+    });
+
+    // 4. Buscar em Campos ISO / IPM específicos
+    const isoElements = [
+      { code: "DE 003", name: "Processing Code", desc: "Tipo de transação (ex: 20 = Purchase Return/Refund). Monitorado no Edit 30.", url: "/compliance/campos?field=DE003" },
+      { code: "DE 004", name: "Amount, Transaction", desc: "Valor da transação com 12 dígitos na moeda de liquidação.", url: "/compliance/campos?field=DE004" },
+      { code: "DE 011", name: "Systems Trace Audit Number (STAN)", desc: "Número sequencial gerado pelo terminal/gateway para rastreamento auditável.", url: "/compliance/campos?field=DE011" },
+      { code: "DE 012", name: "Local Transaction Time", desc: "Hora local da captura da transação (formato hhmmss).", url: "/compliance/campos?field=DE012" },
+      { code: "DE 014", name: "Expiration Date", desc: "Data de expiração do cartão no formato yymm.", url: "/compliance/campos?field=DE014" },
+      { code: "DE 022", name: "POS Entry Mode", desc: "Modo de captura: Chip (05), Contactless (07/91), E-Commerce (81), Manual (01).", url: "/compliance/campos?field=DE022" },
+      { code: "DE 023", name: "Card Sequence Number (CSN)", desc: "Sequencial do cartão EMV para diferenciação de portadores sob o mesmo PAN.", url: "/compliance/campos?field=DE023" },
+      { code: "DE 037", name: "Retrieval Reference Number (RRN)", desc: "Identificador unívoco de 12 dígitos para reconciliação e disputas.", url: "/compliance/campos?field=DE037" },
+      { code: "DE 038", name: "Authorization Code", desc: "Código de autorização alfanumérico emitido pelo emissor.", url: "/compliance/campos?field=DE038" },
+      { code: "DE 039", name: "Response Code", desc: "Código de resposta (00=Aprovada, 05=Não autorizada, 51=Sem saldo, 57=Não permitida).", url: "/compliance/retentativas" },
+      { code: "DE 041", name: "Card Acceptor Terminal ID", desc: "Identificação do terminal físico POS/Pinpad no credenciador.", url: "/compliance/campos?field=DE041" },
+      { code: "DE 042", name: "Card Acceptor ID (MID)", desc: "Código único do estabelecimento comercial cadastrado na adquirente.", url: "/compliance/campos?field=DE042" },
+      { code: "DE 043", name: "Card Acceptor Name/Location", desc: "Nome fantasia, cidade e país do EC para exibição na fatura.", url: "/compliance/campos?field=DE043" },
+      { code: "DE 048", name: "Private Data (3DS CAVV & Tokens)", desc: "Subcampo 22 transporta CAVV e versão do 3DS. Ausência gera downgrade de intercâmbio.", url: "/compliance/campos?field=DE048" },
+      { code: "DE 052", name: "PIN Data", desc: "Bloco de senha criptografada em padrão ISO 9564.", url: "/compliance/campos?field=DE052" },
+      { code: "DE 055", name: "EMV Chip Data (ICC TLV Tags)", desc: "Container com tags EMV completas (ARQC, TVR, TSI, AID).", url: "/compliance/emv" },
+      { code: "DE 062", name: "Additional Data", desc: "Campos privados adicionais de autorização e adquirente.", url: "/compliance/campos?field=DE062" },
+      { code: "DE 063", name: "SMS Private Data", desc: "Dados privados de rede e referências de roteamento da bandeira.", url: "/compliance/campos?field=DE063" },
+      { code: "DE 090", name: "Original Data Elements", desc: "Dados da transação original em desfazimentos (reversals) e correções.", url: "/compliance/campos?field=DE090" },
+      { code: "Field 108", name: "Visa DAF & Delegated Authentication", desc: "Credencial DAF para autenticação delegada em e-commerce.", url: "/compliance/daf" },
+      { code: "Tag 9F26", name: "Application Cryptogram (ARQC/TC)", desc: "Criptograma de 8 bytes gerado pelo chip EMV na autorização.", url: "/compliance/emv" },
+      { code: "Tag 95", name: "Terminal Verification Results (TVR)", desc: "Bitmask com o resultado das verificações de segurança do terminal.", url: "/compliance/emv" },
+      { code: "Tag 9B", name: "Transaction Status Information (TSI)", desc: "Bitmask indicando quais rotinas criptográficas foram executadas.", url: "/compliance/emv" },
+    ];
+
+    isoElements.forEach(elem => {
+      if (elem.code.toLowerCase().includes(q) || elem.name.toLowerCase().includes(q) || elem.desc.toLowerCase().includes(q)) {
+        searchResults.push({
+          id: `iso-${elem.code}`,
+          title: `${elem.code} — ${elem.name}`,
+          description: elem.desc,
+          category: "iso",
+          url: elem.url,
+          icon: Terminal
         });
       }
     });
@@ -222,6 +278,7 @@ export default function GlobalSearch() {
                           result.category === "disputa" ? "bg-red-500/10 text-red-400" :
                           result.category === "mcc" ? "bg-orange-500/10 text-orange-400" :
                           result.category === "iso" ? "bg-emerald-500/10 text-emerald-400" :
+                          result.category === "artigo" ? "bg-indigo-500/10 text-indigo-400" :
                           result.category === "compliance" ? "bg-purple-500/10 text-purple-400" :
                           "bg-blue-500/10 text-blue-400"
                         }`}>
