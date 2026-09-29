@@ -421,7 +421,7 @@ export default function ReleaseDiffModal({
         </table>
 
         <h4 style="margin:12px 0 6px 0; color:#1e293b; font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">3. Matriz de Impacto por Ator</h4>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div data-layout="dual-cards" class="dual-cards-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           ${currentDiff.rolesImpact
             .map(
               (r) => `

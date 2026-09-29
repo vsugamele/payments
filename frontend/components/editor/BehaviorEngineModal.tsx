@@ -259,7 +259,7 @@ export default function BehaviorEngineModal({
         <h4 style="margin:0 0 8px 0; color:#0f172a; font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">
           1. Distribuição de Responsabilidades por Papel
         </h4>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <div data-layout="dual-cards" class="dual-cards-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
           <!-- Papel Adquirente -->
           <div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:8px; padding:12px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:6px;">

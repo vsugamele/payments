@@ -78,7 +78,7 @@ export const SNIPPETS_CATALOG: SnippetItem[] = [
     description: "Grid visual separando as responsabilidades de envio (adquirência) e resposta (emissão).",
     badge: "Papéis",
     html: `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:1.5rem 0; font-family:system-ui, -apple-system, sans-serif;">
+      <div data-layout="dual-cards" class="dual-cards-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:1.5rem 0; font-family:system-ui, -apple-system, sans-serif;">
         <!-- Card Adquirente -->
         <div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #2563eb; border-radius:12px; padding:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">

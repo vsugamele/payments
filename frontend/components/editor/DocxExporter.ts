@@ -792,6 +792,32 @@ function convertHtmlTableToDocx(tableEl: HTMLElement): Table {
   // Absorb remainder on last col so sum == TOTAL_PAGE_WIDTH_DXA
   columnWidths[maxCols - 1] = TOTAL_PAGE_WIDTH_DXA - baseColWidth * (maxCols - 1);
 
+  // If it's a 2-column key/value or messaging flow table, adjust proportions
+  if (maxCols === 2) {
+    const firstCell = tableEl.querySelector("td, th") as HTMLElement | null;
+    const styleWidth = firstCell?.style?.width;
+    if (styleWidth && (styleWidth.includes("px") || styleWidth.includes("%"))) {
+      let w1 = 2500;
+      if (styleWidth.includes("px")) {
+        const px = parseFloat(styleWidth);
+        w1 = Math.max(1800, Math.min(3600, Math.round(px * 16)));
+      } else if (styleWidth.includes("%")) {
+        const pct = parseFloat(styleWidth);
+        w1 = Math.round((pct / 100) * TOTAL_PAGE_WIDTH_DXA);
+      }
+      columnWidths[0] = w1;
+      columnWidths[1] = TOTAL_PAGE_WIDTH_DXA - w1;
+    } else {
+      // Check if first column text is short (like "Fluxo de Ida:", "Retorno:")
+      const firstColCells = Array.from(tableEl.querySelectorAll("tr > td:first-child, tr > th:first-child"));
+      const isShortLabels = firstColCells.length > 0 && firstColCells.every((c) => (c.textContent || "").trim().length < 30);
+      if (isShortLabels) {
+        columnWidths[0] = 2600;
+        columnWidths[1] = TOTAL_PAGE_WIDTH_DXA - 2600;
+      }
+    }
+  }
+
   trElements.forEach((tr, rowIndex) => {
     const cells = Array.from(tr.children).filter(
       (c) => c.tagName.toLowerCase() === "td" || c.tagName.toLowerCase() === "th"
@@ -886,6 +912,436 @@ function convertHtmlTableToDocx(tableEl: HTMLElement): Table {
   });
 }
 
+// Convert a single card element into a styled TableCell (for side-by-side grids)
+function convertCardToTableCell(cardEl: HTMLElement, cardWidth: number): TableCell {
+  const bgColor =
+    parseHexColor(cardEl.style.backgroundColor) ||
+    parseHexColor(cardEl.style.background) ||
+    "F8FAFC";
+
+  const isDark =
+    bgColor === "0F172A" ||
+    bgColor === "1E293B" ||
+    bgColor === "111827" ||
+    bgColor === "1E3A8A";
+
+  const leftBorderColor =
+    parseHexColor(cardEl.style.borderLeftColor) ||
+    parseHexColor(cardEl.style.borderLeft?.split(" ")?.pop()) ||
+    (isDark ? "3B82F6" : "2563EB");
+
+  const borderColor =
+    parseHexColor(cardEl.style.borderColor) ||
+    (isDark ? "334155" : "CBD5E1");
+
+  const paragraphs: Paragraph[] = [];
+
+  Array.from(cardEl.children).forEach((child) => {
+    const cEl = child as HTMLElement;
+    const tag = cEl.tagName.toLowerCase();
+    const style = (cEl.getAttribute("style") || "").toLowerCase();
+
+    // Check if this child is a header with badge (e.g. Adquirente / Envia)
+    const isFlexHeader =
+      (style.includes("display:flex") || style.includes("display: flex")) &&
+      cEl.querySelector("strong, h3, h4, span.font-bold") !== null;
+
+    if (isFlexHeader) {
+      const strongEl = cEl.querySelector("strong, h3, h4") as HTMLElement | null;
+      const spanEl = cEl.querySelector("span") as HTMLElement | null;
+
+      const titleColor = strongEl ? parseHexColor(strongEl.style.color) : undefined;
+      const titleRuns = strongEl
+        ? parseInlineNodes(strongEl, { bold: true, color: titleColor || (isDark ? "FFFFFF" : "0F2C59"), fontSize: 20 })
+        : [];
+
+      const badgeText = spanEl && spanEl !== strongEl ? spanEl.textContent?.trim() : "";
+      const badgeBg =
+        spanEl && spanEl !== strongEl
+          ? parseHexColor(spanEl.style.backgroundColor) || parseHexColor(spanEl.style.background)
+          : undefined;
+      const badgeColor =
+        spanEl && spanEl !== strongEl ? parseHexColor(spanEl.style.color) || "FFFFFF" : undefined;
+
+      const headerRuns: TextRun[] = [...titleRuns];
+      if (badgeText) {
+        headerRuns.push(new TextRun({ text: "   " }));
+        headerRuns.push(
+          new TextRun({
+            text: ` [ ${badgeText.toUpperCase()} ] `,
+            bold: true,
+            size: 16,
+            color: badgeColor || "FFFFFF",
+            shading: badgeBg ? { fill: badgeBg, type: ShadingType.CLEAR } : undefined,
+          })
+        );
+      }
+
+      paragraphs.push(
+        new Paragraph({
+          children: headerRuns,
+          spacing: { before: 20, after: 60 },
+        })
+      );
+    } else if (tag === "p") {
+      const pColor = parseHexColor(cEl.style.color) || (isDark ? "F8FAFC" : "334155");
+      const pRuns = parseInlineNodes(cEl, { color: pColor, fontSize: 18 });
+      if (pRuns.length > 0) {
+        paragraphs.push(
+          new Paragraph({
+            children: pRuns,
+            spacing: { before: 20, after: 50 },
+          })
+        );
+      }
+    } else if (tag === "ul" || tag === "ol") {
+      const lis = Array.from(cEl.querySelectorAll(":scope > li"));
+      lis.forEach((li, idx) => {
+        const bullet = tag === "ol" ? `${idx + 1}. ` : "▪ ";
+        const liRuns = parseInlineNodes(li as HTMLElement, {
+          color: isDark ? "F8FAFC" : "1E293B",
+          fontSize: 17,
+        });
+        paragraphs.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: bullet,
+                bold: true,
+                color: leftBorderColor,
+                size: 18,
+              }),
+              ...liRuns,
+            ],
+            indent: { left: 240, hanging: 140 },
+            spacing: { before: 20, after: 30 },
+          })
+        );
+      });
+    } else {
+      // General or highlight div (e.g. Desenvolver: ... or Validar: ...)
+      const isHighlight =
+        cEl.style.fontFamily?.includes("mono") ||
+        (cEl.style.background && cEl.style.background !== "transparent") ||
+        (cEl.style.backgroundColor && cEl.style.backgroundColor !== "transparent");
+
+      const highlightBg = isHighlight
+        ? parseHexColor(cEl.style.backgroundColor) || "F1F5F9"
+        : undefined;
+
+      const runs = parseInlineNodes(cEl, {
+        color: isDark ? "F8FAFC" : undefined,
+        fontSize: 18,
+      });
+
+      if (runs.length > 0) {
+        paragraphs.push(
+          new Paragraph({
+            children: runs,
+            shading: highlightBg ? { fill: highlightBg, type: ShadingType.CLEAR } : undefined,
+            spacing: { before: 30, after: 40 },
+          })
+        );
+      }
+    }
+  });
+
+  if (paragraphs.length === 0) {
+    const runs = parseInlineNodes(cardEl, {
+      color: isDark ? "F8FAFC" : undefined,
+      fontSize: 18,
+    });
+    paragraphs.push(
+      new Paragraph({
+        children: runs.length > 0 ? runs : [new TextRun({ text: cardEl.textContent?.trim() || " " })],
+        spacing: { before: 20, after: 40 },
+      })
+    );
+  }
+
+  return new TableCell({
+    children: paragraphs,
+    width: { size: cardWidth, type: WidthType.DXA },
+    shading: { fill: bgColor, type: ShadingType.CLEAR },
+    margins: { top: 140, bottom: 140, left: 160, right: 160 },
+    borders: {
+      left: { style: BorderStyle.SINGLE, size: 24, color: leftBorderColor },
+      top: { style: BorderStyle.SINGLE, size: 6, color: borderColor },
+      right: { style: BorderStyle.SINGLE, size: 6, color: borderColor },
+      bottom: { style: BorderStyle.SINGLE, size: 6, color: borderColor },
+    },
+  });
+}
+
+// Convert 2-column or multi-column grid into native Word Table with spacer columns (Modo Caixa Dupla)
+function convertGridToDocxTable(gridEl: HTMLElement): Table {
+  const childCards = Array.from(gridEl.children).filter(
+    (c) => (c as HTMLElement).tagName.toLowerCase() === "div"
+  ) as HTMLElement[];
+
+  if (childCards.length === 0) {
+    return new Table({
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: "" })],
+              width: { size: TOTAL_PAGE_WIDTH_DXA, type: WidthType.DXA },
+            }),
+          ],
+        }),
+      ],
+      width: { size: TOTAL_PAGE_WIDTH_DXA, type: WidthType.DXA },
+    });
+  }
+
+  const style = (gridEl.getAttribute("style") || "").toLowerCase();
+
+  // Determine number of columns
+  let cols = 2; // Default to dual-box
+  if (style.includes("repeat(4") || (childCards.length === 4 && style.includes("repeat(4"))) {
+    cols = 4;
+  } else if (style.includes("repeat(3") || childCards.length === 3) {
+    cols = 3;
+  } else if (style.includes("1fr 1fr") || style.includes("repeat(2") || childCards.length === 2) {
+    cols = 2;
+  } else if (childCards.length % 2 === 0) {
+    cols = 2;
+  }
+
+  // Calculate widths with inter-card spacer columns
+  const spacerWidth = cols === 4 ? 140 : cols === 3 ? 180 : 240;
+  const totalSpacerWidth = (cols - 1) * spacerWidth;
+  const availableWidth = TOTAL_PAGE_WIDTH_DXA - totalSpacerWidth;
+  const baseCardWidth = Math.floor(availableWidth / cols);
+  const cardWidths = Array(cols).fill(baseCardWidth);
+  cardWidths[cols - 1] = availableWidth - baseCardWidth * (cols - 1);
+
+  // Column widths definition for docx
+  const fullColumnWidths: number[] = [];
+  for (let c = 0; c < cols; c++) {
+    fullColumnWidths.push(cardWidths[c]);
+    if (c < cols - 1) fullColumnWidths.push(spacerWidth);
+  }
+
+  const createSpacerCell = () =>
+    new TableCell({
+      children: [new Paragraph({ spacing: { before: 0, after: 0 } })],
+      width: { size: spacerWidth, type: WidthType.DXA },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      },
+    });
+
+  const createEmptyCardCell = (w: number) =>
+    new TableCell({
+      children: [new Paragraph({ spacing: { before: 0, after: 0 } })],
+      width: { size: w, type: WidthType.DXA },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      },
+    });
+
+  const tableRows: TableRow[] = [];
+
+  for (let i = 0; i < childCards.length; i += cols) {
+    const rowCells: TableCell[] = [];
+    for (let c = 0; c < cols; c++) {
+      const cardIdx = i + c;
+      if (cardIdx < childCards.length) {
+        rowCells.push(convertCardToTableCell(childCards[cardIdx], cardWidths[c]));
+      } else {
+        rowCells.push(createEmptyCardCell(cardWidths[c]));
+      }
+      if (c < cols - 1) {
+        rowCells.push(createSpacerCell());
+      }
+    }
+    tableRows.push(new TableRow({ children: rowCells, cantSplit: true }));
+  }
+
+  return new Table({
+    rows: tableRows,
+    width: { size: TOTAL_PAGE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: fullColumnWidths,
+  });
+}
+
+// Check if an element is a grid or multi-column card container
+function isGridOrMultiColumn(el: HTMLElement): boolean {
+  if (el.tagName.toLowerCase() !== "div") return false;
+  const style = (el.getAttribute("style") || "").toLowerCase();
+  const className = (el.className || "").toLowerCase();
+
+  if (
+    style.includes("display:grid") ||
+    style.includes("display: grid") ||
+    style.includes("grid-template-columns") ||
+    className.includes("grid") ||
+    className.includes("dual-cards") ||
+    el.getAttribute("data-layout") === "dual-cards"
+  ) {
+    return true;
+  }
+
+  // Also check for flex with multiple child cards side-by-side
+  if (
+    (style.includes("display:flex") || style.includes("display: flex")) &&
+    !style.includes("flex-direction: column") &&
+    !style.includes("flex-direction:column") &&
+    el.children.length >= 2 &&
+    Array.from(el.children).every((c) => (c as HTMLElement).tagName.toLowerCase() === "div")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+// Check if an element is a flex header bar (left content + right badge)
+function isFlexHeaderBar(el: HTMLElement): boolean {
+  if (el.tagName.toLowerCase() !== "div") return false;
+  const style = (el.getAttribute("style") || "").toLowerCase();
+  const hasSpaceBetween =
+    style.includes("justify-content:space-between") ||
+    style.includes("justify-content: space-between");
+  const isFlex = style.includes("display:flex") || style.includes("display: flex");
+  return isFlex && hasSpaceBetween && el.children.length === 2;
+}
+
+// Convert a flex header bar into a clean 2-column Word table
+function convertFlexHeaderToDocx(headerEl: HTMLElement): Table {
+  const leftChild = headerEl.children[0] as HTMLElement;
+  const rightChild = headerEl.children[1] as HTMLElement;
+
+  const leftWidth = 7400;
+  const rightWidth = TOTAL_PAGE_WIDTH_DXA - leftWidth; // 2346
+
+  // Parse left child paragraphs
+  const leftParagraphs: Paragraph[] = [];
+  Array.from(leftChild.children).forEach((child) => {
+    const cEl = child as HTMLElement;
+    const tag = cEl.tagName.toLowerCase();
+    if (tag === "h1" || tag === "h2" || tag === "h3" || tag === "h4") {
+      leftParagraphs.push(
+        new Paragraph({
+          children: parseInlineNodes(cEl, { bold: true, color: "0F2C59", fontSize: 26 }),
+          spacing: { before: 20, after: 40 },
+        })
+      );
+    } else if (tag === "span" && (cEl.style.backgroundColor || cEl.style.background)) {
+      // Badge
+      const bg =
+        parseHexColor(cEl.style.backgroundColor) || parseHexColor(cEl.style.background) || "0F2C59";
+      const col = parseHexColor(cEl.style.color) || "FFFFFF";
+      leftParagraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: ` ${cEl.textContent?.trim().toUpperCase()} `,
+              bold: true,
+              size: 16,
+              color: col,
+              shading: { fill: bg, type: ShadingType.CLEAR },
+            }),
+          ],
+          spacing: { before: 0, after: 40 },
+        })
+      );
+    } else {
+      const runs = parseInlineNodes(cEl, { fontSize: 17, color: "64748B" });
+      if (runs.length > 0) {
+        leftParagraphs.push(
+          new Paragraph({
+            children: runs,
+            spacing: { before: 20, after: 40 },
+          })
+        );
+      }
+    }
+  });
+
+  if (leftParagraphs.length === 0) {
+    leftParagraphs.push(
+      new Paragraph({
+        children: parseInlineNodes(leftChild),
+        spacing: { before: 20, after: 40 },
+      })
+    );
+  }
+
+  // Parse right child badge
+  const rightBg =
+    parseHexColor(rightChild.style.backgroundColor) ||
+    parseHexColor(rightChild.style.background) ||
+    "EFF6FF";
+
+  const rightParagraph = new Paragraph({
+    alignment: AlignmentType.RIGHT,
+    children: [
+      new TextRun({
+        text: ` [ ${rightChild.textContent?.trim().toUpperCase()} ] `,
+        bold: true,
+        size: 17,
+        color: parseHexColor(rightChild.style.color) || "1E40AF",
+        shading: { fill: rightBg, type: ShadingType.CLEAR },
+      }),
+    ],
+    spacing: { before: 40, after: 40 },
+  });
+
+  const row = new TableRow({
+    children: [
+      new TableCell({
+        children: leftParagraphs,
+        width: { size: leftWidth, type: WidthType.DXA },
+        borders: {
+          bottom: { style: BorderStyle.SINGLE, size: 8, color: "CBD5E1" },
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        margins: { top: 40, bottom: 80, left: 0, right: 60 },
+      }),
+      new TableCell({
+        children: [rightParagraph],
+        width: { size: rightWidth, type: WidthType.DXA },
+        borders: {
+          bottom: { style: BorderStyle.SINGLE, size: 8, color: "CBD5E1" },
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        margins: { top: 40, bottom: 80, left: 60, right: 0 },
+      }),
+    ],
+    cantSplit: true,
+  });
+
+  return new Table({
+    rows: [row],
+    width: { size: TOTAL_PAGE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: [leftWidth, rightWidth],
+  });
+}
+
+// Check if an element is a complex container that contains nested tables, headings, or grids
+function isComplexContainer(el: HTMLElement): boolean {
+  if (el.tagName.toLowerCase() !== "div") return false;
+  if (el.querySelector("table") !== null) return true;
+  if (el.querySelector("h1, h2, h3, h4") !== null) return true;
+  if (el.querySelector("[style*='grid'], [style*='flex'], .grid, [data-layout='dual-cards']") !== null) return true;
+  const childDivs = Array.from(el.children).filter((c) => (c as HTMLElement).tagName.toLowerCase() === "div");
+  if (childDivs.length >= 2) return true;
+  return false;
+}
+
 // Convert Callout Card div into a 1x1 styled Table in docx
 function convertCalloutDivToDocx(divEl: HTMLElement): Table {
   const leftBorderColor =
@@ -913,17 +1369,40 @@ function convertCalloutDivToDocx(divEl: HTMLElement): Table {
 
   Array.from(divEl.children).forEach((child) => {
     const cEl = child as HTMLElement;
-    const runs = parseInlineNodes(cEl, {
-      color: isDark ? "F8FAFC" : undefined,
-      fontSize: 19,
-    });
-    if (runs.length > 0) {
-      cellParagraphs.push(
-        new Paragraph({
-          children: runs,
-          spacing: { before: 40, after: 60 },
-        })
-      );
+    const tag = cEl.tagName.toLowerCase();
+
+    if (tag === "ul" || tag === "ol") {
+      const lis = Array.from(cEl.querySelectorAll(":scope > li"));
+      lis.forEach((li, idx) => {
+        const bullet = tag === "ol" ? `${idx + 1}. ` : "▪ ";
+        const liRuns = parseInlineNodes(li as HTMLElement, {
+          color: isDark ? "F8FAFC" : undefined,
+          fontSize: 18,
+        });
+        cellParagraphs.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: bullet, bold: true, color: leftBorderColor, size: 18 }),
+              ...liRuns,
+            ],
+            indent: { left: 240, hanging: 140 },
+            spacing: { before: 20, after: 30 },
+          })
+        );
+      });
+    } else {
+      const runs = parseInlineNodes(cEl, {
+        color: isDark ? "F8FAFC" : undefined,
+        fontSize: 19,
+      });
+      if (runs.length > 0) {
+        cellParagraphs.push(
+          new Paragraph({
+            children: runs,
+            spacing: { before: 40, after: 60 },
+          })
+        );
+      }
     }
   });
 
@@ -970,7 +1449,44 @@ function parseHtmlBody(body: HTMLElement): (Paragraph | Table)[] {
       const el = node as HTMLElement;
       const tag = el.tagName.toLowerCase();
 
-      // Check if it's a Callout Card (div with border-left or prominent background)
+      // 1. Check if it's a Flex Header Bar (space-between with 2 children: title + badge)
+      if (isFlexHeaderBar(el)) {
+        children.push(convertFlexHeaderToDocx(el));
+        children.push(new Paragraph({ spacing: { before: 40, after: 60 } }));
+        return;
+      }
+
+      // 2. Check if it's a Grid or Multi-Column container (Modo Caixa Dupla / Dual Cards / 4-col KPI)
+      if (isGridOrMultiColumn(el)) {
+        children.push(convertGridToDocxTable(el));
+        children.push(new Paragraph({ spacing: { before: 40, after: 60 } }));
+        return;
+      }
+
+      // 3. Check if it's a table
+      if (tag === "table") {
+        children.push(convertHtmlTableToDocx(el));
+        children.push(new Paragraph({ spacing: { before: 60, after: 80 } }));
+        return;
+      }
+
+      // 4. Check if it's a complex container wrapper (e.g. Ficha wrapper with multiple sections, tables, grids)
+      if (tag === "div" && isComplexContainer(el)) {
+        const topBorder = el.style.borderTop || el.style.borderTopColor;
+        if (topBorder && topBorder !== "none") {
+          const topColor = parseHexColor(topBorder?.split(" ")?.pop()) || "0F2C59";
+          children.push(
+            new Paragraph({
+              border: { top: { style: BorderStyle.SINGLE, size: 24, color: topColor } },
+              spacing: { before: 180, after: 100 },
+            })
+          );
+        }
+        Array.from(el.childNodes).forEach(processNode);
+        return;
+      }
+
+      // 5. Check if it's a Leaf Callout Card (div with border-left or prominent background)
       if (
         tag === "div" &&
         (el.style.borderLeft ||
@@ -981,13 +1497,6 @@ function parseHtmlBody(body: HTMLElement): (Paragraph | Table)[] {
       ) {
         children.push(convertCalloutDivToDocx(el));
         children.push(new Paragraph({ spacing: { before: 40, after: 60 } }));
-        return;
-      }
-
-      // Check if it's a table
-      if (tag === "table") {
-        children.push(convertHtmlTableToDocx(el));
-        children.push(new Paragraph({ spacing: { before: 60, after: 80 } }));
         return;
       }
 
