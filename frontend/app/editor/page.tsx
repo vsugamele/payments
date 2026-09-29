@@ -560,8 +560,9 @@ export default function DocStudioEditor() {
     td { padding: 9px 12px; border-bottom: 1px solid #cbd5e1; }
     code { font-family: monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
     @media print {
-      @page { size: A4; margin: 15mm; }
-      body { margin: 0; padding: 0; }
+      @page { size: A4 portrait; margin: 0 !important; }
+      body { margin: 0 !important; padding: 16mm 15mm !important; }
+      a[href]:after, a:after { content: none !important; }
     }
   </style>
 </head>
@@ -1345,7 +1346,7 @@ export default function DocStudioEditor() {
           <button
             onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold transition-all"
-            title="Gerar e Salvar em PDF Executivo (A4 Isolado)"
+            title="Gerar e Salvar em PDF Executivo (A4 Limpo sem URLs e sem rodapés)"
           >
             <Printer size={14} />
             <span className="hidden sm:inline">Gerar PDF</span>
@@ -2079,7 +2080,7 @@ export default function DocStudioEditor() {
 
             {/* The A4 Paper Card (Parecer Técnico) */}
             <div
-              className="w-full max-w-[850px] min-h-[1050px] bg-card text-foreground rounded-2xl shadow-xl border border-border p-10 sm:p-14 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-none print:w-full print:bg-white print:text-black"
+              className="w-full max-w-[850px] min-h-[1050px] bg-card text-foreground rounded-2xl shadow-xl border border-border p-10 sm:p-14 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-none print:w-full print:bg-white print:text-black print-paper-canvas"
               style={{
                 boxShadow: "0 10px 35px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border)",
               }}
@@ -2255,10 +2256,18 @@ export default function DocStudioEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 15mm 15mm 18mm 15mm;
+            margin: 0 !important;
           }
           header, nav, footer, aside, .print\\:hidden, [role="dialog"], button {
             display: none !important;
+          }
+          /* Oculta URLs injetadas pelo navegador ou folhas de estilo após links */
+          a[href]:after, a:after {
+            content: none !important;
+          }
+          a {
+            text-decoration: none !important;
+            color: inherit !important;
           }
           html, body {
             background-color: #ffffff !important;
@@ -2268,6 +2277,16 @@ export default function DocStudioEditor() {
             font-size: 11pt;
             margin: 0 !important;
             padding: 0 !important;
+          }
+          /* Margem limpa e profissional no papel impresso, clonada em todas as páginas */
+          .print-paper-canvas {
+            padding: 16mm 15mm !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            -webkit-box-decoration-break: clone !important;
+            box-decoration-break: clone !important;
           }
           h1, h2, h3, h4 {
             page-break-after: avoid !important;

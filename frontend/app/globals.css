@@ -340,3 +340,10 @@ select.input-base { appearance: none; cursor: pointer; }
 }
 .callout-success strong { color: #34d399; }
 
+@media print {
+  /* Suppress browser-generated link URL annotations */
+  a[href]:after, a:after {
+    content: none !important;
+  }
+}
+
