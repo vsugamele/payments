@@ -1,0 +1,76 @@
+{
+  "id": "LAC 13906.1",
+  "titulo": "Brazil Mastercard Rules Update",
+  "bandeira": "Mastercard",
+  "regiao": "Brasil",
+  "publicado": "2026-06-09",
+  "vigencia": [
+    {"data": "2026-07-09", "detalhe": "MC comunica a publicacao da REG 2025.05"},
+    {"data": "2026-08-09", "detalhe": "Brazil Mastercard Rules (REG 2025.05) entra em vigor"}
+  ],
+  "classificacao": "Mandatorio",
+  "action_indicator": "Mandated",
+  "subdominios": ["compliance", "governanca", "autorizacao"],
+  "regulatorio": true,
+  "criticidade_base": "Baixo",
+  "impacta_brasil": "Sim",
+  "o_que_a_bandeira_esta_fazendo": "Publicando a nova versao das Brazil Mastercard Rules (REG 2025.05), aprovada pelo Banco Central do Brasil, com esclarecimentos: participacao em transfer schemes e opcional e o emissor pode definir limites/valores maximos/controles de parcelamento para transfer/MoneySend.",
+  "versoes": [
+    {"versao": "V1", "data": "2026-06-09", "mudanca": "Publicacao inicial."}
+  ],
+  "audiencia": ["Adquirente", "Emissor", "Processador", "Branded Processor", "Digital ID", "Network Enablement Partner"],
+  "mensagens_iso": [],
+  "cross_bandeira": null,
+  "antes_depois": [
+    {
+      "o_que": "Participacao em Transfer Payment Schemes",
+      "antes": "Regras nao explicitavam o carater da participacao. (antes exato nao detalhado no boletim)",
+      "depois": "Participacao em qualquer Payment Scheme, incluindo transfer, e expressamente OPCIONAL."
+    },
+    {
+      "o_que": "Parametros de aprovacao de transacao (emissor)",
+      "antes": "Aprovacao ja era criterio do emissor, sem detalhamento expresso das medidas permitidas.",
+      "depois": "As regras esclarecem expressamente que o emissor pode: estabelecer limites para transfer/MoneySend; definir valores maximos; implementar limites e controles de parcelamento."
+    }
+  ],
+  "lentes": {
+    "tecnica": {
+      "campos": [],
+      "nota": "Boletim de regra/compliance — nao altera layout de mensagem; sem campo ISO/PDS."
+    },
+    "normativa": {
+      "resumo": "Publicacao da nova versao das Brazil Mastercard Rules (REG 2025.05), aprovada pelo Banco Central do Brasil em 25/05/2026.",
+      "mudancas": [
+        "Participacao em Transfer Payment Schemes e OPCIONAL.",
+        "Aprovacao de transacao permanece a criterio do EMISSOR, com base em criterios objetivos.",
+        "Emissor pode: estabelecer limites para transacoes transfer/MoneySend; definir valores maximos; implementar limites e controles de parcelamento."
+      ],
+      "fonte_regra": "Brazil Mastercard Rules REG 2025.05 (Domestic Rules page, Mastercard Connect)"
+    },
+    "negocio": {
+      "exposicao_financeira": "Sem impacto direto em tarifa/intercambio. Exposicao indireta: ma configuracao de limites pode bloquear receita de transfer/MoneySend ou, ao contrario, expor a risco se controles nao forem aplicados.",
+      "risco_competitivo": "Se o cliente nao revisar parametros de aprovacao, fica desalinhado com a regra vigente (risco de compliance) e pode perder flexibilidade que concorrentes ja usam (limites finos por tipo de transacao).",
+      "esforco_prazo": "Esforco baixo-medio (ajuste de parametros/politicas, nao de layout). Janela: ate 09/08/2026."
+    }
+  },
+  "gatilhos": {
+    "papeis": ["emissor", "adquirente"],
+    "produtos": ["moneysend", "transfer"],
+    "bandeiras": ["Mastercard"],
+    "regioes": ["Brasil"]
+  },
+  "acoes": {
+    "emissor": [
+      "Revisar/ajustar parametros de aprovacao para transfer/MoneySend e parcelamento (faculdade prevista na REG 2025.05).",
+      "Revisar politicas internas de criterios objetivos de aprovacao."
+    ],
+    "adquirente": [
+      "Compliance/awareness com a REG 2025.05; garantir conformidade com obrigacoes aplicaveis."
+    ]
+  },
+  "fonte": "m_an13906_en-us.pdf (LAC 13906.1, publicado 09/06/2026)",
+  "verificar": [
+    "Conteudo detalhado da REG 2025.05 (texto completo na Domestic Rules page no Mastercard Connect).",
+    "Response codes envolvidos em negativa por limite do emissor."
+  ]
+}

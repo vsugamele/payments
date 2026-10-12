@@ -1,0 +1,49 @@
+{
+  "id": "MC-DE063-SF1",
+  "bandeira": "Mastercard",
+  "campo": "DE 063",
+  "subcampo": "SF1",
+  "nome": "Network Data — Product Code (Subfield 1)",
+  "fase": "autorizacao",
+  "subdominios": ["autorizacao", "produtos"],
+  "mensagens": ["Authorization Request (0100)", "Authorization Advice (0120)"],
+  "descricao_funcional": "Carrega o product code (Licensed Product ID) que identifica o produto do cartao na mensagem de autorizacao. E o ponto onde a rede sinaliza produtos novos (ex.: MLF Agro, MCJ/MCH/MCI Consumer Mass).",
+  "formato": "AN — ver manual MC para tamanho/posicao exatos",
+  "papeis": {
+    "adquirente": {
+      "acao": "envia",
+      "obrigatoriedade": "Mandatorio",
+      "funcional": "Reconhecer e transmitir corretamente o product code do cartao na autorizacao.",
+      "campo_tecnico": "Preencher/echo do DE 63 SF1 com o code recebido (ex.: MLF).",
+      "desenvolver": [
+        "Atualizar o parser ISO 8583 para reconhecer novos product codes (evitar hard reject 'Produto Invalido').",
+        "Garantir que o code transite ate o clearing (mapeado em PDS 0002/0003)."
+      ]
+    },
+    "emissor": {
+      "acao": "recebe",
+      "obrigatoriedade": "Opcional (Brasil)",
+      "funcional": "Ler o product code recebido na autorizacao para decisao/registro.",
+      "campo_tecnico": "Interpretar DE 63 SF1 nas mensagens de autorizacao.",
+      "desenvolver": [
+        "Tratar o novo code no autorizador (caso opte por emitir o produto)."
+      ]
+    }
+  },
+  "ida_volta": {
+    "ida": "Adquirente -> Bandeira -> Emissor: request de autorizacao carregando DE 63 SF1 com o product code.",
+    "o_que_retorna": "Emissor -> Bandeira -> Adquirente: response de autorizacao (DE 39 response code). Se o adquirente nao reconhecer o code, risco de hard reject 'Produto Invalido / Invalid BIN'.",
+    "o_que_volta_clearing": "Na apresentacao (clearing), o code e mapeado em PDS 0002 e PDS 0003; provisionamento de intercambio depende das tabelas MPE — risco de under-provisioning se a MPE nao for importada."
+  },
+  "tabelas_relacionadas": ["IP0016T1", "IP0020T1", "IP0040T1", "IP0096T1"],
+  "boletins": [
+    "GLB 13429.1 — Introducing an Agro Commercial Credit Product Code (MLF)",
+    "AP/CAN/LAC/MEA/US 13523.1 — Consumer Mass Product Codes (MCJ/MCH/MCI)"
+  ],
+  "fonte": "Planilha de Controle de Itens - Bandeiras v8 (Release Outubro 2026), abas Adquirente/Emissor/Codigos de Produto.",
+  "verificar": [
+    "Formato/tamanho/posicao exatos do DE 63 e do SF1 no manual MC (Customer Interface Specification).",
+    "Lista completa de mensagens que carregam o campo.",
+    "Response code exato retornado em caso de produto invalido."
+  ]
+}

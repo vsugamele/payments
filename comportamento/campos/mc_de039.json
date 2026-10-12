@@ -1,0 +1,46 @@
+{
+  "id": "MC-DE039",
+  "bandeira": "Mastercard",
+  "campo": "DE 39",
+  "subcampo": null,
+  "nome": "Response Code",
+  "fase": "autorizacao",
+  "subdominios": ["autorizacao", "compliance"],
+  "mensagens": ["Authorization Request Response (0110)"],
+  "descricao_funcional": "Codigo de resposta que o EMISSOR retorna na autorizacao. Para transacoes de reembolso de compra (DE 3 SF1 = 20), o Data Integrity Monitoring Program fiscaliza se o valor retornado e um decline valido (10 Partial Approval, 12 Invalid transaction, 51 Insufficient funds/over credit limit, e — desde a v2 do boletim GLB 6409.2 — 57 Transaction not permitted to issuer/cardholder, exceto prepago nao-recarregavel).",
+  "formato": "N — ver Customer Interface Specification / GCMS Reference Manual para posicao exata (⚠️ verificar)",
+  "papeis": {
+    "adquirente": {
+      "acao": "recebe",
+      "obrigatoriedade": "N/A (o campo e populado pelo emissor)",
+      "funcional": "Recebe o response code e repassa ao lojista/portador.",
+      "campo_tecnico": "Ler DE 39 na 0110 e tratar conforme fluxo normal de autorizacao.",
+      "desenvolver": []
+    },
+    "emissor": {
+      "acao": "envia",
+      "obrigatoriedade": "Mandate (Brand Mandate — Data Integrity Monitoring Program)",
+      "funcional": "Responder corretamente as solicitacoes de autorizacao de reembolso de compra (DE 3 SF1=20), evitando decline sistematico (Edit 31) e evitando codigos de decline invalidos (Edit 30).",
+      "campo_tecnico": "Popular DE 39 evitando os valores 10/12/51/57 de forma indevida em refund; 57 so e valido se a conta estiver flagged non-reloadable prepaid (TR52/FIT1).",
+      "desenvolver": [
+        "Ajustar logica do autorizador para nao declinar sistematicamente refunds (100% decline / 0% approval = nao-conforme no Edit 31).",
+        "Validar, antes de retornar 10/12/51/57 em refund, se a conta e prepago nao-recarregavel; se nao for, o response e considerado invalido (Edit 30).",
+        "Registrar ICA/processor ID em Data Integrity Online e monitorar mensalmente o volume/indice de refund (baseline 100 transacoes/mes)."
+      ]
+    }
+  },
+  "ida_volta": {
+    "ida": "Adquirente -> Bandeira -> Emissor: Authorization Request (0100) com DE 3 SF1 = 20 (Purchase Return/Refund).",
+    "o_que_retorna": "Emissor -> Bandeira -> Adquirente: Authorization Request Response (0110) com DE 39 preenchido; fiscalizado pelos Edits 30 e 31 do Data Integrity Monitoring Program.",
+    "o_que_volta_clearing": "N/A — edits atuam apenas no fluxo de autorizacao (Dual Message System), nao no clearing."
+  },
+  "tabelas_relacionadas": [],
+  "boletins": [
+    "GLB 6409.2 — Data Integrity Monitoring Program Edits for Purchase Refund Authorizations"
+  ],
+  "fonte": "m_an6409_en-us-2024-11-26.pdf",
+  "verificar": [
+    "Posicao/formato exatos do DE 39 no Customer Interface Specification.",
+    "Lista completa de response codes validos/invalidos alem dos citados no boletim (10, 12, 51, 57)."
+  ]
+}

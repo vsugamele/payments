@@ -1,0 +1,44 @@
+{
+  "id": "MC-DE003-SF1",
+  "bandeira": "Mastercard",
+  "campo": "DE 3",
+  "subcampo": "SF1",
+  "nome": "Processing Code — Cardholder Transaction Type Code",
+  "fase": "autorizacao",
+  "subdominios": ["autorizacao", "compliance"],
+  "mensagens": ["Authorization Request (0100)"],
+  "descricao_funcional": "Identifica o tipo de transacao do portador. Valor 20 = Purchase Return/Refund. E o campo de filtro/escopo usado pelo Data Integrity Monitoring Program para selecionar quais autorizacoes entram na fiscalizacao dos edits de reembolso (Edit 30 e Edit 31).",
+  "formato": "N — ver Customer Interface Specification para posicao exata (⚠️ verificar)",
+  "papeis": {
+    "adquirente": {
+      "acao": "envia",
+      "obrigatoriedade": "Mandatorio (padrao ISO/MC de processamento)",
+      "funcional": "Enviar corretamente o codigo 20 quando a transacao for reembolso de compra, para que o fluxo de autorizacao e a fiscalizacao funcionem sobre a base correta.",
+      "campo_tecnico": "Popular DE 3 SF1 = 20 em transacoes de Purchase Return/Refund.",
+      "desenvolver": []
+    },
+    "emissor": {
+      "acao": "recebe",
+      "obrigatoriedade": "Mandate (Brand Mandate — Data Integrity Monitoring Program)",
+      "funcional": "Reconhecer DE 3 SF1 = 20 como reembolso de compra e responder de acordo com os requisitos do programa (nao declinar sistematicamente; usar response code valido).",
+      "campo_tecnico": "Identificar DE 3 SF1 = 20 na 0100 recebida para acionar a logica correta de autorizacao de refund.",
+      "desenvolver": [
+        "Garantir que o autorizador trate separadamente as transacoes com DE 3 SF1 = 20 para fins de compliance com os Edits 30/31."
+      ]
+    }
+  },
+  "ida_volta": {
+    "ida": "Adquirente -> Bandeira -> Emissor: Authorization Request (0100) com DE 3 SF1 = 20.",
+    "o_que_retorna": "Emissor -> Bandeira -> Adquirente: Authorization Request Response (0110) com DE 39 (Response Code), fiscalizado pelos Edits 30/31 quando DE 3 SF1 = 20.",
+    "o_que_volta_clearing": "N/A — edits atuam apenas no fluxo de autorizacao."
+  },
+  "tabelas_relacionadas": [],
+  "boletins": [
+    "GLB 6409.2 — Data Integrity Monitoring Program Edits for Purchase Refund Authorizations"
+  ],
+  "fonte": "m_an6409_en-us-2024-11-26.pdf",
+  "verificar": [
+    "Posicao/formato exatos do DE 3 e seus subfields no Customer Interface Specification.",
+    "Demais valores do DE 3 SF1 relevantes a outros programas de compliance (fora do escopo deste boletim)."
+  ]
+}

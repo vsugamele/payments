@@ -1,0 +1,84 @@
+{
+  "id": "GLB 6409.2",
+  "titulo": "Data Integrity Monitoring Program Edits for Purchase Refund Authorizations",
+  "bandeira": "Mastercard",
+  "regiao": "Global",
+  "publicado": "2024-11-26",
+  "release": "Nao e Release (Bulletin Announcement contínuo)",
+  "vigencia": [
+    {"data": "2022-09-01", "detalhe": "Inicio do monitoramento dos edits de refund (Auth Refund Appr Rt 0110 e Auth Refund Inv Declines 0110)."},
+    {"data": "2022-10-01", "detalhe": "Inicio das notificacoes aos nao-conformes."},
+    {"data": "2023-03-01", "detalhe": "Comply-by date original dos edits de refund."},
+    {"data": "2025-04-01", "detalhe": "Inicio do monitoramento do NOVO criterio e baseline do edit 30 (Auth Refund Inv Declines 0110)."},
+    {"data": "2025-05-01", "detalhe": "Inicio das notificacoes para o novo criterio/baseline do edit 30."},
+    {"data": "2025-07-01", "detalhe": "Comply-by date para o novo criterio/baseline do edit 30 (aplica-se apenas a clientes recem-nao-conformes)."},
+    {"data": "2025-08-31", "detalhe": "Inicio das assessments (penalidades) para a nova nao-conformidade do edit 30."}
+  ],
+  "classificacao": "Mandate",
+  "action_indicator": "Brand Mandate; Attention warranted (Network-related); Financial impact; Noncompliance; Registration required",
+  "subdominios": ["autorizacao", "compliance", "governanca"],
+  "regulatorio": false,
+  "criticidade_base": "Alto",
+  "impacta_brasil": "Sim",
+  "o_que_a_bandeira_esta_fazendo": "Mastercard mantem dois edits do Data Integrity Monitoring Program que fiscalizam como o EMISSOR responde a autorizacoes de reembolso de compra (DE 3 SF1 = 20, Purchase Return/Refund) e, nesta atualizacao (v2), amplia/recalibra o criterio do edit 30 (Auth Refund Inv Declines 0110): alem dos response codes ja monitorados (10, 12, 51), passa a considerar tambem o DE 39 = 57 (Transaction not permitted to issuer/cardholder) como decline invalido quando a conta NAO e prepago nao-recarregavel — com novo baseline e nova janela de comply-by/assessment.",
+  "versoes": [
+    {"versao": "V1", "data": "2022-05-31", "mudanca": "Publicacao inicial dos dois edits (Auth Refund Appr Rt 0110 e Auth Refund Inv Declines 0110)."},
+    {"versao": "V2", "data": "2024-11-26", "mudanca": "Adicionado action indicator Noncompliance; atualizados executive overview, effective date details, 'What Mastercard is doing', numero/criterio/baseline do Edit 30 (inclusao do DE 39=57 como decline invalido, exceto prepago nao-recarregavel), e email de contato do Data Integrity."}
+  ],
+  "audiencia": ["Issuer", "Processor", "Branded Processor", "Network Enablement Partner"],
+  "mensagens_iso": ["0100", "0110"],
+  "cross_bandeira": null,
+  "antes_depois": [
+    {
+      "o_que": "Criterio de nao-conformidade do Edit 30 — Auth Refund Inv Declines 0110",
+      "antes": "Nao-conforme quando DE 39 (Response Code) = 10 (Partial Approval), 12 (Invalid transaction) ou 51 (Insufficient funds/over credit limit) em transacao de refund (DE 3 SF1 = 20), monitorado sobre baseline de 100 transacoes/mes, com threshold de aprovacao (ver nota abaixo).",
+      "depois": "Mantém os codigos 10/12/51 E ADICIONA: DE 39 = 57 (Transaction not permitted to issuer/cardholder) tambem passa a ser considerado decline invalido, EXCETO quando a conta esta sinalizada como prepago nao-recarregavel (TR52/FIT1). Novo baseline/threshold: 100 transacoes de refund no mes, com limite de 99% de conformidade (ver Table 2 — Threshold: 99%). Nova janela: monitoramento 01/04/2025, notificacao 01/05/2025, comply-by 01/07/2025 (so para novos nao-conformes), assessment 31/08/2025."
+    }
+  ],
+  "lentes": {
+    "tecnica": {
+      "campos": ["DE 3 SF1", "DE 39", "DE 22 SF1"],
+      "nota": "DE 3 (Processing Code) subfield 1 = 20 identifica a transacao como Purchase Return/Refund — e o filtro de escopo dos dois edits. DE 39 (Response Code) e o campo fiscalizado: valores 10/12/51/57 podem configurar decline invalido no Edit 30. DE 22 (POS Entry Mode) subfield 1 = 91 e usado como EXCECAO (contactless magnetic stripe com track data completo repassado sem alteracao) — nao entra no calculo de nao-conformidade."
+    },
+    "normativa": {
+      "resumo": "Brand Mandate do Data Integrity Monitoring Program: emissores e seus processadores DEVEM suportar e responder corretamente a autorizacoes de reembolso de compra para todos os programas de cartao, exceto prepago nao-recarregavel. Ha dois edits: Edit 31 (Auth Refund Appr Rt 0110 — taxa de aprovacao) e Edit 30 (Auth Refund Inv Declines 0110 — validade do decline), ambos com billing code 2DC0100 e regiao Global.",
+      "mudancas": [
+        "Edit 30: novo response code fiscalizado (DE 39 = 57), condicionado a conta nao ser prepago nao-recarregavel.",
+        "Edit 30: novo baseline/threshold (100 transacoes; 99% — a interpretar como % maximo de decline invalido tolerado, ⚠️ verificar direcao exata do threshold 99% no manual).",
+        "Registro obrigatorio: todo numero ICA e processor ID deve se cadastrar na ferramenta Data Integrity Online (Mastercard Connect); mesmo sem usuario cadastrado, a Mastercard avalia e pode notificar o administrador do sistema.",
+        "Sem periodo de gracia adicional para o Edit 31 (Auth Refund Appr Rt 0110) — Mastercard continua avaliando qualquer ICA fora do threshold conforme estrutura padrao de assessment do Data Integrity."
+      ],
+      "fonte_regra": "Data Integrity Monitoring Program manual, Chapter 9: Issuer Authorization Dual Message System Edits (0110); Customer Interface Specification; GCMS Reference Manual; AN 1430 Revised Standards—Refund Transactions."
+    },
+    "negocio": {
+      "exposicao_financeira": "Perda: assessment financeiro por ICA number nao-conforme (nao-conformidade = Financial impact + Noncompliance no action indicator). Custo cresce se o emissor nao regularizar ate o comply-by (01/07/2025 para os novos nao-conformes monitorados a partir de 01/04/2025).",
+      "risco_competitivo": "Emissor que declina sistematicamente reembolsos (recusa indevida) gera atrito de experiencia do portador e do lojista/adquirente, alem de exposicao a penalidade recorrente (assessments mensais para quem seguir nao-conforme).",
+      "esforco_prazo": "Esforco baixo a medio: ajustar a logica de resposta (DE 39) do autorizador para reembolsos (DE 3 SF1=20), tratando corretamente contas prepago nao-recarregavel (flag TR52/FIT1) para nao contar como decline invalido. Prazo critico: comply-by 01/07/2025 (novos nao-conformes); assessment comeca 31/08/2025."
+    }
+  },
+  "gatilhos": {
+    "papeis": ["emissor"],
+    "produtos": ["refund", "purchase_return", "cartao_credito", "cartao_debito", "prepago"],
+    "bandeiras": ["Mastercard", "Debit Mastercard", "Maestro"],
+    "regioes": ["Global"],
+    "condicao": "Aplica-se a TODOS os programas de cartao, exceto prepago nao-recarregavel (nonreloadable prepaid), que fica fora do escopo do Edit 30 para o novo criterio DE 39=57."
+  },
+  "acoes": {
+    "emissor": [
+      "Registrar TODO numero ICA e processor ID na ferramenta Data Integrity Online (Mastercard Connect) — obrigatorio mesmo sem usuario cadastrado.",
+      "Revisar a logica de autorizacao/decline para transacoes com DE 3 SF1 = 20 (Purchase Return/Refund): nao declinar sistematicamente (Edit 31) e usar response codes validos (Edit 30).",
+      "Ajustar o autorizador para NAO retornar DE 39 = 10, 12, 51 ou 57 de forma indevida em refund, exceto quando a conta e legitimamente prepago nao-recarregavel (flag TR52/FIT1).",
+      "Monitorar mensalmente (100+ transacoes de refund) o proprio indice de aprovacao/decline invalido via Data Integrity Online antes do comply-by 01/07/2025."
+    ],
+    "adquirente": [
+      "NENHUMA acao fiscalizada: o Edit 30 e o Edit 31 avaliam exclusivamente o ICA number do EMISSOR (audiencia do boletim nao lista adquirente). O adquirente apenas origina o dado (DE 3 SF1=20, e quando aplicavel DE 22 SF1=91) atraves do processamento normal — nao ha monitoramento, notificacao ou assessment sobre o adquirente neste programa."
+    ]
+  },
+  "fonte": "m_an6409_en-us-2024-11-26.pdf (GLB 6409.2, Bulletin Announcement, publicado 26/11/2024, versao V2).",
+  "verificar": [
+    "Direcao exata de leitura do 'Threshold: 99%' no Edit 30 (se e teto de decline invalido tolerado ou piso de conformidade) — checar Data Integrity Monitoring Program manual Cap. 9.",
+    "Formato/posicao exatos de DE 3, DE 39 e DE 22 no Customer Interface Specification / GCMS Reference Manual.",
+    "Se ha obrigacao tecnica adicional do adquirente/processador alem do encaminhamento correto dos DEs.",
+    "Estrutura padrao de assessment (valores/penalidades) referenciada como 'standard Data Integrity assessment structure' — nao detalhada neste boletim."
+  ]
+}

@@ -277,6 +277,193 @@ const PRESET_DIFFS: Record<string, ReleaseDiffData> = {
       },
     ],
   },
+
+  visa_gtlig_1026_0427: {
+    title: "Visa Global Technical Letter (GTLIG) — Outubro/2026 vs Abril/2027",
+    sourceRelease: "Visa GTLIG 1026 (Outubro 2026)",
+    targetRelease: "Visa GTLIG 0427 (Abril 2027 Preview)",
+    brand: "Visa",
+    category: "LAC Mandates, AVS & Excessive Retry Control",
+    fieldsChanges: [
+      {
+        status: "alterado",
+        field: "DE 39",
+        name: "Response Codes for Fraud Declines & Excessive Retries",
+        description: "Emissores são obrigados a categorizar recusas de fraude com códigos 59 (Suspected Fraud), 82 (Cardholder Disputed) e 83 (Revocation of Auth). Proibição expressa de retentativas automatizadas idênticas pelo adquirente.",
+        impact: "Alto",
+      },
+      {
+        status: "novo",
+        field: "DE 126",
+        subfield: "Field 44.5",
+        name: "Address Verification Service (AVS) LAC",
+        description: "Subcampo mandatório para emissores LAC verificarem CEP e número residencial em compras Card-Not-Present (e-commerce).",
+        impact: "Alto",
+      },
+      {
+        status: "alterado",
+        field: "Field 108",
+        subfield: "Tag DAF",
+        name: "Digital Authentication Framework",
+        description: "Expansão de DAF para transações de comércio eletrônico com liability shift completo ao adquirente.",
+        impact: "Médio",
+      },
+    ],
+    mandates: [
+      {
+        rule: "Artigo 2.11 - Controle e Penalidade de Excessive Retry",
+        pilotDate: "18/04/2026 (Divulgação)",
+        effectiveDate: "17/10/2026 (Mandatório Autorização)",
+        penaltyDate: "01/01/2027 (Cobrança de Assessments)",
+        isMandatory: true,
+        description: "Bloqueio e tarifação por retentativa após recusa definitiva (códigos 59, 82, 83). Limite de 15 retentativas em 30 dias para recusas suaves.",
+      },
+      {
+        rule: "Artigo 10.1.1 - AVS Mandate LAC (América Latina & Caribe)",
+        pilotDate: "01/07/2026 (Certificação)",
+        effectiveDate: "17/10/2026 (Vigência Produção)",
+        penaltyDate: "15/01/2027 (Downgrades)",
+        isMandatory: true,
+        description: "Emissores LAC devem processar e responder AVS Result Code no Field 44.5.",
+      },
+    ],
+    feesImpact: [
+      {
+        code: "V-RETRY-ASSESS",
+        name: "Excessive Retry Assessment",
+        type: "Penalidade",
+        amount: "USD 0,25 a USD 0,50 por retentativa proibida",
+        condition: "Cobrado do credenciador/adquirente por autorização repetida após código 59/82/83.",
+      },
+      {
+        code: "V-AVS-NONCOMP",
+        name: "AVS LAC Non-Compliance Downgrade",
+        type: "Penalidade",
+        amount: "+0,35% no Interchange Fee (Downgrade para Standard)",
+        condition: "Aplicado no clearing caso o adquirente não submeta DE 126 estruturado em transação CNP elegível.",
+      },
+    ],
+    rolesImpact: [
+      {
+        role: "Adquirente",
+        actions: [
+          "Interromper retries automáticos no gateway ao receber DE 39 = 59, 82 ou 83.",
+          "Capturar e empacotar CEP e número residencial no DE 126 F44.5 para transações e-commerce.",
+          "Alertar subadquirentes e grandes merchants de e-commerce sobre cobrança por retry excessivo.",
+        ],
+        risk: "Alto",
+      },
+      {
+        role: "Emissor",
+        actions: [
+          "Implementar engine de validação AVS no host autorizador com retorno dos códigos Z, Y, N, U.",
+          "Abandonar o uso genérico de DE 39 = 05 (Do Not Honor) para casos comprovados de fraude.",
+        ],
+        risk: "Alto",
+      },
+      {
+        role: "Gateway / Processadora",
+        actions: [
+          "Expor campos de endereço na API REST de checkout para captura no payload de autorização.",
+          "Validar máscara de CEP e parâmetros de AVS.",
+        ],
+        risk: "Médio",
+      },
+    ],
+  },
+
+  elo_release_26_2: {
+    title: "Elo Release 26.2 — Novo Regulamento de Qualificação de MCCs (PJ vs PF) & Agendas",
+    sourceRelease: "Elo Release 25.2 / Manual Agendas 25",
+    targetRelease: "Elo Release 26.2 (Outubro 2026)",
+    brand: "Elo",
+    category: "Tarifas de Intercâmbio, MCCs & Compliance Bacen",
+    fieldsChanges: [
+      {
+        status: "alterado",
+        field: "DE 18",
+        name: "Merchant Category Code (MCC)",
+        description: "Proibição expressa de credenciamento simplificado de EC PJ sob MCCs de pessoa física/informal (ex: 7299 / 8999 sem CNAE compatível).",
+        impact: "Alto",
+      },
+      {
+        status: "novo",
+        field: "DE 48",
+        subfield: "Tag Fiscal CNPJ/CPF",
+        name: "Identificador Fiscal do Estabelecimento Credenciado",
+        description: "Obrigatoriedade de transmissão do CNPJ (14 dígitos) ou CPF (11 dígitos) do recebedor final nos layouts de liquidação e clearing Elo.",
+        impact: "Alto",
+      },
+      {
+        status: "alterado",
+        field: "Clearing Layout",
+        subfield: "Registro Tipo 1",
+        name: "Matriz de Tarifas por Porte de Estabelecimento",
+        description: "Diferenciação automática de tabela de intercâmbio diferenciado para Grande Varejo vs Pequeno Varejo / MEI.",
+        impact: "Alto",
+      },
+    ],
+    mandates: [
+      {
+        rule: "Capítulo MCCs PJ vs PF - Regulamento Geral Elo 26.2",
+        pilotDate: "01/06/2026 (Saneamento de Base)",
+        effectiveDate: "01/10/2026 (Mandatório em Liquidação)",
+        penaltyDate: "01/12/2026 (Auditoria Regulatória)",
+        isMandatory: true,
+        description: "Todos os adquirentes e subadquirentes devem sanear a base de ECs cadastrados em MCCs genéricos com CNPJ ativo na Receita Federal.",
+      },
+      {
+        rule: "Manual de Agendas e Remuneração 26.2",
+        pilotDate: "15/07/2026 (Simulações)",
+        effectiveDate: "01/10/2026 (Vigência Bacen Resolução 150)",
+        penaltyDate: "Imediato no arquivo de liquidação",
+        isMandatory: true,
+        description: "Aplicação estrita do teto de intercâmbio Bacen (Circular 522) e cálculo de agenda de liquidação D+1/D+2.",
+      },
+    ],
+    feesImpact: [
+      {
+        code: "ELO-DESQUALIF-MCC",
+        name: "Estorno de Diferencial de Intercâmbio (Downgrade Retroativo)",
+        type: "Penalidade",
+        amount: "Diferença entre Tarifa Balcão e Tarifa Especial (até 1,80% por transação)",
+        condition: "Cobrado do credenciador em caso de auditoria apontar MCC indevido para EC PJ.",
+      },
+      {
+        code: "ELO-AUDIT-FEE",
+        name: "Multa Regulatória por EC Desqualificado",
+        type: "Penalidade",
+        amount: "R$ 5.000 a R$ 50.000 por lote de inconformidade",
+        condition: "Reincidência em transações de pessoas jurídicas simuladas como pessoas físicas.",
+      },
+    ],
+    rolesImpact: [
+      {
+        role: "Adquirente",
+        actions: [
+          "Auditar e recadastrar base de estabelecimentos comerciais, cruzando CNAE fiscal com MCC Elo.",
+          "Transmitir documentação e tag fiscal nos lotes de liquidação.",
+          "Ajustar tabelas de repasse de MDR aos lojistas impactados.",
+        ],
+        risk: "Alto",
+      },
+      {
+        role: "Emissor",
+        actions: [
+          "Ajustar motor de remuneração de intercâmbio de acordo com os novos thresholds de Porte de EC divulgados no arquivo MPE.",
+          "Conferir conciliação da câmara de liquidação Elo.",
+        ],
+        risk: "Médio",
+      },
+      {
+        role: "Gateway / Processadora",
+        actions: [
+          "Adicionar validação de consistência entre tipo de documento (CPF/CNPJ) e MCC no onboarding de sellers.",
+        ],
+        risk: "Médio",
+      },
+    ],
+  },
 };
 
 interface ReleaseDiffModalProps {
@@ -541,6 +728,12 @@ export default function ReleaseDiffModal({
                 </option>
                 <option value="visa_daf_tokenization">
                   Visa: DAF & 3DS E-Commerce Mandates (2024 vs 2026)
+                </option>
+                <option value="visa_gtlig_1026_0427">
+                  Visa: GTLIG 1026 vs 0427 (AVS Mandate LAC & Retries)
+                </option>
+                <option value="elo_release_26_2">
+                  Elo: Release 26.2 (Qualificação MCCs PJ vs PF & Agendas)
                 </option>
               </select>
             </div>

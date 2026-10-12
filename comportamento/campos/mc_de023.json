@@ -1,0 +1,51 @@
+{
+  "id": "MC-DE023",
+  "bandeira": "Mastercard",
+  "campo": "DE 023",
+  "subcampo": "",
+  "nome": "Card Sequence Number",
+  "fase": "autorizacao",
+  "subdominios": ["autorizacao", "clearing", "seguranca"],
+  "mensagens": ["0100/0110 (DMS Authorization)", "DMS Clearing (IPM)", "0200/0210 (Single Message System)"],
+  "descricao_funcional": "Numero de sequencia do cartao associado a um mesmo PAN. Permite distinguir dois portadores que compartilham o PAN, indicar o numero de emissao (incrementado em renovacao) e separar produtos diferentes (debito x credito) no mesmo PAN. Em MDES, e associado ao token.",
+  "formato": "N 3 — ⚠️ verificar tamanho/posicao exatos nos manuais DMS/SMS",
+  "papeis": {
+    "emissor": {
+      "acao": "recebe",
+      "obrigatoriedade": "Mandatorio se opted-in; Opt-in (opcional) caso contrario",
+      "funcional": "Receber e processar o card sequence number para decisao de autorizacao e distincao de portador/produto.",
+      "campo_tecnico": "Ingerir DE 23 nas mensagens 0100/0110, no DMS Clearing e na 0200.",
+      "desenvolver": [
+        "Estender o tratamento do DE 23 de contactless/DSRP (POS entry mode 07/09) para TODAS as transacoes token, incluindo e-commerce (GLB 13315.1)."
+      ]
+    },
+    "bandeira": {
+      "acao": "envia",
+      "obrigatoriedade": "N/A",
+      "funcional": "Popular o DE 23 ao emissor opted-in sempre que disponivel.",
+      "campo_tecnico": "Inserir o card sequence number associado ao token MDES na mensagem ao emissor.",
+      "desenvolver": []
+    },
+    "adquirente": {
+      "acao": "ambos",
+      "obrigatoriedade": "Sem acao especifica",
+      "funcional": "O dado transita; sem desenvolvimento especifico esperado.",
+      "campo_tecnico": "N/A (verificar)",
+      "desenvolver": []
+    }
+  },
+  "ida_volta": {
+    "ida": "Adquirente -> Bandeira -> Emissor: transacao tokenizada MDES; a Mastercard popula o DE 23 (card sequence number) na mensagem ao emissor.",
+    "o_que_retorna": "Emissor -> Bandeira -> Adquirente: resposta de autorizacao (0110). O DE 23 e insumo para a decisao do emissor, nao um campo de resposta.",
+    "o_que_volta_clearing": "O DE 23 tambem trafega no DMS Clearing e no Single Message System (0200)."
+  },
+  "tabelas_relacionadas": [],
+  "boletins": [
+    "GLB 13315.1 — Extending the Card Sequence Number Capabilities for MDES Transactions"
+  ],
+  "fonte": "m_an13315_en-us.pdf (GLB 13315.1).",
+  "verificar": [
+    "Formato/tamanho/posicao exatos do DE 23 nos manuais DMS Authorization/Clearing e SMS.",
+    "Comportamento exato no Single Message System (0200) vs Dual Message."
+  ]
+}

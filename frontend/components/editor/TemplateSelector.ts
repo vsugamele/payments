@@ -464,4 +464,323 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
 <h2>4. A Oferta & Chamada para Ação (CTA)</h2>
 <p>Apresentação dos entregáveis, garantia de resultado e chamada direta para agendamento de diagnóstico técnico.</p>`,
   },
+  {
+    id: "parecer_release_multiplayer",
+    name: "Dossiê Técnico de Release & Mandatórios de Bandeira (Multi-Player EcommIT)",
+    description: "Dossiê executivo e regulatório de alta densidade técnica com as 6 seções obrigatórias: Bifurcação Adquirente vs Emissor, Rastreamento de Mensageria 0100/Clearing, Fórmula do Prejuízo/Downgrades, Cronograma de 4 Marcos, Cruzamento Inter-Bandeiras e Checklist de Engenharia.",
+    category: "Pagamentos",
+    defaultTitle: "Dossiê de Release: Mandatórios Técnicos, Mensageria & Riscos Financeiros",
+    content: `<h1>DOSSIÊ TÉCNICO DE RELEASE & MANDATÓRIOS TÉCNICOS DAS BANDEIRAS</h1>
+<p style="color:#64748b; font-size:0.95rem; margin-top:-0.5rem; margin-bottom:1.25rem;">
+  <strong>EcommIT Intelligence Advisory:</strong> Visa, Mastercard & Elo • <strong>Escopo:</strong> Autorização, Clearing & Liquidação • <strong>Criticidade:</strong> Alta (Risco Tarifário & Multas)
+</p>
+<hr/>
+
+<!-- 1. FICHA TÉCNICA EXECUTIVA -->
+<div style="background:#0f2c59; color:#ffffff; border-radius:12px; padding:20px; margin:1.5rem 0; font-family:system-ui, -apple-system, sans-serif;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:12px;">
+    <div>
+      <span style="background:#2563eb; color:#ffffff; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:4px; text-transform:uppercase;">Parecer Regulatório & Operacional</span>
+      <h3 style="margin:6px 0 2px 0; font-size:18px; font-weight:800; color:#ffffff;">Análise Integrada de Releases: Visa GTLIG 1026/0427, Mastercard Edit 30 & Elo 26.2</h3>
+      <span style="font-size:12px; color:#93c5fd;">Ref: ECO-REL-2026-MULTI • Ciclo de Atualização Semestral</span>
+    </div>
+    <span style="background:#dc2626; color:#ffffff; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:99px;">Ação Obrigatória</span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; font-size:12px;">
+    <div>
+      <span style="color:#94a3b8; font-size:10px; text-transform:uppercase; font-weight:bold; display:block;">Bandeiras:</span>
+      <span style="font-weight:bold;">Visa • Mastercard • Elo</span>
+    </div>
+    <div>
+      <span style="color:#94a3b8; font-size:10px; text-transform:uppercase; font-weight:bold; display:block;">Players Afetados:</span>
+      <span style="font-weight:bold;">Adquirentes, Emissores, Subadquirentes</span>
+    </div>
+    <div>
+      <span style="color:#94a3b8; font-size:10px; text-transform:uppercase; font-weight:bold; display:block;">Ambientes:</span>
+      <span style="font-weight:bold;">0100 Online & Base II / IPM</span>
+    </div>
+    <div>
+      <span style="color:#94a3b8; font-size:10px; text-transform:uppercase; font-weight:bold; display:block;">Exposição Financeira:</span>
+      <span style="color:#f87171; font-weight:bold;">Downgrade até +95 bps + Assessments</span>
+    </div>
+  </div>
+</div>
+
+<h2>1. Visão Executiva & Contexto Regulatório</h2>
+<p>
+  As recentes atualizações normativas das bandeiras internacionais e domésticas convergem para três pilares prioritários: 
+  <strong>(i) Integridade dos dados de autenticação e mitigação de atrito no e-commerce (Visa DAF & Mastercard Identity Check)</strong>; 
+  <strong>(ii) Combate a retentativas automatizadas abusivas e padronização de códigos de resposta de fraude (Visa Artigo 2.11 e DE 39)</strong>; e 
+  <strong>(iii) Saneamento fiscal de credenciados com segregação estrita de pessoas físicas e jurídicas (Elo Release 26.2 e Circular Bacen 522)</strong>.
+</p>
+<p>
+  A conformidade técnica imediata é indispensável para evitar <strong>desqualificação de tarifas de intercâmbio</strong>, estornos retroativos em auditorias e aplicação de <em>Non-Compliance Assessments</em> que podem atingir dezenas de milhares de dólares por mês por código de instituição (ICA / BIN).
+</p>
+
+<!-- 2. MATRIZ DE BIFURCAÇÃO POR PAPEL -->
+<h2>2. Matriz de Bifurcação de Responsabilidades por Papel</h2>
+<p>O impacto técnico varia fundamentalmente de acordo com a ponta do arranjo:</p>
+
+<div data-layout="dual-cards" class="dual-cards-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:1.5rem 0; font-family:system-ui, -apple-system, sans-serif;">
+  <!-- Card Adquirente -->
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #2563eb; border-radius:12px; padding:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <strong style="color:#1e40af; font-size:14px; text-transform:uppercase; letter-spacing:0.5px;">🏦 Credenciador / Adquirente</strong>
+      <span style="background:#2563eb; color:#ffffff; font-size:10px; font-weight:bold; padding:2px 8px; border-radius:99px;">Origem / Envio</span>
+    </div>
+    <ul style="margin:0; padding-left:18px; font-size:12px; color:#1e293b; line-height:1.65;">
+      <li><strong>O que envia:</strong> Capturar CEP e número residencial para AVS (DE 126 F44.5), tags de autenticação DAF (Field 108) e CNPJ/CPF em liquidações Elo.</li>
+      <li><strong>Controle de retries:</strong> Bloquear loops de retentativa imediata quando receber DE 39 = 59, 82 ou 83. Máximo de 15 retries em 30 dias para recusas suaves.</li>
+      <li><strong>Risco financeiro:</strong> Downgrade automático no clearing para a categoria <em>Standard / Non-Qualified</em> (+35 a +95 bps) e multas por tentativa proibida (USD 0,25 a USD 0,50).</li>
+    </ul>
+  </div>
+
+  <!-- Card Emissor -->
+  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-left:5px solid #16a34a; border-radius:12px; padding:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <strong style="color:#166534; font-size:14px; text-transform:uppercase; letter-spacing:0.5px;">💳 Emissor / Banco</strong>
+      <span style="background:#16a34a; color:#ffffff; font-size:10px; font-weight:bold; padding:2px 8px; border-radius:99px;">Destino / Resposta</span>
+    </div>
+    <ul style="margin:0; padding-left:18px; font-size:12px; color:#1e293b; line-height:1.65;">
+      <li><strong>O que processa:</strong> Validar dados de AVS LAC e retornar código de correspondência (Z, Y, N, U) no subcampo de resposta da autorização 0110.</li>
+      <li><strong>O que retorna:</strong> Proibido retornar código genérico 05 (Do Not Honor) quando o motivo real for suspeita de fraude (obrigatório DE 39 = 59, 82 ou 83).</li>
+      <li><strong>Risco financeiro:</strong> Em reembolsos legítimos (Edit 30), taxa de aprovação abaixo de 99% acarreta multas mensais de USD 2.500 a USD 25.000 por ICA no Mastercard Data Integrity.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 3. RASTREAMENTO DE MENSAGERIA -->
+<h2>3. Rastreamento de Mensageria (0100/0110 Online & Clearing)</h2>
+<p>Detalhamento dos elementos de dados (Data Elements) modificados pelas releases:</p>
+
+<table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:12.5px; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f2c59; color:#ffffff;">
+      <th style="padding:10px 12px; text-align:left; border:1px solid #1e3a8a; width:90px;">Campo (DE)</th>
+      <th style="padding:10px 12px; text-align:left; border:1px solid #1e3a8a; width:120px;">Subcampo / Tag</th>
+      <th style="padding:10px 12px; text-align:center; border:1px solid #1e3a8a; width:80px;">Presença</th>
+      <th style="padding:10px 12px; text-align:left; border:1px solid #1e3a8a; width:110px;">Bandeira</th>
+      <th style="padding:10px 12px; text-align:left; border:1px solid #1e3a8a;">Regra de Negócio & Tratamento no Switch</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#ffffff; border-bottom:1px solid #cbd5e1;">
+      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#1e40af;">DE 039</td>
+      <td style="padding:8px 12px; font-family:monospace; color:#475569;">—</td>
+      <td style="padding:8px 12px; text-align:center;"><span style="background:#dcfce7; color:#166534; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:11px;">M</span></td>
+      <td style="padding:8px 12px; font-weight:bold; color:#0f2c59;">Visa & MC</td>
+      <td style="padding:8px 12px; color:#1e293b;">Códigos 59, 82 e 83 mandatórios em recusas de fraude. Dispara trava de retry imediato no adquirente.</td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #cbd5e1;">
+      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#1e40af;">DE 126</td>
+      <td style="padding:8px 12px; font-family:monospace; color:#475569;">Field 44.5</td>
+      <td style="padding:8px 12px; text-align:center;"><span style="background:#fef3c7; color:#92400e; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:11px;">C</span></td>
+      <td style="padding:8px 12px; font-weight:bold; color:#0f2c59;">Visa LAC</td>
+      <td style="padding:8px 12px; color:#1e293b;">Address Verification Service (AVS). Transporte de código postal e número do logradouro para conferência cadastral no emissor.</td>
+    </tr>
+    <tr style="background:#ffffff; border-bottom:1px solid #cbd5e1;">
+      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#1e40af;">DE 048</td>
+      <td style="padding:8px 12px; font-family:monospace; color:#475569;">Tag Fiscal CNPJ/CPF</td>
+      <td style="padding:8px 12px; text-align:center;"><span style="background:#dcfce7; color:#166534; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:11px;">M</span></td>
+      <td style="padding:8px 12px; font-weight:bold; color:#0f2c59;">Elo 26.2</td>
+      <td style="padding:8px 12px; color:#1e293b;">Identificador tributário do EC credenciado para qualificação de tarifas PJ (porte da empresa) vs PF.</td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #cbd5e1;">
+      <td style="padding:8px 12px; font-family:monospace; font-weight:bold; color:#1e40af;">DE 003</td>
+      <td style="padding:8px 12px; font-family:monospace; color:#475569;">SF1 = 20</td>
+      <td style="padding:8px 12px; text-align:center;"><span style="background:#dcfce7; color:#166534; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:11px;">M</span></td>
+      <td style="padding:8px 12px; font-weight:bold; color:#0f2c59;">Mastercard</td>
+      <td style="padding:8px 12px; color:#1e293b;">Processing Code de Refund. Início do monitoramento de integridade (Edit 30 v2) com threshold de 99% de aprovação.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 4. FÓRMULA DO PREJUÍZO (DOWNGRADES & MULTAS) -->
+<h2>4. A Fórmula do Prejuízo: Matriz de Downgrades & Assessments</h2>
+<p>
+  A negligência técnica acarreta desqualificação direta no motor de liquidação (Clearing), gerando aumento estrutural no custo de intercâmbio suportado pelo adquirente ou subadquirente:
+</p>
+
+<div style="background:#fef2f2; border:1px solid #fecaca; border-left:5px solid #dc2626; border-radius:12px; padding:18px 22px; margin:1.5rem 0; font-family:system-ui, -apple-system, sans-serif;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <div style="display:flex; align-items:center; gap:8px; color:#991b1b; font-weight:bold; font-size:13.5px;">
+      <span>⚠️</span>
+      <span>CENÁRIOS DE EXPOSIÇÃO FINANCEIRA & PENALIDADES</span>
+    </div>
+    <span style="background:#dc2626; color:#ffffff; font-size:10px; font-weight:bold; padding:2px 8px; border-radius:4px; text-transform:uppercase;">Risco Máximo</span>
+  </div>
+
+  <table style="width:100%; border-collapse:collapse; font-size:12px; margin-top:10px;">
+    <thead>
+      <tr style="background:#7f1d1d; color:#ffffff;">
+        <th style="padding:8px 10px; text-align:left;">Gatilho de Não-Conformidade</th>
+        <th style="padding:8px 10px; text-align:center; width:110px;">Taxa Qualificada</th>
+        <th style="padding:8px 10px; text-align:center; width:110px;">Taxa Downgrade</th>
+        <th style="padding:8px 10px; text-align:center; width:90px;">Impacto (Bps)</th>
+        <th style="padding:8px 10px; text-align:left; width:190px;">Penalidade Adicional da Bandeira</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#ffffff; border-bottom:1px solid #fee2e2;">
+        <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">E-Commerce sem Autenticação Segura (Ausência de DAF/CAVV)</td>
+        <td style="padding:8px 10px; text-align:center; color:#16a34a; font-weight:bold;">1,10%</td>
+        <td style="padding:8px 10px; text-align:center; color:#dc2626; font-weight:bold;">1,45% (Standard)</td>
+        <td style="padding:8px 10px; text-align:center; font-weight:bold; color:#dc2626;">+35 bps</td>
+        <td style="padding:8px 10px; color:#475569;">Perda do liability shift + USD 0,05 fee por transação desqualificada.</td>
+      </tr>
+      <tr style="background:#fff5f5; border-bottom:1px solid #fee2e2;">
+        <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Retentativa Indevida após Código Definitivo (DE 39 = 59/82/83)</td>
+        <td style="padding:8px 10px; text-align:center; color:#475569;">N/A (Recusa)</td>
+        <td style="padding:8px 10px; text-align:center; color:#dc2626; font-weight:bold;">Bloqueio Switch</td>
+        <td style="padding:8px 10px; text-align:center; font-weight:bold; color:#dc2626;">—</td>
+        <td style="padding:8px 10px; color:#dc2626; font-weight:bold;">USD 0,25 a USD 0,50 por transação em assessment cobrado no Base II.</td>
+      </tr>
+      <tr style="background:#ffffff; border-bottom:1px solid #fee2e2;">
+        <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Classificação de EC PJ como PF / Informal (Elo 26.2)</td>
+        <td style="padding:8px 10px; text-align:center; color:#16a34a; font-weight:bold;">1,20% (Especial)</td>
+        <td style="padding:8px 10px; text-align:center; color:#dc2626; font-weight:bold;">2,15% (Balcão Geral)</td>
+        <td style="padding:8px 10px; text-align:center; font-weight:bold; color:#dc2626;">+95 bps</td>
+        <td style="padding:8px 10px; color:#dc2626;">Estorno retroativo da remuneração + multa de R$ 5.000 a R$ 50.000 em auditoria Bacen.</td>
+      </tr>
+      <tr style="background:#fff5f5;">
+        <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Taxa de Aprovação de Devoluções abaixo de 99% (Edit 30 v2)</td>
+        <td style="padding:8px 10px; text-align:center; color:#16a34a; font-weight:bold;">Tarifa Regular</td>
+        <td style="padding:8px 10px; text-align:center; color:#dc2626; font-weight:bold;">Tarifa Regular</td>
+        <td style="padding:8px 10px; text-align:center; font-weight:bold; color:#475569;">0 bps</td>
+        <td style="padding:8px 10px; color:#dc2626; font-weight:bold;">Assessment de USD 2.500 a USD 25.000 por mês por ICA não-conforme.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5. CRONOGRAMA DE 4 MARCOS -->
+<h2>5. Cronograma de Vigências em 4 Marcos (Milestone Tracker)</h2>
+
+<table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:12.5px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+  <thead>
+    <tr style="background:#1e293b; color:#ffffff;">
+      <th style="padding:9px 12px; text-align:left; width:130px;">Data Limite</th>
+      <th style="padding:9px 12px; text-align:center; width:120px;">Fase / Tipo</th>
+      <th style="padding:9px 12px; text-align:left;">Marco Operacional</th>
+      <th style="padding:9px 12px; text-align:left; width:170px;">Ação Mandatória</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:9px 12px; font-weight:bold;">24/09/2026</td>
+      <td style="padding:9px 12px; text-align:center;"><span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:10.5px; font-weight:bold; padding:2px 8px; border-radius:99px;">1. Publicação</span></td>
+      <td style="padding:9px 12px; color:#334155;">Divulgação formal das especificações técnicas das bandeiras (GTLIG / ANs / Regulamentos).</td>
+      <td style="padding:9px 12px; color:#64748b;">Triagem técnica de impacto e alocação de squads.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:9px 12px; font-weight:bold;">01/11/2026</td>
+      <td style="padding:9px 12px; text-align:center;"><span style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:10.5px; font-weight:bold; padding:2px 8px; border-radius:99px;">2. Sandbox / MTF</span></td>
+      <td style="padding:9px 12px; color:#334155;">Abertura dos simuladores de certificação bilateral (Visa VIP & Mastercard MAS).</td>
+      <td style="padding:9px 12px; color:#2563eb; font-weight:bold;">Execução de suíte de testes de regressão.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+      <td style="padding:9px 12px; font-weight:bold; color:#16a34a;">01/01/2027</td>
+      <td style="padding:9px 12px; text-align:center;"><span style="background:#dcfce7; color:#166534; border:1px solid #bbf7d0; font-size:10.5px; font-weight:bold; padding:2px 8px; border-radius:99px;">3. Produção Global</span></td>
+      <td style="padding:9px 12px; color:#334155;">Entrada em vigor mandatório em ambiente de produção (100% do tráfego).</td>
+      <td style="padding:9px 12px; color:#16a34a; font-weight:bold;">Ativação do switch e monitoramento de recusas.</td>
+    </tr>
+    <tr>
+      <td style="padding:9px 12px; font-weight:bold; color:#dc2626;">01/04/2027</td>
+      <td style="padding:9px 12px; text-align:center;"><span style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-size:10.5px; font-weight:bold; padding:2px 8px; border-radius:99px;">4. Assessments</span></td>
+      <td style="padding:9px 12px; color:#334155;">Início da cobrança automática de penalidades por não-conformidade e desqualificações.</td>
+      <td style="padding:9px 12px; color:#dc2626; font-weight:bold;">Auditoria contábil de clearing e conciliação.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 6. MATRIZ INTER-BANDEIRAS -->
+<h2>6. Matriz de Cruzamento Inter-Bandeiras (Benchmark de Soluções)</h2>
+
+<table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:12px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f2c59; color:#ffffff;">
+      <th style="padding:9px 11px; text-align:left; width:140px;">Dimensão Comparativa</th>
+      <th style="padding:9px 11px; text-align:left; width:28%;">Visa</th>
+      <th style="padding:9px 11px; text-align:left; width:28%;">Mastercard</th>
+      <th style="padding:9px 11px; text-align:left; width:28%;">Elo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 11px; font-weight:bold; color:#0f172a;">Autenticação E-Commerce</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>DAF / 3DS 2.2+:</strong> Tag DAF no Field 108. Redução drástica de atrito com shift de responsabilidade ao emissor.</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Identity Check / MDES:</strong> DE 48 SE 22 (CAVV) e PDS 0023. Programa Edit 30 para integridade de dados.</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Elo 3DS Seguro:</strong> Repasse de ECI no layout nacional com integração ao motor antifraude do ACS emissor.</td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 11px; font-weight:bold; color:#0f172a;">Governança de Retries</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Artigo 2.11:</strong> Stop retry imediato após DE 39 = 59, 82, 83. Máximo 15 tentativas/30 dias. Multa de USD 0,25-0,50.</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Excessive Auth Attempts:</strong> Monitoria global limitando a 35 tentativas/mês. Multa por ICA excedente.</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Monitoria Antifraude:</strong> Penalidade direta por cartões com recusas sequenciais sem alteração de credenciais.</td>
+    </tr>
+    <tr style="background:#ffffff;">
+      <td style="padding:8px 11px; font-weight:bold; color:#0f172a;">Qualificação de Estabelecimento</td>
+      <td style="padding:8px 11px; color:#334155;">Estrutura padronizada de MCC ISO 18245 com programas especiais por tier de faturamento.</td>
+      <td style="padding:8px 11px; color:#334155;">Programas de Intercâmbio Diferenciado com base em volume, MCC e tecnologia de captura (chip/token).</td>
+      <td style="padding:8px 11px; color:#334155;"><strong>Release 26.2:</strong> Segregação mandatória de PJ (CNPJ) vs PF (CPF). Tag fiscal exigida nos lotes de liquidação.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 7. CHECKLIST DE ENGENHARIA -->
+<h2>7. Checklist de Engenharia & Rollout (Do Spec ao Código)</h2>
+
+<table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:12px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+  <thead>
+    <tr style="background:#0f2c59; color:#ffffff;">
+      <th style="padding:8px 10px; text-align:left; width:90px;">Fase</th>
+      <th style="padding:8px 10px; text-align:left; width:160px;">Entregável Técnico</th>
+      <th style="padding:8px 10px; text-align:left;">Critério de Aceite & Validação de Qualidade</th>
+      <th style="padding:8px 10px; text-align:center; width:90px;">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Fase 1: Spec</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Dicionário de DEs & Subcampos</td>
+      <td style="padding:8px 10px; color:#334155;">Especificação detalhada com formato (ans, n, b), presenças (M/C/O) e regras de parsing.</td>
+      <td style="padding:8px 10px; text-align:center;"><span style="background:#dcfce7; color:#166534; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">CONCLUÍDO</span></td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Fase 2: DB</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Migração de Schema do Banco</td>
+      <td style="padding:8px 10px; color:#334155;">Adição de colunas estruturadas para campos normativos (ex: AVS result, DAF token, CPF/CNPJ).</td>
+      <td style="padding:8px 10px; text-align:center;"><span style="background:#dbeafe; color:#1e40af; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">EM DEV</span></td>
+    </tr>
+    <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Fase 3: Switch</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Parser ISO 8583 / IPM</td>
+      <td style="padding:8px 10px; color:#334155;">Inclusão dos subcampos na montagem da mensagem de autorização (0100/0200) e repasse no clearing.</td>
+      <td style="padding:8px 10px; text-align:center;"><span style="background:#fef3c7; color:#92400e; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">PENDENTE</span></td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Fase 4: QA</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Certificação Bilateral / Sandbox</td>
+      <td style="padding:8px 10px; color:#334155;">Simulação de 100% dos cenários de teste da bandeira no ambiente de homologação (Sandbox).</td>
+      <td style="padding:8px 10px; text-align:center;"><span style="background:#f1f5f9; color:#475569; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">AGUARDANDO</span></td>
+    </tr>
+    <tr style="background:#ffffff;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Fase 5: Rollout</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Rollout Canário em Produção</td>
+      <td style="padding:8px 10px; color:#334155;">Virada progressiva de tráfego: 5% ➔ 20% ➔ 50% ➔ 100% com telemetria ativa de declines (DE 39).</td>
+      <td style="padding:8px 10px; text-align:center;"><span style="background:#f1f5f9; color:#475569; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">PLANEJADO</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 8. RECOMENDAÇÕES FINAIS -->
+<h2>8. Parecer Técnico Conclusivo & Plano de Ação Imediato</h2>
+<div style="border-left:4px solid #10b981; background:#ecfdf5; padding:16px 20px; border-radius:0 12px 12px 0; margin:16px 0;">
+  <strong style="color:#065f46; font-size:14px;">✅ Conclusão Estratégica EcommIT</strong>
+  <p style="margin:6px 0 0 0; font-size:13.5px; line-height:1.65; color:#064e3b;">
+    As instituições adquirentes e emissoras devem priorizar imediatamente a <strong>parametrização de seus switches de autorização para o stop-retry no DE 39</strong> e o <strong>saneamento cadastral de MCCs de pessoas jurídicas (Elo 26.2)</strong>. O descumprimento dessas regras acarreta perdas imediatas de margem financeira via downgrade tarifário que superam o custo de implementação de engenharia em menos de um ciclo mensal de faturamento.
+  </p>
+</div>`,
+  },
 ];

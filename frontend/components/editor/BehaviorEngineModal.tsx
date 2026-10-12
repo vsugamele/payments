@@ -33,7 +33,7 @@ export interface BehaviorFieldItem {
       technicalDetail: string;
     };
     issuer: {
-      action: "recebe" | "responde";
+      action: "recebe" | "responde" | "valida";
       requirement: "Mandatório" | "Condicional";
       description: string;
       technicalDetail: string;
@@ -194,6 +194,167 @@ export const BEHAVIOR_FIELDS_DATA: BehaviorFieldItem[] = [
     financialImpact:
       "Isenção de tarifas de chargeback de fraude não reconhecida (Reason Code 10.4) e qualificação para tarifas reduzidas de intercâmbio de e-commerce seguro.",
     bulletins: ["Visa Digital Authentication Framework Implementation Guide 2025/2026"],
+  },
+  {
+    id: "VI-ART-10.1.1",
+    brand: "Visa",
+    fieldCode: "DE 126",
+    subfield: "AVS Request / Result",
+    name: "Address Verification Service (AVS) Mandate — Região LAC",
+    phase: "Autorização",
+    messages: ["0100 (Authorization Request)", "0110 (Authorization Response)"],
+    format: "ans ...255 (Dados de Endereço & CEP / Postal Code)",
+    functionalDescription:
+      "Exigência mandatória da Visa para emissores na região da América Latina e Caribe (LAC). Obriga o autorizador do emissor a validar o código postal (CEP) e endereço residencial do portador em compras e-commerce/CNP, devolvendo o código de resultado AVS no DE 39/DE 44.5.",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Condicional",
+        description:
+          "Capturar e enviar os dados de endereço de cobrança (Billing Address & Postal Code) preenchidos pelo comprador no checkout do e-commerce no DE 126.",
+        technicalDetail: "Popular DE 126 com CEP e número do logradouro para conferência de AVS na VisaNet.",
+      },
+      issuer: {
+        action: "recebe",
+        requirement: "Mandatório",
+        description:
+          "Processar obrigatoriamente a checagem de AVS junto à base cadastral do portador e retornar código de correspondência (Match, Partial Match ou No Match). Não declinar a transação sem motivo de risco real.",
+        technicalDetail:
+          "Integrar o motor de autorização com a base de CEPs e retornar o indicador AVS de acordo com o Artigo 10.1.1 da Release Outubro/2026.",
+      },
+    },
+    flow: {
+      outbound: "EC ➔ Gateway ➔ Adquirente ➔ VisaNet: Envio de 0100 com DE 126 contendo Billing Postal Code.",
+      inboundResponse:
+        "VisaNet ➔ Emissor ➔ VisaNet ➔ Adquirente: Retorno 0110 com DE 44.5 preenchido com o AVS Result Code.",
+      clearingImpact: "O resultado do AVS é espelhado nos registros Base II para conferência de elegibilidade de taxas.",
+    },
+    financialImpact:
+      "Emissores que não implementarem até a data de vigência sofrem Non-Compliance Assessment mensal e perda do benefício de contestação em disputas de fraude (Reason Code 10.4). Adquirentes têm direito a tarifas de intercâmbio reduzidas se o AVS for validado com sucesso.",
+    bulletins: ["Visa Global Technical Letter of Intent & Implementation Guide (Article 10.1.1 — LAC AVS Mandate)"],
+  },
+  {
+    id: "VI-ART-2.11",
+    brand: "Visa",
+    fieldCode: "DE 039",
+    subfield: "Codes 59, 82, 83",
+    name: "Response Codes for Fraud Declines & Excessive Retry Control",
+    phase: "Autorização",
+    messages: ["0110 (Authorization Response)"],
+    format: "an 2",
+    functionalDescription:
+      "Padronização e tipificação mandatória de códigos de retorno específicos para suspeita de fraude e validações de segurança (ex: 59 - Suspected Fraud, 82 - Policy / Security Decline, 83 - Fraud Advice). O objetivo é coibir a prática de adquirentes e lojistas de realizarem retentativas cegas e automatizadas sobre cartões comprometidos.",
+    roles: {
+      acquirer: {
+        action: "valida",
+        requirement: "Mandatório",
+        description:
+          "Cessar imediatamente novas tentativas de cobrança automática quando o emissor retornar os códigos 59, 82 ou 83. O adquirente deve alertar o lojista para solicitar outro meio de pagamento ao comprador.",
+        technicalDetail:
+          "Bloquear retentativas automáticas no gateway de pagamento por 72 horas para o mesmo PAN e Merchant ID.",
+      },
+      issuer: {
+        action: "responde",
+        requirement: "Mandatório",
+        description:
+          "Cessar o uso genérico do código 05 (Do Not Honor) e passar a preencher o código correto (59, 82 ou 83) quando a recusa for motivada por regras de motor de fraude, token desativado ou suspeita de invasão de conta.",
+        technicalDetail:
+          "Mapear regras de risco nos autorizadores antifraude (Visa Risk Manager / PRM) para emitir códigos específicos.",
+      },
+    },
+    flow: {
+      outbound: "N/A (Campo de resposta do emissor).",
+      inboundResponse:
+        "Emissor retorna 0110 com DE 39 = 59/82/83; VisaNet registra o evento de fraude no Visa Fraud Monitoring.",
+      clearingImpact: "Transações recusadas por fraude não trafegam no clearing da Base II.",
+    },
+    financialImpact:
+      "Adquirentes que insistirem em retentativas abusivas sobre transações marcadas com DE 39 = 59 sofrem cobrança do Visa Excessive Retry Assessment (USD 0,25 a USD 0,50 por retentativa indevida).",
+    bulletins: ["Visa Release Outubro 2026 / Janeiro 2027 (Article 2.11 — Response Codes for Fraud Declines)"],
+  },
+  {
+    id: "ELO-MCC-QUALIF",
+    brand: "Elo",
+    fieldCode: "DE 018",
+    subfield: "MCC & Subcódigo PJ/PF",
+    name: "Qualificação de MCCs para Estabelecimentos Comerciais PJ e PF",
+    phase: "Autorização",
+    messages: ["0100 (Auth Request)", "Arquivos MPE / T068 (Clearing)"],
+    format: "n 4 (MCC Padrão) + an 3 (Identificador de Personalidade Jurídica)",
+    functionalDescription:
+      "Nova regra estrutural do Regulamento Elo e Edital CP de Procedimento de MCC. Exige que adquirentes e subadquirentes diferenciem estritamente na captura se o estabelecimento comercial (EC) é Pessoa Física (MEI/Autônomo/CPF) ou Pessoa Jurídica (CNPJ tradicional), evitando arbitragem tarifária indevida de intercâmbio em categorias sensíveis.",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Mandatório",
+        description:
+          "Garantir cadastro e envio fidedigno da natureza fiscal do estabelecimento e MCC correspondente na mensagem de autorização e no arquivo de apresentação diária (MPE).",
+        technicalDetail:
+          "Validar o CNPJ/CPF do credenciado na Receita Federal antes de habilitar a captura e preencher DE 18 com o código de 4 dígitos homologado no catálogo Elo.",
+      },
+      issuer: {
+        action: "valida",
+        requirement: "Mandatório",
+        description:
+          "Conferir o MCC para aplicação de travas de limite em cartões corporativos (ex: bloquear compras em MCCs não-corporativos ou ECs PF) e para cálculo de pontos de fidelidade.",
+        technicalDetail: "Parametrizar tabelas de permissão de aceitação por MCC no autorizador do banco emissor.",
+      },
+    },
+    flow: {
+      outbound: "Adquirente ➔ Elo: Mensagem 0100 com DE 18 contendo MCC validado cadastralmente.",
+      inboundResponse: "Elo autoriza/roteia ao emissor e confirma qualificação tarifária na resposta.",
+      clearingImpact:
+        "Repassado no arquivo de clearing MPE. A Elo calcula a remuneração de intercâmbio com base no binômio MCC + Natureza Fiscal (PF vs PJ).",
+    },
+    financialImpact:
+      "Desclassificação imediata de tarifas diferenciadas de intercâmbio, cobrança retroativa da diferença de taxas e multa regulatória formal por distorção de MCC (Circular Bacen / Regulamento Elo).",
+    bulletins: [
+      "Regulamento Elo Atualizado Bacen — Capítulo de Qualificação de MCCs",
+      "Edital CP — Procedimento de Qualificação de Estabelecimentos Comerciais Elo 2026",
+    ],
+  },
+  {
+    id: "MC-SMS-PAYOUT",
+    brand: "Mastercard",
+    fieldCode: "DE 022",
+    subfield: "POS Entry Mode & DE 048 SE 61",
+    name: "Single Message System (SMS) — Transações de Payout & Débito em Tempo Real",
+    phase: "Autorização",
+    messages: ["0200 (Financial Transaction Request)", "0210 (Financial Response)"],
+    format: "n 3 (DE 22) + ans ...999 (DE 48 SE 61)",
+    functionalDescription:
+      "Especificação técnica para o ecossistema de Mensagem Única (SMS) da Mastercard, onde a autorização e a liquidação financeira ocorrem em uma única transação atômica (0200/0210), sem passagem por clearing posterior em lote (DMS/IPM). Muito utilizado em transferências instantâneas, saques e pagamentos de payout/conta corrente.",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Mandatório",
+        description:
+          "Montar pacote financeiro completo no 0200 incluindo parâmetros de entrada (DE 22), dados do recebedor e garantia de fundos imediatos.",
+        technicalDetail:
+          "Preencher DE 22 com modo de captura de token/chip e DE 48 SE 61 com indicadores de liquidação em tempo real.",
+      },
+      issuer: {
+        action: "recebe",
+        requirement: "Mandatório",
+        description:
+          "Debitar ou creditar a conta do cliente no exato instante da aprovação da mensagem 0210, sem dependência de arquivo de clearing noturno.",
+        technicalDetail:
+          "Atualizar saldo disponível e tratar reversões atômicas via mensagem 0400/0420 em caso de timeout de rede.",
+      },
+    },
+    flow: {
+      outbound: "Originador ➔ Mastercard SMS: Mensagem 0200 financeira com valor, conta de destino e DE 22.",
+      inboundResponse:
+        "Mastercard SMS ➔ Destinatário: Liquidação financeira direta sem lote IPM; retorno 0210 com aprovação.",
+      clearingImpact:
+        "Isento de envio de lotes de First Presentment no IPM; a Mastercard consolida os registros no extrato diário de SMS.",
+    },
+    financialImpact:
+      "Garante disponibilidade imediata de fundos. Erros de formatação no DE 22 em transações SMS geram cancelamento sumário da operação e assessment por processamento inadequado de mensagem única.",
+    bulletins: [
+      "Mastercard Network Processing Single Message System Guide (Agosto/2026)",
+      "Network Specifications — Authorization & Financial (April 2026)",
+    ],
   },
 ];
 

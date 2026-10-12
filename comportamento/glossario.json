@@ -1,0 +1,28 @@
+{
+  "mensagens_iso": {
+    "0100": "Authorization Request — pedido de autorizacao (Dual Message System). Adquirente -> Bandeira -> Emissor. So decide aprovar/negar; nao move dinheiro.",
+    "0110": "Authorization Request Response — resposta do pedido de autorizacao. Emissor -> Bandeira -> Adquirente (traz o DE 39 response code).",
+    "0120": "Authorization Advice — aviso de autorizacao (ex.: stand-in/STIP, autorizacao pos-fato). Geralmente o emissor e notificado.",
+    "0130": "Authorization Advice Response — resposta ao advice.",
+    "0200": "Financial Transaction Request — transacao financeira no Single Message System: autoriza E gera clearing num so passo (tipico de debito/Maestro).",
+    "0210": "Financial Transaction Request Response — resposta da transacao financeira (SMS).",
+    "0220": "Financial Transaction Advice (SMS).",
+    "0400": "Reversal Request — pedido de estorno/desfazimento de uma transacao (ex.: timeout, erro).",
+    "0410": "Reversal Request Response — resposta ao estorno.",
+    "0420": "Reversal Advice — aviso de estorno."
+  },
+  "conceitos": {
+    "autorizacao": "Aprovacao/negacao em tempo real (DMS: 0100/0110). Define se a transacao pode ocorrer; nao movimenta fundos.",
+    "clearing": "Apresentacao/compensacao pos-autorizacao: troca de registros (Mastercard IPM, Visa BASE II) que determina o intercambio e prepara a movimentacao de fundos. No DMS e separado da autorizacao; no SMS (0200) vai junto.",
+    "liquidacao": "Settlement — movimentacao efetiva de fundos entre os participantes apos o clearing.",
+    "DMS": "Dual Message System — autorizacao (0100/0110) e clearing (arquivo) sao mensagens separadas.",
+    "SMS": "Single Message System — a 0200 carrega autorizacao + clearing juntos (debito/Maestro)."
+  },
+  "classificacoes": {
+    "mandatorio": "Obrigatorio implementar ate a data de vigencia.",
+    "opcional": "Facultativo — o participante decide se adota.",
+    "condicional": "Obrigatorio SE certas condicoes se aplicam (ex.: se o participante oferece o produto/servico X ou opera em determinada regiao).",
+    "informativo": "Apenas ciencia; nao exige desenvolvimento."
+  },
+  "cross_bandeira": "Item publicado por UMA bandeira que trata de processar/interoperar transacoes de OUTRA bandeira (ex.: Mastercard 'Enhancing Visa Gateway Processing'). A bandeira dona do boletim difere da bandeira afetada — atencao a qual ambiente realmente muda e quem desenvolve."
+}

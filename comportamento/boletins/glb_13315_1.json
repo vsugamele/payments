@@ -1,0 +1,72 @@
+{
+  "id": "GLB 13315.1",
+  "titulo": "Extending the Card Sequence Number Capabilities for MDES Transactions",
+  "bandeira": "Mastercard",
+  "regiao": "Global",
+  "publicado": "2026-04-21",
+  "release": "26.Q4",
+  "vigencia": [
+    {"data": "2026-11-10", "detalhe": "Efetivo. Janelas por sistema: DMS Authorization 07:00-15:00 UTC; DMS Clearing 00:00-05:59 UTC (+1D); Single Message System 08:00-11:00 UTC"}
+  ],
+  "classificacao": "Condicional",
+  "action_indicator": "Mandated: Issuer",
+  "subdominios": ["autorizacao", "clearing", "seguranca"],
+  "regulatorio": false,
+  "criticidade_base": "Medio",
+  "impacta_brasil": "Sim",
+  "o_que_a_bandeira_esta_fazendo": "Ampliando o envio do Card Sequence Number (DE 23) para todas as transacoes tokenizadas MDES, incluindo e-commerce (antes restrito a contactless/DSRP, POS entry mode 07/09), para emissores opted-in.",
+  "versoes": [
+    {"versao": "V1", "data": "2026-04-21", "mudanca": "Publicacao inicial (Switching Release 26.Q4)."}
+  ],
+  "audiencia": ["Emissor", "Processador", "Network Enablement Partner"],
+  "mensagens_iso": ["0100", "0110", "0200", "0210"],
+  "cross_bandeira": null,
+  "antes_depois": [
+    {
+      "o_que": "Escopo de envio do DE 23 (Card Sequence Number) ao emissor em transacoes MDES",
+      "antes": "Enviado APENAS em token MDES contactless chip (POS entry mode 07) e DSRP EMV (POS entry mode 09).",
+      "depois": "Enviado em TODAS as transacoes tokenizadas MDES, incluindo e-commerce, sempre que disponivel, independente do POS entry mode — para emissores opted-in."
+    }
+  ],
+  "lentes": {
+    "tecnica": {
+      "campos": ["DE 23"],
+      "nota": "Mexe no DE 23 (Card Sequence Number) nos tres sistemas: DMS Authorization, DMS Clearing e Single Message System."
+    },
+    "normativa": {
+      "resumo": "Mastercard estende o card sequence number (DE 23) para todas as transacoes tokenizadas MDES (e-commerce + contactless) dos emissores opted-in.",
+      "mudancas": [
+        "Mandatorio para emissores JA opted-in ao DE 23: preparar-se para receber em todas as transacoes token.",
+        "Opt-in (opcional) para os demais emissores: solicitar ao representante Mastercard.",
+        "DE 23 passa a ser populado independente do POS entry mode (antes so 07 e 09)."
+      ],
+      "fonte_regra": "MDES Issuer Implementation Guide; DMS Authorization/Clearing Guides; SMS Guide"
+    },
+    "negocio": {
+      "exposicao_financeira": "Sem tarifa direta. Beneficio operacional / de risco: distinguir dois portadores no mesmo PAN, numero de emissao (renovacao) e produtos diferentes (debito x credito) no mesmo PAN.",
+      "risco_competitivo": "Emissor que nao processar o DE 23 perde granularidade (nao distingue portador/produto no mesmo PAN) e pode autorizar/prevenir fraude pior que concorrentes que o usam.",
+      "esforco_prazo": "Esforco medio (ingestao e processamento do DE 23 em novos fluxos token). Janela: ate 10/11/2026."
+    }
+  },
+  "gatilhos": {
+    "papeis": ["emissor"],
+    "produtos": ["token", "mdes", "ecommerce", "contactless"],
+    "bandeiras": ["Mastercard"],
+    "regioes": ["Global"],
+    "condicao": "Mandatorio SOMENTE para emissores opted-in ao DE 23; demais e opt-in (opcional)."
+  },
+  "acoes": {
+    "emissor": [
+      "Se opted-in: preparar sistemas para RECEBER e processar DE 23 em todas as transacoes token (e-commerce + contactless), nao so contactless/DSRP.",
+      "Se desejar o beneficio: fazer opt-in via representante Mastercard e fornecer o card sequence number do PAN para associacao ao token."
+    ],
+    "adquirente": [
+      "Sem desenvolvimento especifico: o DE 23 e populado pela Mastercard para o emissor; o fluxo apenas transita. (verificar)"
+    ]
+  },
+  "fonte": "m_an13315_en-us.pdf (GLB 13315.1, Switching Release Announcement 26.Q4, publicado 21/04/2026)",
+  "verificar": [
+    "Formato/tamanho/posicao exatos do DE 23 nos manuais DMS Auth/Clearing e SMS.",
+    "Se ha qualquer acao do adquirente (provavel: nenhuma)."
+  ]
+}
