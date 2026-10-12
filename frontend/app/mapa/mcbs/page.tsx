@@ -1,0 +1,80 @@
+import Link from "next/link";
+import { ArrowLeft, Network, DollarSign } from "lucide-react";
+
+export const metadata = {
+  title: "MCBS Faturamento & Relatórios — VS Payments",
+  description:
+    "Mapa interativo do Mastercard Consolidated Billing System (Invoices, eventos, tarifas, relatórios TN3A/T0CH, ICAs e canais).",
+};
+
+export default function McbsPage() {
+  return (
+    <main className="bg-background flex flex-col h-[calc(100vh-64px)]">
+      {/* Header com Navegação em Abas */}
+      <div
+        style={{
+          borderBottom: "1px solid #1e293b",
+          background: "#050b18",
+          padding: "0.6rem 1.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexShrink: 0,
+          flexWrap: "wrap",
+          gap: "1rem",
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <Link
+            href="/mapa"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+          >
+            <ArrowLeft size={13} />
+            Voltar
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-foreground text-sm flex items-center gap-2">
+              <DollarSign size={16} className="text-purple-500" />
+              MCBS · Faturamento & Relatórios Mastercard
+            </span>
+            <span className="text-[10px] font-bold text-purple-500 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              Invoices • TN3A • Tarifas
+            </span>
+          </div>
+        </div>
+
+        {/* Abas dos Mapas */}
+        <div className="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl">
+          <Link
+            href="/mapa"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+          >
+            Conceitos Gerais
+          </Link>
+          <Link
+            href="/mapa/liquidacao"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+          >
+            Liquidação Internacional
+          </Link>
+          <Link
+            href="/mapa/mcbs"
+            className="text-xs font-bold px-3 py-1 rounded-lg bg-purple-600 text-white shadow-xs transition-all"
+          >
+            MCBS Faturamento
+          </Link>
+        </div>
+      </div>
+
+      {/* Frame do MCBS */}
+      <div className="flex-1 w-full h-full bg-[#11131a]">
+        <iframe
+          src="/mapas/mcbs/index.html"
+          title="Mastercard Consolidated Billing System"
+          className="w-full h-full border-0"
+        />
+      </div>
+    </main>
+  );
+}

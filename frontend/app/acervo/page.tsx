@@ -1,26 +1,27 @@
 import Link from "next/link";
-import { BookOpen, Search, ArrowRight, Lock, BookMarked, ExternalLink } from "lucide-react";
+import { BookOpen, Search, ArrowRight, Lock, BookMarked, ExternalLink, Database, Network, DollarSign, Layers, Sparkles } from "lucide-react";
 import manuais from "@/data/manuais.json";
+import AcervoExplorer from "./AcervoExplorer";
 
 // IDs que possuem página de leitura detalhada na plataforma
 const MANUAIS_COM_VIEWER = new Set(["mc-interchange-detalhado", "vi-interchange-detalhado"]);
 
 export const metadata = {
-  title: "Acervo Normativo — VS Payments",
-  description: "O Cérebro da Plataforma. Acesse a estrutura lógica, mapeamentos de normas e cartilhas técnicas oficiais de Visa e Mastercard.",
+  title: "Acervo Normativo & RAG — VS Payments",
+  description: "O Cérebro da Plataforma. Acesse a base indexada de 35.336 documentos oficiais das bandeiras com motor RAG offline e busca FTS de 517k unidades.",
 };
 
 export default function AcervoPage() {
   return (
-    <main className="bg-background min-h-screen pb-24">
+    <main className="bg-background min-h-screen pb-24 text-foreground">
       {/* Header */}
       <section
         className="dot-grid"
         style={{
-          background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%)",
-          padding: "5rem 1.5rem 4rem",
+          background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)",
+          padding: "4.5rem 1.5rem 3.5rem",
           textAlign: "center",
-          borderBottom: "1px solid #0f172a",
+          borderBottom: "1px solid #1e293b",
         }}
       >
         <div className="mx-auto max-w-3xl">
@@ -29,56 +30,93 @@ export default function AcervoPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              background: "rgba(99,102,241,0.1)",
-              border: "1px solid rgba(99,102,241,0.25)",
+              background: "rgba(99,102,241,0.12)",
+              border: "1px solid rgba(99,102,241,0.3)",
               borderRadius: "9999px",
-              padding: "0.35rem 1rem",
-              marginBottom: "1.5rem",
+              padding: "0.35rem 1.1rem",
+              marginBottom: "1.25rem",
             }}
           >
-            <BookMarked size={13} style={{ color: "#818cf8" }} />
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#818cf8", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              Cérebro Estrutural
+            <Database size={14} style={{ color: "#818cf8" }} />
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#818cf8", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Motor RAG Local &bull; 35.336 Documentos
             </span>
           </div>
-          <h1 className="font-bold text-white mb-4" style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}>
-            Acervo Normativo & Manuais
+          <h1 className="font-extrabold text-foreground mb-4" style={{ fontSize: "clamp(1.85rem, 4vw, 2.85rem)" }}>
+            Acervo Normativo das Bandeiras
           </h1>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.8, maxWidth: 560, margin: "0 auto" }}>
-            As tabelas de intercâmbio e cascatas de risco deste sistema não são opinativas. Elas são lastreadas milimetricamente nas regulamentações operacionais mastodônticas das marcas. 
-            Navegue no acervo de pesquisa da nossa engine.
+          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.8, maxWidth: 580, margin: "0 auto" }}>
+            Todas as tabelas de intercâmbio, cascatas de risco e comportamentos de campos da plataforma são lastreados diretamente no nosso acervo indexado offline de 5,24 GB.
           </p>
+
+          {/* Quick Hub Links */}
+          <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
+            <Link
+              href="/mapa/liquidacao"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-xs font-bold transition-all"
+            >
+              <Network size={14} />
+              <span>Atlas de Liquidação (VSS/SMS)</span>
+            </Link>
+            <Link
+              href="/mapa/mcbs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-xs font-bold transition-all"
+            >
+              <DollarSign size={14} />
+              <span>MCBS Faturamento & Invoices</span>
+            </Link>
+            <Link
+              href="/editor"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/25 text-xs font-bold transition-all"
+            >
+              <Sparkles size={14} />
+              <span>Editor Executivo com RAG</span>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Conteúdo Central */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
+      <section className="mx-auto max-w-5xl px-6 py-12 space-y-12">
         
-        {/* Painel de Estatísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
-          <div className="bg-code-bg border border-border p-5 rounded-xl">
-            <div className="text-2xl font-bold text-white mb-1">{manuais.length}</div>
-            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Manuais Indexados</div>
+        {/* Painel de Estatísticas Reais */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
+            <div className="text-2xl font-black text-foreground mb-1">35.336</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Documentos / Hashes</div>
           </div>
-          <div className="bg-code-bg border border-border p-5 rounded-xl">
-            <div className="text-2xl font-bold text-indigo-400 mb-1">+4.5k</div>
-            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Páginas de Regras</div>
+          <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
+            <div className="text-2xl font-black text-blue-500 mb-1">517.297</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Unidades FTS no Banco</div>
           </div>
-          <div className="bg-code-bg border border-border p-5 rounded-xl">
-            <div className="text-2xl font-bold text-white mb-1">100%</div>
-            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Lastro Técnico</div>
+          <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
+            <div className="text-2xl font-black text-emerald-500 mb-1">5,24 GB</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Acervo Offline SQLite</div>
           </div>
-          <div className="bg-code-bg border border-border p-5 rounded-xl opacity-50">
-            <div className="text-2xl font-bold text-muted-foreground flex gap-2 items-center mb-1"><Lock size={18}/> SaaS</div>
-            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Premium (Em Breve)</div>
+          <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
+            <div className="text-2xl font-black text-purple-500 mb-1">4 Bandeiras</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Visa • MC • Elo • Amex</div>
           </div>
         </div>
 
+        {/* Explorador de RAG Interativo */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2">
+              <Database size={18} className="text-blue-500" />
+              <h2 className="text-lg font-bold text-foreground">Pesquisa Direta no Motor RAG</h2>
+            </div>
+            <span className="text-xs text-muted-foreground">Extração instantânea com número de página e SHA-256</span>
+          </div>
+
+          <AcervoExplorer />
+        </div>
+
         {/* Listagem Fixa de Manuais */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 mb-8">
-            <Search size={20} className="text-indigo-400"/>
-            <h2 className="text-xl font-bold text-white">Catálogo de Fonte Documental</h2>
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center gap-2 mb-6 border-b border-border pb-3">
+            <Search size={18} className="text-indigo-400"/>
+            <h2 className="text-lg font-bold text-foreground">Manuais com Visualização Estruturada</h2>
           </div>
 
           {manuais.map((manual) => (

@@ -61,6 +61,28 @@ export default function MapaPage() {
           </span>
         </div>
 
+        {/* Abas dos Mapas */}
+        <div className="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl ml-2">
+          <Link
+            href="/mapa"
+            className="text-xs font-bold px-3 py-1 rounded-lg bg-blue-600 text-white shadow-xs transition-all"
+          >
+            Conceitos Gerais
+          </Link>
+          <Link
+            href="/mapa/liquidacao"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+          >
+            Liquidação Internacional
+          </Link>
+          <Link
+            href="/mapa/mcbs"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+          >
+            MCBS Faturamento
+          </Link>
+        </div>
+
         <div
           style={{
             marginLeft: "auto",

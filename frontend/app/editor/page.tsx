@@ -57,6 +57,7 @@ import {
   GitCompare,
   Cpu,
   FileCode,
+  Database,
 } from "lucide-react";
 import { exportHtmlToDocx } from "@/components/editor/DocxExporter";
 import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/components/editor/TemplateSelector";
@@ -68,6 +69,7 @@ import BulletinMetadataCard, { BulletinMetadata } from "@/components/editor/Bull
 import ReleaseDiffModal from "@/components/editor/ReleaseDiffModal";
 import SnippetsDrawer from "@/components/editor/SnippetsDrawer";
 import BehaviorEngineModal from "@/components/editor/BehaviorEngineModal";
+import AcervoSearchModal from "@/components/editor/AcervoSearchModal";
 
 interface TocItem {
   id: string;
@@ -231,10 +233,11 @@ export default function DocStudioEditor() {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
 
-  // Payment Release, Snippets and Behavior Modals
+  // Payment Release, Snippets, Behavior and Acervo Modals
   const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
   const [isSnippetsDrawerOpen, setIsSnippetsDrawerOpen] = useState<boolean>(false);
   const [isBehaviorModalOpen, setIsBehaviorModalOpen] = useState<boolean>(false);
+  const [isAcervoModalOpen, setIsAcervoModalOpen] = useState<boolean>(false);
   const [showExportMenu, setShowExportMenu] = useState<boolean>(false);
 
   // AI Configuration State
@@ -1340,6 +1343,16 @@ export default function DocStudioEditor() {
             <span className="hidden xl:inline">Blocos & Snippets</span>
           </button>
 
+          {/* Acervo RAG Search Button */}
+          <button
+            onClick={() => setIsAcervoModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-xs font-semibold transition-all shadow-2xs"
+            title="Consultar Acervo Oficial de 35.336 Manuais e Boletins (RAG Local)"
+          >
+            <Database size={14} />
+            <span className="hidden xl:inline">Acervo (35k Docs)</span>
+          </button>
+
           <div className="h-4 w-px bg-border hidden sm:block" />
 
           {/* PDF Generation (Direct Print / Save PDF) */}
@@ -2248,6 +2261,12 @@ export default function DocStudioEditor() {
       <BehaviorEngineModal
         isOpen={isBehaviorModalOpen}
         onClose={() => setIsBehaviorModalOpen(false)}
+        onInsertHtml={handleInsertCustomHtml}
+      />
+
+      <AcervoSearchModal
+        isOpen={isAcervoModalOpen}
+        onClose={() => setIsAcervoModalOpen(false)}
         onInsertHtml={handleInsertCustomHtml}
       />
 
