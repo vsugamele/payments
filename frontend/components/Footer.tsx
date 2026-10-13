@@ -108,7 +108,13 @@ export function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
-          <p>© {new Date().getFullYear()} Vinícius Sugamele. Todos os direitos reservados.</p>
+          <p>
+            © {new Date().getFullYear()} Vinícius Sugamele. Todos os direitos reservados.
+            <span className="mx-2 text-slate-700">·</span>
+            <Link href="/admin" className="text-slate-700 hover:text-slate-400 transition-colors" title="Área do Proprietário">
+              Acesso Restrito
+            </Link>
+          </p>
           <p>São Paulo, Brasil · Payments & Billing Specialist</p>
         </div>
       </div>
