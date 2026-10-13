@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
     const response = NextResponse.redirect(targetUrl);
     response.cookies.set("vs_internal_pass", "1", {
       path: "/",
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 60 * 60 * 24 * 30, // 30 dias
       sameSite: "lax",
     });

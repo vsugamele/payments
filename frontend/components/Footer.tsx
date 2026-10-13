@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Mail, MapPin, FileDown } from "lucide-react";
+import { ExternalLink, Mail, MapPin, FileDown, MessageCircle } from "lucide-react";
 
 export function Footer() {
   return (
@@ -20,6 +20,15 @@ export function Footer() {
               Head de Bandeiras & Payments Specialist com mais de 16 anos de experiência em ecossistemas de cartões, governança de adquirência, arquitetura de autorização e gestão estratégica de pagamentos.
             </p>
             <div className="flex items-center gap-3 pt-1">
+              <a
+                href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-slate-400 hover:text-emerald-400 flex items-center justify-center transition-all"
+                title="WhatsApp ((11) 99628-0159)"
+              >
+                <MessageCircle size={14} />
+              </a>
               <a
                 href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                 target="_blank"
@@ -58,6 +67,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/#ecossistema" className="hover:text-white transition-colors">
+                  Ecossistema & Parceiros
+                </Link>
+              </li>
+              <li>
                 <Link href="/#experiencia" className="hover:text-white transition-colors">
                   Trajetória Profissional
                 </Link>
@@ -84,6 +98,14 @@ export function Footer() {
           <div className="space-y-3">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contato Direto</p>
             <div className="space-y-2 text-xs">
+              <a
+                href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-emerald-400 hover:text-emerald-300 transition-colors font-semibold"
+              >
+                (11) 99628-0159 (WhatsApp)
+              </a>
               <a
                 href="mailto:vsugamele@gmail.com"
                 className="block text-slate-300 hover:text-blue-400 transition-colors font-medium"

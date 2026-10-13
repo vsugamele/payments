@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RagChat from "@/components/RagChat";
+import { OwnerBar } from "@/components/OwnerBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,9 +18,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VS Payments — Especialista em Meios de Pagamento",
+  title: "Vinícius Sugamele — Head de Bandeiras & Payments Specialist",
   description:
-    "Plataforma de inteligência em meios de pagamento. Simulador de intercâmbio Visa, Mastercard e Maestro. Consultoria, análise de custos e inteligência regulatória.",
+    "Mais de 16 anos de experiência executiva em meios de pagamento, arquitetura de autorização, governança de bandeiras, billing recorrente e intercâmbio.",
+  openGraph: {
+    title: "Vinícius Sugamele — Payments & Billing Specialist",
+    description: "16+ anos de experiência liderando iniciativas estratégicas em meios de pagamento: EcommIT, Bandeira Elo, Getnet e American Express.",
+    url: "https://vinicius-sugamele.com",
+    siteName: "Vinícius Sugamele",
+    images: [
+      {
+        url: "/vinicius_sugamele.jpg",
+        width: 800,
+        height: 1000,
+        alt: "Vinícius Sugamele",
+      },
+    ],
+    locale: "pt_BR",
+    type: "profile",
+  },
 };
 
 export default function RootLayout({
@@ -45,6 +62,7 @@ export default function RootLayout({
           <div className="flex-1 pt-16 print:pt-0">{children}</div>
           <Footer />
           <RagChat />
+          <OwnerBar />
         </ThemeProvider>
       </body>
     </html>

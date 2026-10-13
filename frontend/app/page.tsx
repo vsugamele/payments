@@ -19,13 +19,95 @@ import {
   Globe2,
   Calendar,
   Building2,
-  Send
+  Send,
+  MessageCircle,
+  Phone,
+  BarChart3,
+  Network
 } from "lucide-react";
 
 export const metadata = {
   title: "Vinícius Sugamele — Payments & Billing Specialist · Head de Bandeiras",
   description: "Profissional com mais de 16 anos de experiência em meios de pagamento: EcommIT, Bandeira Elo, Getnet e American Express. Especialista em governança de bandeiras, autorização, intercâmbio, billing recorrente e chargebacks.",
 };
+
+const METRICS = [
+  {
+    value: "16+",
+    unit: "Anos",
+    label: "Experiência Executiva",
+    desc: "Elo, Getnet, Amex, EcommIT & Verifone em liderança de meios de pagamento.",
+  },
+  {
+    value: "224k+",
+    unit: "BINs",
+    label: "Faixas Modeladas",
+    desc: "Mapeamento algorítmico de cascata de intercâmbio e auditoria de faturas MCBS e VSS.",
+  },
+  {
+    value: "+3.8%",
+    unit: "Aprovação",
+    label: "Ganho Médio",
+    desc: "Otimização em projetos de Network Tokens (VTS/MDES), Smart Retries e mensageria.",
+  },
+  {
+    value: "30+",
+    unit: "Players",
+    label: "Ecossistema Atendido",
+    desc: "Adquirentes, bancos emissores, bandeiras globais e processadoras de mercado.",
+  },
+];
+
+const ECOSYSTEM = [
+  {
+    title: "Adquirência, Subadquirência & Fintechs",
+    badge: "Atendimento & Governança",
+    partners: [
+      { name: "Checkout.com", highlight: true },
+      { name: "Getnet", highlight: true },
+      { name: "PicPay", highlight: true },
+      { name: "Mercado Pago", highlight: true },
+      { name: "Banco Inter", highlight: true },
+      { name: "Banco BS2", highlight: true },
+      { name: "Entrepay", highlight: true },
+      { name: "Cielo", highlight: false },
+      { name: "Rede", highlight: false },
+      { name: "Stone", highlight: false },
+      { name: "PagBank", highlight: false },
+    ],
+  },
+  {
+    title: "Processadoras de Pagamento & Infraestrutura",
+    badge: "Mensageria & Core",
+    partners: [
+      { name: "DXC Technology", highlight: true },
+      { name: "AM53", highlight: true },
+      { name: "Payware", highlight: true },
+      { name: "Verifone", highlight: false },
+      { name: "Amadeus", highlight: false },
+    ],
+  },
+  {
+    title: "Bancos Emissores & Liquidação",
+    badge: "Autorização & Clearing",
+    partners: [
+      { name: "Banco Bradesco", highlight: true },
+      { name: "Banco do Brasil", highlight: true },
+      { name: "Caixa Econômica Federal", highlight: true },
+    ],
+  },
+  {
+    title: "Bandeiras & Arranjos de Pagamento",
+    badge: "Releases & Rulebook",
+    partners: [
+      { name: "Bandeira Elo", highlight: true },
+      { name: "American Express", highlight: true },
+      { name: "Visa", highlight: true },
+      { name: "Mastercard", highlight: true },
+      { name: "Hipercard", highlight: false },
+    ],
+  },
+];
 
 const EXPERIENCE = [
   {
@@ -103,6 +185,12 @@ const KEY_PROJECTS = [
     company: "EcommIT",
     desc: "Gestão executiva de cronogramas mandatórios semestrais de bandeiras e auditoria de modelos de intercâmbio e clearing para dezenas de instituições financeiras.",
     icon: FileCheck,
+  },
+  {
+    title: "Certificação & Homologação de Adquirência Amadeus",
+    company: "Getnet",
+    desc: "Condução técnica da criação, certificação e homologação de processadora e adquirente dedicada, garantindo conectividade e liquidação sem falhas.",
+    icon: Globe2,
   },
 ];
 
@@ -226,6 +314,16 @@ export default function HomePage() {
                   <MapPin size={13} className="text-blue-500" />
                   São Paulo, Brasil
                 </div>
+
+                <a
+                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
+                >
+                  <MessageCircle size={13} className="text-emerald-400" />
+                  (11) 99628-0159
+                </a>
                 
                 <a
                   href="mailto:vsugamele@gmail.com"
@@ -254,6 +352,16 @@ export default function HomePage() {
               {/* Botões de Ação */}
               <div className="flex flex-wrap gap-3 mt-6">
                 <a
+                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-md shadow-emerald-600/30 transition-all"
+                >
+                  <MessageCircle size={14} />
+                  Falar no WhatsApp
+                </a>
+
+                <a
                   href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -278,10 +386,27 @@ export default function HomePage() {
                   className="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-2 transition-all"
                 >
                   <Mail size={14} />
-                  Entrar em Contato
+                  Enviar E-mail
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Métricas Executivas de Impacto ─────────────────────────────────── */}
+      <section className="border-b border-border bg-card/40 backdrop-blur-sm py-8">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {METRICS.map((m, idx) => (
+              <div key={idx} className="relative group">
+                <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400">
+                  {m.value}
+                </div>
+                <div className="text-xs font-bold text-foreground mt-0.5">{m.label}</div>
+                <div className="text-[11px] text-muted-foreground mt-1 leading-snug">{m.desc}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -300,6 +425,54 @@ export default function HomePage() {
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Minha experiência abrange desde a governança de mandatórios técnicos e homologações de rede até a consultoria de produto para aumento contínuo de conversão, redução de custos de processamento e estruturação de governança de compliance com foco rigoroso nas diretrizes dos arranjos e regulamentações do Banco Central do Brasil.
             </p>
+          </div>
+        </section>
+
+        {/* ── Ecossistema de Atuação & Parceiros ─────────────────────────────── */}
+        <section id="ecossistema" className="pt-16">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <Building2 size={20} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500">Autoridade & Ecossistema</p>
+              <h2 className="font-bold text-foreground text-2xl">Instituições & Parceiros Atendidos</h2>
+            </div>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground mb-8 max-w-3xl leading-relaxed">
+            Relacionamento executivo, homologações de rede e governança operacional desenvolvidos diretamente com os principais agentes da indústria financeira:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {ECOSYSTEM.map((cat, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-border bg-card p-6 flex flex-col justify-between hover:border-blue-500/30 transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <h3 className="font-bold text-foreground text-sm">{cat.title}</h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      {cat.badge}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {cat.partners.map((p) => (
+                      <span
+                        key={p.name}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                          p.highlight
+                            ? "bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold"
+                            : "bg-muted/70 border-border text-muted-foreground"
+                        }`}
+                      >
+                        {p.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -537,6 +710,15 @@ export default function HomePage() {
                 Disponível para trocas profissionais, projetos de consultoria estratégica, palestras e discussões sobre o futuro do ecossistema de meios de pagamento.
               </p>
               <div className="flex flex-wrap justify-center gap-3 pt-3">
+                <a
+                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all"
+                >
+                  <MessageCircle size={15} />
+                  WhatsApp Direto ((11) 99628-0159)
+                </a>
                 <a
                   href="mailto:vsugamele@gmail.com"
                   className="px-5 py-3 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all"

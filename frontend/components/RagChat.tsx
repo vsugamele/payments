@@ -15,8 +15,15 @@ type Message = {
 export default function RagChat() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
-  if (pathname === "/editor") return null;
+  useEffect(() => {
+    const hasCookie = typeof document !== "undefined" && 
+      document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"));
+    setIsOwner(hasCookie);
+  }, []);
+
+  if (!isOwner || pathname === "/editor") return null;
   const [isMaximized, setIsMaximized] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([

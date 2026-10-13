@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   Menu, X, Sun, Moon, Briefcase, FileDown, Mail,
-  ExternalLink
+  ExternalLink, MessageCircle
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const NAV_LINKS = [
   { href: "/#sobre", label: "Sobre" },
+  { href: "/#ecossistema", label: "Ecossistema" },
   { href: "/#experiencia", label: "Trajetória" },
   { href: "/#projetos", label: "Projetos" },
   { href: "/#solucoes", label: "Especialidades" },
@@ -62,6 +63,16 @@ export function Navbar() {
           >
             <FileDown size={13} className="text-blue-500" />
             <span>Currículo (PDF)</span>
+          </a>
+
+          <a
+            href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/30 transition-all"
+          >
+            <MessageCircle size={13} />
+            <span>WhatsApp</span>
           </a>
 
           <a
@@ -129,11 +140,21 @@ export function Navbar() {
             </a>
 
             <a
+              href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+            >
+              <MessageCircle size={14} />
+              <span>Falar no WhatsApp ((11) 99628-0159)</span>
+            </a>
+
+            <a
               href="mailto:vsugamele@gmail.com"
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white"
             >
               <Mail size={14} />
-              <span>Fale Comigo</span>
+              <span>Enviar E-mail</span>
             </a>
           </div>
         </div>
