@@ -18,6 +18,7 @@ import {
   Rocket,
   Flame,
   FileCheck,
+  FileDown,
 } from "lucide-react";
 
 const EXPERIENCE = [
@@ -263,10 +264,15 @@ export default function SobrePage() {
                   <ExternalLink size={15} />
                   Conectar no LinkedIn
                 </a>
-                <Link href="/billing" className="btn-outline inline-flex items-center gap-2">
-                  Ver Suite de Billing & Otimização
-                  <ArrowRight size={14} />
-                </Link>
+                <a
+                  href="/Curriculo_Vinicius_Sugamele.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline inline-flex items-center gap-2"
+                >
+                  <FileDown size={14} className="text-blue-500" />
+                  Baixar Currículo (PDF)
+                </a>
               </div>
             </div>
           </div>

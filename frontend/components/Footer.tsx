@@ -1,150 +1,115 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Activity, ExternalLink, Mail } from "lucide-react";
+import { ExternalLink, Mail, MapPin, FileDown } from "lucide-react";
 
 export function Footer() {
-  const pathname = usePathname();
-  if (pathname === "/editor") return null;
-
   return (
-    <footer
-      style={{
-        borderTop: "1px solid var(--border)",
-        background: "#030711",
-        marginTop: "6rem",
-      }}
-    >
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 32,
-                  width: 32,
-                  borderRadius: "0.5rem",
-                  background: "linear-gradient(135deg, #2563eb, #7c3aed)",
-                }}
-              >
-                <Activity size={14} className="text-white" />
+    <footer className="border-t border-border bg-[#030711] text-slate-400 mt-20">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Brand Info */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xs">
+                VS
               </div>
-              <span className="text-sm font-bold text-white">VS Payments</span>
+              <span className="text-sm font-black text-white">Vinícius Sugamele</span>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)", maxWidth: 260 }}>
-              Especialista em meios de pagamento com mais de 16 anos de experiência em bandeiras,
-              adquirentes e emissores.
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              Head de Bandeiras & Payments Specialist com mais de 16 anos de experiência em ecossistemas de cartões, governança de adquirência, arquitetura de autorização e gestão estratégica de pagamentos.
             </p>
             <div className="flex items-center gap-3 pt-1">
               <a
                 href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 36,
-                  width: 36,
-                  borderRadius: "0.5rem",
-                  border: "1px solid #1e293b",
-                  background: "#0d1117",
-                  color: "var(--muted-foreground)",
-                  transition: "all 0.2s",
-                }}
+                className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                title="LinkedIn"
               >
-                <ExternalLink size={15} />
+                <ExternalLink size={14} />
               </a>
               <a
                 href="mailto:vsugamele@gmail.com"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 36,
-                  width: 36,
-                  borderRadius: "0.5rem",
-                  border: "1px solid #1e293b",
-                  background: "#0d1117",
-                  color: "var(--muted-foreground)",
-                  transition: "all 0.2s",
-                }}
+                className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                title="Email"
               >
-                <Mail size={15} />
+                <Mail size={14} />
+              </a>
+              <a
+                href="/Curriculo_Vinicius_Sugamele.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                title="Baixar Currículo PDF"
+              >
+                <FileDown size={14} />
               </a>
             </div>
           </div>
 
-          {/* Links */}
-          <div className="space-y-4">
-            <p className="section-eyebrow">Navegação</p>
-            <div className="space-y-2">
-              {[
-                { href: "/simulador", label: "Simulador de Intercâmbio" },
-                { href: "/solucoes",  label: "Soluções"                 },
-                { href: "/artigos",   label: "Artigos"                  },
-                { href: "/sobre",     label: "Sobre"                    },
-              ].map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  style={{ display: "block", fontSize: "0.875rem", color: "var(--muted-foreground)", transition: "color 0.15s" }}
-                  className="hover:text-slate-200"
-                >
-                  {l.label}
+          {/* Navegação Rápida */}
+          <div className="space-y-3">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Navegação</p>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link href="/#sobre" className="hover:text-white transition-colors">
+                  Sobre & Visão
                 </Link>
-              ))}
-            </div>
+              </li>
+              <li>
+                <Link href="/#experiencia" className="hover:text-white transition-colors">
+                  Trajetória Profissional
+                </Link>
+              </li>
+              <li>
+                <Link href="/#projetos" className="hover:text-white transition-colors">
+                  Projetos Estratégicos
+                </Link>
+              </li>
+              <li>
+                <Link href="/#solucoes" className="hover:text-white transition-colors">
+                  Soluções & Especialidades
+                </Link>
+              </li>
+              <li>
+                <Link href="/#competencias" className="hover:text-white transition-colors">
+                  Competências
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* Contact */}
-          <div className="space-y-4">
-            <p className="section-eyebrow">Contato</p>
-            <div className="space-y-3">
+          {/* Contato Direto */}
+          <div className="space-y-3">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contato Direto</p>
+            <div className="space-y-2 text-xs">
               <a
                 href="mailto:vsugamele@gmail.com"
-                style={{ fontSize: "0.875rem", color: "var(--muted-foreground)", display: "block" }}
-                className="hover:text-slate-200 transition-colors"
+                className="block text-slate-300 hover:text-blue-400 transition-colors font-medium"
               >
                 vsugamele@gmail.com
               </a>
-              <p style={{ fontSize: "0.875rem", color: "var(--muted-foreground)" }}>São Paulo, Brasil</p>
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <MapPin size={12} className="text-blue-400 shrink-0" />
+                <span>São Paulo, SP · Brasil</span>
+              </div>
               <a
                 href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontSize: "0.875rem", color: "var(--primary)", display: "block" }}
-                className="hover:text-blue-400 transition-colors"
+                className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors pt-1"
               >
-                linkedin.com/in/vinicius-sugamele
+                <span>Conectar no LinkedIn</span>
+                <ExternalLink size={11} />
               </a>
             </div>
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: "3rem",
-            paddingTop: "1.5rem",
-            borderTop: "1px solid var(--border)",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-          }}
-        >
-          <p style={{ fontSize: "0.75rem", color: "var(--border)" }}>
-            &copy; {new Date().getFullYear()} Vinícius Sugamele. Todos os direitos reservados.
-          </p>
-          <p style={{ fontSize: "0.75rem", color: "var(--border)" }}>
-            Visa · Mastercard · Elo · American Express
-          </p>
+        <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
+          <p>© {new Date().getFullYear()} Vinícius Sugamele. Todos os direitos reservados.</p>
+          <p>São Paulo, Brasil · Payments & Billing Specialist</p>
         </div>
       </div>
     </footer>
