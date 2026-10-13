@@ -24,6 +24,14 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
     icon: Calculator,
     tools: [
       {
+        title: "Motor Determinístico de Provisionamento & Trace de Cascata",
+        desc: "Compilador booleano real (engine/calculator.py), auditoria cláusula a cláusula da cascata, ajustes sobre IA e lookup de BIN.",
+        url: "/compliance/provisionamento",
+        badge: "141 Regras + Trace",
+        icon: Cpu,
+        color: "text-blue-400 bg-blue-500/10 border-blue-500/20"
+      },
+      {
         title: "Simulador de Intercâmbio & Downgrade",
         desc: "Cálculo em tempo real de cascatas Visa, MC, Elo e projeção de sangramento financeiro em R$/mês.",
         url: "/simulador",
@@ -116,6 +124,14 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
     icon: Terminal,
     tools: [
       {
+        title: "Laboratório Forense MPE Binário (T068 / RDW 1014B) & BINs",
+        desc: "Desblocador físico de 1.014 bytes (0x4040), cabeçalhos RDW Big-Endian, 268 tabelas IP0000T1 e dissecador 194B IP0040T1.",
+        url: "/compliance/mpe-forense",
+        badge: "268 Tabelas + 1014B",
+        icon: Terminal,
+        color: "text-purple-400 bg-purple-500/10 border-purple-500/20"
+      },
+      {
         title: "Sistema Completo: GCMS, MPE, MCBS, Base II, VSS & Elo",
         desc: "Decodificador posicional byte-a-byte, explorador de 17.106 campos SQLite e motor de 2.267 eventos MCBS + 10.914 linhas Visa.",
         url: "/compliance/arquivos",
@@ -169,6 +185,14 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
     category: "4. Compliance, Riscos & Conciliação",
     icon: ShieldCheck,
     tools: [
+      {
+        title: "Arquitetura de Subcredenciadores (PayFac), Relatórios MCBS & Catálogo",
+        desc: "Regras DE 48 SE 37, Dataset ID 56, Bit 43/58 Elo, backlog TN3A/AB111010 e inventário catalogo.xlsx (35.336 SHA256).",
+        url: "/compliance/subcredenciadores",
+        badge: "PayFac + 35k SHA256",
+        icon: ShieldCheck,
+        color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+      },
       {
         title: "Playbook de Conciliação Financeira",
         desc: "Batimento em 3 pontas: Captura interna vs Relatórios VSS 110 / MCBS vs Liquidação CIP e Bacen.",
