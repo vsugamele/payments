@@ -88,9 +88,25 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
     ]
   },
   {
-    category: "3. Engenharia de Mensageria & Clearing",
+    category: "3. Engenharia de Mensageria, Arquivos & Clearing",
     icon: Terminal,
     tools: [
+      {
+        title: "Sistema Completo: GCMS, MPE, MCBS, Base II, VSS & Elo",
+        desc: "Decodificador posicional byte-a-byte, explorador de 17.106 campos SQLite e motor de 2.267 eventos MCBS + 10.914 linhas Visa.",
+        url: "/compliance/arquivos",
+        badge: "17.106 Campos + Parser",
+        icon: Database,
+        color: "text-blue-400 bg-blue-500/10 border-blue-500/20"
+      },
+      {
+        title: "GCMS & Tabelas de Parâmetros (MPE)",
+        desc: "Arquitetura do Global Clearing Management System, IPM 1240/1740 e tabelas T165/IP0040T1.",
+        url: "/compliance/gcms",
+        badge: "Mastercard GCMS",
+        icon: Cpu,
+        color: "text-purple-400 bg-purple-500/10 border-purple-500/20"
+      },
       {
         title: "Inspetor & Linter Visual ISO 8583 / Base II",
         desc: "Dissecação campo a campo de autorização e clearing com checagem de regras de compliance.",
@@ -394,7 +410,15 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/compliance/arquivos"
+              className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-xs font-bold text-purple-300 flex items-center gap-2 transition-all"
+            >
+              <Terminal size={14} className="text-purple-400" />
+              <span>Sistema GCMS / MCBS / Base II</span>
+            </Link>
+
             <Link
               href="/admin/rag-status"
               className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-2 transition-all"

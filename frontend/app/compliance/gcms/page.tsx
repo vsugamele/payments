@@ -52,7 +52,23 @@ export default function GCMSPage() {
       </div>
 
       {/* ── Conteúdo ── */}
-      <div className="mx-auto max-w-6xl px-6 pt-10">
+      <div className="mx-auto max-w-6xl px-6 pt-8 space-y-6">
+        <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
+              Motor SQLite Conectado · 17.106 Campos & 2.267 Eventos MCBS
+            </span>
+            <h2 className="text-sm font-bold text-white mt-0.5">
+              Precisa decodificar uma linha posicional real (IP0040T1, IP0052T1, TC 05, TC 46, Elo 45) ou consultar os 11 manuais?
+            </h2>
+          </div>
+          <Link
+            href="/compliance/arquivos"
+            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white whitespace-nowrap transition-colors"
+          >
+            Abrir Sistema Completo (GCMS / MPE / MCBS / Base II) →
+          </Link>
+        </div>
         <GCMSClient />
       </div>
     </div>
