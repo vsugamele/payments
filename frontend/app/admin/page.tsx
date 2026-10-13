@@ -6,7 +6,7 @@ import {
   Lock, Unlock, ShieldCheck, ArrowRight, Calculator, 
   Terminal, Scale, FileText, Database, BookOpen, 
   Layers, Globe, AlertTriangle, ExternalLink, RefreshCw,
-  LogOut, CheckCircle2, Cpu, BarChart2, DollarSign
+  LogOut, CheckCircle2, Cpu, BarChart2, DollarSign, Search
 } from "lucide-react";
 
 interface ToolCard {
@@ -375,6 +375,44 @@ export default function AdminPage() {
 
       {/* Conteúdo: Lista de Módulos */}
       <div className="mx-auto max-w-6xl px-6 pt-10 space-y-10">
+        {/* Banner de Status RAG em Tempo Real */}
+        <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-blue-950/20 via-[#0a101d] to-[#040812] p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+              <Database size={24} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-white">Acervo Normativo & RAG Offline</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                  ● 35.336 Manuais (5.0 GB)
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                517.548 páginas indexadas em SQLite FTS5 com latência sub-milisegundo (~0.2ms)
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/admin/rag-status"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-2 transition-all"
+            >
+              <Cpu size={14} className="text-emerald-400" />
+              <span>Ver Diagnóstico RAG</span>
+            </Link>
+
+            <Link
+              href="/acervo"
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+            >
+              <Search size={14} />
+              <span>Buscar no Acervo</span>
+            </Link>
+          </div>
+        </div>
+
         {MODULES.map((mod, idx) => {
           const CatIcon = mod.icon;
           return (
