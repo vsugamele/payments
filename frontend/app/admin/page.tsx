@@ -48,6 +48,14 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
         color: "text-purple-400 bg-purple-500/10 border-purple-500/20"
       },
       {
+        title: "Motor Real de Tabelas de Intercâmbio & Fee Schedule",
+        desc: "1.128 alíquotas reais (Visa, MC, Elo), redução de fee por MCC Elo e 89 tabelas de artigos SQLite.",
+        url: "/compliance/tarifas-reais",
+        badge: "1.128 Alíquotas + MCC",
+        icon: DollarSign,
+        color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+      },
+      {
         title: "Anatomia do MDR & Split",
         desc: "Decomposição de custos entre Banco Emissor, Bandeira e Adquirente.",
         url: "/mdr",
@@ -58,9 +66,25 @@ const MODULES: { category: string; icon: any; tools: ToolCard[] }[] = [
     ]
   },
   {
-    category: "2. Inteligência Regulatória & Acervo Normativo",
+    category: "2. Inteligência Regulatória, Releases & Acervo Normativo",
     icon: Database,
     tools: [
+      {
+        title: "Central de Boletins, Releases (381) & Motor de Comportamento",
+        desc: "Simulador de impacto por perfil (3 Lentes), radar de 381 releases Visa/MC/Elo e dossiê criptográfico AES vs TDES.",
+        url: "/compliance/boletins",
+        badge: "381 Releases + 3 Lentes",
+        icon: Cpu,
+        color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      },
+      {
+        title: "Mapa de Liquidação Internacional & Governança do Acervo",
+        desc: "Grafo auditado com 31 citações literais (FX/Multicurrency), conflitos TN3A/TC33 e cobertura de 28.918 arquivos.",
+        url: "/compliance/governanca-acervo",
+        badge: "Grafo FX + Auditoria",
+        icon: Globe,
+        color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20"
+      },
       {
         title: "Acervo Normativo & RAG Offline",
         desc: "Busca semântica em 35.336 manuais oficiais e 517k blocos da Visa, MC, Elo e Bacen.",
