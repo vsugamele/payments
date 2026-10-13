@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Calculator, Coins, TrendingUp, CreditCard } from "lucide-react";
 import { SimulatorPage } from "@/components/SimulatorPage";
+import { DowngradeMarginSimulator } from "@/components/DowngradeMarginSimulator";
 import TermTooltip from "@/components/TermTooltip";
 
 export const metadata = {
@@ -186,6 +187,8 @@ export default function SimuladorRoute() {
            
            <SimulatorPage />
 
+           {/* Simulador de Downgrade & Perda de Margem */}
+           <DowngradeMarginSimulator />
         </div>
       </section>
 

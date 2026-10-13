@@ -7,7 +7,8 @@ import {
   Terminal, ShieldCheck, ChevronRight, Hash,
   Zap, Database, Globe, RefreshCw, DollarSign,
   AlertTriangle, FileText, Cpu, Lock, CreditCard,
-  FileEdit, GitCompare, Layers
+  FileEdit, GitCompare, Layers, Loader2, Sparkles,
+  BookOpen, ExternalLink
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import glossarioData from "@/data/glossario.json";
@@ -19,16 +20,28 @@ interface SearchResult {
   id: string;
   title: string;
   description: string;
-  category: "mcc" | "disputa" | "iso" | "ferramenta" | "glossario" | "compliance" | "artigo";
+  category: "mcc" | "disputa" | "iso" | "ferramenta" | "glossario" | "compliance" | "artigo" | "acervo";
   url: string;
   icon: any;
+  extra?: string;
+}
+
+interface RagEvidence {
+  file: string;
+  physicalPage: number | null;
+  unitLabel: string;
+  excerpt: string;
+  locator: string;
 }
 
 export default function GlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [ragResults, setRagResults] = useState<RagEvidence[]>([]);
+  const [isRagLoading, setIsRagLoading] = useState(false);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Shortcut Cmd+K ou Ctrl+K
   useEffect(() => {
@@ -50,8 +63,47 @@ export default function GlobalSearch() {
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       setQuery("");
+      setRagResults([]);
+      setIsRagLoading(false);
     }
   }, [isOpen]);
+
+  // Debounced RAG search
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const trimmed = query.trim();
+    if (trimmed.length < 3) {
+      setRagResults([]);
+      setIsRagLoading(false);
+      return;
+    }
+
+    setIsRagLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/acervo/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pergunta: trimmed, limite: 3 }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRagResults(data.evidence || []);
+        } else {
+          setRagResults([]);
+        }
+      } catch (err) {
+        console.error("Erro na busca RAG GlobalSearch:", err);
+        setRagResults([]);
+      } finally {
+        setIsRagLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
 
   // Lógica de busca em tempo real nos arquivos JSON
   const results = useMemo(() => {
@@ -140,7 +192,11 @@ export default function GlobalSearch() {
       { t: "Visa Business Rules", d: "Regras específicas cartões Visa Business", u: "/compliance/visa-business", c: "compliance", i: Globe },
       { t: "Visa Infra / VisaNet", d: "Infraestrutura VisaNet, SMS, BASE II", u: "/compliance/visa-infra", c: "compliance", i: Globe },
       { t: "MCBS / Scheme Fees", d: "Tarifas de bandeira Mastercard consolidadas", u: "/mcbs", c: "compliance", i: DollarSign },
-      { t: "Acervo Normativo", d: "Biblioteca de manuais Visa, MC, ISO", u: "/acervo", c: "ferramenta", i: Book },
+      { t: "Atlas de Liquidação VisaNet & MCBS", d: "Diagramas completos de ciclos D+0 a D+3, VSS 110 e liquidação multilateral", u: "/mapa/liquidacao", c: "ferramenta", i: Globe },
+      { t: "Guia Estrutural de Tarifas MCBS", d: "Catálogo hierárquico de eventos, faturamento e tarifas de rede Mastercard", u: "/mapa/mcbs", c: "compliance", i: DollarSign },
+      { t: "Acervo Normativo & RAG Offline", d: "Pesquisa semântica em 35.336 documentos oficiais Visa, MC, Elo e Bacen", u: "/acervo", c: "ferramenta", i: BookOpen },
+      { t: "Inspetor & Linter Visual ISO 8583 / Base II", d: "Validador e analisador de mensagens raw de autorização e clearing", u: "/compliance/linter", c: "iso", i: Terminal },
+      { t: "Playbook de Conciliação Financeira", d: "Roteiro auditável de batimento VSS 110, MCBS e liquidação CIP/Bacen", u: "/compliance/conciliacao", c: "compliance", i: DollarSign },
       { t: "Trilhas de Aprendizado", d: "Do básico ao Visa/MC Deep Dive", u: "/trilhas", c: "ferramenta", i: Book },
       { t: "Glossário de Termos", d: "Termos, siglas e definições de pagamentos", u: "/glossario", c: "glossario", i: Book },
     ];
@@ -265,16 +321,19 @@ export default function GlobalSearch() {
               </div>
 
               {/* Resultados */}
-              <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-3">
-                {results.length > 0 ? (
+              <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-3 space-y-3">
+                {results.length > 0 && (
                   <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1">
+                      Plataforma & Módulos
+                    </p>
                     {results.map((result) => (
                       <button
                         key={result.id}
                         onClick={() => handleSelect(result.url)}
-                        className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all group text-left border border-transparent hover:border-slate-800"
+                        className="w-full flex items-center gap-4 p-3.5 rounded-2xl hover:bg-white/5 transition-all group text-left border border-transparent hover:border-slate-800"
                       >
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-slate-800 group-hover:scale-110 transition-transform ${
+                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border border-slate-800 group-hover:scale-105 transition-transform ${
                           result.category === "disputa" ? "bg-red-500/10 text-red-400" :
                           result.category === "mcc" ? "bg-orange-500/10 text-orange-400" :
                           result.category === "iso" ? "bg-emerald-500/10 text-emerald-400" :
@@ -282,14 +341,14 @@ export default function GlobalSearch() {
                           result.category === "compliance" ? "bg-purple-500/10 text-purple-400" :
                           "bg-blue-500/10 text-blue-400"
                         }`}>
-                          <result.icon size={20} />
+                          <result.icon size={19} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                            <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors truncate">
                               {result.title}
                             </p>
-                            <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-500">
+                            <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 shrink-0">
                               {result.category}
                             </span>
                           </div>
@@ -301,13 +360,76 @@ export default function GlobalSearch() {
                       </button>
                     ))}
                   </div>
-                ) : query.length >= 2 ? (
+                )}
+
+                {/* Acervo Oficial RAG (35k Manuais) */}
+                {(isRagLoading || ragResults.length > 0) && (
+                  <div className="pt-2 border-t border-slate-800/80">
+                    <div className="flex items-center justify-between px-3 py-1.5 mb-2">
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={14} className="text-amber-400 animate-pulse" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-300">
+                          Normas & Acervo Oficial (35.336 Manuais)
+                        </span>
+                      </div>
+                      {isRagLoading ? (
+                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px]">
+                          <Loader2 size={12} className="animate-spin text-amber-400" />
+                          <span>Buscando em 517k blocos...</span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-amber-400/80 font-mono">
+                          {ragResults.length} evidência(s)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      {ragResults.map((ev, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => handleSelect(`/acervo?q=${encodeURIComponent(query)}`)}
+                          className="p-3.5 rounded-2xl bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all cursor-pointer group text-left"
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="text-xs font-bold text-amber-200 group-hover:text-amber-100 flex items-center gap-1.5 truncate">
+                              <BookOpen size={13} className="shrink-0 text-amber-400" />
+                              {ev.file}
+                            </span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 shrink-0">
+                              {ev.physicalPage ? `Pág. ${ev.physicalPage}` : ev.unitLabel || "Doc"}
+                            </span>
+                          </div>
+                          {ev.excerpt && (
+                            <p className="text-[11px] text-slate-400 line-clamp-2 italic border-l-2 border-amber-500/40 pl-2 leading-relaxed">
+                              "{ev.excerpt}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() => handleSelect(`/acervo?q=${encodeURIComponent(query)}`)}
+                        className="w-full mt-2 py-2 px-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+                      >
+                        <span>Abrir no Explorador de Acervo com pesquisa avançada</span>
+                        <ExternalLink size={12} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Nenhum rastro local nem no RAG */}
+                {results.length === 0 && !isRagLoading && ragResults.length === 0 && query.length >= 2 && (
                   <div className="py-16 text-center">
                     <Search size={40} className="text-slate-800 mx-auto mb-4" />
                     <p className="text-slate-400 font-bold">Nenhum rastro encontrado para "{query}"</p>
-                    <p className="text-xs text-slate-600 mt-2">Tente siglas técnicas como IRD, MTI ou MCC.</p>
+                    <p className="text-xs text-slate-600 mt-2">Tente siglas técnicas como IRD, MTI, 3DS ou MCC.</p>
                   </div>
-                ) : (
+                )}
+
+                {/* Atalhos Táticos padrão quando query < 2 */}
+                {query.length < 2 && (
                   <div className="p-6">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6">Atalhos Táticos</p>
                     <div className="grid grid-cols-2 gap-3">

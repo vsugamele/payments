@@ -1,6 +1,7 @@
 import DowngradeClient from "./DowngradeClient";
 import { TrendingDown, ChevronLeft, Info } from "lucide-react";
 import Link from "next/link";
+import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
 
 export const metadata = {
   title: "Downgrade Lab: Otimização de Intercâmbio — VS Payments",
@@ -60,7 +61,28 @@ export default function DowngradePage() {
       </div>
 
       {/* ── Conteúdo ── */}
-      <div className="mx-auto max-w-6xl px-6 pt-10">
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <ExecutiveBusinessTriad
+          topic="Downgrade de Intercâmbio & Perda de Margem"
+          subtitle="O que todo CEO, CFO e Líder de Pagamentos precisa saber sobre o pedágio invisível que corrói o spread da operação."
+          whatIsIt={{
+            lead: "O Downgrade ocorre quando uma transação falha em cumprir 100% dos requisitos técnicos da bandeira, caindo automaticamente para o pior tier tarifário.",
+            explanation: "As bandeiras oferecem tarifas com desconto (Tier Prime/Secure) para incentivar autenticação biométrica (3DS) e clearing rápido (D+1). Quando a adquirente atrasa o arquivo Base II ou omite o CAVV no DE 048, a bandeira cobra a taxa balcão punitiva.",
+            analogy: "É como despachar uma carga com frete promocional pré-pago: se faltar um carimbo ou a entrega atrasar duas horas, a transportadora cancela o desconto e cobra a tarifa de emergência em dobro."
+          }}
+          painOwner={{
+            primaryRole: "CFO / Diretor de Tesouraria & Head de Adquirência",
+            affectedEntities: ["Adquirentes", "Subadquirentes", "Gateways de Pagamento", "Grandes E-Commerces"],
+            operationalImpact: "A tesouraria só percebe a perda no fechamento mensal dos relatórios VSS 110 ou MCBS, quando o spread já foi evaporado e o lojista já foi liquidado pelo valor antigo."
+          }}
+          financialPrice={{
+            directPenalty: "+35 a +115 bps (+0.35% a +1.15%) de Intercâmbio",
+            schemeFeesFine: "Tarifas extras de reprocessamento manual de clearing",
+            annualBleedingEstimate: "R$ 420.000 a R$ 1.380.000 / ano a cada R$ 100M processados",
+            consequence: "Aniquilação completa do markup da adquirente/sub (que costuma ser de 30 a 50 bps), fazendo a empresa pagar para processar o cliente."
+          }}
+        />
+
         <DowngradeClient />
       </div>
     </div>

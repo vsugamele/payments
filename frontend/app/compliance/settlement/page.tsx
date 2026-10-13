@@ -3,6 +3,7 @@ import TermTooltip from "@/components/TermTooltip";
 import RuleReference from "@/components/RuleReference";
 import Link from "next/link";
 import { ChevronLeft, DollarSign, ArrowRight } from "lucide-react";
+import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
 
 export const metadata = {
   title: "Ciclo de Settlement & Clearing | VS Payments",
@@ -42,7 +43,27 @@ export default function SettlementPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-6 pt-10 space-y-12">
+      <div className="mx-auto max-w-4xl px-6 pt-8 space-y-12">
+        <ExecutiveBusinessTriad
+          topic="Ciclo de Liquidação Multilateral & Riscos de Caixa"
+          subtitle="O que a diretoria financeira precisa monitorar para evitar travamentos de grade no Banco Central e descasamento de liquidação."
+          whatIsIt={{
+            lead: "A autorização é apenas uma reserva virtual de saldo. O dinheiro só se move no Clearing (compensação) e Settlement (liquidação multilateral via Bacen).",
+            explanation: "As bandeiras apuram diariamente quem deve para quem no agregado nacional (netting multilateral). Os arquivos VSS 110 (Visa) e IPM (Mastercard) alimentam a CIP/Câmara Interbancária, que liquida os fundos nas contas de liquidação no Banco Central.",
+            analogy: "Autorizar a transação é assinar uma promissória no balcão; o Settlement é o dia em que o malote de dinheiro é transferido de um cofre para o outro com a escolta do Banco Central."
+          }}
+          painOwner={{
+            primaryRole: "CFO, Diretor de Tesouraria & Head de Operações Bancárias",
+            affectedEntities: ["Adquirentes", "Bancos Liquidantes", "Subadquirentes", "Emissores"],
+            operationalImpact: "Erros de centavos ou arquivos enviados fora da janela de corte (cutoff time) fazem a CIP rejeitar a grade, obrigando a adquirente a honrar o pagamento aos lojistas com capital de giro próprio."
+          }}
+          financialPrice={{
+            directPenalty: "Custo de oportunidade e juros de CDI por antecipação emergencial",
+            schemeFeesFine: "Tarifas de reprocessamento e penalidades de cancelamento de remessa",
+            annualBleedingEstimate: "R$ 300.000 a R$ 1.500.000 / ano em encargos financeiros e garantias imobilizadas",
+            consequence: "Execução forçada de colaterais/garantias bancárias depositadas na câmara e risco de intervenção do Banco Central por risco sistêmico."
+          }}
+        />
 
         {/* Phase summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

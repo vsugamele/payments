@@ -3,6 +3,7 @@ import RetrySimulator from "@/components/retries/RetrySimulator";
 import RuleReference from "@/components/RuleReference";
 import Link from "next/link";
 import { ChevronLeft, GitCompare, RefreshCw } from "lucide-react";
+import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
 
 export const metadata = {
   title: "Matriz de Retentativas e Response Codes | VS Payments",
@@ -38,7 +39,28 @@ export default function RetriesPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 pt-10 space-y-20">
+      <div className="mx-auto max-w-6xl px-6 pt-8 space-y-12">
+        <ExecutiveBusinessTriad
+          topic="Governança de Retentativas & Multas de Rede"
+          subtitle="Como evitar que robôs de retry automáticos transformem centavos de faturamento recuperado em dezenas de milhares de dólares de multas."
+          whatIsIt={{
+            lead: "A regulação de retentativa estabelece que autorizações negadas só podem ser reenviadas se houver chance real de aprovação e com intervalo mínimo.",
+            explanation: "As bandeiras categorizam recusas em Soft (ex: 51 - Saldo Insuficiente, onde um retry após dias faz sentido) e Hard (ex: 05 - Não Autorizar, 14 - Cartão Inválido, 41/43 - Cartão Furtado). Retentar transações Hard gera punição imediata na fatura de rede.",
+            analogy: "Se você ligar para um cliente e der ocupado (Soft), você tenta mais tarde. Se você ligar e o número constar como cancelado ou bloqueado pela polícia (Hard), discar 50 vezes seguidas no mesmo dia é considerado assédio e gera bloqueio da sua linha."
+          }}
+          painOwner={{
+            primaryRole: "Squad de Checkout / Engenharia de Pagamentos & Gerente de Risco",
+            affectedEntities: ["Gateways", "Adquirentes", "Plataformas de Assinatura (SaaS)", "Grandes E-Commerces"],
+            operationalImpact: "Os desenvolvedores ajustam loops cegos de retry no backend para não perder vendas de churn, sem saber que a cada clique além do teto a bandeira debita centavos em dólar na fatura da empresa."
+          }}
+          financialPrice={{
+            directPenalty: "USD 0,25 a USD 0,50 (~R$ 1,40 a R$ 2,80) por retentativa abusiva",
+            schemeFeesFine: "Tarifas TPE de Excelência Operacional (Cat 3 Declines)",
+            annualBleedingEstimate: "R$ 150.000 a R$ 600.000 / ano faturados silenciosamente em Scheme Fees",
+            consequence: "Queda generalizada na taxa de aprovação emissores (Approval Rate) de 85% para <60%, pois os bancos passam a bloquear o MID por suspeita de teste de cartão (card testing)."
+          }}
+        />
+
         <section>
           <div className="flex items-center gap-3 mb-8">
             <RefreshCw className="text-amber-500" size={20} />

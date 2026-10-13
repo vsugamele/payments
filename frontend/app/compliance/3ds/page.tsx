@@ -3,6 +3,7 @@ import RuleReference from "@/components/RuleReference";
 import TermTooltip from "@/components/TermTooltip";
 import Link from "next/link";
 import { ChevronLeft, ShieldCheck, ArrowRight } from "lucide-react";
+import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
 
 export const metadata = {
   title: "Matriz 3DS Liability Shift & ECI | VS Payments",
@@ -40,7 +41,28 @@ export default function ThreeDSPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 pt-10 space-y-12">
+      <div className="mx-auto max-w-5xl px-6 pt-8 space-y-12">
+        <ExecutiveBusinessTriad
+          topic="3-D Secure & Inversão do Ônus de Fraude (Liability Shift)"
+          subtitle="A blindagem jurídica que transfere o prejuízo de chargebacks não reconhecidos diretamente para o banco emissor."
+          whatIsIt={{
+            lead: "3DS é o padrão tecnológico que autentica o portador perante o seu próprio banco durante o checkout no e-commerce.",
+            explanation: "Quando a autenticação é concluída com sucesso (ou até mesmo quando o emissor não suporta 3DS mas a adquirente tentou), o protocolo gera um criptograma (CAVV/AAV) e um código ECI (05 ou 06). Esse carimbo transfere o risco de contestação por fraude para o banco.",
+            analogy: "É o equivalente a pedir a assinatura presencial com documento oficial na entrega: se o portador alegar que não comprou, o emissor tem que arcar com a perda porque foi ele quem validou a identidade."
+          }}
+          painOwner={{
+            primaryRole: "Head de E-Commerce, Diretor de Riscos / Fraude & Product Manager de Checkout",
+            affectedEntities: ["Lojistas Virtuais", "Marketplaces", "Subadquirentes", "Gateways de Pagamento"],
+            operationalImpact: "Times desinformados desligam o 3DS alegando 'fricção', sem perceber que estão voluntariamente assumindo 100% dos chargebacks e pagando tarifas de intercâmbio mais caras em todas as vendas."
+          }}
+          financialPrice={{
+            directPenalty: "+45 a +60 bps no Intercâmbio se o 3DS estiver desligado",
+            schemeFeesFine: "Exposição total a perdas sob Reason Code 4837 / 10.4",
+            annualBleedingEstimate: "0,70% a 2,00% do GMV total estornado em chargebacks irrecuperáveis",
+            consequence: "Risco iminente de entrada nos programas de monitoria punitiva (Visa VAMP / Mastercard ECP), com multas que começam em USD 5.000 e escalam até o cancelamento do MID."
+          }}
+        />
+
         <section>
           <h2 className="text-lg font-bold text-foreground mb-6">Simulador de ECI e Risco</h2>
           <ThreeDSMatrixClient />
