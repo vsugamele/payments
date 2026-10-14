@@ -317,6 +317,7 @@ export default function AdminPage() {
       document.cookie = "vs_internal_pass=1; path=/; max-age=2592000; SameSite=Lax";
       setIsAuthenticated(true);
       setErrorMsg("");
+      window.location.href = "/admin";
     } else {
       setErrorMsg("Chave de acesso incorreta. Tente novamente.");
     }

@@ -47,7 +47,7 @@ export default function AIAssistant({
     const q = customQuery || `Analise este cenário do ${toolName}: ${context}. Quais os riscos normativos e implicações baseados nos manuais?`;
 
     try {
-      const res = await fetch("http://localhost:8000/api/rag/ask_manuals", {
+      const res = await fetch("/api/rag/ask_manuals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

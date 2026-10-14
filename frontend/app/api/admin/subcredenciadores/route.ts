@@ -1,28 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import path from "path";
+import subcredData from "@/data/subcredenciadores-catalogo.json";
 
-const execFileAsync = promisify(execFile);
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action") || "overview";
-    const q = searchParams.get("q") || "";
-    const scriptPath = path.join(process.cwd(), "lib", "subcredenciadores_engine.py");
+    const q = (searchParams.get("q") || "").trim().toLowerCase();
 
-    const args = [scriptPath, action];
-    if (action === "search_catalogo") {
-      args.push(q);
+    if (action === "overview") {
+      return NextResponse.json(subcredData);
     }
 
-    const { stdout } = await execFileAsync("python", args, {
-      maxBuffer: 15 * 1024 * 1024,
-      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
-    });
+    if (action === "search_catalogo") {
+      const cat = (subcredData as any).catalogo_master || {};
+      let allItems: any[] = [...(cat.manuals || []), ...(cat.bulletins || [])];
+      if (q) {
+        allItems = allItems.filter(
+          (it) =>
+            String(it.titulo || "").toLowerCase().includes(q) ||
+            String(it.arquivo || "").toLowerCase().includes(q) ||
+            String(it.bandeira || "").toLowerCase().includes(q) ||
+            String(it.tipo || "").toLowerCase().includes(q)
+        );
+      }
+      return NextResponse.json({
+        count: allItems.length,
+        items: allItems.slice(0, 150),
+      });
+    }
 
-    return NextResponse.json(JSON.parse(stdout));
+    return NextResponse.json(subcredData);
   } catch (error: any) {
     return NextResponse.json(
       { error: "Falha ao carregar módulo de Subcredenciadores & Catálogo", detail: error?.message || String(error) },

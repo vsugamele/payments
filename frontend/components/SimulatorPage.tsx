@@ -125,7 +125,7 @@ export function SimulatorPage() {
           <div>
             <h3 className="text-sm font-semibold text-white">Engine Server</h3>
             <p className="text-xs mt-0.5" style={{ color: "var(--border)" }}>
-              Motor FastAPI em localhost:8000
+              Motor Determinístico Integrado (141 Regras + MPE BIN Lookup)
             </p>
           </div>
           <ReloadButton health={health} onReload={setHealth} />

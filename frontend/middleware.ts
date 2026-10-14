@@ -39,6 +39,7 @@ export function middleware(request: NextRequest) {
     pathname === "/" ||
     pathname === "/sobre" ||
     pathname === "/admin" || // Permite abrir a tela de login do proprietário
+    pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.endsWith(".jpg") ||

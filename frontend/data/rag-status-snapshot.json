@@ -1,0 +1,224 @@
+{
+  "connected": true,
+  "path": "C:\\Users\\vsuga\\Documents\\Codex\\2026-10-02\\task\\base_bandeiras_local\\acervo.sqlite3",
+  "sizeMb": 5000.71,
+  "totalAssets": 35336,
+  "totalPages": 517548,
+  "textPages": 516656,
+  "ocrPages": 1881,
+  "totalCharacters": 1400872167,
+  "integrityPercent": 99.92,
+  "statuses": {
+    "container": 725,
+    "extracted": 34020,
+    "extracted_ocr_pending": 34,
+    "extracted_with_ocr_unreviewed": 507,
+    "failed": 30,
+    "unsupported": 16,
+    "unsupported_local_format": 3,
+    "zero_pages": 1
+  },
+  "extStats": [
+    {
+      "ext": ".xml",
+      "count": 23308,
+      "sizeMb": 125.18
+    },
+    {
+      "ext": ".pdf",
+      "count": 9013,
+      "sizeMb": 5276.97
+    },
+    {
+      "ext": ".ditamap",
+      "count": 878,
+      "sizeMb": 9.71
+    },
+    {
+      "ext": ".xlsx",
+      "count": 804,
+      "sizeMb": 358.8
+    },
+    {
+      "ext": ".zip",
+      "count": 725,
+      "sizeMb": 33243.85
+    },
+    {
+      "ext": ".txt",
+      "count": 253,
+      "sizeMb": 7.23
+    },
+    {
+      "ext": ".docx",
+      "count": 99,
+      "sizeMb": 65.73
+    },
+    {
+      "ext": ".md",
+      "count": 98,
+      "sizeMb": 1.02
+    }
+  ],
+  "brandStats": {
+    "Visa": 1916,
+    "Mastercard": 871,
+    "Elo": 507,
+    "American Express": 17,
+    "Bacen / BCB": 13,
+    "PCI DSS": 18
+  },
+  "benchmark": [
+    {
+      "query": "intercâmbio",
+      "hits": 10,
+      "latencyMs": 18.48
+    },
+    {
+      "query": "3DS",
+      "hits": 10,
+      "latencyMs": 10.44
+    },
+    {
+      "query": "chargeback",
+      "hits": 10,
+      "latencyMs": 7.32
+    },
+    {
+      "query": "settlement",
+      "hits": 10,
+      "latencyMs": 10.6
+    },
+    {
+      "query": "tokenização",
+      "hits": 10,
+      "latencyMs": 4.45
+    }
+  ],
+  "avgLatencyMs": 10.26,
+  "customResult": null,
+  "featuredManuals": [
+    {
+      "sha": "19e2bdd19aa2",
+      "name": "m_lac_inc_customer_es-la_v2.pdf",
+      "ext": ".pdf",
+      "units": 3586,
+      "characters": 6189673,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "b109f9386bbf",
+      "name": "m_lac_inc_customer_es-la.pdf",
+      "ext": ".pdf",
+      "units": 3572,
+      "characters": 6170118,
+      "status": "extracted"
+    },
+    {
+      "sha": "b37289394072",
+      "name": "m_lac_inc_customer_es-la.pdf",
+      "ext": ".pdf",
+      "units": 3562,
+      "characters": 6163971,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "a42b651e40b5",
+      "name": "m_lac_inc_customer_es-la_June2025.pdf",
+      "ext": ".pdf",
+      "units": 3444,
+      "characters": 5997979,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "22299ead00ac",
+      "name": "m_lac_inc_customer_es-mx.pdf",
+      "ext": ".pdf",
+      "units": 3539,
+      "characters": 5994238,
+      "status": "extracted"
+    },
+    {
+      "sha": "8abaeda3324a",
+      "name": "m_lac_inc_customer_pt-br_v2.pdf",
+      "ext": ".pdf",
+      "units": 3509,
+      "characters": 5922144,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "98d33b61b021",
+      "name": "m_lac_inc_customer_pt-br.pdf",
+      "ext": ".pdf",
+      "units": 3497,
+      "characters": 5903842,
+      "status": "extracted"
+    },
+    {
+      "sha": "7c142940902f",
+      "name": "m_lac_inc_customer_es-mx.pdf",
+      "ext": ".pdf",
+      "units": 3460,
+      "characters": 5887349,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "bbc30b250463",
+      "name": "m_lac_inc_customer_es-la.pdf",
+      "ext": ".pdf",
+      "units": 3390,
+      "characters": 5850953,
+      "status": "extracted"
+    },
+    {
+      "sha": "7a42431328a2",
+      "name": "m_lac_inc_customer_pt-br_June2025.pdf",
+      "ext": ".pdf",
+      "units": 3364,
+      "characters": 5728989,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "903f7cb59c6c",
+      "name": "m_lac_inc_customer_pt-br.pdf",
+      "ext": ".pdf",
+      "units": 3629,
+      "characters": 5724787,
+      "status": "extracted"
+    },
+    {
+      "sha": "2af82e6d7e69",
+      "name": "m_lac_inc_customer_pt-br.pdf",
+      "ext": ".pdf",
+      "units": 3435,
+      "characters": 5722209,
+      "status": "extracted"
+    },
+    {
+      "sha": "d2f4b097f8eb",
+      "name": "m_lac_inc_customer_pt-br.pdf",
+      "ext": ".pdf",
+      "units": 3392,
+      "characters": 5627203,
+      "status": "extracted_with_ocr_unreviewed"
+    },
+    {
+      "sha": "3ae676337da1",
+      "name": "m_lac_inc_customer_pt-br.pdf",
+      "ext": ".pdf",
+      "units": 3315,
+      "characters": 5595548,
+      "status": "extracted"
+    },
+    {
+      "sha": "5c46530a68b5",
+      "name": "m_lac_inc_customer_en-us-2026-03-03_v2.pdf",
+      "ext": ".pdf",
+      "units": 3232,
+      "characters": 5102267,
+      "status": "extracted_with_ocr_unreviewed"
+    }
+  ],
+  "sqliteEngine": "SQLite 3 (FTS5 Inverted Index & Match)",
+  "retrievalMode": "Read-Only Immutable Offline Memory"
+}

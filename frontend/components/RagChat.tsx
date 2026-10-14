@@ -16,33 +16,33 @@ export default function RagChat() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-
-  useEffect(() => {
-    const hasCookie = typeof document !== "undefined" && 
-      document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"));
-    setIsOwner(hasCookie);
-  }, []);
-
-  if (!isOwner || pathname === "/editor") return null;
   const [isMaximized, setIsMaximized] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
-      content: "Olá! Sou o **Cérebro Normativo** da VS Payments. Posso responder dúvidas técnicas sobre os manuais de intercâmbio, regras Visa/Mastercard e Chargebacks. Como posso ajudar hoje?"
+      content: "Olá! Sou o **Cérebro Normativo** da VS Payments. Posso responder dúvidas técnicas sobre os manuais de intercâmbio, regras Visa/Mastercard/Elo, GCMS/Base II e Chargebacks. Como posso ajudar hoje?"
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const hasCookie = typeof document !== "undefined" && 
+      document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"));
+    setIsOwner(hasCookie);
+  }, [pathname]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, isOpen]);
 
   useEffect(() => {
     const handleOpenChat = (e: CustomEvent<{ query: string }>) => {
@@ -56,13 +56,14 @@ export default function RagChat() {
     return () => window.removeEventListener('open-rag-chat', handleOpenChat as EventListener);
   }, []);
 
+  if (!isOwner || pathname === "/editor") return null;
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = { id: Date.now().toString(), role: "user", content: input };
-    // captura historico ANTES de adicionar a mensagem atual
     const history = messages
-      .filter(m => m.id !== "1") // remove mensagem de boas-vindas
+      .filter(m => m.id !== "1")
       .map(m => ({ role: m.role, content: m.content }));
 
     setMessages((prev) => [...prev, userMessage]);
@@ -70,7 +71,7 @@ export default function RagChat() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/rag/ask_manuals", {
+      const res = await fetch("/api/rag/ask_manuals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ export default function RagChat() {
         { 
           id: (Date.now() + 1).toString(), 
           role: "assistant", 
-          content: "Desculpe, ocorreu um erro ao consultar os manuais. Verifique se o backend está rodando e tente novamente."
+          content: "Desculpe, ocorreu um erro ao consultar os manuais normativos."
         }
       ]);
     } finally {
