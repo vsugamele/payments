@@ -1,53 +1,106 @@
 {
+  "schema": "bandeiras.ecossistema.atlas.v2",
+  "reference_date": "2026-10-14",
+  "scope": "Atlas Interativo do Ecossistema de Pagamentos — Rastreabilidade ponta a ponta (Quem envia, Quem recebe, Como calcula, Campos ISO/Clearing e Impacto Financeiro).",
+  "rotasGuiadas": [
+    {
+      "id": "mdr_ic",
+      "titulo": "Formação do MDR & Intercâmbio",
+      "subtitulo": "BIN + MCC + Entry Mode + ECI → IRD/PID → MDR",
+      "cor": "#f59e0b",
+      "focoEdge": "R28",
+      "descricao": "Mostra como os dados capturados na venda (BIN, MCC, DE 22, ECI) determinam o IRD (Mastercard) ou PID/Fee Descriptor (Visa), formando a Tarifa de Intercâmbio paga ao Emissor e o MDR cobrado do Lojista."
+    },
+    {
+      "id": "ciclo_d0_d1",
+      "titulo": "Ciclo D+0 → D+1 → Liquidação",
+      "subtitulo": "Autorização ISO 8583 → Clearing IPM/Base II → VSS/CIP",
+      "cor": "#80ddc6",
+      "focoEdge": "R18",
+      "descricao": "Rastreia a jornada temporal da transação: aprovação em milissegundos no D+0 (ISO 8583 MTI 0100/0110), apresentação em lote no D+1 (Base II TC 05 / GCMS IPM) e liquidação financeira multilateral via VSS/SMS e CIP/SPB."
+    },
+    {
+      "id": "seguranca_3ds",
+      "titulo": "Tokenização (VTS/MDES) & 3DS",
+      "subtitulo": "DPAN, Criptograma ARQC/TAVV, ECI 05/02 e Liability Shift",
+      "cor": "#b6a0f2",
+      "focoEdge": "R21",
+      "descricao": "Explica como o PAN real é substituído por um Token de Rede (DPAN) via VTS/MDES e como a autenticação 3DS 2.x gera o ECI (05/02) que transfere o risco de fraude (Liability Shift) para o Emissor e evita downgrades de intercâmbio."
+    },
+    {
+      "id": "fraude_vamp",
+      "titulo": "Cascata de Fraude & Programas (VAMP/ECP)",
+      "subtitulo": "Fraude → TC40/SAFE & Chargeback → VAMP, ECP e MATCH",
+      "cor": "#f87171",
+      "focoEdge": "R32",
+      "descricao": "Demonstra como uma transação não reconhecida gera simultaneamente um Chargeback financeiro e um aviso de fraude (TC40 na Mastercard / SAFE na Visa), alimentando os índices dos programas VAMP e ECP/EFM."
+    },
+    {
+      "id": "subcred_cip",
+      "titulo": "Arranjo BR: Subcredenciador & CIP/SPB",
+      "subtitulo": "Lojista ← Subcredenciador ← Adquirente ← CIP/SLC (Bacen)",
+      "cor": "#38bdf8",
+      "focoEdge": "R53",
+      "descricao": "Detalha a arquitetura brasileira regulada pelo Bacen (Circular 3.682 / CP 522): o papel do Subcredenciador (PayFac) sob o Adquirente, a liquidação centralizada na CIP/SLC e o teto regulatório de intercâmbio (0,50% débito / 0,70% pré-pago)."
+    },
+    {
+      "id": "tabelas_billing",
+      "titulo": "Tabelas MPE/T068 & Faturamento MCBS/VSS",
+      "subtitulo": "MPE T068, VCF, Relatórios VSS-110/120 e Fatura MCBS/TN3A",
+      "cor": "#34d399",
+      "focoEdge": "R47",
+      "descricao": "Conecta os arquivos de parâmetros técnicos (MPE / T068), os arquivos de retorno de clearing (VCF / IPM) e a camada de faturamento de Scheme Fees das bandeiras (Relatórios Visa VSS-110/120/140 e Mastercard MCBS / TN3A)."
+    }
+  ],
   "categorias": [
     {
       "id": "ator",
-      "label": "Atores",
+      "label": "Atores & Arranjo",
       "cor": "#3b82f6",
-      "corFundo": "rgba(59,130,246,0.12)",
-      "corBorda": "rgba(59,130,246,0.35)"
+      "corFundo": "rgba(59,130,246,0.14)",
+      "corBorda": "rgba(59,130,246,0.45)"
     },
     {
       "id": "dado",
-      "label": "Dados",
+      "label": "Dados & ISO 8583",
       "cor": "#10b981",
-      "corFundo": "rgba(16,185,129,0.12)",
-      "corBorda": "rgba(16,185,129,0.35)"
+      "corFundo": "rgba(16,185,129,0.14)",
+      "corBorda": "rgba(16,185,129,0.45)"
     },
     {
       "id": "processo",
-      "label": "Processos",
+      "label": "Processos & Ciclo",
       "cor": "#8b5cf6",
-      "corFundo": "rgba(139,92,246,0.12)",
-      "corBorda": "rgba(139,92,246,0.35)"
+      "corFundo": "rgba(139,92,246,0.14)",
+      "corBorda": "rgba(139,92,246,0.45)"
     },
     {
       "id": "dinheiro",
-      "label": "Dinheiro",
+      "label": "Intercâmbio & Tarifas",
       "cor": "#f59e0b",
-      "corFundo": "rgba(245,158,11,0.12)",
-      "corBorda": "rgba(245,158,11,0.35)"
+      "corFundo": "rgba(245,158,11,0.14)",
+      "corBorda": "rgba(245,158,11,0.45)"
     },
     {
       "id": "compliance",
-      "label": "Compliance",
+      "label": "Risco & Compliance",
       "cor": "#ef4444",
-      "corFundo": "rgba(239,68,68,0.12)",
-      "corBorda": "rgba(239,68,68,0.35)"
+      "corFundo": "rgba(239,68,68,0.14)",
+      "corBorda": "rgba(239,68,68,0.45)"
     },
     {
       "id": "visa",
-      "label": "Visa",
+      "label": "Ecossistema Visa",
       "cor": "#06b6d4",
-      "corFundo": "rgba(6,182,212,0.12)",
-      "corBorda": "rgba(6,182,212,0.35)"
+      "corFundo": "rgba(6,182,212,0.14)",
+      "corBorda": "rgba(6,182,212,0.45)"
     },
     {
       "id": "mastercard",
-      "label": "Mastercard",
+      "label": "Mastercard & Elo",
       "cor": "#f97316",
-      "corFundo": "rgba(249,115,22,0.12)",
-      "corBorda": "rgba(249,115,22,0.35)"
+      "corFundo": "rgba(249,115,22,0.14)",
+      "corBorda": "rgba(249,115,22,0.45)"
     }
   ],
   "nos": [
@@ -55,812 +108,2771 @@
       "id": "portador",
       "label": "Portador",
       "categoria": "ator",
-      "x": 80,
-      "y": 80,
-      "descricao": "Quem usa o cartão para pagar. Tecnicamente representado pelo PAN e pelos dados do chip EMV.",
-      "analogy": "É o passageiro que quer fazer a viagem (pagamento).",
-      "curiosidade": "Existem mais de 25 bilhões de cartões em circulação no mundo!",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "portador",
+      "x": 95,
+      "y": 90,
+      "descricao": "Titular do cartão (pessoa física ou corporativa) que inicia o pagamento no estabelecimento. Tecnicamente representado na mensageria pelo PAN/DPAN, credenciais EMV ou autenticação 3DS.",
+      "analogy": "É o passageiro que inicia a viagem do pagamento ao aproximar o cartão ou finalizar o carrinho.",
+      "impacto": "A modalidade escolhida pelo portador (crédito/débito, presencial NFC vs e-commerce digitado) define o ponto de partida do risco e do custo de intercâmbio.",
+      "curiosidade": "Mais de 70% das transações presenciais no Brasil já ocorrem via aproximação (Contactless NFC / Carteiras Digitais).",
+      "quemEnvia": "Portador (apresenta PAN/DPAN, senha PIN ou biometria CDCVM no dispositivo)",
+      "quemRecebe": "Lojista (EC) / Terminal POS / Checkout E-commerce",
+      "comoCalcula": "Não calcula tarifa diretamente; porém o produto do seu cartão (Standard, Platinum, Black/Infinite) define o Tier de Intercâmbio.",
+      "excecoes": "Em transações MIT (Merchant-Initiated Transactions, como assinaturas), o portador não está presente no momento da cobrança recorrente.",
+      "camposTecnicos": [
+        "DE 02 (PAN)",
+        "DE 14 (Expiration Date)",
+        "DE 52 (PIN Data)",
+        "DE 48 SE 43 (CDCVM)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
       },
-      "glossario": "Portador"
+      "glossario": "Portador",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio",
+        "href": "/simulador"
+      }
     },
     {
       "id": "ec",
       "label": "Lojista (EC)",
       "categoria": "ator",
-      "x": 280,
-      "y": 80,
-      "descricao": "Estabelecimento Comercial que aceita cartões. Identificado pelo Merchant ID (DE 42) e pelo MCC (DE 18).",
-      "analogy": "É o destino da viagem. A loja que recebe o passageiro.",
-      "curiosidade": "O primeiro EC do mundo a aceitar cartão foi um restaurante em NY em 1950.",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "lojista",
+      "x": 255,
+      "y": 90,
+      "descricao": "Estabelecimento Comercial que vende o bem ou serviço. É identificado na rede pelo MID (Merchant ID - DE 42), Nome/Localidade (DE 43), CNPJ/CPF (PDS 0183 / TCR) e classificado pelo MCC (DE 18).",
+      "analogy": "É a loja que recebe o cliente e paga o 'pedágio total' (MDR) para ter a venda garantida.",
+      "impacto": "Cadastro incorreto do MCC ou envio de dados incompletos pelo checkout do EC gera downgrades de intercâmbio ou multas severas de integridade (BRAM/MMP).",
+      "curiosidade": "No Brasil, o documento do EC (CNPJ/CPF) é obrigatório nos arquivos de clearing domésticos para conciliação na CIP/SLC.",
+      "quemEnvia": "Lojista / Checkout / POS envia os dados da compra (valor, parcelas, MCC, indicador de recorrência)",
+      "quemRecebe": "Adquirente ou Subcredenciador (na captura) e recebe o Valor Líquido (Venda − MDR) na liquidação",
+      "comoCalcula": "Recebe Valor Líquido = Valor Bruto − MDR (onde MDR = Intercâmbio + Taxa de Bandeira + Margem do Adquirente).",
+      "excecoes": "Grandes varejistas às vezes operam no modelo 'Cost Plus' (Interchange++), pagando o Intercâmbio real de cada transação + fee fixo.",
+      "camposTecnicos": [
+        "DE 18 (MCC)",
+        "DE 41 (TID)",
+        "DE 42 (MID / Card Acceptor ID)",
+        "DE 43 (Merchant Name/Location)",
+        "PDS 0183 (CNPJ/CPF BR)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
       },
-      "glossario": "Credenciador"
+      "glossario": "Credenciador",
+      "ferramenta": {
+        "label": "Consulta de MCCs",
+        "href": "/compliance/mcc"
+      }
+    },
+    {
+      "id": "subcredenciador",
+      "label": "Subcredenciador",
+      "categoria": "ator",
+      "bandeira": "Todas",
+      "subdominio": "compliance",
+      "papel": "subcredenciador",
+      "x": 370,
+      "y": 170,
+      "descricao": "Facilitador de Pagamento (PayFac). Credencia sub-lojistas (especialmente long-tail e marketplaces) operando conectado abaixo de um Adquirente habilitado na bandeira, exigindo identificação própria na mensageria (PF ID).",
+      "analogy": "É um condomínio comercial: conecta centenas de pequenas lojas usando a ligação principal de energia do Adquirente.",
+      "impacto": "Se o Subcredenciador não enviar o Submerchant ID e o PF ID corretamente nos subcampos de autorização e clearing, o Adquirente sofre rejeição ou penalidade de transparência.",
+      "curiosidade": "A regulação do Bacen (Circular 3.682 e CP 522) obriga subcredenciadores com volume relevante a participarem da liquidação centralizada na CIP.",
+      "quemEnvia": "Subcredenciador envia a transação enriquecida com dados do sub-lojista para o Adquirente",
+      "quemRecebe": "Adquirente (mensageria) e Lojista final (repasse financeiro após liquidação via CIP)",
+      "comoCalcula": "Cobra MDR do sub-lojista e paga ao Adquirente a taxa acordada (Intercâmbio + Scheme Fee + Spread de processamento).",
+      "excecoes": "Subcredenciadores não liquidam diretamente com a Bandeira; dependem do ICA/BIN do Adquirente patrocinador.",
+      "camposTecnicos": [
+        "DE 48 SE 37 (Payment Facilitator ID - MC)",
+        "PDS 0208 / 0209 (Submerchant Data)",
+        "Visa PF ID / Submerchant ID"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
+      },
+      "glossario": "Subadquirente",
+      "ferramenta": {
+        "label": "Catálogo de Subcredenciadores",
+        "href": "/compliance/subcredenciadores"
+      }
     },
     {
       "id": "adquirente",
       "label": "Adquirente",
       "categoria": "ator",
-      "x": 480,
-      "y": 80,
-      "descricao": "Credenciador do lojista. Captura a transação, roteia para a bandeira e liquida ao EC. Assume risco de crédito perante o lojista.",
-      "analogy": "É o guia de viagem da loja. Ele garante que o lojista receba o dinheiro.",
-      "curiosidade": "No Brasil, os maiores adquirentes processam trilhões de reais por ano.",
+      "bandeira": "Todas",
+      "subdominio": "clearing",
+      "papel": "adquirente",
+      "x": 545,
+      "y": 90,
+      "descricao": "Credenciadora habilitada diretamente nas bandeiras (possui ICA na Mastercard, BID/CIB na Visa, Código Credenciador na Elo). Captura transações, submete arquivos de clearing e paga a Tarifa de Intercâmbio ao Emissor.",
+      "analogy": "É a operadora logística do lojista: coleta a venda, passa pela alfândega da bandeira, busca o dinheiro no banco emissor e entrega na loja.",
+      "impacto": "É o ator que absorve o prejuízo imediato de um downgrade de intercâmbio (quando cobra MDR fixo do lojista) e responde pelas multas de programas como VAMP e ECP.",
+      "curiosidade": "O Adquirente envia o dado da venda no mesmo sentido (Adquirente → Emissor), mas no Intercâmbio o fluxo financeiro é oposto: Adquirente PAGA → Emissor RECEBE.",
+      "quemEnvia": "Envia 0100 (Autorização) e Arquivo de Clearing (IPM / Base II) para a Bandeira",
+      "quemRecebe": "Recebe 0110 da Bandeira, recebe liquidação líquida dos Emissores (via Bandeira/CIP) e paga Intercâmbio + Scheme Fees",
+      "comoCalcula": "Margem Bruta Adquirente = MDR cobrado do EC − Tarifa de Intercâmbio (paga ao Emissor) − Scheme Fees (pagas à Bandeira).",
+      "excecoes": "Em transações de saque ou crédito original (OCT/MoneySend), o fluxo de fundos e tarifas pode se inverter.",
+      "camposTecnicos": [
+        "DE 32 (Acquiring Institution ID Code)",
+        "ICA (Mastercard)",
+        "Acquirer CIB / BID (Visa)",
+        "SRE (Settlement Reporting Entity)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
+      },
+      "glossario": "Adquirente",
+      "ferramenta": {
+        "label": "Simulador de Downgrade & Margem",
+        "href": "/compliance/intercambio"
       }
     },
     {
       "id": "bandeira",
-      "label": "Bandeira",
+      "label": "Bandeira (Arranjo)",
       "categoria": "ator",
-      "x": 680,
-      "y": 80,
-      "descricao": "Visa, Mastercard, Elo. Opera a rede de roteamento. Define regras técnicas, tabelas de intercâmbio e programas de compliance. Não empresta dinheiro.",
+      "bandeira": "Todas",
+      "subdominio": "governanca",
+      "papel": "bandeira",
+      "x": 755,
+      "y": 90,
+      "descricao": "Instituidora do arranjo de pagamento (Visa, Mastercard, Elo). Define o rulebook normativo, opera o switch de autorização (VIP / Banknet), processa o clearing, calcula o intercâmbio e cobra Scheme Fees.",
+      "analogy": "É a concessionária da rodovia e o juiz do campeonato: dita as regras de trânsito, opera os radares e cobra o pedágio de uso da via (Scheme Fee).",
+      "impacto": "Releases semestrais (Abril/Outubro) e boletins (AN/GLB/AI) da bandeira alteram layouts de arquivo, criam novas tarifas e mudam critérios de qualificação de intercâmbio.",
+      "curiosidade": "A bandeira nunca concede limite de crédito ao portador nem assume risco de inadimplência da fatura — esse papel é exclusivo do Emissor.",
+      "quemEnvia": "Roteia 0100/0110, distribui tabelas MPE/T068, devolve arquivos de clearing tarifados (VCF/IPM) e emite faturas (MCBS/VSS)",
+      "quemRecebe": "Recebe mensagens de Adquirentes/Emissores e recebe Scheme Fees (Taxas de Bandeira / Assessments) de ambos os lados",
+      "comoCalcula": "Cobra Scheme Fees por volume financeiro (basis points) e por evento técnico (autorização, clearing, 3DS, token, disputa, cross-border).",
+      "excecoes": "Quando o Emissor está indisponível por timeout, a Bandeira pode aprovar ou negar em nome dele via Stand-In Processing (STIP).",
+      "camposTecnicos": [
+        "Rulebook / Mandates",
+        "Release Abril & Outubro",
+        "VSS (Visa) / SMS & MCBS (Mastercard)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
       },
-      "glossario": "Bandeira"
+      "glossario": "Bandeira",
+      "ferramenta": {
+        "label": "Governança & Acervo de Boletins",
+        "href": "/compliance/governanca-acervo"
+      }
     },
     {
       "id": "emissor",
-      "label": "Emissor",
+      "label": "Emissor (Issuer)",
       "categoria": "ator",
-      "x": 880,
-      "y": 80,
-      "descricao": "Banco que emitiu o cartão. Aprova ou nega a transação, conhece o portador, seu limite e risco. Recebe a taxa de intercâmbio.",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "emissor",
+      "x": 965,
+      "y": 90,
+      "descricao": "Instituição financeira ou de pagamento que emite o cartão para o portador (detentor do BIN). Valida criptograma EMV, senha, limite e score antifraude na autorização, financia o ciclo de crédito e RECEBE a Tarifa de Intercâmbio.",
+      "analogy": "É o banco do passageiro: garante que ele tem saldo/limite, paga a conta para a loja e recebe o Intercâmbio para cobrir o risco e o funding.",
+      "impacto": "A qualidade da decisão na autorização (DE 39) e a correta configuração de tabelas de BIN determinam a taxa de aprovação e a receita de intercâmbio do Emissor.",
+      "curiosidade": "No Brasil, a receita de Intercâmbio do Emissor em cartões Débito e Pré-pago tem teto regulado pelo Banco Central (0,50% e 0,70%).",
+      "quemEnvia": "Retorna resposta de autorização (0110 com DE 38 e DE 39), envia fundos no Settlement e abre Disputas/TC40 quando há fraude",
+      "quemRecebe": "Recebe pedido 0100, recebe o registro de Clearing (IPM/Base II) e RECEBE a Tarifa de Intercâmbio paga pelo Adquirente",
+      "comoCalcula": "Receita Bruta de Intercâmbio = Valor da Transação × Alíquota do IRD/PID aplicável (respeitando caps regulatórios quando houver).",
+      "excecoes": "Se o Emissor aprovar uma transação sem 3DS no e-commerce, ele pode abrir chargeback de fraude (exceto se aplicável regra de Compelling Evidence 3.0).",
+      "camposTecnicos": [
+        "DE 33 (Forwarding/Issuer ID)",
+        "DE 38 (Auth ID Response)",
+        "DE 39 (Response Code)",
+        "BIN Range Table"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
       },
-      "glossario": "Emissor"
+      "glossario": "Emissor",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio",
+        "href": "/simulador"
+      }
     },
     {
       "id": "processador",
-      "label": "Processador",
+      "label": "Processador (Host)",
       "categoria": "ator",
-      "x": 880,
-      "y": 200,
-      "descricao": "Empresa de tecnologia (Fiserv, FIS, Dock) que opera infraestrutura de autorização para emissores e/ou adquirentes. Conecta ao rede da bandeira.",
+      "bandeira": "Todas",
+      "subdominio": "operacoes",
+      "papel": "ambos",
+      "x": 1155,
+      "y": 90,
+      "descricao": "Provedor tecnológico (ex.: Fiserv, Dock, Pismo, TSYS, Conductor) que opera o core bancário/cartões, HSM criptográfico e conexão física com o switch da bandeira (MIP na Mastercard, VEA/DEX na Visa) em nome de Emissores ou Adquirentes.",
+      "analogy": "É a sala de máquinas terceirizada que traduz e processa os bits ISO 8583 em alta velocidade para bancos e credenciadoras.",
+      "impacto": "Falhas de parser ou atraso na atualização de tabelas de BIN/MPE no Processador afetam múltiplos emissores ou adquirentes simultaneamente.",
+      "curiosidade": "Na fatura MCBS da Mastercard, eventos de processamento podem ser agrupados no ICA do Processador (Billable ICA) ou segregados por ICA participante.",
+      "quemEnvia": "Processa e transmite pacotes ISO 8583 e lotes de clearing entre o participante e o endpoint da bandeira",
+      "quemRecebe": "Recebe solicitações de autorização via MIP/DEX e arquivos diários T068/IP0040/VCF para carga nos sistemas",
+      "comoCalcula": "Remunerado por contrato B2B (preço por transação processada / conta ativa); também aparece como Audience em boletins técnicos das bandeiras.",
+      "excecoes": "Grandes bancos e adquirentes frequentemente possuem processadora própria in-house.",
+      "camposTecnicos": [
+        "MIP (Mastercard Interface Processor)",
+        "DEX / VEA (Visa)",
+        "HSM (Validação ARQC/PIN)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "Processador",
+      "ferramenta": {
+        "label": "Linter ISO 8583",
+        "href": "/compliance/linter"
+      }
+    },
+    {
+      "id": "cip-spb",
+      "label": "CIP / SLC & SPB",
+      "categoria": "ator",
+      "bandeira": "Bacen",
+      "subdominio": "liquidacao",
+      "papel": "ambos",
+      "x": 760,
+      "y": 170,
+      "descricao": "Câmara Interbancária de Pagamentos (Núclea / SLC) e Sistema de Pagamentos Brasileiro. Infraestrutura onde ocorre a liquidação financeira multilateral das transações domésticas de cartões e o registro de recebíveis no Brasil.",
+      "analogy": "É a Câmara de Compensação Central do país: no fim do dia, soma tudo que cada banco deve a cada adquirente e faz uma única transferência líquida.",
+      "impacto": "Divergências entre o arquivo de clearing da bandeira e a grade de liquidação da CIP geram falhas graves de conciliação financeira e bloqueio de agenda.",
+      "curiosidade": "O Brasil é um dos poucos mercados do mundo onde a liquidação doméstica de cartões passa obrigatoriamente por uma câmara centralizada supervisionada pelo Bacen (SLC/CIP).",
+      "quemEnvia": "Bandeiras e Credenciadoras enviam grades de liquidação (arquivos SLC); bancos liquidam reservas via STR/SPB",
+      "quemRecebe": "Emissores (débito de reserva), Adquirentes e Subcredenciadores (crédito líquido para repasse aos ECs)",
+      "comoCalcula": "Posição Líquida Multilateral = Soma(Créditos de Vendas Apresentadas) − Soma(Débitos de Compras de Portadores, Chargebacks e Intercâmbio).",
+      "excecoes": "Transações internacionais (Cross-Border) não liquidam na CIP; liquidam via Visa VSS International Settlement ou Mastercard SMS em moeda de settlement (ex.: USD).",
+      "camposTecnicos": [
+        "Grade SLC / CIP",
+        "STR (Sistema de Transferência de Reservas)",
+        "Unidades de Recebíveis (UR)"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "Settlement",
+      "ferramenta": {
+        "label": "Atlas de Liquidação Internacional",
+        "href": "/mapa/liquidacao"
+      }
+    },
+    {
+      "id": "bacen-reg",
+      "label": "Bacen (CP 522)",
+      "categoria": "compliance",
+      "bandeira": "Bacen",
+      "subdominio": "compliance",
+      "papel": "ambos",
+      "x": 565,
+      "y": 170,
+      "descricao": "Arcabouço regulatório do Banco Central do Brasil para Arranjos de Pagamento (Lei 12.865/13, Circular 3.682, Resolução BCB 246 e Consulta Pública 522). Regula tetos de intercâmbio, prazos de liquidação e supervisão de subcredenciadores.",
+      "analogy": "É a Constituição do mercado brasileiro de cartões: define os limites máximos que as bandeiras e bancos podem praticar no país.",
+      "impacto": "Impõe o cap (teto) obrigatório de 0,50% para Intercâmbio de Débito e 0,70% para Pré-pago em transações domésticas brasileiras.",
+      "curiosidade": "Diferente da União Europeia (que limita crédito em 0,30%), no Brasil o cartão de crédito à vista e parcelado não possui teto legal de intercâmbio fixado pelo Bacen.",
+      "quemEnvia": "Banco Central do Brasil publica Resoluções e Circulares normativas",
+      "quemRecebe": "Instituidores de Arranjo (Bandeiras), Emissores, Credenciadoras e Subcredenciadores",
+      "comoCalcula": "Teto Intercâmbio Débito Doméstico ≤ 0,50% por transação; Teto Pré-pago Doméstico ≤ 0,70% por transação (Resolução BCB nº 246).",
+      "excecoes": "Cartões corporativos/empresariais e transações internacionais (Cross-Border) possuem regras próprias fora do cap de débito/pré-pago pessoa física.",
+      "camposTecnicos": [
+        "Resolução BCB 246 (Teto IC)",
+        "Circular 3.682 / CP 522",
+        "Registro de Recebíveis (Res. 264)"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
+      },
+      "glossario": "Intercâmbio",
+      "ferramenta": {
+        "label": "Tabelas e Tarifas Reais",
+        "href": "/compliance/tarifas-reais"
       }
     },
     {
       "id": "pan",
-      "label": "PAN",
+      "label": "PAN (DE 02)",
       "categoria": "dado",
-      "x": 80,
-      "y": 280,
-      "descricao": "Primary Account Number. O número de 16 dígitos do cartão. Contém BIN (6-8 dígitos), número de conta e dígito verificador (Luhn).",
-      "analogy": "É o número de identidade da maleta (transação).",
-      "impacto": "O PAN define o BIN, que por sua vez define o Emissor e o Produto (Taxa).",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "ambos",
+      "x": 95,
+      "y": 275,
+      "descricao": "Primary Account Number (ISO 8583 DE 02). Número de 16 dígitos (até 19) impresso ou gravado no cartão. Composto pelo BIN/IIN (6 ou 8 primeiros dígitos), identificador da conta individual e dígito verificador de Luhn.",
+      "analogy": "É o CPF/RG do cartão: identifica exatamente quem é o banco dono daquele cartão e qual é a conta do portador.",
+      "impacto": "Expor o PAN em texto aberto exige escopo máximo de auditoria PCI DSS. Por isso o mercado migra aceleradamente para Tokenização de Rede (DPAN).",
+      "curiosidade": "Desde abril de 2022, o padrão ISO/IEC 7812 expandiu os BINs de 6 para 8 dígitos para evitar o esgotamento global de numeração.",
+      "quemEnvia": "Cartão / Wallet → POS / Checkout → Adquirente → Bandeira → Emissor",
+      "quemRecebe": "Adquirente (extrai o BIN para roteamento e tarifa) e Emissor (localiza a conta do portador)",
+      "comoCalcula": "Validação estrutural via Algoritmo de Luhn (Módulo 10); os primeiros 8 dígitos alimentam o lookup na tabela de BIN Range.",
+      "excecoes": "Quando a transação usa Network Token, o DE 02 na autorização carrega o DPAN (Token) até a Bandeira, que faz o de-tokenization e entrega o FPAN ao Emissor.",
+      "camposTecnicos": [
+        "DE 02 (Primary Account Number)",
+        "ISO/IEC 7812 (8-digit BIN)",
+        "Check Digit Luhn"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "o-que-o-cartao-carrega"
+        "id": "fundamentos",
+        "licao": "glossario",
+        "label": "A Sopa de Letrinhas Técnica"
       },
-      "glossario": "PAN"
+      "glossario": "PAN",
+      "ferramenta": {
+        "label": "Forense MPE / T068 (BINs)",
+        "href": "/compliance/mpe-forense"
+      }
     },
     {
       "id": "bin",
-      "label": "BIN",
+      "label": "BIN Range",
       "categoria": "dado",
-      "x": 280,
-      "y": 280,
-      "descricao": "Bank Identification Number. Primeiros 6-8 dígitos do PAN. Identifica bandeira, emissor, produto e tipo do cartão.",
+      "bandeira": "Todas",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 255,
+      "y": 275,
+      "descricao": "Bank Identification Number (faixas de 6 a 8 dígitos e Account Ranges de até 19 posições). Determina quatro variáveis vitais: (1) Bandeira, (2) Emissor, (3) País de emissão (Doméstico vs Cross-Border) e (4) Produto/Tier + Funding Source (Crédito, Débito, Pré-pago).",
+      "analogy": "É o CEP + prefixo telefônico do cartão: só de olhar o começo do número, o sistema sabe a bandeira, o banco, o país e se o cartão é Standard ou Black.",
+      "impacto": "Um Adquirente com tabela de BIN (MPE T068 / Visa BIN Table) desatualizada calcula o MDR errado, roteia débito como crédito e perde margem.",
+      "curiosidade": "Na Mastercard, um mesmo BIN de 8 dígitos pode ser subdividido em múltiplos Account Ranges com produtos diferentes (ex.: Conta Múltipla Débito/Crédito).",
+      "quemEnvia": "Bandeira publica as faixas nos arquivos de parâmetros (Mastercard MPE/T068 / IP0040; Visa CTF/ARDEF)",
+      "quemRecebe": "Adquirentes, Subcredenciadores e Gateways (para roteamento, identificação de produto e pré-cálculo de intercâmbio)",
+      "comoCalcula": "Lookup por intervalo numérico: `low_range <= PAN_prefix <= high_range` → retorna `GCMS Product ID`, `Tier`, `Funding Source` e `Country Code`.",
+      "excecoes": "Cartões Combo (Múltiplos) usam o mesmo BIN para Débito e Crédito; a distinção depende do Application Identifier (AID do Chip EMV) e do Processing Code.",
+      "camposTecnicos": [
+        "MPE Tabela T068 / IP0040 (MC)",
+        "Visa ARDEF / TC 42",
+        "GCMS Product ID (MC)",
+        "PID & AFS (Visa)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "o-que-o-cartao-carrega"
+        "id": "fundamentos",
+        "licao": "glossario",
+        "label": "A Sopa de Letrinhas Técnica"
       },
-      "glossario": "BIN"
+      "glossario": "BIN",
+      "ferramenta": {
+        "label": "Explorador Forense MPE T068",
+        "href": "/compliance/mpe-forense"
+      }
     },
     {
       "id": "emv",
-      "label": "Chip EMV",
+      "label": "Chip EMV & ARQC",
       "categoria": "dado",
-      "x": 80,
-      "y": 380,
-      "descricao": "Padrão de chip para cartões. Gera um código criptográfico único por transação (ARQC), impedindo clonagem mesmo que dados sejam interceptados.",
+      "bandeira": "Todas",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 95,
+      "y": 375,
+      "descricao": "Padrão global de segurança para transações presenciais (Contato e Contactless NFC). A cada compra, o chip gera um criptograma dinâmico único (ARQC) transportado no campo ISO DE 55 (tags TLV EMV), impossibilitando a clonagem de trilha.",
+      "analogy": "É um cofre computadorizado dentro do cartão que assina digitalmente cada compra com um código que vale apenas para aquele segundo e aquele valor.",
+      "impacto": "Transações presenciais com leitura EMV (DE 22 = 051 ou 071) qualificam para as menores tarifas de intercâmbio (ex.: IRD IA ou JA) e protegem contra fraude de falsificação.",
+      "curiosidade": "Se um terminal com leitor de chip processar um cartão EMV via tarja magnética (Fallback - DE 22 = 80x/90x), o Adquirente sofre downgrade tarifário e assume responsabilidade de fraude.",
+      "quemEnvia": "Chip do Cartão / Carteira NFC → POS → Adquirente → Emissor (via DE 55)",
+      "quemRecebe": "HSM do Emissor (valida o ARQC e devolve o ARPC na resposta 0110)",
+      "comoCalcula": "Criptografia simétrica/assimétrica 3DES/AES usando chaves derivadas do cartão + ATC (Application Transaction Counter) + Valor + Unpredictable Number (Tag 9F37).",
+      "excecoes": "Em pagamentos Contactless de baixo valor sem senha (No-CVM), o criptograma EMV ainda é validado online pelo Emissor.",
+      "camposTecnicos": [
+        "DE 55 (ICC System Related Data)",
+        "Tag 9F26 (ARQC)",
+        "Tag 9F27 (CID)",
+        "Tag 9F36 (ATC)",
+        "Tag 9F1E (IFD Serial Number)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "o-que-o-cartao-carrega"
+        "id": "engenharia",
+        "licao": "de-vs-pds",
+        "label": "DE vs PDS: A Anatomia"
       },
-      "glossario": "EMV"
+      "glossario": "EMV",
+      "ferramenta": {
+        "label": "Linter ISO 8583",
+        "href": "/compliance/linter"
+      }
     },
     {
       "id": "dpan",
       "label": "DPAN / Token",
       "categoria": "dado",
-      "x": 280,
-      "y": 380,
-      "descricao": "Device PAN. Número substituto gerado pela tokenização (VTS/MDES). Usado em wallets digitais. O PAN real nunca chega ao lojista.",
+      "bandeira": "Todas",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 255,
+      "y": 375,
+      "descricao": "Device PAN ou Network Token. Número substituto de 16 dígitos provisionado pelos cofres de tokenização das bandeiras (VTS na Visa, MDES na Mastercard) atrelado a um dispositivo (Apple Pay/Google Pay) ou a um lojista específico (Credential-on-File).",
+      "analogy": "É um crachá provisório com foto: se alguém roubar o número na loja, ele não funciona em nenhuma outra loja porque está travado àquele domínio.",
+      "impacto": "Aumenta a taxa de aprovação em +2% a +4% (atualização automática via Account Updater quando o cartão físico vence) e evita taxas de penalidade de transações não-tokenizadas.",
+      "curiosidade": "Os BINs de DPAN possuem faixas exclusivas nas tabelas T068/ARDEF para que o Adquirente consiga identificar o produto real mesmo sem ver o FPAN.",
+      "quemEnvia": "Token Service Provider (VTS / MDES) provisiona o DPAN + Token Cryptogram (TAVV / DSRP) para a Wallet ou Merchant Vault",
+      "quemRecebe": "Adquirente (envia na autorização) → Bandeira (faz o detokenization no switch e entrega o FPAN + status de validação do token ao Emissor)",
+      "comoCalcula": "Vinculado a um criptograma dinâmico (TAVV na Visa / UCAF DSRP na Mastercard) transportado em DE 48 SE 43 / DE 104 / DE 126.",
+      "excecoes": "Um Token de Token Requestor A rejeitará automaticamente tentativas de uso em outro Merchant ID (Domain Control Validation).",
+      "camposTecnicos": [
+        "DPAN (Token PAN)",
+        "Token Assurance Level",
+        "DE 48 SE 33 (PAN Mapping - MC)",
+        "TLID (Token Requestor ID)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "o-que-o-cartao-carrega"
+        "id": "inovacao",
+        "licao": "mdes-tokenizacao",
+        "label": "Tokenização e MDES"
       },
-      "glossario": "DPAN"
+      "glossario": "DPAN",
+      "ferramenta": {
+        "label": "Ciclo de Vida do Token",
+        "href": "/compliance/tokenizacao"
+      }
+    },
+    {
+      "id": "pos-entry",
+      "label": "POS Entry Mode (DE 22)",
+      "categoria": "dado",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "adquirente",
+      "x": 420,
+      "y": 275,
+      "descricao": "Data Element 22 do ISO 8583 (3 dígitos: 2 para o modo de entrada do PAN + 1 para capacidade de captura de PIN). Define tecnicamente o canal da transação: Chip Contato (`05x`), Contactless EMV (`07x`), E-commerce/Credencial em Arquivo (`01x`/`10x`/`81x`) ou Tarja (`90x`/`80x`).",
+      "analogy": "É a câmera da portaria dizendo se o visitante entrou pela porta da frente com biometria (Chip/NFC) ou mandou um pedido pela internet (CNP).",
+      "impacto": "É o primeiro filtro da árvore de decisão do Intercâmbio: separa o mundo Card Present (CP — taxas menores, ex.: IRD IA/JA) do mundo Card Not Present (CNP — taxas maiores, ex.: IRD HU/AU).",
+      "curiosidade": "Enviar DE 22 inconsistente entre a autorização (0100) e o arquivo de clearing (IPM/Base II) é uma das principais causas de downgrade automático de tarifa.",
+      "quemEnvia": "Terminal POS / Gateway do Adquirente preenche na mensagem 0100 e replica no Clearing",
+      "quemRecebe": "Bandeira (classifica o canal e valida elegibilidade de IRD/PID) e Emissor (motor antifraude)",
+      "comoCalcula": "Mapeamento direto: `051` = Chip EMV c/ PIN; `071` = Contactless EMV; `010`/`810` = E-commerce / Digitado; `100` = Credential on File.",
+      "excecoes": "Modo `80x` (Fallback de chip para tarja) exige indicadores adicionais e pode sofrer recusa imediata do Emissor por política de segurança.",
+      "camposTecnicos": [
+        "ISO 8583 DE 22",
+        "DE 61 (POS Data - MC)",
+        "POS Terminal Capability (DE 60 / TCR 0)"
+      ],
+      "trilha": {
+        "id": "engenharia",
+        "licao": "de-vs-pds",
+        "label": "DE vs PDS: A Anatomia"
+      },
+      "glossario": "POS Entry Mode",
+      "ferramenta": {
+        "label": "Linter ISO 8583",
+        "href": "/compliance/linter"
+      }
     },
     {
       "id": "mcc",
-      "label": "MCC",
+      "label": "MCC (DE 18)",
       "categoria": "dado",
-      "x": 480,
-      "y": 280,
-      "descricao": "Merchant Category Code. Código de 4 dígitos que classifica o tipo de negócio do lojista. Determina regras de intercâmbio, elegibilidade para parcelamento e vouchers.",
-      "analogy": "É o uniforme da loja. Padaria veste um, Posto de Gasolina veste outro.",
-      "impacto": "Mudar o MCC pode alterar a taxa de intercâmbio em até 300%!",
+      "bandeira": "Todas",
+      "subdominio": "intercambio",
+      "papel": "adquirente",
+      "x": 585,
+      "y": 275,
+      "descricao": "Merchant Category Code (ISO 8583 DE 18 / PDS 0178). Código numérico de 4 dígitos (ISO 18245) atribuído pelo Adquirente no onboarding do EC para classificar seu ramo de atividade (ex.: 5411 Supermercados, 5541 Postos, 4111 Transporte Público, 7995 Apostas).",
+      "analogy": "É o CNAE universal das bandeiras: define a qual 'categoria econômica' a loja pertence e qual tabela de pedágio (Intercâmbio) ela vai pagar.",
+      "impacto": "Determina programas especiais de intercâmbio (Segmentos de Incentivo como Supermercados, Educação, Utilities, Transit) e regras obrigatórias de alto risco (Quasi-Cash, Gambling, AFD).",
+      "curiosidade": "Cadastrar um lojista em um MCC de taxa reduzida sem que ele pertença àquele ramo real (Miscoding) gera multas de dezenas de milhares de dólares por violação de integridade.",
+      "quemEnvia": "Adquirente define no credenciamento e envia em DE 18 (Autorização) e no registro de Clearing (TC 05 / IPM)",
+      "quemRecebe": "Bandeira (calcula Intercâmbio e monitora compliance) e Emissor (categoriza fatura, aplica regras de Voucher/Benefícios e antifraude)",
+      "comoCalcula": "Cruzado com a tabela de MCC Groups da bandeira para definir o Tier de Intercâmbio (ex.: Segmento 1, 2, 3, Transit, Emerging Markets).",
+      "excecoes": "Cartões de benefícios/vouchers (PAT / Flex — PDS 0027) bloqueiam a autorização se o MCC do lojista não pertencer à rede de alimentação/refeição/cultura autorizada.",
+      "camposTecnicos": [
+        "DE 18 (Merchant Type / MCC)",
+        "PDS 0027 (Flex Code BR)",
+        "MCC 5542 (AFD Postos)",
+        "MCC 6051 / 7995 (Quasi-Cash / Betting)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "atores"
+        "id": "fundamentos",
+        "licao": "glossario",
+        "label": "A Sopa de Letrinhas Técnica"
       },
-      "glossario": "MCC"
+      "glossario": "MCC",
+      "ferramenta": {
+        "label": "Explorador de MCCs & Segmentos",
+        "href": "/compliance/mcc"
+      }
     },
     {
       "id": "iso8583",
-      "label": "ISO 8583",
+      "label": "ISO 8583 (0100/0110)",
       "categoria": "dado",
-      "x": 480,
-      "y": 380,
-      "descricao": "Protocolo padrão de mensageria financeira. Define estrutura de mensagens com MTI (tipo) e Data Elements (campos). Usado em autorização e reversão.",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "ambos",
+      "x": 755,
+      "y": 275,
+      "descricao": "Padrão internacional de mensageria financeira de tempo real. Estruturado em MTI (Message Type Indicator — ex.: `0100` Request, `0110` Response, `0400`/`0420` Reversal), Bitmap binário (indicando quais campos estão presentes) e Data Elements (DE 1 a DE 128).",
+      "analogy": "É o idioma esperanto ultracompacto falado entre maquininhas, adquirentes, bandeiras e bancos para aprovar uma compra em menos de 1 segundo.",
+      "impacto": "Qualquer erro de formatação de bitmap, tamanho ou encoding (EBCDIC/ASCII/BCD) derruba a mensagem no switch da bandeira (Edit Reject) antes mesmo de chegar ao Emissor.",
+      "curiosidade": "No sistema Dual Message (crédito tradicional), a autorização trafega via ISO 8583 online (`0100`/`0110`) e o clearing vai depois em lote; no Single Message (SMS/MDS), a própria mensagem `0200`/`0210` já liquida financeiramente.",
+      "quemEnvia": "Adquirente envia `0100`/`0200`/`0400`; Emissor responde `0110`/`0210`/`0410` passando pelo Switch da Bandeira",
+      "quemRecebe": "Switch da Bandeira (VIP / Banknet / Elo) e Host do Emissor/Adquirente",
+      "comoCalcula": "O Bitmap primário (64 bits) e secundário (64 bits) ligam `1` ou `0` para cada posição de DE presente no payload da transação.",
+      "excecoes": "Mensagens de conselho (`0120` Authorization Advice / `0420` Reversal Advice) informam decisões já tomadas (ex.: Stand-In ou desfazimento por timeout).",
+      "camposTecnicos": [
+        "MTI 0100 / 0110 (Auth)",
+        "MTI 0200 / 0210 (Financial SMS)",
+        "MTI 0400 / 0420 (Reversal)",
+        "Primary & Secondary Bitmap"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "autorizacao"
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
       },
-      "glossario": "ISO 8583"
+      "glossario": "ISO 8583",
+      "ferramenta": {
+        "label": "Linter & Inspetor ISO 8583",
+        "href": "/compliance/linter"
+      }
     },
     {
       "id": "de",
-      "label": "Data Elements",
+      "label": "DEs & PDS",
       "categoria": "dado",
-      "x": 680,
-      "y": 280,
-      "descricao": "Campos da mensagem ISO 8583. DE 2 = PAN, DE 4 = Valor, DE 18 = MCC, DE 22 = POS Entry Mode, DE 39 = Response Code, DE 42 = Merchant ID.",
+      "bandeira": "Todas",
+      "subdominio": "clearing",
+      "papel": "ambos",
+      "x": 940,
+      "y": 275,
+      "descricao": "Os campos individuais de dados da transação. Na autorização chamam-se Data Elements (`DE 02` a `DE 128`) e Sub-elements (`DE 48 SE xx` na MC, `DE 62/104/126` na Visa). No clearing Mastercard (GCMS/IPM), expandem-se em Private Data Sublements (`PDS 0001` a `PDS 0999`).",
+      "analogy": "São as gavetas numeradas dentro da maleta da transação: cada gaveta guarda uma informação exata (valor, moeda, parcelas, CNPJ, taxa).",
+      "impacto": "No Brasil, 'jabuticabas' locais como Parcelado Sem Juros (`PDS 0181`), CNPJ do EC (`PDS 0183`) e Liquidação CIP exigem preenchimento cirúrgico de DEs e PDSs.",
+      "curiosidade": "O `PDS 0158` no arquivo IPM da Mastercard é o campo exato onde a bandeira grava o IRD aplicado e os indicadores de qualificação tarifária.",
+      "quemEnvia": "Adquirente preenche os DEs de captura e os PDS de apresentação; Bandeira enriquece com DEs/PDS de rede e tarifação",
+      "quemRecebe": "Bandeira e Emissor (para validação, conciliação e cálculo de intercâmbio)",
+      "comoCalcula": "Formato TLV (Tag-Length-Value) ou posições fixas (TCRs de 168 bytes no Base II da Visa).",
+      "excecoes": "Campos presentes na autorização (ex.: Trace ID / `DE 63` / `DE 11` / `DE 38`) precisam ser espelhados no clearing (Lifecycle Integrity) para evitar downgrade.",
+      "camposTecnicos": [
+        "DE 04 (Valor Transação)",
+        "DE 49 (Moeda Transação)",
+        "DE 48 (Additional Data)",
+        "PDS 0158 (IRD)",
+        "PDS 0181 (Installments BR)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "autorizacao"
+        "id": "engenharia",
+        "licao": "jabuticabas-clearing",
+        "label": "As Jabuticabas do Clearing BR"
       },
-      "glossario": "DE"
+      "glossario": "DE",
+      "ferramenta": {
+        "label": "Transformador Auth → Clearing (GCMS)",
+        "href": "/compliance/gcms"
+      }
     },
     {
-      "id": "autorizacao",
-      "label": "Autorização",
-      "categoria": "processo",
-      "x": 480,
-      "y": 480,
-      "descricao": "Processo de aprovação em tempo real (<1.5s). Mensagem 0100 vai ao emissor; resposta 0110 retorna com Response Code (00 = aprovado).",
+      "id": "cit-mit",
+      "label": "CIT / MIT (CoF)",
+      "categoria": "dado",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "adquirente",
+      "x": 1135,
+      "y": 275,
+      "descricao": "Framework obrigatório das bandeiras para transações com cartão salvo (Card-on-File). Separa a primeira transação iniciada pelo portador (`CIT` — Cardholder-Initiated, que gera o `Transaction Integrity / Network Trace ID`) das cobranças subsequentes iniciadas pelo lojista (`MIT` — assinaturas, recorrência, no-show).",
+      "analogy": "É o contrato de débito automático: na primeira vez o cliente assina presencialmente (CIT) e gera um número de protocolo; nas cobranças mensais (MIT), a loja apresenta esse protocolo original.",
+      "impacto": "Enviar recorrência (MIT) sem referenciar o Trace ID da transação CIT original causa recusa pelo Emissor (Do Not Honor / Transaction Not Permitted) e cobrança de Non-Compliance Fees.",
+      "curiosidade": "Quando uma tentativa MIT é negada, o Adquirente/Lojista deve respeitar as regras estritas de Retentativas (Retry Rules — limite de 15 tentativas em 30 dias e bloqueio absoluto em Category 1 Declines).",
+      "quemEnvia": "Lojista / Gateway / Adquirente envia indicadores CIT/MIT e o Network Transaction ID original",
+      "quemRecebe": "Bandeira e Emissor (reconhecem que a ausência de 3DS/CVV na cobrança recorrente é legítima)",
+      "comoCalcula": "Requer vinculação do `Banknet Reference Number` (DE 63 / PDS 0158) ou `Visa Transaction Identifier` (DE 62.2) da primeira compra CIT.",
+      "excecoes": "Hard Declines (Category 1 — ex.: Cartão Cancelado ou Conta Encerrada) proíbem qualquer nova tentativa MIT sob pena de multa por tentativa excessiva.",
+      "camposTecnicos": [
+        "DE 48 SE 22 / SE 61 (MC CIT/MIT)",
+        "DE 126.13 / DE 62.2 (Visa TID)",
+        "Retry Rules (Cat 1–4 Declines)"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "autorizacao"
+        "id": "operacoes",
+        "licao": "regra-de-ouro-prazos",
+        "label": "Regras Operacionais & Retentativas"
       },
-      "glossario": "Autorização"
-    },
-    {
-      "id": "clearing",
-      "label": "Clearing",
-      "categoria": "processo",
-      "x": 680,
-      "y": 480,
-      "descricao": "Compensação financeira após autorização. Adquirentes e emissores trocam registros de transações para calcular posição líquida. Base II (MC) e IPM (Visa).",
-      "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "clearing-e-settlement"
-      },
-      "glossario": "Clearing"
-    },
-    {
-      "id": "settlement",
-      "label": "Settlement",
-      "categoria": "processo",
-      "x": 880,
-      "y": 480,
-      "descricao": "Liquidação financeira efetiva. Transferência real do dinheiro entre emissor, bandeira e adquirente, via CIP no Brasil. D+1 do clearing.",
-      "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "clearing-e-settlement"
-      },
-      "glossario": "Settlement"
-    },
-    {
-      "id": "3ds",
-      "label": "3DS",
-      "categoria": "processo",
-      "x": 280,
-      "y": 480,
-      "descricao": "Three-Domain Secure. Protocolo de autenticação do e-commerce que envolve lojista, bandeira e emissor. Versão 2.x suporta frictionless.",
-      "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "eci-e-autenticacao"
-      },
-      "glossario": "3DS"
+      "glossario": "CIT",
+      "ferramenta": {
+        "label": "Simulador de Retentativas",
+        "href": "/compliance/retentativas"
+      }
     },
     {
       "id": "tokenizacao",
       "label": "Tokenização",
       "categoria": "processo",
-      "x": 80,
-      "y": 480,
-      "descricao": "Substituição do PAN por um token (DPAN) específico para dispositivo/lojista. Reduz risco de exposição de dados. VTS (Visa) e MDES (MC).",
+      "bandeira": "Todas",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 420,
+      "y": 375,
+      "descricao": "Processo de provisionamento e validação criptográfica em que o PAN real (FPAN) é substituído no ecossistema por um Token de Bandeira (DPAN) gerenciado pelo VTS (Visa) ou MDES (Mastercard), incluindo gestão de ciclo de vida (suspensão, renovação automática quando o plástico é reemitido).",
+      "analogy": "É a emissão de um passaporte diplomático digital para o cartão que se atualiza sozinho mesmo quando o cartão de plástico físico é trocado pelo banco.",
+      "impacto": "Transações e-commerce tokenizadas têm menor risco de fraude, maior conversão em recorrência e qualificam para melhores taxas ou isenção de sobretaxas CNP.",
+      "curiosidade": "Diferente do token proprietário de gateway (que só esconde o PAN dentro do gateway), o Network Token viaja na própria ISO 8583 com criptograma validado pela Bandeira.",
+      "quemEnvia": "Token Requestor (Wallet ou Lojista/Adquirente) solicita provisionamento ao Token Vault da Bandeira",
+      "quemRecebe": "Emissor aprova o provisionamento (TAR — Tokenization Authorization Request) e Bandeira mantém o mapeamento DPAN ↔ FPAN",
+      "comoCalcula": "Gera um Token Cryptogram único por transação (TAVV / DSRP) validado pela Bandeira antes de entregar a autorização 0100 ao Emissor.",
+      "excecoes": "Se o Emissor cancelar a conta por fraude, todos os tokens vinculados àquele FPAN são revogados instantaneamente via Token Lifecycle Management.",
+      "camposTecnicos": [
+        "MTI 0100 TAR (Token Auth Request)",
+        "VTS (Visa) / MDES (Mastercard)",
+        "Cryptogram TAVV / UCAF"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "o-que-o-cartao-carrega"
+        "id": "inovacao",
+        "licao": "mdes-tokenizacao",
+        "label": "Tokenização e MDES"
       },
-      "glossario": "Tokenização"
+      "glossario": "Tokenização",
+      "ferramenta": {
+        "label": "Simulador de Tokenização",
+        "href": "/compliance/tokenizacao"
+      }
+    },
+    {
+      "id": "3ds",
+      "label": "3DS 2.x (Auth)",
+      "categoria": "processo",
+      "bandeira": "Todas",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 595,
+      "y": 375,
+      "descricao": "Protocolo EMV 3-Domain Secure (Domínio do Adquirente/3DS Server, Domínio de Interoperabilidade/Directory Server da Bandeira e Domínio do Emissor/ACS). Autentica o portador no e-commerce trocando mais de 100 pontos de dados de risco (IP, device fingerprint, histórico) para aprovar sem fricção (Frictionless) ou via desafio biométrico/app (Challenge).",
+      "analogy": "É uma videoconferência silenciosa entre a loja e o banco do cliente antes da compra: o banco reconhece o celular do cliente e assina um termo assumindo o risco de fraude.",
+      "impacto": "Gera o ECI autenticado (`05` na Visa / `02` na Mastercard) e o criptograma CAVV/AAV, garantindo o **Liability Shift** (transferência de responsabilidade de chargeback de fraude para o Emissor) e reduzindo o Intercâmbio CNP (ex.: IRD `AU` em vez de `HU`).",
+      "curiosidade": "Com o programa Data Only (sem liability shift), o lojista envia os dados do 3DS apenas para enriquecer o modelo de decisão do Emissor e aumentar a aprovação sem desafiar o cliente.",
+      "quemEnvia": "3DS Server (Lojista/Adquirente) → Directory Server (Bandeira) → ACS (Emissor)",
+      "quemRecebe": "Adquirente recebe o resultado da autenticação (ECI + CAVV/AAV + DS Transaction ID) e o anexa na mensagem de autorização ISO 8583 (0100)",
+      "comoCalcula": "Motor de risco do ACS avalia se aprova em fluxo Frictionless (`Y` sem desafio) ou exige Challenge (`C` com OTP/Biometria no app do banco).",
+      "excecoes": "ECI `06` (Visa) / `01` (Mastercard) indica 'Attempt' (Emissor/ACS não suportou ou estava fora): ainda pode conceder proteção em regras específicas, mas possui tratamento tarifário distinto.",
+      "camposTecnicos": [
+        "EMV 3DS 2.2 / 2.3",
+        "CAVV (Visa DE 126.9) / AAV (MC DE 48 SE 43)",
+        "DS Transaction ID",
+        "ECI / SLI"
+      ],
+      "trilha": {
+        "id": "inovacao",
+        "licao": "eci-sli-calculator",
+        "label": "Calculadora de ECI / SLI"
+      },
+      "glossario": "3DS",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio (E-com 3DS)",
+        "href": "/simulador"
+      }
+    },
+    {
+      "id": "stip",
+      "label": "Stand-In (STIP)",
+      "categoria": "processo",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "bandeira",
+      "x": 1135,
+      "y": 375,
+      "descricao": "Stand-In Processing. Serviço de contingência operado pelo switch da Bandeira (Visa VIP / Mastercard Stand-In System) que responde à autorização `0100` em nome do Emissor quando o link ou host do Emissor sofre timeout ou indisponibilidade.",
+      "analogy": "É o gerente substituto de plantão na bandeira: se o banco emissor ficar sem sinal por 2 segundos, a bandeira consulta uma lista de limites de emergência e aprova a compra para o cliente não passar vergonha no caixa.",
+      "impacto": "Evita queda massiva de conversão quando o Emissor oscila, mas gera cobrança de **Stand-In Fee** na fatura da bandeira (MCBS/VSS) e envia uma mensagem de Advice (`0120`) assim que o Emissor volta a ficar online.",
+      "curiosidade": "No Atlas do MCBS, o guia de referência de Stand-In (`m_siarg`) detalha como parâmetros de risco por BIN/ICA controlam o teto de aprovação em contingência.",
+      "quemEnvia": "Switch da Bandeira gera a resposta `0110` para o Adquirente e enfileira o Advice `0120` para o Emissor",
+      "quemRecebe": "Adquirente (recebe aprovação transparente) e Emissor (recebe o Advice `0120` para sensibilizar o limite do portador)",
+      "comoCalcula": "Avalia limites acumulados por cartão/dia configurados pelo Emissor no perfil de Stand-In da bandeira + validação criptográfica em nuvem (On-behalf Cryptogram Validation).",
+      "excecoes": "Transações de alto risco ou acima do floor limit de contingência do BIN são negadas pelo STIP por segurança.",
+      "camposTecnicos": [
+        "MTI 0120 (Authorization Advice)",
+        "VIP STIP (Visa)",
+        "Mastercard Stand-In (SIA)",
+        "Stand-In Billing Event (MCBS)"
+      ],
+      "trilha": {
+        "id": "billing",
+        "licao": "billing-events",
+        "label": "Faturamento por Eventos"
+      },
+      "glossario": "Autorização",
+      "ferramenta": {
+        "label": "Atlas MCBS Faturamento",
+        "href": "/mapa/mcbs"
+      }
+    },
+    {
+      "id": "autorizacao",
+      "label": "Autorização (D+0)",
+      "categoria": "processo",
+      "bandeira": "Todas",
+      "subdominio": "autorizacao",
+      "papel": "ambos",
+      "x": 545,
+      "y": 485,
+      "descricao": "Etapa síncrona em tempo real (< 1,5s) em que o Adquirente solicita aprovação da compra ao Emissor via Bandeira (`MTI 0100` → `0110`). Verifica saldo/limite, validade, criptograma EMV/Token e antifraude, sensibilizando o limite do portador (reserva de valor), mas **ainda sem transferir dinheiro** no modelo Dual Message.",
+      "analogy": "É o aperto de mãos e o bloqueio do valor no limite do cartão: o banco promete pagar, mas o caminhão de dinheiro só sai no dia seguinte após a conferência da nota (Clearing).",
+      "impacto": "Os dados gravados na autorização (`DE 22`, `DE 18`, `ECI`, `Auth Code DE 38`, `Trace ID`) ficam 'congelados' como prova de integridade: se o clearing divergir do que foi autorizado, ocorre downgrade ou rejeição.",
+      "curiosidade": "Transações aprovadas (`DE 39 = 00` ou `85`) que nunca forem apresentadas no clearing dentro do prazo (geralmente 7 dias) expiram e têm o limite liberado no cartão, além de poderem gerar taxa de 'Unused Authorization'.",
+      "quemEnvia": "Adquirente envia `0100` (Authorization Request) → Bandeira roteia → Emissor",
+      "quemRecebe": "Emissor processa e devolve `0110` (Authorization Response com `DE 39 = 00` e `DE 38 = Auth Code`) → Bandeira → Adquirente → EC",
+      "comoCalcula": "Não transfere fundos no Dual Message; reserva `DE 04` (Transaction Amount) convertido em `DE 06` (Cardholder Billing Amount) quando há múltiplas moedas.",
+      "excecoes": "No modelo Single Message (SMS — comum em débito internacional e saques ATM), a mensagem `0200`/`0210` realiza autorização e clearing simultaneamente.",
+      "camposTecnicos": [
+        "MTI 0100 / 0110",
+        "DE 04 / DE 05 / DE 06 (Valores)",
+        "DE 38 (Approval Code)",
+        "DE 39 (Response Code)",
+        "DE 62 / DE 63 (Lifecycle Trace ID)"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "Autorização",
+      "ferramenta": {
+        "label": "Linter ISO 8583",
+        "href": "/compliance/linter"
+      }
+    },
+    {
+      "id": "clearing",
+      "label": "Clearing (D+1)",
+      "categoria": "processo",
+      "bandeira": "Todas",
+      "subdominio": "clearing",
+      "papel": "ambos",
+      "x": 755,
+      "y": 485,
+      "descricao": "Etapa de apresentação eletrônica (First Presentment) em que o Adquirente envia arquivos em lote (Batch) com todas as transações capturadas e aprovadas para a Bandeira (via Base II na Visa ou GCMS/IPM na Mastercard). **É no Clearing que a Bandeira calcula e carimba a Tarifa de Intercâmbio final.**",
+      "analogy": "É o fechamento do caixa à noite: o adquirente junta todos os comprovantes assinados do dia e entrega na bandeira para ela calcular quanto cada banco deve pagar e quanto cada um vai receber de tarifa.",
+      "impacto": "Atrasar o envio do clearing (ex.: passar de 3 a 7 dias da data da autorização) causa **Downgrade por Timeliness (Late Presentment)** para tarifas punitivas e perda de direito de defesa em disputas.",
+      "curiosidade": "Na Mastercard, o clearing opera em múltiplas janelas (Cutoffs diários no GCMS), onde mensagens `1240` (First Presentment) são validadas e enriquecidas com o IRD no `PDS 0158`.",
+      "quemEnvia": "Adquirente envia arquivo de captura/apresentação (TC 05 no Base II Visa; MTI 1240 no IPM Mastercard)",
+      "quemRecebe": "Bandeira (valida regras, calcula Intercâmbio, gera arquivo de saída VCF/IPM) e encaminha aos Emissores",
+      "comoCalcula": "Cruza `BIN (Produto/Tier)` + `MCC` + `POS Entry Mode` + `ECI/3DS` + `Tempestividade (D+x)` + `Indicadores Locais (Parcelas/CNPJ)` → atribui o `IRD` (MC) ou `Fee Program/PID` (Visa) e calcula o valor exato do Intercâmbio.",
+      "excecoes": "Se o Lojista cancelar a venda após o clearing, o Adquirente envia um registro de Credit/Refund (TC 06 na Visa / 1240 Proc Code 20 na MC).",
+      "camposTecnicos": [
+        "MTI 1240 (IPM First Presentment)",
+        "TC 05 / TC 06 (Visa Base II)",
+        "PDS 0158 (IRD & Interchange Fee)",
+        "Cut-off Windows"
+      ],
+      "trilha": {
+        "id": "engenharia",
+        "licao": "jabuticabas-clearing",
+        "label": "As Jabuticabas do Clearing BR"
+      },
+      "glossario": "Clearing",
+      "ferramenta": {
+        "label": "Validador de Clearing GCMS",
+        "href": "/compliance/gcms"
+      }
+    },
+    {
+      "id": "settlement",
+      "label": "Settlement",
+      "categoria": "processo",
+      "bandeira": "Todas",
+      "subdominio": "liquidacao",
+      "papel": "ambos",
+      "x": 960,
+      "y": 485,
+      "descricao": "Liquidação financeira efetiva das posições apuradas no Clearing. Transfere reservas bancárias reais entre Emissores (devedores das compras), Adquirentes (credores líquidos) e Bandeira (credora de Scheme Fees). No Brasil doméstico ocorre via CIP/SLC (SPB); no internacional ocorre via Visa VSS / Mastercard SMS.",
+      "analogy": "É a TED/transferência bancária real depois que a contabilidade (Clearing) já fechou a conta líquida de todo mundo.",
+      "impacto": "Define o fluxo de caixa real da operação, a conversão cambial (FX entre Moeda da Transação, Moeda de Clearing e Moeda de Settlement) e a conciliação contábil via relatórios VSS-110/120 e advisories.",
+      "curiosidade": "Na Visa, toda hierarquia de liquidação (Settlement Hierarchy) exige um Top SRE que define a moeda única de settlement daquela árvore e ao menos um Funds Transfer SRE (FTSRE).",
+      "quemEnvia": "Bandeira apura posições líquidas (VSS / SMS) e instrui a câmara de liquidação (CIP/SPB no Brasil ou Banco Liquidante Internacional)",
+      "quemRecebe": "Emissores (sofrem débito líquido), Adquirentes (recebem crédito líquido já descontado do Intercâmbio) e Lojistas (recebem na agenda D+x)",
+      "comoCalcula": "Valor Liquidado ao Adquirente = Valor Bruto Apresentado − Tarifa de Intercâmbio (retida para o Emissor) − Chargebacks/Ajustes − Scheme Fees liquidáveis.",
+      "excecoes": "No Brasil, compras parceladas sem juros têm cronograma de liquidação escalonado a cada 30 dias (ou antecipado com desconto de recebíveis).",
+      "camposTecnicos": [
+        "SRE & FTSRE (Visa VSS)",
+        "VSS-110 / VSS-115 / VSS-120",
+        "Moeda de Settlement (DE 50)",
+        "Grade CIP/SLC"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "Settlement",
+      "ferramenta": {
+        "label": "Atlas de Liquidação Internacional",
+        "href": "/mapa/liquidacao"
+      }
     },
     {
       "id": "chargeback",
-      "label": "Chargeback",
+      "label": "Disputa & CBK",
       "categoria": "processo",
-      "x": 880,
-      "y": 580,
-      "descricao": "Contestação de transação iniciada pelo portador. Pode ser legítima (fraude) ou abusiva (friendly fraud). Gera custo para o adquirente e ameaça de MATCH.",
+      "bandeira": "Todas",
+      "subdominio": "chargeback",
+      "papel": "ambos",
+      "x": 1150,
+      "y": 485,
+      "descricao": "Reversão financeira compulsória iniciada pelo Emissor (em nome do portador ou por regra técnica) contra o Adquirente através das plataformas Visa Resolve Online (VROL) ou Mastercard Mastercom. Possui códigos de razão estruturados (Fraude, Desacordo Comercial, Erro de Processamento, Autorização).",
+      "analogy": "É o processo judicial eletrônico da compra: o banco do comprador pede o dinheiro de volta com base numa regra do manual, e a loja tem prazo contado em dias para apresentar provas (Representment).",
+      "impacto": "Gera débito imediato da transação contra o Adquirente, cobrança de Dispute Fees pela bandeira e soma no numerador do programa de monitoramento de chargeback (ECP na Mastercard / VAMP na Visa).",
+      "curiosidade": "Na Mastercard, o First Chargeback trafega no IPM como mensagem `1442` e a reapresentação (Second Presentment) do Adquirente como `1240` com indicador de representação; na Visa, usa TC 15 / DISPUTE FIN.",
+      "quemEnvia": "Emissor abre o First Chargeback (`1442` / `TC 15`) → Bandeira debita Adquirente → Adquirente notifica Lojista (ou reapresenta com evidências)",
+      "quemRecebe": "Adquirente e Lojista (sofrem o débito financeiro e decidem entre aceitar ou disputar em Representment / Pré-Arbitragem)",
+      "comoCalcula": "Prazos normativos rígidos (geralmente 45 a 120 dias da transação para abertura e 30 a 45 dias para resposta no Mastercom/VROL).",
+      "excecoes": "Se a compra teve 3DS autenticado (`ECI 05`/`02`) ou qualificação Compelling Evidence 3.0, o Emissor é bloqueado de abrir chargeback por razão de Fraude CNP (Liability Shift).",
+      "camposTecnicos": [
+        "MTI 1442 (Mastercard First Chargeback)",
+        "TC 15 / DISPUTE FIN (Visa)",
+        "Reason Codes (4837/4853 MC; 10.4/13.1 Visa)",
+        "Mastercom & VROL"
+      ],
       "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "tipos-de-fraude"
+        "id": "operacoes",
+        "licao": "ciclo-mastercom",
+        "label": "O Ciclo do Chargeback"
       },
-      "glossario": "Chargeback"
-    },
-    {
-      "id": "intercambio",
-      "label": "Intercâmbio",
-      "categoria": "dinheiro",
-      "x": 480,
-      "y": 620,
-      "descricao": "Taxa paga pelo Adquirente ao Emissor como compensação por risco, crédito e benefícios. Principal componente do MDR. Definida pela bandeira.",
-      "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "intercambio"
-      },
-      "glossario": "Intercâmbio"
+      "glossario": "Chargeback",
+      "ferramenta": {
+        "label": "Simulador & Árvore de Disputas",
+        "href": "/compliance/disputas"
+      }
     },
     {
       "id": "mdr",
-      "label": "MDR",
+      "label": "MDR (Taxa Lojista)",
       "categoria": "dinheiro",
-      "x": 280,
-      "y": 620,
-      "descricao": "Merchant Discount Rate. Taxa total cobrada do lojista = Intercâmbio + Fee Bandeira + Margem Adquirente. Quem paga é o EC; quem define é o Adquirente.",
+      "bandeira": "Todas",
+      "subdominio": "pricing",
+      "papel": "adquirente",
+      "x": 155,
+      "y": 625,
+      "descricao": "Merchant Discount Rate. Percentual total descontado pelo Adquirente (ou Subcredenciador) sobre o valor bruto da venda do Lojista. É a soma de três camadas econômicas: **MDR = Tarifa de Intercâmbio (Emissor) + Taxa de Bandeira (Scheme Fee) + Margem Líquida do Adquirente (Net MDR)**.",
+      "analogy": "É o preço final da passagem que o lojista paga: dentro dele já estão embutidos a parte do banco emissor (Intercâmbio), o pedágio da bandeira (Fee) e o lucro da maquininha.",
+      "impacto": "Quando o Adquirente vende um MDR fixo ('Flat MDR') para o lojista e a transação sofre downgrade de intercâmbio ou é feita com cartão Black/Infinite não previsto no mix, a margem do Adquirente pode ficar negativa.",
+      "curiosidade": "Ao analisar qualquer número de custo em meios de pagamento, a regra de ouro é sempre perguntar: 'Isso é MDR total, Intercâmbio puro ou Scheme Fee?'.",
+      "quemEnvia": "Lojista (EC) paga via desconto automático na liquidação da agenda de recebíveis",
+      "quemRecebe": "Adquirente retém o MDR bruto e repassa o Intercâmbio ao Emissor e os Scheme Fees à Bandeira",
+      "comoCalcula": "`MDR (%) = Intercâmbio (%) + Scheme Fees (%) + Impostos (PIS/COFINS/ISS) + Spread Adquirente (%)`.",
+      "excecoes": "Em contratos 'Interchange Plus' (Cost Plus), o MDR varia transação a transação conforme o IRD/PID real retornado no clearing.",
+      "camposTecnicos": [
+        "Identidade Econômica: MDR = IC + Fee + Spread",
+        "Net MDR (Margem Adquirente)",
+        "Take Rate"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "mdr-e-custos"
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "O Mapa do Dinheiro"
       },
-      "glossario": "MDR"
+      "glossario": "MDR",
+      "ferramenta": {
+        "label": "Decomposição de MDR & Cascata",
+        "href": "/mdr"
+      }
     },
     {
       "id": "fee-bandeira",
-      "label": "Fee de Bandeira",
+      "label": "Scheme Fees (Bandeira)",
       "categoria": "dinheiro",
-      "x": 80,
-      "y": 620,
-      "descricao": "Taxa cobrada pela bandeira pelo uso da rede. Geralmente 0,05%–0,15% por transação. Componente do MDR repassado ao lojista.",
+      "bandeira": "Todas",
+      "subdominio": "pricing",
+      "papel": "ambos",
+      "x": 345,
+      "y": 625,
+      "descricao": "Taxas de Bandeira (Assessments, Processing Fees, Cross-Border Fees, Integrity Fees). Diferente do Intercâmbio (que vai para o Emissor), os Scheme Fees são a **receita própria da Bandeira** (Visa, Mastercard, Elo), cobrados tanto de Adquirentes quanto de Emissores por meio de faturas periódicas (MCBS / VSS).",
+      "analogy": "É a conta mensal do condomínio e do pedágio da rodovia paga diretamente à Visa, Mastercard ou Elo pelo uso da infraestrutura global.",
+      "impacto": "Representam uma parcela crescente do custo total de aceitação (muitas vezes superando 0,20% a 0,40% em transações complexas, tokenizadas, parceladas ou cross-border).",
+      "curiosidade": "Ao contrário do Intercâmbio (descontado diariamente na liquidação de cada transação), grande parte dos Scheme Fees é cobrada em faturas semanais ou mensais (MCBS na Mastercard / VSS-140 e VBS na Visa).",
+      "quemEnvia": "Adquirentes e Emissores pagam (via débito em settlement ou fatura Nota Fiscal/Wire)",
+      "quemRecebe": "Bandeira (Visa, Mastercard, Elo) recebe como sua receita operacional",
+      "comoCalcula": "Pode ser **Ad Valorem** (% sobre o volume financeiro transacionado), **Flat/Per-Item** (centavos por mensagem de autorização, 3DS, token ou clearing) ou **Tiered** (faixas progressivas de volume).",
+      "excecoes": "Taxas punitivas (Non-Compliance, Zero Floor Limit, Integrity/BRAM, Excessive Retries) são evitáveis com higiene técnica de mensageria.",
+      "camposTecnicos": [
+        "MCBS Billing Events (2AB..., 2PN...)",
+        "VSS-140 / VSS-215 (Visa Charges)",
+        "Tabelas de Fee Visa/MC/Elo"
+      ],
       "trilha": {
-        "id": "do-zero-ao-intercambio",
-        "licao": "mdr-e-custos"
+        "id": "billing",
+        "licao": "billing-events",
+        "label": "Faturamento por Eventos"
+      },
+      "glossario": "Fee de Bandeira",
+      "ferramenta": {
+        "label": "Calculadora & Tradutor MCBS",
+        "href": "/mcbs"
+      }
+    },
+    {
+      "id": "intercambio",
+      "label": "Tarifa de Intercâmbio",
+      "categoria": "dinheiro",
+      "bandeira": "Todas",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 545,
+      "y": 625,
+      "descricao": "Interchange Reimbursement Fee. Tarifa definida pelas tabelas da Bandeira que o **Adquirente PAGA** e o **Emissor RECEBE** a cada transação liquidada. Remunera o Emissor pelo custo de funding (prazo até o portador pagar a fatura), risco de crédito/fraude e programas de fidelidade/pontos do cartão.",
+      "analogy": "É a divisão do bolo entre a maquininha e o banco do cartão: a maquininha entrega a maior fatia do MDR para o banco emissor porque é o banco quem financia a compra e assume o risco do cliente.",
+      "impacto": "É o maior componente de custo de uma transação de cartão (tipicamente 60% a 80% do MDR em crédito). Uma variação de 0,40% no Intercâmbio por erro de qualificação destrói a rentabilidade do Adquirente.",
+      "curiosidade": "O sentido do dinheiro no Intercâmbio é sempre `Adquirente → Emissor` nas compras normais, exatamente o oposto do fluxo em que a mercadoria/autorização foi iniciada.",
+      "quemEnvia": "Adquirente paga (descontado automaticamente pela Bandeira na liquidação D+1 do Clearing)",
+      "quemRecebe": "Emissor recebe (creditado na sua posição líquida de Settlement)",
+      "comoCalcula": "`Valor IC = (Valor da Transação × Alíquota % da Tabela) + Tarifa Fixa (se aplicável)`, respeitando eventual Cap (teto em R$ ou %).",
+      "excecoes": "No Brasil, Débito tem teto de 0,50% e Pré-pago tem teto de 0,70% (Bacen). Em Crédito Parcelado, a alíquota sobe conforme o número de parcelas.",
+      "camposTecnicos": [
+        "PDS 0158 (Mastercard Interchange Rate)",
+        "VSS-120 (Visa Interchange Value Report)",
+        "Tabelas Públicas de Intercâmbio"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "atores",
+        "label": "Quem é Quem no Ecossistema"
+      },
+      "glossario": "Intercâmbio",
+      "ferramenta": {
+        "label": "Simulador Oficial de Intercâmbio",
+        "href": "/simulador"
       }
     },
     {
       "id": "ird",
-      "label": "IRD",
+      "label": "IRD (Mastercard)",
       "categoria": "dinheiro",
-      "x": 680,
-      "y": 620,
-      "descricao": "Interchange Rate Designator. Código que identifica a categoria de intercâmbio Mastercard. Ex: IA (físico), HU (CNP sem 3DS), JA (contactless).",
+      "bandeira": "Mastercard",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 755,
+      "y": 625,
+      "descricao": "Interchange Rate Designator. Código alfanumérico de 2 caracteres gravado no `PDS 0158` do clearing Mastercard (GCMS/IPM) que identifica exatamente qual regra e alíquota de intercâmbio foi aplicada à transação (ex.: `IA` Presencial Chip, `JA` Contactless, `AU` E-com com 3DS, `HU` E-com sem 3DS).",
+      "analogy": "É o código do carimbo tarifário na nota fiscal da Mastercard: duas letrinhas que dizem se você pagou a tarifa promocional de balcão (`IA`/`JA`) ou a tarifa cheia de internet sem segurança (`HU`).",
+      "impacto": "Auditar a distribuição de IRDs no arquivo de retorno T068/IPM permite descobrir vazamentos milionários de receita por downgrades técnicos.",
+      "curiosidade": "Na tabela forense T068 da Mastercard, cada IRD possui critérios estritos de elegibilidade (Entry Mode, tempestividade em dias, presença de 3DS/Token e MCC).",
+      "quemEnvia": "Adquirente pode sugerir/solicitar na apresentação (`1240`), mas o GCMS da Mastercard valida e carimba o IRD definitivo no retorno do Clearing",
+      "quemRecebe": "Adquirente e Emissor (usam o `PDS 0158` para conciliar a alíquota de intercâmbio aplicada)",
+      "comoCalcula": "Árvore de qualificação no GCMS: verifica se cumpriu requisitos de `JA`/`IA`/`AU`; se falhar em algum critério (ex.: sem 3DS ou atraso > prazo), cai para IRD de fallback/downgrade (`HU` ou Standard).",
+      "excecoes": "Transações domésticas brasileiras parceladas ou de segmentos incentivados possuem IRDs e sub-regras específicos na tabela nacional.",
+      "camposTecnicos": [
+        "PDS 0158 (Posição do IRD no IPM)",
+        "IRD IA (Card Present EMV)",
+        "IRD JA (Contactless)",
+        "IRD AU (3DS Auth)",
+        "IRD HU (CNP Non-Auth)"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "irds-mastercard"
+        "id": "engenharia",
+        "licao": "de-vs-pds",
+        "label": "DE vs PDS: A Anatomia"
       },
-      "glossario": "IRD"
+      "glossario": "IRD",
+      "ferramenta": {
+        "label": "Forense MPE / T068 & Downgrades",
+        "href": "/compliance/mpe-forense"
+      }
     },
     {
       "id": "tier",
-      "label": "Tier",
+      "label": "Tier / Produto do Cartão",
       "categoria": "dinheiro",
-      "x": 880,
-      "y": 620,
-      "descricao": "Nível do produto Mastercard para lookup de taxa. Consumer standard < gold < platinum < black. Determinado pelo BIN do cartão.",
+      "bandeira": "Todas",
+      "subdominio": "intercambio",
+      "papel": "emissor",
+      "x": 955,
+      "y": 625,
+      "descricao": "Classificação de sofisticação do produto do cartão vinculado ao BIN: **Standard / Classic < Gold < Platinum < Black / Infinite < Corporate / Empresarial**. Quanto maior o Tier (mais benefícios de milhas, salas VIP e seguro para o portador), maior a alíquota de Intercâmbio paga pelo Adquirente ao Emissor.",
+      "analogy": "É a categoria do assento do avião (Econômica, Executiva ou Primeira Classe): cartões Black/Infinite dão mais milhas ao passageiro porque cobram um Intercâmbio maior na transação.",
+      "impacto": "Um lojista de ticket alto atendendo público de alta renda (predominância de cartões Black/Infinite/Signature) gera um custo de intercâmbio muito superior à média de cartões Standard.",
+      "curiosidade": "Na Visa, existe ainda a subcategoria **Infinite HNW (High Net Worth - PID `I1`)** e **Signature (`C^`)**, com tarifas diferenciadas na tabela brasileira.",
+      "quemEnvia": "Emissor configura o produto ao emitir o BIN; Bandeira publica na tabela de BINs (MPE T068 / Visa ARDEF)",
+      "quemRecebe": "Bandeira (usa no cálculo do clearing) e Adquirente (identifica via lookup de BIN para precificar o MDR)",
+      "comoCalcula": "Cruzamento `Tier do Cartão (via BIN)` × `Segmento MCC` × `Canal/Modalidade (À vista, Parcelado 2-6x, 7-12x)` → Alíquota exata de Intercâmbio.",
+      "excecoes": "No Débito e Pré-pago domésticos no Brasil, o teto do Bacen (0,50% / 0,70%) achata a diferença entre Tiers para cartões de pessoa física.",
+      "camposTecnicos": [
+        "GCMS Product Code (MC: MCS, MCG, MPL, MWE, WBE)",
+        "Visa PID (F^, G^, N^, C^, I^, I1, K^)"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "tiers-e-segmentos"
+        "id": "fundamentos",
+        "licao": "glossario",
+        "label": "A Sopa de Letrinhas Técnica"
+      },
+      "glossario": "Tier",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio por Produto",
+        "href": "/simulador"
       }
     },
     {
-      "id": "fraude",
-      "label": "Fraude",
-      "categoria": "compliance",
-      "x": 80,
-      "y": 760,
-      "descricao": "Uso não autorizado de cartão. Tipos: CNP, card testing, account takeover, skimming, friendly fraud. Reportada via TC40 (MC) ou SAFE (Visa).",
+      "id": "downgrade",
+      "label": "Downgrade de Tarifa",
+      "categoria": "dinheiro",
+      "bandeira": "Todas",
+      "subdominio": "intercambio",
+      "papel": "adquirente",
+      "x": 650,
+      "y": 710,
+      "descricao": "Penalização tarifária automática no Clearing em que uma transação perde a elegibilidade para sua tarifa ótima (Qualificada) e 'cai' para um IRD/Fee Program mais caro (ex.: cair de `AU` 3DS para `HU` sem autenticação, ou sofrer **Timeliness Downgrade** por atraso na apresentação D+x).",
+      "analogy": "É perder o desconto de pontualidade do boleto: por faltar um campo obrigatório ou atrasar 2 dias a entrega do arquivo, a bandeira aplica a tarifa cheia punitiva.",
+      "impacto": "Corrói silenciosamente a margem líquida do Adquirente em 0,25% a 0,80% por transação afetada sem que o lojista perceba (quando o MDR é fixo).",
+      "curiosidade": "Os 4 maiores vilões de downgrade no Brasil são: (1) E-commerce sem 3DS (`ECI 07`), (2) perda do Trace ID/Auth Code entre `0100` e Clearing, (3) Late Presentment e (4) Fallback de chip para tarja.",
+      "quemEnvia": "Motor de Clearing da Bandeira (GCMS / Base II) aplica a regra de fallback automaticamente ao detectar ausência de requisito",
+      "quemRecebe": "Adquirente (paga o Intercâmbio majorado) e Emissor (recebe o Intercâmbio maior pela exposição adicional a risco/prazo)",
+      "comoCalcula": "`Custo do Downgrade = (Alíquota IRD Rebaixado − Alíquota IRD Ideal) × Volume Transacionado`.",
+      "excecoes": "Transações rejeitadas por erro de sintaxe (Edit Rejects) que são corrigidas e reenviadas fora do prazo também sofrem downgrade por intempestividade.",
+      "camposTecnicos": [
+        "IRD HU vs AU / IA",
+        "Visa Non-Qualified / Standard Rate",
+        "Timeliness Days Limit",
+        "Edit Package / MPE Forense"
+      ],
       "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "tipos-de-fraude"
+        "id": "engenharia",
+        "licao": "de-vs-pds",
+        "label": "DE vs PDS: A Anatomia"
       },
-      "glossario": "Fraude"
-    },
-    {
-      "id": "tc40",
-      "label": "TC40 / SAFE",
-      "categoria": "compliance",
-      "x": 280,
-      "y": 760,
-      "descricao": "Sistemas de reporte de fraude. TC40 é o código Mastercard; SAFE é o sistema Visa. Emissores reportam transações fraudulentas e alimentam programas de monitoramento.",
-      "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "tc40-e-safe"
+      "glossario": "Intercâmbio",
+      "ferramenta": {
+        "label": "Simulador de Downgrade & Margem",
+        "href": "/compliance/intercambio"
       }
     },
     {
-      "id": "vamp",
-      "label": "VAMP",
-      "categoria": "compliance",
-      "x": 480,
-      "y": 760,
-      "descricao": "Visa Acquirer Monitoring Program. Monitora taxa de fraude (FSR) do adquirente via dados SAFE. Penalidades de US$25k–US$75k/mês.",
+      "id": "mcbs-billing",
+      "label": "MCBS & Relatórios TN3A",
+      "categoria": "dinheiro",
+      "bandeira": "Mastercard",
+      "subdominio": "pricing",
+      "papel": "ambos",
+      "x": 345,
+      "y": 710,
+      "descricao": "Mastercard Consolidated Billing System (MCBS). Sistema que centraliza o cálculo e a emissão das faturas de Scheme Fees da Mastercard por ICA. No Brasil, emite Nota Fiscal semanal (segunda-feira, com vencimento na sexta-feira) e migra do arquivo posicional legado `T0CH/BFIL` para o novo relatório CSV detalhado **`TN3A` (sunset do T0CH em 01/03/2027, GLB 12332.2)**.",
+      "analogy": "É o extrato detalhado da conta telefônica da Mastercard: lista cada centavo cobrado por megabyte trafegado, autorização, token, disputa e conectividade de cada ICA.",
+      "impacto": "Sem conciliar os Billing Events do MCBS (e os relatórios `TN3A` / `VSS-140`), adquirentes e emissores pagam faturas milionárias no escuro, incluindo multas operacionais recorrentes que poderiam ser corrigidas.",
+      "curiosidade": "Conforme o boletim GLB 12764.1, a Mastercard encerrou a entrega de faturas MCBS em papel em 1º de abril de 2026, exigindo migração para Operational Reports ou Bulk File (`TN3A`).",
+      "quemEnvia": "Mastercard MCBS gera faturas semanais/mensais e arquivos `TN3A` / `T0CH`",
+      "quemRecebe": "Equipes de Backoffice, Finanças e Faturamento do Adquirente e do Emissor (por Billable ICA)",
+      "comoCalcula": "Multiplica o volume/quantidade de cada Service ID + Billing Event pelas tarifas Flat, Variable ou Tiered (Progressive, Standard ou Flat Tier) convertendo USD para BRL quando aplicável.",
+      "excecoes": "Erros de cobrança no MCBS podem ser contestados para reembolso acima de 25 unidades da moeda de billing em até 12 meses (Mastercard Billing Correction Policy).",
+      "camposTecnicos": [
+        "MCBS Brazil Manual",
+        "GLB 12332.2 (TN3A CSV vs T0CH/BFIL)",
+        "GLB 12764.1 (Fim do Paper Invoice)",
+        "Billable ICA"
+      ],
       "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "vamp-e-ecp"
+        "id": "billing",
+        "licao": "tradutor-mcbs",
+        "label": "Tradutor de Faturas MCBS"
       },
-      "glossario": "VAMP"
+      "glossario": "MCBS",
+      "ferramenta": {
+        "label": "Atlas MCBS Faturamento",
+        "href": "/mapa/mcbs"
+      }
     },
     {
-      "id": "ecp",
-      "label": "ECP",
-      "categoria": "compliance",
-      "x": 680,
-      "y": 760,
-      "descricao": "Excessive Chargeback Program (Mastercard). Monitora taxa de chargeback do adquirente. Early Warning > 1%, Standard > 1,5%, Excessive > 2%.",
-      "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "vamp-e-ecp"
-      },
-      "glossario": "ECP"
-    },
-    {
-      "id": "match",
-      "label": "MATCH",
-      "categoria": "compliance",
-      "x": 880,
-      "y": 760,
-      "descricao": "Member Alert to Control High-Risk Merchants. Banco de dados global de lojistas encerrados por razões graves (fraude, lavagem, PCI). Impede re-credenciamento.",
-      "trilha": {
-        "id": "compliance-e-risco",
-        "licao": "match"
-      },
-      "glossario": "MATCH"
-    },
-    {
-      "id": "pid",
-      "label": "PID (Visa)",
+      "id": "vts-no",
+      "label": "VTS (Visa Token)",
       "categoria": "visa",
-      "x": 80,
-      "y": 900,
-      "descricao": "Product Identifier Visa. Código de 2 chars que identifica o produto. F^=Classic, N^=Platinum, I^=Infinite, I1=Infinite HNW, C^=Signature, K^=Business.",
+      "bandeira": "Visa",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 95,
+      "y": 785,
+      "descricao": "Visa Token Service. Cofre e motor criptográfico da Visa que provisiona DPANs para carteiras digitais (Apple Pay, Google Pay, Samsung Pay) e comercios Credential-on-File, validando o criptograma TAVV e o Domain Control Verification (DCV).",
+      "analogy": "É a fábrica oficial de identidades digitais blindadas da Visa para que o número real do plástico nunca precise circular nas lojas online.",
+      "impacto": "Qualifica transações tokenizadas para regras diferenciadas de intercâmbio e reduz drasticamente a superfície de ataque de vazamento de dados no lojista.",
+      "curiosidade": "A Visa ultrapassou a marca de 10 bilhões de tokens emitidos globalmente via VTS.",
+      "quemEnvia": "VTS provisiona DPAN + TAVV para o Token Requestor e traduz DPAN → FPAN para o Emissor na VisaNet",
+      "quemRecebe": "Wallets, Gateways, Adquirentes e Emissores Visa",
+      "comoCalcula": "Valida TAVV (Token Authentication Verification Value) + TRID (Token Requestor ID) em tempo real durante a autorização VIP.",
+      "excecoes": "Tokens inativos ou de dispositivos comprometidos podem ser suspensos/desativados via APIs de Token Lifecycle.",
+      "camposTecnicos": [
+        "VTS (Visa Token Service)",
+        "TAVV (Cryptogram)",
+        "TRID (Token Requestor ID)",
+        "DE 126 / DE 62"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "pid-e-afs"
+        "id": "inovacao",
+        "licao": "mdes-tokenizacao",
+        "label": "Tokenização e MDES"
+      },
+      "glossario": "Tokenização",
+      "ferramenta": {
+        "label": "Ciclo de Vida do Token",
+        "href": "/compliance/tokenizacao"
       }
     },
     {
-      "id": "afs",
-      "label": "AFS (Visa)",
-      "categoria": "visa",
-      "x": 280,
-      "y": 900,
-      "descricao": "Account Funding Source. C=Crédito, D=Débito, P=Pré-pago. Determina qual tabela de intercâmbio Visa se aplica.",
+      "id": "mdes-no",
+      "label": "MDES (MC Token)",
+      "categoria": "mastercard",
+      "bandeira": "Mastercard",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 245,
+      "y": 785,
+      "descricao": "Mastercard Digital Enablement Service. Plataforma de tokenização da Mastercard que emite DPANs para carteiras NFC/In-App e Cofres de Comércio Eletrônico (MDES for Merchants), gerando criptogramas DSRP/UCAF no subcampo `DE 48 SE 43`.",
+      "analogy": "É o cofre gêmeo da Mastercard que transforma o cartão físico em um token digital inteligente com atualização automática de validade.",
+      "impacto": "Elimina recusas por cartão vencido em assinaturas e protege contra ataques de Account Enumeration / BIN Attack.",
+      "curiosidade": "Na autorização Mastercard, o MDES preenche o `DE 48 SE 33` (PAN Mapping File Information) para informar ao Emissor tanto o Token quanto o FPAN real.",
+      "quemEnvia": "MDES realiza o Token Mapping na Banknet durante o trânsito da mensagem `0100`",
+      "quemRecebe": "Emissor (recebe o FPAN mapeado + nível de confiança do token) e Adquirente (opera apenas com o DPAN)",
+      "comoCalcula": "Validação criptográfica M/Chip Digital (DSRP) transportada via UCAF (`DE 48 SE 43` / `DE 104`).",
+      "excecoes": "Exige que o Adquirente preserve o formato de UCAF e Wallet ID (`DE 48 SE 26`) sem truncamento.",
+      "camposTecnicos": [
+        "MDES",
+        "DE 48 SE 33 (PAN Mapping)",
+        "DE 48 SE 43 (UCAF / Cryptogram)",
+        "DE 48 SE 26 (Wallet Program)"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "pid-e-afs"
+        "id": "inovacao",
+        "licao": "ucaf-criptogramas",
+        "label": "Wallet IDs e Criptogramas"
+      },
+      "glossario": "Tokenização",
+      "ferramenta": {
+        "label": "Ciclo de Vida do Token",
+        "href": "/compliance/tokenizacao"
       }
     },
     {
       "id": "eci",
-      "label": "ECI",
+      "label": "ECI / CAVV & UCAF",
       "categoria": "visa",
-      "x": 480,
-      "y": 900,
-      "descricao": "Electronic Commerce Indicator. 05=3DS autenticado, 06=tentativa, 07=sem autenticação. Impacta diretamente a taxa de intercâmbio Visa e Mastercard.",
+      "bandeira": "Todas",
+      "subdominio": "seguranca",
+      "papel": "ambos",
+      "x": 420,
+      "y": 785,
+      "descricao": "Electronic Commerce Indicator (ECI na Visa) e Security Level Indicator (SLI/UCAF na Mastercard). Indicador que prova o nível de autenticação criptográfica de uma transação CNP: **`05` (Visa) / `02` (MC)** = Totalmente Autenticado (3DS ou Token); **`06` (Visa) / `01` (MC)** = Tentativa (Attempt); **`07` (Visa) / `00` (MC)** = Sem autenticação (Canal aberto).",
+      "analogy": "É o selo de firma reconhecida em cartório na compra online: `05`/`02` tem firma reconhecida pelo banco (risco zero de fraude para a loja); `07`/`00` é assinatura sem conferência.",
+      "impacto": "Diferencia diretamente o Intercâmbio de e-commerce autenticado (mais barato + Liability Shift) do e-commerce não autenticado (mais caro + risco de chargeback do lojista/adquirente).",
+      "curiosidade": "Muitos adquirentes sofrem downgrade porque autenticam a compra no 3DS (obtendo `ECI 05`/`02`), mas esquecem de repassar o valor do CAVV/AAV no arquivo de clearing do dia seguinte.",
+      "quemEnvia": "Gerado pelo Directory Server / ACS no 3DS e enviado pelo Adquirente na autorização (`0100`) e no clearing (`TC 05` / `1240`)",
+      "quemRecebe": "Bandeira (para cálculo de Intercâmbio e bloqueio de chargeback indevido) e Emissor (para aprovação)",
+      "comoCalcula": "Regra binária: presença de ECI `05`/`02` + CAVV/AAV válido = Liability Shift ativo + elegibilidade a tarifas autenticadas (ex.: IRD `AU`).",
+      "excecoes": "Em programas de Data Only (`ECI 07` com dados 3DS informativos), não há Liability Shift automático.",
+      "camposTecnicos": [
+        "Visa ECI 05 / 06 / 07",
+        "Mastercard SLI 242 / 241 / 210 (DE 48 SE 42)",
+        "CAVV / AAV"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "eci-e-autenticacao"
+        "id": "inovacao",
+        "licao": "eci-sli-calculator",
+        "label": "Calculadora de ECI / SLI"
       },
-      "glossario": "ECI"
+      "glossario": "ECI",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio",
+        "href": "/simulador"
+      }
+    },
+    {
+      "id": "visanet-no",
+      "label": "VisaNet & VIP",
+      "categoria": "visa",
+      "bandeira": "Visa",
+      "subdominio": "autorizacao",
+      "papel": "bandeira",
+      "x": 85,
+      "y": 875,
+      "descricao": "Rede global de processamento da Visa composta pelo **VIP (Visa Integrated Payment System)** para autorização online e **BASE II** para clearing em lote, conectada aos participantes via Visa Access Point (VAP) / DEX.",
+      "analogy": "É a espinha dorsal de fibra óptica da Visa que conecta milhares de bancos e adquirentes ao redor do planeta.",
+      "impacto": "Aplica edições de validação em tempo real, converte moedas, valida tokens VTS e executa Stand-In (STIP) quando emissores saem do ar.",
+      "curiosidade": "A VisaNet é capaz de processar mais de 65.000 mensagens de transação por segundo com disponibilidade de 99,999%.",
+      "quemEnvia": "Recebe e roteia mensagens ISO 8583 entre Adquirentes (Acquirer CIB) e Emissores (Issuer CIB)",
+      "quemRecebe": "Todos os participantes conectados via VAP / DEX",
+      "comoCalcula": "Atribui o `Transaction Identifier (TID - DE 62.2)` de 15 dígitos que rastreia todo o ciclo de vida da transação na Visa.",
+      "excecoes": "Pode operar em modo Single Message System (SMS) ou Dual Message (VIP + BASE II).",
+      "camposTecnicos": [
+        "VIP (Visa Integrated Payment)",
+        "VAP (Visa Access Point)",
+        "DE 62.2 (Transaction Identifier)"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "VisaNet",
+      "ferramenta": {
+        "label": "Infraestrutura Visa",
+        "href": "/compliance/visa-infra"
+      }
+    },
+    {
+      "id": "vss-no",
+      "label": "VSS (110/120)",
+      "categoria": "visa",
+      "bandeira": "Visa",
+      "subdominio": "liquidacao",
+      "papel": "ambos",
+      "x": 235,
+      "y": 875,
+      "descricao": "VisaNet Settlement Service. Motor de liquidação e relatórios financeiros da Visa estruturado por **SREs (Settlement Reporting Entities)**. Produz os relatórios diários obrigatórios e opcionais em formato legível por máquina (`TC 46`) e texto (`TC 47`): **`VSS-110` (Resumo de Liquidação / Funds Transfer)**, **`VSS-115` (Recap por Ciclo)**, **`VSS-120` (Intercâmbio)**, **`VSS-130` (Reimbursement Fees)** e **`VSS-140` (Visa Charges)**.",
+      "analogy": "É o livro-razão oficial da Visa: fecha o balanço diário de cada entidade (SRE), separando o que é valor de venda, o que é Intercâmbio (`VSS-120`) e o que é taxa da Visa (`VSS-140`).",
+      "impacto": "O relatório `VSS-110` é obrigatório para toda Funds Transfer SRE (FTSRE); já o `VSS-600` (Pending Settlement Report) é crítico no Brasil por detalhar transações diferidas/parceladas pendentes de liquidação.",
+      "curiosidade": "Conforme documentado no Volume 1 do VSS User Guide (p. 47), o relatório `VSS-600` (Pending Settlement) só está disponível para Brasil, Japão, Argentina e Chile!",
+      "quemEnvia": "Visa VSS gera e entrega diariamente via VAP (Consolidated ou Customized File Delivery)",
+      "quemRecebe": "Tesouraria, Contabilidade e Conciliação do Adquirente e do Emissor",
+      "comoCalcula": "Consolida de baixo para cima (Lowest-level SRE → Summary SRE → Top SRE / FTSRE) na moeda de settlement definida no Top SRE.",
+      "excecoes": "Um FTSRE nunca pode ser conectado diretamente acima ou abaixo de outro FTSRE na mesma hierarquia VSS.",
+      "camposTecnicos": [
+        "VSS-110 (Mandatory Summary)",
+        "VSS-115 / 120 (Interchange)",
+        "VSS-140 / 215 (Visa Charges & ISA)",
+        "VSS-600 (Pending Settlement BR)",
+        "TC 46 / TC 47"
+      ],
+      "trilha": {
+        "id": "billing",
+        "licao": "billing-events",
+        "label": "Auditoria de Faturamento"
+      },
+      "glossario": "VSS",
+      "ferramenta": {
+        "label": "Atlas de Liquidação Internacional (VSS)",
+        "href": "/mapa/liquidacao"
+      }
+    },
+    {
+      "id": "vcf-no",
+      "label": "BASE II & VCF",
+      "categoria": "visa",
+      "bandeira": "Visa",
+      "subdominio": "clearing",
+      "papel": "ambos",
+      "x": 385,
+      "y": 875,
+      "descricao": "Sistema de arquivos de clearing em lote da Visa. Utiliza registros de 168 bytes organizados por **Transaction Codes (`TC`)** e **Transaction Component Records (`TCR 0` a `TCR F`)**: `TC 05` (Compra), `TC 06` (Crédito/Refund), `TC 15` (Disputa), `TC 33` (Multipurpose / Acquirer Capture File), `TC 40` (SAFE Fraude), `TC 46/47` (Relatórios VSS).",
+      "analogy": "É o contêiner padronizado de carga da Visa: cada transação viaja dividida em vagões numerados de 168 caracteres (`TCR 0`, `TCR 1`, `TCR 5`...) com posição fixa.",
+      "impacto": "Mudanças de layout em releases futuras (como o **Global Technical Letter de Abril/Julho 2027 para o TC 33.A**) exigem atualização rigorosa de parsers para evitar perda de campos como EMV, parcelado e submerchant.",
+      "curiosidade": "No Atlas de Liquidação Internacional, mapeamos as pendências de revisão literal do boletim `TC 33.A` (como os registros `CP01 TCR9` e `CP02 TCR2`).",
+      "quemEnvia": "Adquirente envia Incoming Interchange File (`TC 05`/`TC 33`); Visa devolve Outgoing File / **VCF (Visa Clearing File)** para Emissor e Adquirente",
+      "quemRecebe": "Visa BASE II e sistemas de backoffice de Emissores e Adquirentes",
+      "comoCalcula": "Layout posicional fixo de 168 bytes por TCR; a posição 4 do registro define o número de sequência do TCR.",
+      "excecoes": "Registros opcionais no `TC 33.A` dependem de assinatura prévia via Acquirer Implementation Questionnaire (AIQ).",
+      "camposTecnicos": [
+        "TC 05 / TC 06 (Draft Data)",
+        "TC 33.A (Capture File)",
+        "TCR 0..9 (168 bytes)",
+        "VCF (Visa Clearing File)"
+      ],
+      "trilha": {
+        "id": "engenharia",
+        "licao": "jabuticabas-clearing",
+        "label": "As Jabuticabas do Clearing BR"
+      },
+      "glossario": "VCF",
+      "ferramenta": {
+        "label": "Explorador Visa Billing & VSS",
+        "href": "/compliance/visa-business"
+      }
+    },
+    {
+      "id": "pid",
+      "label": "PID & AFS (Visa)",
+      "categoria": "visa",
+      "bandeira": "Visa",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 540,
+      "y": 875,
+      "descricao": "Chaves de identificação de produto Visa: **PID (Product Identifier — 2 caracteres)** define a variante do cartão (`F^` Classic, `G^` Gold, `N^` Platinum, `C^` Signature, `I^` Infinite, `I1` Infinite HNW, `K^` Business/Corporate) e **AFS (Account Funding Source — 1 caractere)** define a origem dos fundos (`C` Crédito, `D` Débito, `P` Pré-pago, `R` Charge).",
+      "analogy": "São o sobrenome e o tipo sanguíneo do cartão Visa: o `AFS` diz se o dinheiro vem de crédito, débito ou pré-pago, e o `PID` diz qual é a linha do cartão.",
+      "impacto": "Na Visa Brasil, a combinação `AFS + PID + MCC + Canal (CP/CNP) + ECI + Parcelas` aponta diretamente para a linha exata da tabela de Intercâmbio.",
+      "curiosidade": "Um cartão Visa com `AFS = P` (Pré-pago) está sujeito ao teto de 0,70% do Bacen no Brasil, enquanto `AFS = D` (Débito) está sujeito ao teto de 0,50%, mesmo que o plástico tenha visual sofisticado.",
+      "quemEnvia": "Definido no cadastro do BIN na Visa (ARDEF) e gravado nos registros de clearing BASE II / VCF",
+      "quemRecebe": "Adquirente e Emissor (para motor de cálculo de intercâmbio e conciliação)",
+      "comoCalcula": "Lookup direto na Tabela de Intercâmbio Visa Brasil filtrando por `AFS` (`C`/`D`/`P`) e depois pelo código `PID`.",
+      "excecoes": "Cartões Combo possuem um BIN/range para `AFS = C` e outro ou seleção via AID para `AFS = D`.",
+      "camposTecnicos": [
+        "PID (F^, G^, N^, C^, I^, I1, K^)",
+        "AFS (C=Credit, D=Debit, P=Prepaid)",
+        "Fee Descriptor Visa"
+      ],
+      "trilha": {
+        "id": "fundamentos",
+        "licao": "glossario",
+        "label": "A Sopa de Letrinhas Técnica"
+      },
+      "glossario": "PID",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio Visa",
+        "href": "/simulador"
+      }
     },
     {
       "id": "settl-flag",
       "label": "SETTL_FLAG",
       "categoria": "visa",
-      "x": 680,
-      "y": 900,
-      "descricao": "Settlement Flag Visa. 8 ou 9 = transação doméstica brasileira. 0 = internacional. Separa completamente as tabelas de intercâmbio.",
+      "bandeira": "Visa",
+      "subdominio": "liquidacao",
+      "papel": "ambos",
+      "x": 695,
+      "y": 875,
+      "descricao": "Settlement Flag da Visa no BASE II. Indica a jurisdição de liquidação da transação: **`8` ou `9` = Liquidação Doméstica Nacional (Brasil via CIP/NNSS)**; **`0` = Liquidação Internacional (International Settlement Service — Cross-Border)**.",
+      "analogy": "É o carimbo de voo doméstico vs voo internacional no passaporte da transação: define se a compra segue as regras e tarifas brasileiras em Reais (BRL) ou a tabela internacional em Dólar (USD).",
+      "impacto": "Separa completamente as tabelas de Intercâmbio (Doméstica BR vs International / Interregional) e ativa a cobrança de **ISA (International Service Assessment — relatório `VSS-215`)** e conversão de moeda (`VSS-210`).",
+      "curiosidade": "Mesmo que um lojista brasileiro venda em BRL para um turista estrangeiro (cartão emitido fora do Brasil), a transação é Cross-Border (`SETTL_FLAG = 0`) e liquida no serviço internacional.",
+      "quemEnvia": "Definido no processamento BASE II da Visa com base no país do Emissor vs país do Adquirente/Lojista",
+      "quemRecebe": "Sistemas de conciliação e tesouraria do Adquirente e do Emissor",
+      "comoCalcula": "`Issuer Country == Acquirer Country == BR (076)` → Jurisdição Doméstica (`8`/`9`); caso contrário → Internacional (`0`).",
+      "excecoes": "Clientes com Multicurrency Settlement configurado no VSS podem liquidar em múltiplas moedas usando SREs dedicadas.",
+      "camposTecnicos": [
+        "SETTL_FLAG (8/9 Doméstico vs 0 Internacional)",
+        "Jurisdiction Code",
+        "VSS-210 (FX) & VSS-215 (ISA)"
+      ],
       "trilha": {
-        "id": "intercambio-tecnico",
-        "licao": "pid-e-afs"
+        "id": "fundamentos",
+        "licao": "arquitetura",
+        "label": "Dual vs Single Message"
+      },
+      "glossario": "Settlement",
+      "ferramenta": {
+        "label": "Atlas de Liquidação Internacional",
+        "href": "/mapa/liquidacao"
       }
     },
     {
       "id": "base2-ipm",
-      "label": "Base II / IPM",
+      "label": "GCMS & IPM (MC)",
       "categoria": "mastercard",
-      "x": 880,
-      "y": 900,
-      "descricao": "Sistemas de clearing. Base II é o sistema Mastercard (arquivos batch com TCs). IPM é o formato Visa (VCF). Onde o intercâmbio é efetivamente calculado.",
+      "bandeira": "Mastercard",
+      "subdominio": "clearing",
+      "papel": "ambos",
+      "x": 845,
+      "y": 875,
+      "descricao": "Global Clearing Management System (GCMS) e Integrated Product Messages (IPM). Motor de clearing da Mastercard baseado em mensagens ISO 8583 estendidas em lote (`MTI 1240` First Presentment, `1442` Chargeback, `1644` File Header/Trailer/Fee Collection, `1740` Fee Collection) com campos `PDS`.",
+      "analogy": "É a usina central de compensação da Mastercard: recebe os arquivos `.IPM` das adquirentes, aplica todas as regras mundiais e brasileiras e devolve os arquivos tarifados para os bancos.",
+      "impacto": "Qualquer erro de sintaxe nos PDS brasileiros (`PDS 0181` parcelas, `PDS 0183` CNPJ, `PDS 0027` voucher flex) gera rejeição de registro no GCMS (Syntax Error Return).",
+      "curiosidade": "Diferente do Base II da Visa (que usa registros posicionais `TC`/`TCR` de 168 bytes), o IPM da Mastercard usa estrutura ISO 8583 com Bitmaps e subelementos `PDS` variáveis em formato TLV.",
+      "quemEnvia": "Adquirente envia arquivo de entrada `.IPM` (`1240`); GCMS processa e envia arquivos de saída `.IPM` (`T112`/`T113`) aos Emissores e Adquirentes",
+      "quemRecebe": "GCMS Mastercard, Emissores e Adquirentes",
+      "comoCalcula": "Valida regras de negócio, calcula o Intercâmbio a partir das tabelas MPE (`T068`), preenche o `PDS 0158` (IRD) e gera os registros financeiros de conciliação (`1644`).",
+      "excecoes": "Transações do Single Message System (Maestro/Debit/Cirrus via SMS) não passam pelo First Presentment `1240` do GCMS, pois já liquidam na mensagem `0200`.",
+      "camposTecnicos": [
+        "GCMS (Global Clearing Management System)",
+        "MTI 1240 / 1442 / 1644",
+        "PDS 0158 / 0181 / 0183",
+        "Arquivos T112 / T113"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "base-ii-e-ipm"
+        "id": "engenharia",
+        "licao": "jabuticabas-clearing",
+        "label": "As Jabuticabas do Clearing BR"
+      },
+      "glossario": "Clearing",
+      "ferramenta": {
+        "label": "Validador & Transformador GCMS",
+        "href": "/compliance/gcms"
       }
     },
     {
-      "id": "visanet-no",
-      "label": "VisaNet",
-      "categoria": "visa",
-      "x": 80,
-      "y": 1040,
-      "descricao": "Rede global de telecomunicacoes da Visa. Processa autorizacoes em tempo real via VIP (Visa Interchange Processing). Suporta Stand-In (STIP) quando o emissor esta offline.",
+      "id": "mpe-t068",
+      "label": "MPE / T068 (MC)",
+      "categoria": "mastercard",
+      "bandeira": "Mastercard",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 1000,
+      "y": 875,
+      "descricao": "Member Parameter Extract (`MPE` / arquivo `T068` e tabelas `IP0040`..`IP0095`). Conjunto de arquivos de parâmetros distribuídos pela Mastercard que contém todas as faixas de Account Range/BIN (`IP0040`), códigos de produto GCMS, moedas, países e tabelas de alíquotas de Intercâmbio por IRD.",
+      "analogy": "É a enciclopédia oficial de regras e BINs que a Mastercard envia para os computadores das adquirentes saberem identificar qualquer cartão do mundo e sua tarifa.",
+      "impacto": "É a fonte primária (Single Source of Truth) para construir qualquer motor de precificação ou auditoria forense de intercâmbio Mastercard.",
+      "curiosidade": "Os arquivos MPE/T068 usam blocagem técnica (ex.: blocos de 1014 bytes com caracteres de preenchimento) e tabelas internas numeradas (`IP0040T1` para BIN Ranges, `IP0072` para IRDs).",
+      "quemEnvia": "Mastercard publica e atualiza os arquivos `T068` / `MPE` via Global File Transfer (GFT)",
+      "quemRecebe": "Processadores, Adquirentes, Subcredenciadores e Emissores (para carga nas tabelas de roteamento e billing)",
+      "comoCalcula": "Relaciona `Account Range (19 dígitos)` → `GCMS Product ID (3 chars)` → `Country` → `IRD Program` → `Alíquota % + Tarifa Fixa`.",
+      "excecoes": "Exige parser binário/posicional capaz de desempacotar registros bloqueados e tratar vigências (`Effective Date` vs `Active/Delete Code`).",
+      "camposTecnicos": [
+        "Arquivo T068 / MPE",
+        "Tabela IP0040 (Account Ranges / BINs)",
+        "GCMS Product ID",
+        "IRD Rate Tables"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "visanet-e-vbs"
+        "id": "engenharia",
+        "licao": "de-vs-pds",
+        "label": "DE vs PDS: A Anatomia"
+      },
+      "glossario": "IRD",
+      "ferramenta": {
+        "label": "Motor Forense MPE / T068",
+        "href": "/compliance/mpe-forense"
       }
     },
     {
-      "id": "vss-no",
-      "label": "VSS",
-      "categoria": "visa",
-      "x": 280,
-      "y": 1040,
-      "descricao": "Visa Settlement Service. Recebe arquivos BASE II dos adquirentes, calcula o intercambio Visa e produz o VCF. Settlement multilateral: cada participante liquida uma posicao liquida unica.",
+      "id": "elo-no",
+      "label": "Elo (Arranjo)",
+      "categoria": "mastercard",
+      "bandeira": "Elo",
+      "subdominio": "intercambio",
+      "papel": "ambos",
+      "x": 1155,
+      "y": 875,
+      "descricao": "Bandeira brasileira de alcance nacional e internacional (parceria Discover/Diners). Possui portfólio forte em Crédito (Elo Básico, Mais, Grafite, Nanquim, Diners Club), Débito, Pré-pago e Vouchers/Benefícios (Alimentação, Refeição, Cultura, Flex), com tabelas próprias de Intercâmbio e Fee de Bandeira.",
+      "analogy": "É a bandeira nascida no Brasil: desenhada desde o berço para as particularidades locais como crediário, parcelado, vouchers PAT e benefícios flexíveis.",
+      "impacto": "Representa fatia expressiva do volume doméstico de débito, benefícios e cartões de base governamental/bancos brasileiros, exigindo suporte completo no simulador de intercâmbio e fees.",
+      "curiosidade": "Na Elo, a diferenciação por segmento de MCC e modalidade (Presencial vs Comércio Eletrônico, À Vista vs Parcelado 2–6x e 7–12x) possui faixas e tetos específicos em Reais (R$).",
+      "quemEnvia": "Adquirentes e Emissores habilitados no arranjo Elo trocam mensagens de autorização e arquivos de liquidação",
+      "quemRecebe": "Switch e Clearing Elo → Liquidação doméstica na CIP/SLC",
+      "comoCalcula": "Cruza `Produto Elo (Mais, Grafite, Nanquim, Empresarial)` + `Modalidade` + `Canal` + `MCC` → Alíquota de Intercâmbio + Taxa de Bandeira Elo.",
+      "excecoes": "Transações internacionais com cartões Elo fora do Brasil trafegam pela rede Discover Global Network.",
+      "camposTecnicos": [
+        "Produtos Elo (Mais, Grafite, Nanquim, Diners)",
+        "Tabelas de Intercâmbio & Fee Elo",
+        "Elo Benefícios / Voucher"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "vss-e-clearing-visa"
+        "id": "engenharia",
+        "licao": "vouchers-flex",
+        "label": "Vouchers e Cartões de Benefício"
+      },
+      "glossario": "Bandeira",
+      "ferramenta": {
+        "label": "Simulador de Intercâmbio (Elo)",
+        "href": "/simulador"
       }
     },
     {
-      "id": "vcf-no",
-      "label": "VCF",
-      "categoria": "visa",
-      "x": 480,
-      "y": 1040,
-      "descricao": "Visa Clearing File. Arquivo devolvido pela Visa ao adquirente apos clearing. Contem IRD aplicado, valor de intercambio e todos os campos da transacao. Base para auditoria e reconciliacao.",
+      "id": "fraude",
+      "label": "Fraude (CNP/CP)",
+      "categoria": "compliance",
+      "bandeira": "Todas",
+      "subdominio": "fraude",
+      "papel": "ambos",
+      "x": 800,
+      "y": 785,
+      "descricao": "Transação não autorizada pelo titular legítimo do cartão. Divide-se em **CNP Fraud** (E-commerce: dados vazados, phishing, card testing/enumeration, account takeover), **Counterfeit/Skimming** (clonagem de tarja) e **Friendly Fraud / First-Party Fraud** (portador legítimo que contesta a própria compra de má-fé ou por esquecimento).",
+      "analogy": "É o sinistro do sistema de pagamentos: alguém usou uma chave roubada para fazer compras, e as regras da bandeira definem se a conta fica com a loja/adquirente ou com o banco emissor.",
+      "impacto": "Mesmo quando o lojista reembolsa a compra ou não há chargeback, a simples marcação de fraude pelo Emissor (`TC40` / `SAFE`) conta contra os limites do programa **VAMP** da Visa!",
+      "curiosidade": "Ataques de *Card Testing* (bots testando milhares de cartões roubados em cobranças de R$ 1,00) explodem o índice de enumeração do Adquirente no VAMP e geram multas pesadas por tentativa inválida.",
+      "quemEnvia": "Portador contesta a compra no Emissor (ou motor do Emissor detecta comprometimento)",
+      "quemRecebe": "Emissor registra o reporte de fraude (`TC40` / `SAFE`) e abre o Chargeback de Fraude (se não houver Liability Shift 3DS)",
+      "comoCalcula": "`Fraud-to-Sales Ratio (FSR) = Volume ou Quantidade de Transações Fraudulentas (TC40/SAFE) ÷ Total de Transações Capturadas`.",
+      "excecoes": "Com **Compelling Evidence 3.0 (CE 3.0)** da Visa/Mastercard, o lojista pode reverter disputas de Friendly Fraud provando que o mesmo dispositivo/IP/conta já fez 2 compras anteriores não contestadas.",
+      "camposTecnicos": [
+        "CNP Fraud vs Counterfeit",
+        "Card Testing / Enumeration",
+        "Compelling Evidence 3.0 (CE 3.0)",
+        "Liability Shift 3DS"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "vcf-e-campos-criticos"
+        "id": "operacoes",
+        "licao": "refunds-match",
+        "label": "Refunds e Prevenção à Fraude"
+      },
+      "glossario": "Fraude",
+      "ferramenta": {
+        "label": "Painel de Risco & Monitoria",
+        "href": "/compliance/risco"
       }
     },
     {
-      "id": "vts-no",
-      "label": "VTS",
-      "categoria": "visa",
-      "x": 680,
-      "y": 1040,
-      "descricao": "Visa Token Service. Substitui o PAN por um DPAN especifico ao dispositivo. Suporta Apple Pay, Google Pay e wallets. DCV (Domain Control Verification) garante que o token so funciona no contexto correto.",
+      "id": "tc40",
+      "label": "TC40 & SAFE",
+      "categoria": "compliance",
+      "bandeira": "Todas",
+      "subdominio": "fraude",
+      "papel": "emissor",
+      "x": 975,
+      "y": 785,
+      "descricao": "Sistemas oficiais de reporte estatístico e regulatório de fraude das bandeiras: **SAFE (System to Avoid Fraud Effectively / Registro `TC 40` no Base II)** na Visa e **FRD (Fraud Reporting Database / `TC40`)** na Mastercard. Todo Emissor é obrigado a reportar transações fraudulentas nesses sistemas independentemente de abrir ou não Chargeback.",
+      "analogy": "É o Boletim de Ocorrência policial da compra: mesmo que o banco decida não processar a loja (não abrir Chargeback porque o valor é baixo), ele é obrigado a registrar o B.O. no sistema da bandeira.",
+      "impacto": "É a fonte de dados que alimenta o cálculo mensal do **VAMP** (Visa) e dos programas de fraude da Mastercard. Muitos lojistas acham que fazer Refund evita o registro no TC40/SAFE — **não evita!** (só o RDR/Verifi ou CDRN antes do reporte evita a disputa, mas o TC40 continua contando no VAMP).",
+      "curiosidade": "Mesmo transações com **3DS autenticado (`ECI 05`)** em que o Emissor absorve o prejuízo financeiro são reportadas no `TC40/SAFE` com tipo de fraude específico.",
+      "quemEnvia": "Emissor envia o registro de fraude (`TC 40` / SAFE / FRD) para a Bandeira em até X dias após a notificação do portador",
+      "quemRecebe": "Bandeira (consolida nos programas VAMP / EFM) e disponibiliza relatórios de alerta para o Adquirente",
+      "comoCalcula": "Cada transação reportada em `TC40/SAFE` entra na contagem de Fraude (TC40 Count & Amount) do MID e do Acquirer CIB/ICA.",
+      "excecoes": "Apenas a exclusão formal do registro pelo Emissor (Fraud Delete) retira a transação da base histórica.",
+      "camposTecnicos": [
+        "Visa TC 40 / SAFE",
+        "Mastercard Fraud Reporting (FRD)",
+        "Fraud Type Codes (01 Lost, 02 Stolen, 06 CNP)"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "vts-e-tokenizacao"
+        "id": "operacoes",
+        "licao": "refunds-match",
+        "label": "Refunds e Filtro MATCH"
+      },
+      "glossario": "Fraude",
+      "ferramenta": {
+        "label": "Monitoria VAMP & Programas",
+        "href": "/compliance/programas"
       }
     },
     {
-      "id": "pos-entry",
-      "label": "POS Entry Mode",
-      "categoria": "dado",
-      "x": 480,
-      "y": 1160,
-      "descricao": "Campo 22 do ISO 8583. Define como o cartao foi lido: 05=chip EMV, 10=contactless NFC, 90=tarja magnetica, 81=e-commerce. Determina o canal da transacao e qual regra de intercambio se aplica.",
+      "id": "vamp",
+      "label": "VAMP (Visa)",
+      "categoria": "compliance",
+      "bandeira": "Visa",
+      "subdominio": "compliance",
+      "papel": "adquirente",
+      "x": 1150,
+      "y": 710,
+      "descricao": "Visa Acquirer Monitoring Program. Novo programa unificado da Visa (que substituiu VDMP e VFMP em 2025/2026), monitorando o **VAMP Ratio** tanto no nível do Lojista quanto no portfólio inteiro do Adquirente, somando **Fraudes (`TC40`) + Disputas Não-Fraude (`TC15`)** divididas pelo total de transações liquidadas, além de monitorar ataques de **Enumeration (Card Testing)**.",
+      "analogy": "É o radar de velocidade média da Visa para adquirentes: se a carteira de lojas da adquirente tiver fraude + chargeback acima do limite (em basis points), a própria adquirente recebe multa por transação.",
+      "impacto": "Thresholds muito mais rigorosos (medidos por contagem de transações, não apenas valor financeiro) e multas progressivas em USD por cada disputa/fraude acima do limite nos estados *Above Standard* e *Excessive*.",
+      "curiosidade": "No VAMP, como a fórmula soma `TC40 (Fraude) + TC15 (Disputas Não-Fraude)`, uma transação fraudulenta sem 3DS não é contada duas vezes: ela entra via `TC40`, enquanto disputas comerciais entram via `TC15`.",
+      "quemEnvia": "Visa calcula mensalmente a partir da base global VisaNet (`TC40` + `TC15` ÷ `TC05` settled) e notifica o Adquirente",
+      "quemRecebe": "Adquirente (e Subcredenciadores/Lojistas desenquadrados)",
+      "comoCalcula": "`VAMP Ratio = [Contagem TC40 (Fraude CNP) + Contagem TC15 (Disputas Não-Fraude)] ÷ Contagem Total de Transações CNP Liquidadas`.",
+      "excecoes": "Disputas resolvidas via pré-disputa qualificada (Verifi RDR / Compelling Evidence 3.0) possuem regras específicas de exclusão do cálculo.",
+      "camposTecnicos": [
+        "VAMP Ratio (Count-based)",
+        "VAMP Enumeration Ratio",
+        "Thresholds Above Standard / Excessive",
+        "Substituição VDMP + VFMP"
+      ],
       "trilha": {
-        "id": "visa-deep-dive",
-        "licao": "vcf-e-campos-criticos"
+        "id": "operacoes",
+        "licao": "refunds-match",
+        "label": "Programas de Monitoria"
+      },
+      "glossario": "VAMP",
+      "ferramenta": {
+        "label": "Simulador de Programas (VAMP / ECP)",
+        "href": "/compliance/programas"
+      }
+    },
+    {
+      "id": "ecp",
+      "label": "ECP / EFM (MC)",
+      "categoria": "compliance",
+      "bandeira": "Mastercard",
+      "subdominio": "compliance",
+      "papel": "adquirente",
+      "x": 1150,
+      "y": 785,
+      "descricao": "Excessive Chargeback Program (**ECP**) e Excessive Fraud Merchant Compliance Program (**EFM**) da Mastercard. Monitoram mensalmente os lojistas e adquirentes que ultrapassam os limites de contagem e razão de chargebacks (**CMM ≥ 100 CBKs e ≥ 1,5%**, **ECM ≥ 100 CBKs e ≥ 1,5%–2,0%**, **HECM ≥ 300 CBKs e ≥ 3,0%**) e de fraude líquida CNP (**EFM**).",
+      "analogy": "É o cartão amarelo e vermelho da Mastercard: lojas que estouram 1,5% de chargeback entram em regime de multa progressiva mensal até corrigirem a operação ou serem desligadas.",
+      "impacto": "Gera assessments crescentes na fatura MCBS do Adquirente (de US$ 1.000 a mais de US$ 100.000/mês em casos crônicos HECM) e pode obrigar o descredenciamento compulsório do EC com inclusão no MATCH.",
+      "curiosidade": "O EFM da Mastercard exige que o lojista também tenha baixo percentual de uso de 3DS; ou seja, adotar 3DS 2.x é a principal vacina para sair do EFM.",
+      "quemEnvia": "Mastercard apura mensalmente via GCMS/Mastercom/FRD e cobra os assessments via MCBS",
+      "quemRecebe": "Adquirente (responsável perante a bandeira pelo plano de remediação do EC)",
+      "comoCalcula": "`Chargeback Ratio (Mês T) = Quantidade de First Chargebacks (1442) no Mês T ÷ Quantidade de Transações Capturadas no Mês T-1`.",
+      "excecoes": "O programa só é acionado quando **ambos** os gatilhos (quantidade mínima de chargebacks E percentual mínimo de ratio) são atingidos no mesmo mês.",
+      "camposTecnicos": [
+        "ECP (CMM, ECM, HECM)",
+        "EFM (Excessive Fraud Merchant)",
+        "Fórmula Mês T ÷ Mês T-1",
+        "MCBS Assessment"
+      ],
+      "trilha": {
+        "id": "operacoes",
+        "licao": "ciclo-mastercom",
+        "label": "O Ciclo do Chargeback"
+      },
+      "glossario": "ECP",
+      "ferramenta": {
+        "label": "Simulador VAMP & ECP",
+        "href": "/compliance/programas"
+      }
+    },
+    {
+      "id": "match",
+      "label": "MATCH & BRAM",
+      "categoria": "compliance",
+      "bandeira": "Todas",
+      "subdominio": "compliance",
+      "papel": "adquirente",
+      "x": 975,
+      "y": 710,
+      "descricao": "**MATCH** (Member Alert to Control High-Risk Merchants — Mastercard) / **VMSS** (Visa) e programas de integridade da marca **BRAM** (Business Risk Assessment and Mitigation — Mastercard) / **GBPP** (Global Brand Protection Program — Visa). O MATCH é o banco de dados global de lojistas e sócios descredenciados por fraude grave, lavagem de dinheiro, colusão ou violação de marca; o BRAM/GBPP pune transações ilegais ou miscoding de MCC.",
+      "analogy": "O MATCH é a 'lista suja' mundial de lojistas banidos; o BRAM/GBPP é a corregedoria que multa pesado se um adquirente deixar passar apostas ilegais, pirataria ou MCC falso na rede.",
+      "impacto": "Deixar de consultar o MATCH antes de credenciar um EC ou deixar de incluir um EC encerrado por fraude em até 5 dias úteis gera multas severas de não-conformidade. Violações BRAM/GBPP geram multas a partir de US$ 25.000 a US$ 200.000 por ocorrência.",
+      "curiosidade": "Existem 13 Reason Codes oficiais de inclusão no MATCH (ex.: `04` Excessive Chargebacks, `05` Excessive Fraud, `12` PCI DSS Non-Compliance, `13` Illegal Transactions).",
+      "quemEnvia": "Adquirente consulta a API/Portal MATCH no onboarding e adiciona ECs encerrados por justa causa; Bandeira audita a rede via BRAM/GBPP",
+      "quemRecebe": "Todos os Adquirentes globais (alertados quando um CNPJ/CPF de sócio já consta no MATCH)",
+      "comoCalcula": "Registros no MATCH permanecem ativos por **5 anos** na base global da Mastercard.",
+      "excecoes": "Um lojista listado no MATCH por razão `12` (PCI) ou `04` (Chargebacks) pode ser reabilitado se comprovar remediação conforme regras do manual de segurança.",
+      "camposTecnicos": [
+        "MATCH Reason Codes (01 a 13)",
+        "BRAM (Mastercard) / GBPP (Visa)",
+        "MMP (Merchant Monitoring Program)",
+        "Consulta Obrigatória no KYC"
+      ],
+      "trilha": {
+        "id": "operacoes",
+        "licao": "refunds-match",
+        "label": "Refunds e Filtro MATCH"
+      },
+      "glossario": "MATCH",
+      "ferramenta": {
+        "label": "Consultor de Razões MATCH & BRAM",
+        "href": "/compliance/match"
       }
     }
   ],
   "arestas": [
     {
-      "id": "e1",
+      "id": "R01",
       "source": "portador",
       "target": "ec",
-      "label": "apresenta cartão"
+      "label": "Inicia compra e apresenta credencial",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "portador",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Portador → Lojista (EC) [Presencial NFC/Chip ou Checkout E-commerce]",
+      "rule": "O portador inicia a transação apresentando o cartão físico (Chip EMV / Contactless NFC), carteira digital (Apple/Google Pay com DPAN) ou digitando os dados no checkout online.",
+      "exceptions": "Em cobranças recorrentes MIT (Merchant-Initiated Transactions), a compra é disparada pelo servidor do Lojista usando uma credencial previamente salva no CIT.",
+      "payload": "Canal Presencial: Leitura AID + Tags EMV (DE 55) + DE 22 = 051/071\nCanal E-commerce: PAN/DPAN (DE 02) + Exp Date (DE 14) + CVV2/CVC2 + 3DS + DE 22 = 010/810",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e2",
+      "id": "R02",
+      "source": "ec",
+      "target": "subcredenciador",
+      "label": "Captura via Subcredenciador (PayFac)",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "subcredenciador",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Lojista (Sub-merchant) → Subcredenciador (Facilitador de Pagamento)",
+      "rule": "Quando o lojista opera por meio de um Subcredenciador (PayFac), a captura ocorre na infraestrutura do Subcredenciador, que deve injetar seu próprio PF ID e os dados cadastrais do sub-lojista (CNPJ/CPF, MCC e Nome) na mensagem enviada ao Adquirente.",
+      "exceptions": "Lojistas credenciados diretamente num Adquirente pulam o Subcredenciador (relação R03 direta).",
+      "payload": "Mastercard: DE 48 SE 37 (Payment Facilitator ID) + Submerchant ID + PDS 0183 (CNPJ Sub-EC)\nVisa: Payment Facilitator ID + Sub-Merchant ID + Independent Sales Org (ISO) ID",
+      "routeGroup": [
+        "subcred_cip"
+      ]
+    },
+    {
+      "id": "R03",
+      "source": "subcredenciador",
+      "target": "adquirente",
+      "label": "Submete transação sob patrocínio",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "subcredenciador",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Subcredenciador → Adquirente Habilitado (Sponsor Acquirer)",
+      "rule": "O Subcredenciador não possui conexão liquidante direta com a Bandeira; ele transmite a autorização e o clearing através do ICA/BID do Adquirente patrocinador, que responde solidariamente pelo compliance perante a bandeira.",
+      "exceptions": "No Brasil (CP 522 / Circular 3.682), a liquidação financeira ao subcredenciador e deste ao lojista é monitorada e liquidada via grade da CIP/SLC.",
+      "payload": "Acquirer ID (DE 32) = ICA/BID do Adquirente\nMerchant Name (DE 43) = PrefixoPF*NomeSubLojista\nMCC (DE 18) = Ramo real do Sub-lojista (nunca um MCC genérico do PayFac!)",
+      "routeGroup": [
+        "subcred_cip"
+      ]
+    },
+    {
+      "id": "R04",
       "source": "ec",
       "target": "adquirente",
-      "label": "envia transação"
+      "label": "Envia transação para captura direta",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Lojista (EC) → Adquirente (POS / TEF / Gateway)",
+      "rule": "O terminal POS, TEF ou Gateway do lojista empacota os dados da venda (valor, parcelas, modo de entrada, criptograma) e envia ao host de captura do Adquirente.",
+      "exceptions": "Transações negadas por falha de comunicação entre POS e Adquirente exigem desfazimento automático (Reversal MTI 0400/0420).",
+      "payload": "MTI 0100: DE 02 (PAN) | DE 03 (Proc Code 00xxxx) | DE 04 (Valor) | DE 18 (MCC) | DE 22 (Entry Mode) | DE 41 (TID) | DE 42 (MID)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e3",
+      "id": "R05",
       "source": "adquirente",
       "target": "bandeira",
-      "label": "roteia"
+      "label": "Roteia autorização (ISO 8583 0100)",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Adquirente → Switch da Bandeira (VisaNet VIP / Mastercard Banknet / Elo)",
+      "rule": "O Adquirente identifica a Bandeira pelos primeiros dígitos do PAN (BIN Range), formata a mensagem ISO 8583 MTI 0100 conforme a especificação daquela bandeira e a transmite pelo canal dedicado (MIP / VAP).",
+      "exceptions": "Se a mensagem violar regras de formato da bandeira, o próprio Switch devolve um Edit Reject antes de consultar o Emissor.",
+      "payload": "MTI 0100 → Switch da Bandeira\nDE 11 (STAN) | DE 32 (Acquirer ID) | DE 37 (RRN) | DE 48 / DE 62 / DE 126 (Dados de Rede e Segurança)",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e4",
+      "id": "R06",
       "source": "bandeira",
       "target": "emissor",
-      "label": "autoriza"
+      "label": "Encaminha 0100 e retorna decisão 0110",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Bandeira ↔ Emissor (Pedido 0100 vai → Resposta 0110 volta)",
+      "rule": "O Switch da Bandeira localiza o endpoint do Emissor dono do BIN, traduz tokens (DPAN → FPAN se necessário), calcula scores de rede e entrega o 0100. O Emissor valida saldo, criptograma e fraude e responde 0110 com o Response Code no DE 39 (`00` = Aprovado).",
+      "exceptions": "Se o Emissor não responder dentro do timeout (~1,5s a 3s), a Bandeira pode responder via Stand-In Processing (STIP) e depois enviar um Advice `0120`.",
+      "payload": "Ida: MTI 0100 enriquecido com Token Mapping e Network Score\nVolta: MTI 0110 com DE 38 (Approval Code 6 chars) + DE 39 (00=Aprovado, 05=Do Not Honor, 51=Sem Saldo, 54=Vencido)",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e5",
+      "id": "R07",
       "source": "emissor",
       "target": "processador",
-      "label": "delega para"
+      "label": "Delega autorização e core de cartões",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "emissor",
+      "subdominio": "operacoes",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Emissor ↔ Processador (Host de Cartões e HSM)",
+      "rule": "Emissores (especialmente fintechs e bancos médios) delegam a operação técnica do autorizador 24x7, validação de criptograma ARQC em HSM e processamento de arquivos de clearing (IPM/Base II) para uma Processadora certificada.",
+      "exceptions": "No modelo 'Zero Balance / Webhook', a processadora valida a criptografia e o cartão e faz um callout HTTP em milissegundos para o core bancário do Emissor confirmar o saldo da conta.",
+      "payload": "Conexão física MIP/DEX no Processador → HSM (Valida DE 55 ARQC e DE 52 PIN) → Ledger de Limite do Portador",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e6",
+      "id": "R08",
       "source": "portador",
       "target": "pan",
-      "label": "identificado por"
+      "label": "Identificado na rede pelo PAN",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "portador",
+      "subdominio": "autorizacao",
+      "timing": "Contínuo / Regra",
+      "direction": "Portador → PAN (Primary Account Number - DE 02)",
+      "rule": "Cada cartão emitido possui um PAN único de 16 dígitos (padrão ISO/IEC 7812) que identifica o contrato do portador perante o Emissor.",
+      "exceptions": "Cartões adicionais ou virtuais da mesma conta-cartão possuem PANs distintos que apontam para o mesmo limite/fatura no Emissor.",
+      "payload": "Estrutura PAN (16 dígitos): [BIN 8 dígitos] + [Conta 7 dígitos] + [Dígito Verificador Luhn 1 dígito]",
+      "routeGroup": [
+        "mdr_ic",
+        "seguranca_3ds"
+      ]
     },
     {
-      "id": "e7",
+      "id": "R09",
       "source": "pan",
       "target": "bin",
-      "label": "contém"
+      "label": "Contém o BIN Range (6–8 dígitos)",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "Contínuo / Regra",
+      "direction": "PAN (DE 02) → Extração do Prefixo BIN / Account Range",
+      "rule": "Os primeiros 6 a 8 dígitos do PAN (ou a faixa de 19 dígitos no Account Range da tabela T068/ARDEF) constituem o BIN, que é a chave primária para descobrir quem é a bandeira, o emissor, o país e o produto do cartão.",
+      "exceptions": "Sempre fazer lookup pelo Account Range completo (baixa/alta de 19 posições) em vez de apenas 6 dígitos, pois um BIN de 6 dígitos pode ser fatiado entre produtos distintos.",
+      "payload": "PAN: 5432 1098 7654 3210 → BIN 8: 54321098 → Lookup T068 (IP0040T1): Low=5432109800000000000 / High=5432109899999999999",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e8",
+      "id": "R10",
       "source": "bin",
       "target": "emissor",
-      "label": "identifica"
+      "label": "Identifica o Emissor e o País",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "BIN Range → Identificação do Emissor (ICA / CIB) e Country Code",
+      "rule": "A tabela de BINs mapeia cada faixa numérica ao código da instituição emissora (ICA na Mastercard, CIB/BID na Visa) e ao código ISO de país de emissão (ex.: `076` / `BRA` para Brasil).",
+      "exceptions": "Se o Country Code do BIN for diferente do Country Code do Lojista (`DE 19` / `DE 43`), a transação é classificada como Internacional (Cross-Border).",
+      "payload": "BIN Lookup → Issuer ICA / CIB + Country Code (076 = Doméstico BR | ≠ 076 = Cross-Border International)",
+      "routeGroup": [
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e9",
+      "id": "R11",
       "source": "bin",
-      "target": "bandeira",
-      "label": "identifica"
+      "target": "tier",
+      "label": "Determina o Tier e Funding Source",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "BIN Range → Produto / Tier (Standard, Platinum, Black/Infinite) & Funding (C/D/P)",
+      "rule": "O BIN define o código de produto (GCMS Product ID na Mastercard ou PID + AFS na Visa) que posiciona o cartão na coluna correta da tabela de Intercâmbio (Standard < Gold < Platinum < Black/Infinite < Corporate).",
+      "exceptions": "Se o BIN for Pré-pago (`AFS = P` ou produto Mastercard Prepaid doméstico), aplica-se o cap regulatório de 0,70% do Bacen no Brasil, independentemente da variante.",
+      "payload": "Mastercard T068: Product ID = MWE (Mastercard Black) | MPL (Platinum) | MCS (Standard)\nVisa ARDEF: AFS = C (Credit) + PID = I^ (Infinite) | C^ (Signature) | F^ (Classic)",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e10",
+      "id": "R12",
       "source": "emv",
       "target": "autorizacao",
-      "label": "autentica com ARQC"
+      "label": "Autentica presencialmente via ARQC (DE 55)",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Chip EMV / NFC → Autorização 0100 (Campo DE 55 TLV)",
+      "rule": "Em compras presenciais (Contato ou Aproximação NFC), o chip gera o criptograma ARQC assinado com a chave secreta do cartão e o envia no `DE 55` da mensagem `0100` para validação pelo HSM do Emissor.",
+      "exceptions": "Transações por tarja magnética (`DE 22 = 90x`) não possuem `DE 55`, expondo a transação a fraude de clonagem e tarifas mais altas.",
+      "payload": "DE 55 (EMV TLV): 9F26 (ARQC 8 bytes) | 9F27 (CID) | 9F10 (IAD) | 9F37 (Unpredictable Number) | 9F36 (ATC) | 95 (TVR)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "seguranca_3ds"
+      ]
     },
     {
-      "id": "e11",
-      "source": "dpan",
-      "target": "pan",
-      "label": "substitui"
-    },
-    {
-      "id": "e12",
+      "id": "R13",
       "source": "tokenizacao",
       "target": "dpan",
-      "label": "gera"
+      "label": "Provisiona e substitui PAN por DPAN",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Motor de Tokenização (VTS / MDES) → Geração do DPAN + Criptograma",
+      "rule": "O serviço de tokenização da bandeira substitui o FPAN real por um DPAN restrito àquele domínio (dispositivo ou lojista) e fornece um criptograma dinâmico por transação.",
+      "exceptions": "O DPAN mantém o vínculo com o produto real do cartão na tabela de BIN de tokens para não distorcer o cálculo de intercâmbio.",
+      "payload": "FPAN (Cartão Real) → Cofre VTS/MDES → DPAN (16 dígitos) + Token Cryptogram (TAVV / UCAF DSRP)",
+      "routeGroup": [
+        "seguranca_3ds"
+      ]
     },
     {
-      "id": "e13",
-      "source": "emv",
+      "id": "R14",
+      "source": "dpan",
       "target": "pan",
-      "label": "contém"
+      "label": "Protege e mapeia de volta ao FPAN na Bandeira",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "bandeira",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "DPAN (no Lojista/Adquirente) → De-tokenization no Switch → FPAN (no Emissor)",
+      "rule": "O Lojista e o Adquirente trafegam apenas o DPAN. Ao chegar no Switch da Bandeira (VisaNet ou Banknet), o cofre VTS/MDES valida o criptograma do token, recupera o FPAN real e entrega ambos ao Emissor.",
+      "exceptions": "Se o criptograma do token for inválido ou de um Token Requestor não autorizado para aquele MID, a Bandeira bloqueia a transação.",
+      "payload": "Adquirente envia: DE 02 = DPAN\nSwitch Bandeira entrega ao Emissor: DE 02 = FPAN + DE 48 SE 33 / DE 126 = DPAN + Status de Validação do Token",
+      "routeGroup": [
+        "seguranca_3ds"
+      ]
     },
     {
-      "id": "e14",
+      "id": "R15",
       "source": "mcc",
       "target": "ec",
-      "label": "classifica"
+      "label": "Classifica o ramo econômico do Lojista",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Contínuo / Regra",
+      "direction": "Adquirente atribui MCC (DE 18) → Cadastro do Lojista (EC)",
+      "rule": "No onboarding (KYC), o Adquirente vincula o CNAE/atividade real do Lojista ao código MCC de 4 dígitos correspondente no manual da bandeira.",
+      "exceptions": "Usar MCC diferente da atividade real para reduzir intercâmbio ou mascarar negócios de alto risco (apostas, adult, fármacos) configura violação grave de BRAM/GBPP.",
+      "payload": "Exemplos MCC (DE 18): 5411 (Supermercados) | 5812 (Restaurantes) | 5541 (Postos) | 4111 (Transporte/Transit) | 7995 (Betting/Jogos)",
+      "routeGroup": [
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e15",
+      "id": "R16",
       "source": "mcc",
       "target": "intercambio",
-      "label": "influencia via segmento"
+      "label": "Define o segmento tarifário da tabela",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "MCC (DE 18) → Seleção do Segmento/Grupo na Tabela de Intercâmbio",
+      "rule": "As tabelas de Intercâmbio da Visa, Mastercard e Elo agrupam os MCCs em segmentos (ex.: Segmento Padrão, Supermercados, Postos de Combustível, Educação, Utilities, Governo, Transit), aplicando alíquotas e tetos (caps) diferenciados.",
+      "exceptions": "Alguns MCCs possuem cap fixo em centavos/reais ou desconto de incentivo para estimular a aceitação eletrônica em setores de margem baixa.",
+      "payload": "Lookup Intercâmbio: MCC → MCC Group / Segmento → Linha da Tabela × Coluna do Produto (Tier) × Modalidade (À vista / Parcelado)",
+      "routeGroup": [
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e16",
+      "id": "R17",
       "source": "iso8583",
       "target": "de",
-      "label": "estruturado em"
+      "label": "Estruturado em Data Elements (DEs) e Bitmaps",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Mensagem ISO 8583 → Mapa de Bits + Campos DE 01..128",
+      "rule": "Toda mensagem ISO 8583 carrega um Bitmap de 64 ou 128 bits onde cada bit ligado (`1`) indica a presença daquele Data Element na sequência exata da mensagem.",
+      "exceptions": "Subcampos privados (`DE 48` na Mastercard, `DE 62`/`104`/`126` na Visa) usam sub-estruturas TLV (Tag-Length-Value) ou datasets internos.",
+      "payload": "MTI (4 bytes) + Bitmap (8/16 bytes) + DE 02 (LLVAR) + DE 03 (6N) + DE 04 (12N) + DE 18 (4N) + DE 22 (3N) + DE 48 (LLLVAR)...",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e17",
+      "id": "R18",
       "source": "de",
       "target": "autorizacao",
-      "label": "compõe mensagem"
+      "label": "Compõe o payload de decisão D+0",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Data Elements (DEs) → Processamento da Autorização (0100/0110)",
+      "rule": "Os Data Elements fornecem todos os insumos técnicos para o Switch e o Emissor aprovarem a compra e gerarem o identificador de ciclo de vida (`DE 62.2` TID na Visa / `DE 63` Banknet Ref na Mastercard).",
+      "exceptions": "Omissão de campos condicionais obrigatórios (como dados de 3DS no e-commerce ou submerchant em PayFac) degrada a qualificação da transação.",
+      "payload": "Campos críticos D+0: DE 02 (PAN) | DE 04 (Valor) | DE 18 (MCC) | DE 22 (Entry Mode) | DE 38 (Auth Code) | DE 39 (RC) | DE 62/63 (Trace ID)",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e18",
+      "id": "R19",
       "source": "autorizacao",
       "target": "clearing",
-      "label": "depois"
+      "label": "Evolui para apresentação em lote (D+1)",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "clearing",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Autorização Aprovada (D+0) → Registro de First Presentment no Clearing (D+1)",
+      "rule": "Toda compra aprovada na autorização (`0110` com `DE 39 = 00`) deve ser capturada pelo lojista e enviada pelo Adquirente no arquivo de clearing (Base II `TC 05` ou GCMS `1240`), preservando fielmente o Approval Code (`DE 38`) e o Trace ID da autorização.",
+      "exceptions": "Se o clearing for enviado após a janela de tempestividade (Timeliness — geralmente > 3 a 7 dias), a transação sofre downgrade tarifário (Late Presentment).",
+      "payload": "Vínculo Auth → Clearing (Lifecycle Integrity):\nAuth 0110 (DE 38 + DE 62.2/DE 63 + DE 04 + DE 22) ===> Clearing TC 05 / IPM 1240 (PDS 0158 / Trace ID)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e19",
+      "id": "R20",
       "source": "clearing",
       "target": "settlement",
-      "label": "resulta em"
+      "label": "Apura posição líquida para liquidação",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "liquidacao",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Clearing Processado (IPM / Base II) → Liquidação Financeira (VSS / SMS / CIP)",
+      "rule": "Após processar os arquivos de clearing e calcular o Intercâmbio de cada transação, a Bandeira consolida os saldos credores e devedores de cada participante (SRE / ICA) e dispara as ordens de liquidação financeira.",
+      "exceptions": "No Brasil, transações domésticas seguem a grade de liquidação da CIP/SLC; transações internacionais liquidam via Visa VSS International ou Mastercard SMS.",
+      "payload": "Clearing Total Bruto − Intercâmbio Calculado − Disputas/Ajustes = Posição Líquida de Settlement (Relatório VSS-110 / Advisories)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "subcred_cip",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e20",
-      "source": "clearing",
-      "target": "base2-ipm",
-      "label": "via"
-    },
-    {
-      "id": "e21",
+      "id": "R21",
       "source": "3ds",
       "target": "eci",
-      "label": "gera"
+      "label": "Gera ECI (05/02) e criptograma CAVV/AAV",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Autenticação EMV 3DS 2.x → Geração do ECI / SLI + CAVV/AAV",
+      "rule": "Quando o portador é autenticado com sucesso no 3DS 2.x (em fluxo Frictionless ou Challenge), o ACS do Emissor e o Directory Server da Bandeira assinam o CAVV (Visa) / AAV (Mastercard) e atribuem o indicador `ECI 05` (Visa) ou `SLI 242 / ECI 02` (Mastercard).",
+      "exceptions": "Se o Emissor não participar ou o ACS estiver indisponível, retorna `ECI 06` / `SLI 241` (Attempt); se a autenticação falhar ou não for chamada, é `ECI 07` / `SLI 210`.",
+      "payload": "Sucesso 3DS: Visa ECI = 05 + CAVV (20 bytes) + DS Trans ID\nMastercard: DE 48 SE 42 (SLI = 242) + DE 48 SE 43 (AAV) + Directory Server Tran ID",
+      "routeGroup": [
+        "seguranca_3ds",
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e22",
+      "id": "R22",
       "source": "eci",
       "target": "intercambio",
-      "label": "impacta taxa"
+      "label": "Qualifica tarifa CNP reduzida e evita HU",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "ECI / SLI Autenticado → Qualificação para IRD/Tarifa Autenticada no Clearing",
+      "rule": "Transações de e-commerce enviadas com `ECI 05`/`02` e criptograma válido qualificam para categorias de Intercâmbio incentivadas (como o IRD `AU` na Mastercard) e evitam sobretaxas de transações não-autenticadas (`HU`).",
+      "exceptions": "Se o `ECI 05`/`02` for enviado na autorização mas omitido no registro de clearing do dia seguinte, a transação sofre downgrade para tarifa CNP não-autenticada.",
+      "payload": "Com 3DS (ECI 02/05): Qualifica IRD AU (Taxa reduzida + Liability Shift)\nSem 3DS (ECI 00/07): Cai para IRD HU (Taxa penalizada + Risco de Fraude no Adquirente/EC)",
+      "routeGroup": [
+        "seguranca_3ds",
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e23",
-      "source": "chargeback",
-      "target": "fraude",
-      "label": "originado por"
+      "id": "R23",
+      "source": "eci",
+      "target": "chargeback",
+      "label": "Ativa Liability Shift (bloqueia CBK de fraude)",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "chargeback",
+      "timing": "Contínuo / Regra",
+      "direction": "ECI 05 / SLI 242 → Transferência de Responsabilidade (Liability Shift) para o Emissor",
+      "rule": "Quando a transação possui `ECI 05` (Visa) ou `SLI 242 / ECI 02` (Mastercard), a responsabilidade financeira por eventual fraude CNP é transferida para o Emissor, que fica impedido pelas regras do VROL/Mastercom de transferir o prejuízo ao Adquirente via Chargeback de fraude (Reason Code 10.4 / 4837).",
+      "exceptions": "Existem exceções para MCCs de alto risco excluídos da política de Liability Shift ou quando o lojista já está enquadrado em programas de fraude excessiva.",
+      "payload": "Regra de Disputa: Se ECI ∈ {05, 02} e CAVV/AAV válido → Bloqueio de First Chargeback Reason 10.4 (Visa) / 4837 (Mastercard)",
+      "routeGroup": [
+        "seguranca_3ds",
+        "fraude_vamp"
+      ]
     },
     {
-      "id": "e24",
-      "source": "chargeback",
-      "target": "match",
-      "label": "excesso leva a"
-    },
-    {
-      "id": "e25",
-      "source": "mdr",
-      "target": "intercambio",
-      "label": "contém"
-    },
-    {
-      "id": "e26",
-      "source": "mdr",
-      "target": "fee-bandeira",
-      "label": "contém"
-    },
-    {
-      "id": "e27",
-      "source": "intercambio",
-      "target": "emissor",
-      "label": "vai para"
-    },
-    {
-      "id": "e28",
-      "source": "intercambio",
-      "target": "ird",
-      "label": "determinado pelo"
-    },
-    {
-      "id": "e29",
-      "source": "ird",
-      "target": "tier",
-      "label": "depende do"
-    },
-    {
-      "id": "e30",
-      "source": "ird",
-      "target": "mcc",
-      "label": "depende do"
-    },
-    {
-      "id": "e31",
+      "id": "R24",
       "source": "fraude",
-      "target": "tc40",
-      "label": "reportada via"
+      "target": "chargeback",
+      "label": "Gera contestação financeira (1442 / TC 15)",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "emissor",
+      "subdominio": "chargeback",
+      "timing": "Contínuo / Regra",
+      "direction": "Fraude não autenticada → Emissor abre Chargeback contra o Adquirente",
+      "rule": "Quando o portador desconhece uma compra sem proteção de Liability Shift (ex.: e-commerce `ECI 07` sem 3DS), o Emissor estorna o portador e abre um Chargeback de Fraude (`1442` RC `4837` na Mastercard; `TC 15` RC `10.4` na Visa), debitando o Adquirente.",
+      "exceptions": "Se a transação cumprir os requisitos de **Compelling Evidence 3.0 (CE 3.0)**, o Adquirente/Lojista consegue reverter a disputa demonstrando vínculo histórico legítimo do comprador.",
+      "payload": "Fluxo do Débito de Disputa: Emissor (VROL/Mastercom) → Bandeira debita Adquirente → Adquirente desconta da agenda do Lojista",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
     },
     {
-      "id": "e32",
-      "source": "tc40",
-      "target": "vamp",
-      "label": "alimenta"
-    },
-    {
-      "id": "e33",
-      "source": "tc40",
-      "target": "ecp",
-      "label": "alimenta"
-    },
-    {
-      "id": "e34",
-      "source": "vamp",
-      "target": "adquirente",
-      "label": "penaliza"
-    },
-    {
-      "id": "e35",
-      "source": "ecp",
-      "target": "adquirente",
-      "label": "penaliza"
-    },
-    {
-      "id": "e36",
-      "source": "match",
-      "target": "adquirente",
-      "label": "restringe"
-    },
-    {
-      "id": "e37",
-      "source": "pid",
-      "target": "intercambio",
-      "label": "determina (Visa)"
-    },
-    {
-      "id": "e38",
-      "source": "afs",
-      "target": "intercambio",
-      "label": "determina (Visa)"
-    },
-    {
-      "id": "e39",
-      "source": "settl-flag",
-      "target": "intercambio",
-      "label": "doméstico vs intl"
-    },
-    {
-      "id": "e40",
-      "source": "bin",
-      "target": "tier",
-      "label": "determina"
-    },
-    {
-      "id": "e41",
+      "id": "R25",
       "source": "ec",
       "target": "mdr",
-      "label": "paga"
+      "label": "Paga MDR sobre cada venda liquidada",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "pricing",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Lojista (EC) PAGA → Adquirente RETÉM (Desconto de MDR na liquidação)",
+      "rule": "O Lojista recebe o valor da venda descontado da taxa contratual de MDR. O Adquirente utiliza esse MDR arrecadado para cobrir a Tarifa de Intercâmbio (Emissor), os Scheme Fees (Bandeira), os tributos e sua própria margem operacional.",
+      "exceptions": "Em antecipação de recebíveis (receber parcelado em D+1 ou D+2), soma-se ao MDR a taxa financeira de desconto/antecipação (RAV).",
+      "payload": "Venda Bruta: R$ 100,00 | MDR Total: 2,50% (R$ 2,50)\nLojista recebe: R$ 97,50 | Dos R$ 2,50: ~R$ 1,65 vai p/ Intercâmbio + ~R$ 0,25 p/ Bandeira + ~R$ 0,60 Margem Bruta Adquirente",
+      "routeGroup": [
+        "mdr_ic"
+      ]
     },
     {
-      "id": "e42",
+      "id": "R26",
+      "source": "mdr",
+      "target": "intercambio",
+      "label": "Contém a Tarifa de Intercâmbio (maior fatia)",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "MDR (Retido pelo Adquirente) → Repasse da Tarifa de Intercâmbio ao Emissor",
+      "rule": "A Tarifa de Intercâmbio é o piso de custo estrutural dentro do MDR. O Adquirente nunca fica com o Intercâmbio: a própria Bandeira já o desconta da posição líquida do Adquirente no Settlement e o transfere ao Emissor.",
+      "exceptions": "Se o Intercâmbio real da transação superar o MDR cobrado do lojista (ex.: cartão Corporate/Infinite + Downgrade), o Adquirente tem prejuízo direto na transação.",
+      "payload": "Identidade Fundamental:\nMDR = Intercâmbio (Emissor) + Scheme Fee (Bandeira) + Net Spread (Adquirente)",
+      "routeGroup": [
+        "mdr_ic"
+      ]
+    },
+    {
+      "id": "R27",
+      "source": "mdr",
+      "target": "fee-bandeira",
+      "label": "Contém as Taxas de Bandeira (Scheme Fees)",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "pricing",
+      "timing": "Semanal / Mensal",
+      "direction": "MDR (Retido pelo Adquirente) → Pagamento de Scheme Fees à Bandeira",
+      "rule": "Uma fração do MDR (geralmente entre 0,10% e 0,35% em transações domésticas, podendo ser muito maior em cross-border) destina-se a cobrir os Scheme Fees faturados pela Bandeira via MCBS (Mastercard) ou VSS/VBS (Visa).",
+      "exceptions": "Emissores também pagam seus próprios Scheme Fees à Bandeira (sobre emissão de cartões, autorizações, tokens e volume).",
+      "payload": "Componentes de Scheme Fee: Volume Assessment (%) + Authorization Fee (por msg) + Clearing Fee (por registro) + 3DS/Token Fee",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R28",
+      "source": "intercambio",
+      "target": "emissor",
+      "label": "Pago pelo Adquirente → Recebido pelo Emissor",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Adquirente PAGA → Emissor RECEBE (via Liquidação Multilateral)",
+      "rule": "No fechamento diário do clearing, o valor do Intercâmbio é deduzido do valor bruto que o Emissor envia ao Adquirente. Assim, em uma compra de R$ 100,00 com Intercâmbio de 1,80%, o Emissor transfere apenas R$ 98,20 na liquidação, retendo R$ 1,80 como sua receita de Intercâmbio.",
+      "exceptions": "Em transações de estorno (Refund/Credit), o fluxo de intercâmbio pode seguir regras específicas de devolução parcial ou retenção conforme a bandeira.",
+      "payload": "Liquidação da Compra (R$ 100,00 | IC = 1,80%):\nEmissor debita R$ 100,00 da fatura do Portador → Retém R$ 1,80 (Receita IC) → Envia R$ 98,20 líquidos ao Adquirente via CIP/VSS",
+      "routeGroup": [
+        "mdr_ic",
+        "ciclo_d0_d1"
+      ]
+    },
+    {
+      "id": "R29",
+      "source": "ird",
+      "target": "intercambio",
+      "label": "Define a alíquota aplicada no clearing MC",
+      "kind": "calculo",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "IRD (PDS 0158) → Alíquota % e Valor do Intercâmbio Mastercard",
+      "rule": "Na Mastercard, cada transação processada no GCMS recebe um código IRD de 2 posições no `PDS 0158`. Esse IRD, combinado com o código do Produto do cartão (`GCMS Product ID`), determina a alíquota exata de Intercâmbio.",
+      "exceptions": "Se o Adquirente enviar um IRD para o qual a transação não cumpre todos os critérios técnicos da tabela T068, o GCMS substitui o IRD por um código de downgrade.",
+      "payload": "PDS 0158 (IPM 1240): Carrega o IRD aplicado (ex.: IA, JA, AU, HU) + Taxa de Intercâmbio calculada pelo GCMS",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R30",
+      "source": "tier",
+      "target": "ird",
+      "label": "Combina Produto × IRD na matriz tarifária",
+      "kind": "calculo",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Tier do Cartão (Standard..Black) + IRD → Alíquota Final na Tabela T068",
+      "rule": "Um mesmo IRD (ex.: `IA` Presencial) possui alíquotas diferentes conforme o Tier do cartão (ex.: Standard < Gold < Platinum < Black). Portanto, a tarifa é sempre uma matriz bidimensional `Produto × IRD/Segmento`.",
+      "exceptions": "Cartões Corporativos/Empresariais possuem IRDs e linhas tarifárias próprias.",
+      "payload": "Matriz Mastercard: [GCMS Product: MCS, MCG, MPL, MWE] × [IRD: IA, JA, AU, HU, Parcelado] → Rate (%)",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R31",
+      "source": "fraude",
+      "target": "tc40",
+      "label": "Reportada obrigatoriamente pelo Emissor",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "emissor",
+      "subdominio": "fraude",
+      "timing": "Contínuo / Regra",
+      "direction": "Fraude Confirmada → Reporte Obrigatório no TC40 (MC FRD) / SAFE (Visa)",
+      "rule": "Sempre que uma transação é confirmada como fraude no Emissor, ele deve gerar o registro de notificação de fraude (`TC 40` no Base II Visa / SAFE ou FRD na Mastercard), mesmo que decida absorver o valor e não abrir Chargeback.",
+      "exceptions": "Desacordos comerciais (mercadoria não entregue ou com defeito) NÃO são reportados no TC40/SAFE, pois não são fraude de identidade/cartão.",
+      "payload": "Registro TC 40 / SAFE: PAN/Token + ARN/TID da transação original + Valor + Data + Fraud Type Code",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R32",
+      "source": "tc40",
+      "target": "vamp",
+      "label": "Alimenta numerador de fraude do VAMP",
+      "kind": "compliance",
+      "brand": "Visa",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Semanal / Mensal",
+      "direction": "Registros TC40 (SAFE) + Disputas TC15 → Cálculo Mensal do VAMP Ratio (Visa)",
+      "rule": "Na Visa, todo registro `TC40` de transação CNP entra diretamente no numerador do **VAMP (Visa Acquirer Monitoring Program)** do lojista e do Adquirente, somado às disputas não-fraude (`TC15`).",
+      "exceptions": "Fazer estorno manual (Refund `TC 06`) após o `TC40` ter sido reportado pelo Emissor NÃO remove a transação da contagem do VAMP.",
+      "payload": "Fórmula VAMP (Visa): Numerador = Count(TC40 CNP) + Count(TC15 Non-Fraud) | Denominador = Count(TC05 Settled CNP)",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R33",
+      "source": "tc40",
+      "target": "ecp",
+      "label": "Alimenta monitoria de fraude EFM (Mastercard)",
+      "kind": "compliance",
+      "brand": "Mastercard",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Semanal / Mensal",
+      "direction": "Reportes FRD/TC40 → Programa Excessive Fraud Merchant (EFM) da Mastercard",
+      "rule": "Os reportes de fraude na Mastercard alimentam o programa **EFM (Excessive Fraud Merchant)**, que penaliza lojistas e-commerce com volume de fraude líquida elevado e baixa adoção de 3DS.",
+      "exceptions": "Se o lojista elevar sua taxa de transações autenticadas via 3DS acima do patamar de isenção da Mastercard, ele sai do enquadramento do EFM.",
+      "payload": "Gatilhos EFM Mastercard: Volume mínimo em USD de fraude líquida + Fraud Ratio acima do threshold + Baixo % de 3DS",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R34",
+      "source": "vamp",
+      "target": "adquirente",
+      "label": "Aplica multas por item e restrições de carteira",
+      "kind": "compliance",
+      "brand": "Visa",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Semanal / Mensal",
+      "direction": "Visa VAMP → Penalidades Financeiras e Plano de Remediação no Adquirente",
+      "rule": "Se o índice do Adquirente (ou de seus lojistas/subcredenciadores) ultrapassar os limites *Above Standard* ou *Excessive* do VAMP ou do VAMP Enumeration, a Visa aplica multas em USD por cada item de disputa/fraude e exige plano formal de contenção.",
+      "exceptions": "Existe período de carência (Grace Period / Advisory) na primeira vez em que um lojista atinge o primeiro nível, desde que não seja reincidente ou HECM/Excessive.",
+      "payload": "Cobrança via Visa Billing (VSS/VBS): Enforcement Fee por item de disputa/fraude acima do limite permitido",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R35",
+      "source": "ecp",
+      "target": "adquirente",
+      "label": "Cobra assessments CMM/ECM/HECM via MCBS",
+      "kind": "compliance",
+      "brand": "Mastercard",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Semanal / Mensal",
+      "direction": "Mastercard ECP/EFM → Fatura MCBS do Adquirente",
+      "rule": "O Adquirente é a entidade jurídica multada pela Mastercard quando um lojista da sua base permanece acima dos limites do ECP (CMM, ECM ou HECM). O valor é debitado na fatura MCBS do Adquirente (que geralmente o repassa contratualmente ao EC/Subcredenciador).",
+      "exceptions": "Lojistas HECM (High Excessive Chargeback Merchant — ≥ 300 CBKs e ≥ 3,0%) sofrem multas imediatas sem mês de isenção e exigem desligamento se não corrigidos.",
+      "payload": "Escala ECP Mastercard:\nCMM: ≥ 100 CBKs e ≥ 1,5% | ECM: ≥ 100 CBKs e ≥ 1,5% (2º mês+) | HECM: ≥ 300 CBKs e ≥ 3,0%",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R36",
+      "source": "chargeback",
+      "target": "match",
+      "label": "Excesso crônico obriga inclusão no MATCH",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Contínuo / Regra",
+      "direction": "Encerramento por Excesso de Chargeback/Fraude → Inclusão Obrigatória no MATCH",
+      "rule": "Quando o Adquirente encerra o contrato de um Lojista (ou quando o lojista encerra a conta enquanto desenquadrado nos programas de chargeback/fraude), o Adquirente é **obrigado** pelo rulebook a incluí-lo no sistema MATCH (Reason Code `04` Excessive Chargebacks ou `05` Excessive Fraud).",
+      "exceptions": "Omitir a inclusão obrigatória no MATCH expõe o Adquirente que omitiu a responder pelas perdas que esse lojista causar em outros adquirentes!",
+      "payload": "MATCH Add Record: CNPJ do EC + CPF dos Sócios Principais + Reason Code (04=CBK, 05=Fraud, 13=Illegal/BRAM)",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
+    },
+    {
+      "id": "R37",
+      "source": "match",
+      "target": "adquirente",
+      "label": "Bloqueia onboarding e pune violações BRAM",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Contínuo / Regra",
+      "direction": "Base Global MATCH & Monitoria BRAM/GBPP → Restrição de Credenciamento no Adquirente",
+      "rule": "Antes de ativar qualquer novo EC (ou sub-EC via Subcredenciador), o Adquirente deve consultar a base MATCH. Além disso, o monitoramento de marca (BRAM/GBPP) fiscaliza continuamente transações proibidas na rede.",
+      "exceptions": "Caso um Adquirente decida assumir o risco de credenciar um EC com alerta no MATCH (quando permitido pela razão), toda a responsabilidade de risco recai sobre sua carteira.",
+      "payload": "Fluxo KYC Obrigatório: Receita Federal (CNPJ/QSA) → Consulta API MATCH (Entity + Principal Owners) → Ativação MID",
+      "routeGroup": [
+        "fraude_vamp",
+        "subcred_cip"
+      ]
+    },
+    {
+      "id": "R38",
       "source": "chargeback",
       "target": "ecp",
-      "label": "excesso alimenta"
+      "label": "Alimenta índice mensal de disputas (Mês T / T-1)",
+      "kind": "compliance",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "compliance",
+      "timing": "Semanal / Mensal",
+      "direction": "First Chargebacks (1442 / TC 15) → Numerador do ECP (Mastercard) e VAMP (Visa)",
+      "rule": "Todo First Chargeback processado no mês entra na contagem dos programas de monitoramento de disputas, independentemente de o Adquirente ganhar ou perder a reapresentação (Second Presentment) posteriormente!",
+      "exceptions": "Apenas alertas pré-disputa resolvidos antes de virarem First Chargeback (ex.: Ethoca Alerts / Verifi RDR) evitam a geração do registro `1442` / `TC 15`.",
+      "payload": "Atenção Operacional: Ganhar a reapresentação devolve o dinheiro da venda, mas NÃO apaga o First Chargeback do índice ECP/VAMP!",
+      "routeGroup": [
+        "fraude_vamp"
+      ]
     },
     {
-      "id": "e43",
+      "id": "R39",
+      "source": "pid",
+      "target": "intercambio",
+      "label": "Determina linha de Intercâmbio Visa (PID + AFS)",
+      "kind": "calculo",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "PID (Variante) + AFS (Funding) → Alíquota de Intercâmbio Visa no BASE II",
+      "rule": "No clearing Visa (BASE II), a combinação do `AFS` (`C` Crédito, `D` Débito, `P` Pré-pago) com o `PID` (`F^` Classic, `N^` Platinum, `C^` Signature, `I^` Infinite, `I1` Infinite HNW, `K^` Business) seleciona a tarifa exata de intercâmbio.",
+      "exceptions": "Se a transação não cumprir os requisitos de qualificação eletrônica (ex.: falta de dados de autorização ou atraso), aplica-se a tarifa Standard/Non-Qualified.",
+      "payload": "Exemplo Visa Crédito à Vista (Presencial CP):\nClassic (F^) < Gold (G^) < Platinum (N^) < Signature (C^) < Infinite (I^ / I1)",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R40",
+      "source": "settl-flag",
+      "target": "intercambio",
+      "label": "Separa tabela Doméstica (8/9) da Internacional (0)",
+      "kind": "calculo",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "liquidacao",
+      "timing": "D+1 Batch Clearing",
+      "direction": "SETTL_FLAG (8/9 vs 0) → Seleção de Jurisdição Tarifária Visa",
+      "rule": "O `SETTL_FLAG` no BASE II define se o motor do VSS aplicará a tabela de Intercâmbio Doméstica Brasileira (`8` ou `9`, liquidada em BRL na CIP) ou a tabela de Intercâmbio Internacional/Interregional (`0`, liquidada via International Settlement Service).",
+      "exceptions": "Transações internacionais (`0`) também acionam cobrança de ISA (International Service Assessment) no relatório `VSS-215`.",
+      "payload": "SETTL_FLAG = 8 ou 9 → Tabela Visa Brasil (BRL + Cap Bacen Débito/Pré)\nSETTL_FLAG = 0 → Tabela Visa International / Interregional + FX + ISA",
+      "routeGroup": [
+        "mdr_ic",
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R41",
       "source": "bandeira",
       "target": "visanet-no",
-      "label": "instancia Visa"
+      "label": "Opera rede VisaNet (VIP + BASE II)",
+      "kind": "dados",
+      "brand": "Visa",
+      "role": "bandeira",
+      "subdominio": "operacoes",
+      "timing": "Contínuo / Regra",
+      "direction": "Visa → Infraestrutura Global VisaNet",
+      "rule": "A Visa opera a VisaNet dividindo o processamento em tempo real no **VIP (Visa Integrated Payment)** e a compensação em lote no **BASE II**, unificados pelo serviço de liquidação **VSS**.",
+      "exceptions": "Mercados que operam em Single Message (SMS) processam autorização e captura financeira em fluxo integrado na VisaNet.",
+      "payload": "Arquitetura VisaNet: VAP/DEX (Acesso) → VIP (Auth 0100/0110) → BASE II (Clearing TC 05..49) → VSS (Settlement Reports)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e44",
+      "id": "R42",
       "source": "visanet-no",
       "target": "autorizacao",
-      "label": "processa"
+      "label": "Processa 0100/0110 e gera Transaction ID (DE 62.2)",
+      "kind": "dados",
+      "brand": "Visa",
+      "role": "bandeira",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "VisaNet VIP → Autorização Online e carimbo do DE 62.2 (TID)",
+      "rule": "Durante o trânsito da autorização no VIP, a VisaNet valida os campos, aplica serviços de risco/token e gera o identificador único de 15 dígitos (`DE 62.2 Transaction Identifier`) que vincula a autorização ao clearing.",
+      "exceptions": "Se o Emissor estiver inacessível, o VIP aciona o Stand-In (STIP) automaticamente.",
+      "payload": "VIP Auth Response (0110): DE 38 (Auth Code) + DE 39 (00) + DE 62.2 (15-digit Visa Transaction Identifier)",
+      "routeGroup": [
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e45",
+      "id": "R43",
       "source": "vss-no",
-      "target": "clearing",
-      "label": "executa"
+      "target": "settlement",
+      "label": "Consolida SREs e comanda liquidação Visa",
+      "kind": "financeiro",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "liquidacao",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Visa VSS (Hierarquia SRE / FTSRE) → Liquidação Financeira Multilateral",
+      "rule": "O VisaNet Settlement Service (VSS) agrupa as transações processadas das Lowest-level SREs até o Funds Transfer SRE (FTSRE) e o Top SRE (que define a moeda única de settlement da hierarquia, conforme VSS Vol. 1 p. 17 e 21).",
+      "exceptions": "Com o serviço opcional Multicurrency Settlement (VSS Vol. 1 p. 32), um mesmo identificador pode estabelecer hierarquias adicionais por moeda para evitar conversão cambial desnecessária.",
+      "payload": "Hierarquia VSS: Lowest-Level SRE (Clearing ID) → Summary SRE → Funds Transfer SRE (FTSRE - Gera VSS-110) → Top SRE (Define Moeda)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e46",
-      "source": "vss-no",
-      "target": "vcf-no",
-      "label": "produz"
-    },
-    {
-      "id": "e47",
-      "source": "base2-ipm",
+      "id": "R44",
+      "source": "vcf-no",
       "target": "vss-no",
-      "label": "enviado ao"
+      "label": "Alimenta o VSS com transações BASE II",
+      "kind": "dados",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "clearing",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Arquivos BASE II / VCF (TC 05, TC 06, TC 15, TC 33) → Motor de Liquidação VSS",
+      "rule": "Os arquivos de clearing BASE II enviados pelos Adquirentes e devolvidos pela Visa como VCF (Visa Clearing File) alimentam o VSS para apuração diária de Intercâmbio (`VSS-120`), Reimbursement Fees (`VSS-130`) e Visa Charges (`VSS-140`).",
+      "exceptions": "Transações diferidas/parceladas no Brasil ficam registradas nos relatórios de pendência (`VSS-600 Pending Settlement Report`) até a data de vencimento de cada parcela.",
+      "payload": "Fluxo Visa D+1: Incoming BASE II (TC 05) → Cálculo de Intercâmbio → Outgoing VCF + Relatórios Diários VSS (TC 46 Machine / TC 47 Print)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e48",
-      "source": "vts-no",
-      "target": "dpan",
-      "label": "gera"
+      "id": "R45",
+      "source": "clearing",
+      "target": "vcf-no",
+      "label": "Materializado na Visa via BASE II / VCF",
+      "kind": "dados",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "clearing",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Processo de Clearing → Formato BASE II (TC 01 a TC 49) & VCF",
+      "rule": "Na Visa, a etapa de clearing ocorre através do formato posicional BASE II (registros de 168 bytes organizados em `TCR 0` a `TCR F`), gerando o arquivo VCF de retorno para conciliação transacional.",
+      "exceptions": "Registros de captura estendida (`TC 33.A`) transportam dados suplementares de EMV, parcelamento regional e gateway.",
+      "payload": "BASE II Record: TC 05 (Sales Draft) | TCR 0 (Dados Básicos, PAN, Valor, MCC) | TCR 1 (Dados Adicionais, Auth Code) | TCR 5 (Payment Service Data / TID)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
     },
     {
-      "id": "e49",
+      "id": "R46",
+      "source": "clearing",
+      "target": "base2-ipm",
+      "label": "Materializado na Mastercard via GCMS / IPM",
+      "kind": "dados",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "clearing",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Processo de Clearing → Formato GCMS / IPM (MTI 1240 / 1644)",
+      "rule": "Na Mastercard, o clearing trafega pelo Global Clearing Management System (GCMS) em arquivos `.IPM` estruturados como mensagens ISO 8583 (`MTI 1240` para apresentação de vendas e `1644` para conciliação e resumo de lotes).",
+      "exceptions": "Transações domésticas brasileiras exigem os subelementos locais no IPM (`PDS 0181` para dados de parcelamento e `PDS 0183` para documento do lojista).",
+      "payload": "IPM MTI 1240: DE 02 (PAN) | DE 04 (Valor) | DE 12 (Data/Hora) | DE 22 (Entry Mode) | DE 38 (Auth Code) | PDS 0158 (IRD) | PDS 0181 / 0183 (BR)",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R47",
+      "source": "mpe-t068",
+      "target": "base2-ipm",
+      "label": "Parametriza BINs (IP0040) e taxas de IRD no GCMS",
+      "kind": "calculo",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Tabelas MPE / T068 (IP0040..IP0095) → Motor de Cálculo do GCMS e Adquirente",
+      "rule": "Os arquivos de parâmetros MPE (`T068`) fornecem a tabela oficial de Account Ranges (`IP0040`), produtos e regras de qualificação que tanto o GCMS quanto o motor interno do Adquirente usam para determinar o IRD de cada transação.",
+      "exceptions": "Atraso na importação diária do arquivo `T068` faz o Adquirente desconhecer novos BINs recém-emitidos pelos bancos, gerando erro de roteamento ou cálculo de MDR incorreto.",
+      "payload": "MPE T068 → Tabela IP0040T1 (Account Range Low/High + GCMS Product + Country + Funding) → Validação de IRD no IPM 1240",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R48",
+      "source": "mpe-t068",
+      "target": "ird",
+      "label": "Define os requisitos técnicos de cada IRD",
+      "kind": "calculo",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "Contínuo / Regra",
+      "direction": "Tabelas MPE / T068 → Regras de Qualificação e Alíquotas de cada IRD",
+      "rule": "As tabelas internas do MPE especificam quais combinações de `POS Entry Mode`, `SLI/ECI`, `Timeliness Days` e `MCC` são exigidas para cada código IRD e qual é a alíquota correspondente por produto.",
+      "exceptions": "Quando uma transação falha no teste do IRD primário na tabela T068, o motor percorre a cadeia de fallback até encontrar o IRD de downgrade aplicável.",
+      "payload": "Regra T068: Se Canal=CNP e SLI=242 (3DS) e Timeliness ≤ Limite → IRD = AU | Caso contrário → Fallback para IRD = HU",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R49",
       "source": "vts-no",
       "target": "tokenizacao",
-      "label": "e a infra de"
+      "label": "Executa tokenização de rede na Visa",
+      "kind": "dados",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "VTS (Visa Token Service) → Processo de Tokenização Visa",
+      "rule": "O VTS é a implementação oficial da Visa para emissão de DPANs, validação de TAVV e controle de domínio (DCV) em carteiras digitais e cofres de e-commerce.",
+      "exceptions": "Exige que o Adquirente preserve os campos de criptograma (`DE 126` / `DE 62`) sem alteração até a VisaNet.",
+      "payload": "Visa VTS: Provisiona DPAN + TAVV → Valida no VIP → Entrega FPAN ao Emissor",
+      "routeGroup": [
+        "seguranca_3ds"
+      ]
     },
     {
-      "id": "e50",
+      "id": "R50",
+      "source": "mdes-no",
+      "target": "tokenizacao",
+      "label": "Executa tokenização de rede na Mastercard",
+      "kind": "dados",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "seguranca",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "MDES (Mastercard Digital Enablement Service) → Processo de Tokenização MC",
+      "rule": "O MDES gerencia o provisionamento de tokens Mastercard para Apple Pay, Google Pay, Click to Pay e Merchant Tokenization, realizando o mapeamento no `DE 48 SE 33`.",
+      "exceptions": "Requer repasse correto do UCAF (`DE 48 SE 43`) e Wallet ID (`DE 48 SE 26`).",
+      "payload": "Mastercard MDES: Provisiona DPAN + DSRP UCAF → Mapeia em DE 48 SE 33 na Banknet → Entrega ao Emissor",
+      "routeGroup": [
+        "seguranca_3ds"
+      ]
+    },
+    {
+      "id": "R51",
       "source": "pos-entry",
       "target": "autorizacao",
-      "label": "campo de"
+      "label": "Informa na autorização como o cartão foi lido (DE 22)",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "POS Entry Mode (DE 22) → Mensagem de Autorização 0100",
+      "rule": "O `DE 22` informa ao Emissor e à Bandeira a tecnologia física ou digital usada na captura (Chip `051`, NFC `071`, E-com `010`/`810`, COF `100`, Tarja `901`).",
+      "exceptions": "Se o `DE 22` indicar `051` ou `071` mas o campo `DE 55` (dados EMV) estiver vazio, a mensagem é recusada por inconsistência de segurança.",
+      "payload": "DE 22 Posições 1-2 (PAN Entry): 05=Chip | 07=Contactless | 01/81=Manual/E-com | 10=COF | 90=Magstripe\nPosição 3 (PIN Capability): 1=Com capacidade de PIN | 2=Sem capacidade de PIN",
+      "routeGroup": [
+        "mdr_ic",
+        "ciclo_d0_d1"
+      ]
     },
     {
-      "id": "e51",
+      "id": "R52",
       "source": "pos-entry",
       "target": "intercambio",
-      "label": "determina canal"
+      "label": "Separa tarifas Card Present (IA/JA) de CNP (AU/HU)",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "POS Entry Mode (DE 22) → Divisão Tarifária Presencial (CP) vs Não-Presencial (CNP)",
+      "rule": "O modo de entrada é o divisor de águas entre as tabelas de Intercâmbio Presencial (menores taxas devido ao baixo risco do chip EMV/NFC) e Não-Presencial/E-commerce (maiores taxas devido ao risco CNP).",
+      "exceptions": "Transações presenciais digitadas manualmente no terminal (Key-Entered) sofrem downgrade para tarifas de risco equivalentes a CNP.",
+      "payload": "DE 22 = 051 / 071 (Presencial Chip/NFC) → Qualifica IRD IA / JA (Menor custo)\nDE 22 = 010 / 810 (E-commerce) → Vai para trilha CNP (IRD AU se 3DS ou HU sem 3DS)",
+      "routeGroup": [
+        "mdr_ic"
+      ]
+    },
+    {
+      "id": "R53",
+      "source": "settlement",
+      "target": "cip-spb",
+      "label": "Liquida transações domésticas BR via CIP/SLC",
+      "kind": "financeiro",
+      "brand": "Bacen",
+      "role": "ambos",
+      "subdominio": "liquidacao",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Grades de Settlement das Bandeiras → Liquidação Centralizada na CIP/SLC (SPB)",
+      "rule": "No Brasil, as obrigações líquidas apuradas no clearing doméstico da Visa, Mastercard e Elo são enviadas para a grade do SLC/CIP (Núclea), onde os bancos emissores pagam e as credenciadoras/subcredenciadores recebem via STR/SPB.",
+      "exceptions": "Transações Cross-Border (internacionais) liquidam fora da CIP, diretamente via bancos liquidantes de moeda estrangeira no VSS/SMS.",
+      "payload": "Clearing Bandeira (D+1) → Arquivo Grade SLC/CIP → Compensação Multilateral no SPB → Crédito na conta de liquidação do Adquirente/Subcredenciador",
+      "routeGroup": [
+        "subcred_cip",
+        "ciclo_d0_d1"
+      ]
+    },
+    {
+      "id": "R54",
+      "source": "cip-spb",
+      "target": "subcredenciador",
+      "label": "Liquida agenda de recebíveis na câmara central",
+      "kind": "financeiro",
+      "brand": "Bacen",
+      "role": "subcredenciador",
+      "subdominio": "liquidacao",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "CIP/SLC → Liquidação para Subcredenciadores e Lojistas Finais",
+      "rule": "Pelas regras do Banco Central (Circular 3.682 e Resolução 264 de Recebíveis), os fluxos financeiros dos subcredenciadores e as agendas de recebíveis dos lojistas (incluindo travas de domicílio e antecipações) são liquidados e registrados via infraestrutura autorizada (CIP/Registradoras).",
+      "exceptions": "Antecipações ou cessões de recebíveis contratadas pelo lojista alteram o destinatário final do fluxo na grade da registradora/CIP.",
+      "payload": "Fluxo Financeiro Regulado BR: Emissor → CIP/SLC → Adquirente → Subcredenciador → Domicílio Bancário do Lojista (EC)",
+      "routeGroup": [
+        "subcred_cip"
+      ]
+    },
+    {
+      "id": "R55",
+      "source": "bacen-reg",
+      "target": "intercambio",
+      "label": "Impõe teto de 0,50% (Débito) e 0,70% (Pré-pago)",
+      "kind": "compliance",
+      "brand": "Bacen",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "Contínuo / Regra",
+      "direction": "Resolução BCB 246 (Bacen) → Cap Obrigatório nas Tabelas de Intercâmbio BR",
+      "rule": "A regulação do Banco Central do Brasil limita a Tarifa de Intercâmbio máxima em transações domésticas a **0,50% no cartão de Débito** e **0,70% no cartão Pré-pago**, vedando cobrança acima desses limites para cartões de pessoa física.",
+      "exceptions": "Cartões de Crédito (à vista e parcelado), cartões corporativos empresariais e transações internacionais não possuem teto fixado por essa resolução.",
+      "payload": "Teto Regulatório Bacen (Vigente desde 01/04/2023 - Res. BCB 246):\n• Débito Doméstico PF: máx. 0,50%\n• Pré-pago Doméstico PF: máx. 0,70%\n• Crédito Doméstico: Livre (definido pelas tabelas de cada Bandeira)",
+      "routeGroup": [
+        "subcred_cip",
+        "mdr_ic"
+      ]
+    },
+    {
+      "id": "R56",
+      "source": "downgrade",
+      "target": "intercambio",
+      "label": "Majora a tarifa de Intercâmbio e corrói margem",
+      "kind": "financeiro",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Downgrade Técnico (Clearing) → Aumento Direto do Intercâmbio Pago pelo Adquirente",
+      "rule": "Sempre que o registro de clearing perde um requisito de qualificação (ex.: ausência de 3DS, perda de Trace ID/Auth Code, atraso de envio D+x ou divergência de valor/moeda), a Bandeira aplica a alíquota de downgrade, aumentando o custo pago ao Emissor.",
+      "exceptions": "Monitorar preventivamente o arquivo de saída antes do envio (Linter ISO/GCMS) e auditar os IRDs retornados (`PDS 0158` / `VCF`) evita a perda recorrente de margem.",
+      "payload": "Impacto Financeiro do Downgrade:\nSe MDR fixo = 2,20% e IC qualificado = 1,45% (Margem = +0,55%)\nCom Downgrade p/ HU (IC = 2,15%) → Margem cai para -0,15% (Prejuízo por transação!)",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R57",
+      "source": "fee-bandeira",
+      "target": "mcbs-billing",
+      "label": "Faturado semanal/mensalmente via MCBS e TN3A",
+      "kind": "financeiro",
+      "brand": "Mastercard",
+      "role": "ambos",
+      "subdominio": "pricing",
+      "timing": "Semanal / Mensal",
+      "direction": "Scheme Fees Mastercard → Fatura MCBS (Nota Fiscal BR) e Relatório Detalhado TN3A",
+      "rule": "Na Mastercard, todos os Scheme Fees de autorização, conectividade, clearing, tokenização, disputas e programas são consolidados no MCBS por ICA e detalhados no novo arquivo CSV **`TN3A`** (que substitui o legado posicional `T0CH/BFIL`).",
+      "exceptions": "No Brasil, as faturas MCBS são emitidas às segundas-feiras via Nota Fiscal com vencimento na sexta-feira (3 dias úteis após entrega na terça, conforme Manual MCBS Brazil p. 5).",
+      "payload": "Faturamento Mastercard:\nEventos MCBS (Flat / Variable / Tiered) → Fatura Semanal por Billable ICA + Arquivo CSV TN3A (GLB 12332.2)",
+      "routeGroup": [
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R58",
+      "source": "fee-bandeira",
+      "target": "vss-no",
+      "label": "Reportado na Visa via VSS-140, VSS-215 e VBS",
+      "kind": "financeiro",
+      "brand": "Visa",
+      "role": "ambos",
+      "subdominio": "pricing",
+      "timing": "D+1 / D+2 Settlement",
+      "direction": "Visa Charges & Assessments → Relatórios VSS-140 / VSS-215 / VSS-640",
+      "rule": "Na Visa, as cobranças de rede liquidadas via VSS são detalhadas nos relatórios diários **`VSS-140` (Visa Charges Report)**, **`VSS-215` (International Service Assessment - ISA)** e **`VSS-130`/`135` (Reimbursement Fees)**.",
+      "exceptions": "Cobranças pendentes/diferidas aparecem no `VSS-640` (Pending Charges Settlement Report).",
+      "payload": "Relatórios de Tarifas Visa (VSS Vol. 1 p. 46-47):\n• VSS-120: Interchange Value\n• VSS-130/135: Reimbursement Fees\n• VSS-140: Visa Charges\n• VSS-215: ISA Charges",
+      "routeGroup": [
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R59",
+      "source": "cit-mit",
+      "target": "autorizacao",
+      "label": "Vincula recorrência MIT ao Trace ID do CIT original",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Credencial Salva (CIT/MIT) → Indicadores de Recorrência e Trace ID na Autorização 0100",
+      "rule": "Para que uma cobrança recorrente (assinatura/parcela futura MIT) seja aprovada sem CVV e sem desafio 3DS no momento da cobrança, o Adquirente deve enviar o indicador MIT e o `Network Transaction ID` gerado pelo Emissor/Bandeira na primeira compra CIT.",
+      "exceptions": "Reenviar tentativas MIT após uma recusa Category 1 (Hard Decline, como conta encerrada) gera multa automática de retentativa excessiva na bandeira.",
+      "payload": "CIT (1ª Compra c/ 3DS/CVV) → Retorna Network Trace ID (DE 62.2 / DE 63)\nMIT (Cobrança Mensal) → Envia Indicador MIT + Network Trace ID original",
+      "routeGroup": [
+        "seguranca_3ds"
+      ]
+    },
+    {
+      "id": "R60",
+      "source": "stip",
+      "target": "autorizacao",
+      "label": "Aprova em contingência quando o Emissor cai",
+      "kind": "dados",
+      "brand": "Todas",
+      "role": "bandeira",
+      "subdominio": "autorizacao",
+      "timing": "D+0 Online (<1.5s)",
+      "direction": "Stand-In (STIP da Bandeira) → Resposta 0110 ao Adquirente + Advice 0120 ao Emissor",
+      "rule": "Se o host do Emissor não responder ao `0100` dentro do timeout da rede, o serviço de Stand-In da Bandeira avalia os parâmetros de risco configurados pelo Emissor, responde `0110` ao Adquirente e envia um `0120` (Advice) ao Emissor para atualizar o saldo.",
+      "exceptions": "Gera cobrança de Stand-In Processing Fee por transação avaliada no MCBS/VSS do Emissor.",
+      "payload": "Timeout Emissor (> ~2s) → STIP Bandeira responde 0110 ao Adquirente → Enfileira Advice 0120 p/ Emissor + Gera Billing Event STIP",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R61",
+      "source": "elo-no",
+      "target": "intercambio",
+      "label": "Aplica tabelas de Intercâmbio e Fee Elo BR",
+      "kind": "calculo",
+      "brand": "Elo",
+      "role": "ambos",
+      "subdominio": "intercambio",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Regras e Produtos Elo (Mais, Grafite, Nanquim, Benefícios) → Cálculo de Intercâmbio Elo",
+      "rule": "No arranjo Elo, o cálculo de intercâmbio combina a variante do cartão (Elo Básico, Mais, Grafite, Nanquim, Diners Club, Corporativo), a modalidade (Débito, Crédito à vista, Parcelado 2–6x, 7–12x, Crediário), o canal (Presencial vs E-commerce) e o MCC.",
+      "exceptions": "Possui tetos em Reais (R$) em categorias específicas e forte presença em cartões de Benefícios/Vouchers (Alimentação/Refeição/Flex).",
+      "payload": "Matriz Elo Brasil: Produto (Mais / Grafite / Nanquim / Empresarial) × Canal (CP / CNP) × Parcelas × MCC Segmento → IC (%) + Cap (R$)",
+      "routeGroup": [
+        "mdr_ic",
+        "tabelas_billing"
+      ]
+    },
+    {
+      "id": "R62",
+      "source": "clearing",
+      "target": "downgrade",
+      "label": "Dispara downgrade se faltar requisito ou atrasar D+x",
+      "kind": "calculo",
+      "brand": "Todas",
+      "role": "adquirente",
+      "subdominio": "clearing",
+      "timing": "D+1 Batch Clearing",
+      "direction": "Falha de Qualificação ou Intempestividade no Clearing → Downgrade Tarifário",
+      "rule": "Durante a validação do clearing no GCMS (Mastercard) ou BASE II (Visa), se o registro apresentar atraso além da janela de Timeliness, ausência de Trace ID da autorização ou falta de dados de autenticação 3DS, a transação é rebaixada para um IRD/Fee Program mais caro.",
+      "exceptions": "Validação prévia via Linter de Clearing antes da janela de cutoff elimina erros de preenchimento.",
+      "payload": "Causas Clássicas de Downgrade no Clearing:\n1. Late Presentment (Data Clearing − Data Auth > Limite)\n2. Missing Lifecycle ID (DE 63 / DE 62.2 ausente)\n3. Missing ECI/CAVV em compra 3DS\n4. Divergência de Valor/Moeda entre Auth e Clearing",
+      "routeGroup": [
+        "ciclo_d0_d1",
+        "mdr_ic"
+      ]
     }
   ]
 }

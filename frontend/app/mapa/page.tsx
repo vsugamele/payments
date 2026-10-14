@@ -1,68 +1,52 @@
 import Link from "next/link";
-import { ArrowLeft, Network, Info } from "lucide-react";
+import { ArrowLeft, Network, Calculator, BookOpen } from "lucide-react";
 import MapaWrapper from "./MapaWrapper";
 
 export const metadata = {
-  title: "Mapa de Conhecimento — VS Payments",
+  title: "Atlas de Conceitos & Ecossistema — VS Payments",
   description:
-    "Grafo visual interativo do ecossistema de pagamentos. Explore como Portador, Emissor, Intercâmbio, IRD, MCC, VAMP e dezenas de outros conceitos se conectam.",
+    "Atlas interativo do ecossistema de pagamentos com rastreabilidade ponta a ponta (Quem envia, Quem recebe, Como calcula, Campos ISO 8583, Clearing, Intercâmbio, VAMP/ECP e CIP).",
 };
 
 export default function MapaPage() {
   return (
-    <main className="bg-background flex flex-col" style={{ height: "calc(100vh - 64px)" }}>
-      {/* Header compacto */}
+    <main className="bg-background flex flex-col h-[calc(100vh-64px)]">
+      {/* Header com Navegação em Abas (Alinhado com Liquidação Internacional e MCBS) */}
       <div
         style={{
-          borderBottom: "1px solid #0f172a",
+          borderBottom: "1px solid #1e293b",
           background: "#050b18",
-          padding: "0.75rem 1.5rem",
+          padding: "0.6rem 1.5rem",
           display: "flex",
           alignItems: "center",
-          gap: "1rem",
+          justifyContent: "space-between",
           flexShrink: 0,
           flexWrap: "wrap",
+          gap: "1rem",
         }}
       >
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            fontSize: "0.78rem",
-            color: "var(--muted-foreground)",
-          }}
-          className="hover:text-white transition-colors"
-        >
-          <ArrowLeft size={13} />
-          Início
-        </Link>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Network size={16} style={{ color: "#818cf8" }} />
-          <span className="font-semibold text-white" style={{ fontSize: "0.875rem" }}>
-            Mapa de Conhecimento
-          </span>
-          <span
-            style={{
-              fontSize: "0.65rem",
-              fontWeight: 700,
-              color: "#818cf8",
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.25)",
-              borderRadius: "9999px",
-              padding: "0.15rem 0.5rem",
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-            }}
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
-            Interativo
-          </span>
+            <ArrowLeft size={13} />
+            Início
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-foreground text-sm flex items-center gap-2">
+              <Network size={16} className="text-blue-400" />
+              Atlas do Ecossistema de Pagamentos
+            </span>
+            <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              48 Conceitos • 62 Regras • Visa • MC • Elo • CIP
+            </span>
+          </div>
         </div>
 
         {/* Abas dos Mapas */}
-        <div className="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl ml-2">
+        <div className="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl">
           <Link
             href="/mapa"
             className="text-xs font-bold px-3 py-1 rounded-lg bg-blue-600 text-white shadow-xs transition-all"
@@ -83,64 +67,33 @@ export default function MapaPage() {
           </Link>
         </div>
 
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            fontSize: "0.72rem",
-            color: "var(--muted-foreground)",
-          }}
-        >
-          <Info size={12} />
-          Clique num nó para ver detalhes · Scroll para zoom · Arraste para navegar
-        </div>
-
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        {/* Links rápidos de apoio */}
+        <div className="hidden xl:flex items-center gap-2">
+          <Link
+            href="/simulador"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 transition-all"
+          >
+            <Calculator size={12} />
+            Simulador IC
+          </Link>
           <Link
             href="/trilhas"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "#818cf8",
-              padding: "0.35rem 0.75rem",
-              borderRadius: "0.375rem",
-              background: "rgba(99,102,241,0.1)",
-              border: "1px solid rgba(99,102,241,0.2)",
-              textDecoration: "none",
-            }}
-            className="hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/20 transition-all"
           >
-            Ver Trilhas
+            <BookOpen size={12} />
+            Trilhas
           </Link>
           <Link
             href="/glossario"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "var(--muted-foreground)",
-              padding: "0.35rem 0.75rem",
-              borderRadius: "0.375rem",
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              textDecoration: "none",
-            }}
-            className="hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-muted-foreground hover:text-white transition-all"
           >
-            Ver Glossário
+            Glossário
           </Link>
         </div>
       </div>
 
-      {/* Grafo — ocupa o restante da tela */}
-      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+      {/* Atlas — ocupa o restante da tela */}
+      <div className="flex-1 w-full h-full overflow-hidden">
         <MapaWrapper />
       </div>
     </main>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu, X, Sun, Moon, Briefcase, FileDown, Mail,
   ExternalLink, MessageCircle
@@ -20,6 +20,12 @@ const NAV_LINKS = [
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.top && window.self !== window.top) {
+      window.top.location.href = window.location.href;
+    }
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/85 backdrop-blur-md transition-colors">
