@@ -119,12 +119,15 @@ function handleArquivos(payload: Record<string, any>) {
             sistema: "MCBS Billing Brazil (IPM 1740)",
             codigo: item.code,
             serviceId: item.serviceId,
+            serviceLabelPt: item.serviceLabelPt || `Grupo MCBS (${item.serviceId})`,
             nome: item.name,
             quemPaga: billedTo,
             descricao: item.description,
+            explicacaoPt: item.explicacaoPt || `Tarifa operacional MCBS (${item.serviceId}) cobrada de ${billedTo}.`,
+            gatilhoPt: item.gatilhoPt || "Apurado no ciclo de faturamento MCBS / arquivo IPM 1740.",
             rates: item.rates || [],
             fonte: `${item.manual || "Manual MCBS - Billing - BRAZIL.pdf"} · p. ${item.page || "?"}`,
-            reconciliacao: "Fatura MCBS / Arquivo IPM 1740 (Fee Collection)",
+            reconciliacao: "Fatura MCBS / Arquivo IPM 1740 (Fee Collection — DE 25=28, DE 63)",
           });
         }
       }
@@ -150,6 +153,7 @@ function handleArquivos(payload: Record<string, any>) {
         const invDesc = String(item["Invoice Description"] || "");
         const longDesc = String(item["Long Description"] || "");
         const fCat = String(item["Fee category"] || "");
+        const fGroup = String(item["Fee Group"] || "VSS");
 
         if (q) {
           const hay = `${bLine} ${fName} ${invDesc} ${longDesc} ${fCat}`.toLowerCase();
@@ -162,13 +166,16 @@ function handleArquivos(payload: Record<string, any>) {
             bandeira: "Visa",
             sistema: `Visa VSS Billing (${fCat || "Fee Guide"})`,
             codigo: bLine || fName.slice(0, 12),
-            serviceId: String(item["Fee Group"] || "VSS"),
+            serviceId: fGroup,
+            serviceLabelPt: `Visa ${fCat || fGroup} (${fGroup})`,
             nome: fName || invDesc,
             quemPaga,
             descricao: longDesc || invDesc,
-            rates: [`Invoice: ${invDesc}`, `Vigência: ${item["Effective Start Date"] || "2026"}`],
+            explicacaoPt: `Linha de faturamento Visa (${fCat || "VSS"}) aplicada a ${quemPaga}. Identificada na fatura como "${invDesc}".`,
+            gatilhoPt: `Apurado pelo VisaNet Settlement Service (VSS) com vigência a partir de ${item["Effective Start Date"] || "2026"}.`,
+            rates: [`Descrição na Fatura: ${invDesc}`, `Vigência: ${item["Effective Start Date"] || "2026"}`],
             fonte: "Visa Billing Line Mapping & Fee Guide (Base Oficial)",
-            reconciliacao: "Relatório VSS-140 / TC 46 Subgroup 4 & 5",
+            reconciliacao: "Relatório VSS-140 / Registro Base II TC 46 Subgroup 4 & 5",
           });
         }
       }

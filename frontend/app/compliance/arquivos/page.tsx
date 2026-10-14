@@ -5,7 +5,8 @@ import Link from "next/link";
 import {
   Database, Search, Terminal, FileCode2, DollarSign, Layers,
   ArrowLeft, RefreshCw, CheckCircle2, Filter, Copy, Check,
-  BookOpen, ArrowRight, Sparkles, ShieldCheck, Cpu, Sliders
+  BookOpen, ArrowRight, Sparkles, ShieldCheck, Cpu, Sliders,
+  Eye, ChevronDown, ChevronUp, Info
 } from "lucide-react";
 
 interface DocumentoMeta {
@@ -75,9 +76,12 @@ interface BillingRow {
   sistema: string;
   codigo: string;
   serviceId: string;
+  serviceLabelPt?: string;
   nome: string;
   quemPaga: string;
   descricao: string;
+  explicacaoPt?: string;
+  gatilhoPt?: string;
   rates: string[];
   fonte: string;
   reconciliacao: string;
@@ -124,6 +128,8 @@ export default function CentralArquivosPage() {
   const [campoResults, setCampoResults] = useState<CampoRow[]>([]);
   const [campoTotal, setCampoTotal] = useState(0);
   const [loadingCampos, setLoadingCampos] = useState(false);
+  const [hoveredCampo, setHoveredCampo] = useState<CampoRow | null>(null);
+  const [expandedCampoId, setExpandedCampoId] = useState<number | null>(null);
 
   // Tab 3: Motor de Faturamento MCBS & VSS state
   const [billingQuery, setBillingQuery] = useState("");
@@ -134,9 +140,18 @@ export default function CentralArquivosPage() {
   const [billingResults, setBillingResults] = useState<BillingRow[]>([]);
   const [billingTotals, setBillingTotals] = useState({ mcbs: 0, visa: 0, total: 0 });
   const [loadingBilling, setLoadingBilling] = useState(false);
+  const [hoveredBilling, setHoveredBilling] = useState<BillingRow | null>(null);
+  const [expandedBillingKey, setExpandedBillingKey] = useState<string | null>(null);
 
-  // Load overview on mount
+  // Load overview on mount + support ?tab= query param
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam === "parser" || tabParam === "campos" || tabParam === "billing" || tabParam === "arquitetura") {
+        setActiveTab(tabParam);
+      }
+    }
     async function fetchOverview() {
       setLoadingOverview(true);
       try {
@@ -205,8 +220,10 @@ export default function CentralArquivosPage() {
       });
       const data = await res.json();
       if (data.connected) {
-        setCampoResults(data.results || []);
+        const list = data.results || [];
+        setCampoResults(list);
         setCampoTotal(data.totalMatches || 0);
+        setHoveredCampo(list[0] || null);
       }
     } catch (e) {
       console.error("Erro ao buscar campos:", e);
@@ -242,7 +259,9 @@ export default function CentralArquivosPage() {
       });
       const data = await res.json();
       if (data.connected) {
-        setBillingResults(data.results || []);
+        const list = data.results || [];
+        setBillingResults(list);
+        setHoveredBilling(list[0] || null);
         setBillingTotals({
           mcbs: data.totalMcbsMatched || 0,
           visa: data.totalVisaMatched || 0,
@@ -804,6 +823,61 @@ export default function CentralArquivosPage() {
               </div>
             </div>
 
+            {/* Live Hover Inspector for Campos */}
+            {hoveredCampo && (
+              <div className="bg-gradient-to-r from-blue-950/40 via-[#080f1e] to-indigo-950/30 border border-blue-500/30 rounded-2xl p-5 shadow-lg transition-all">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 mb-3">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[10px] font-bold uppercase tracking-wider">
+                      <Eye className="w-3.5 h-3.5" /> Raio-X ao Passar o Mouse
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-white">
+                      {hoveredCampo.bandeira} · {hoveredCampo.doc_id} (p.{hoveredCampo.pagina})
+                    </span>
+                    {hoveredCampo.pos_inicio !== null && hoveredCampo.pos_fim !== null && (
+                      <span className="px-2.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-xs font-bold">
+                        Bytes {hoveredCampo.pos_inicio}–{hoveredCampo.pos_fim} ({hoveredCampo.tamanho} Bytes · Formato {hoveredCampo.formato || "N/A"})
+                      </span>
+                    )}
+                    {(hoveredCampo.de || hoveredCampo.pds) && (
+                      <span className="px-2.5 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono text-xs font-bold">
+                        {hoveredCampo.de ? `ISO DE ${hoveredCampo.de}` : ""} {hoveredCampo.pds ? `· PDS ${hoveredCampo.pds}` : ""} {hoveredCampo.subcampo ? `· Sub ${hoveredCampo.subcampo}` : ""}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-slate-400">
+                    Passe o mouse sobre qualquer linha abaixo ou clique para fixar/expandir
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
+                  <div className="bg-[#030711]/90 border border-slate-800/90 rounded-xl p-3.5">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1">
+                      Campo / Registro Oficial
+                    </div>
+                    <div className="text-sm font-bold text-white">{hoveredCampo.nome || hoveredCampo.registro || "Registro Técnico"}</div>
+                    <div className="text-[11px] font-mono text-slate-400 mt-1">
+                      Registro/Tabela: <span className="text-slate-200">{hoveredCampo.registro || hoveredCampo.tipo}</span>
+                    </div>
+                    {hoveredCampo.valor && (
+                      <div className="mt-1.5 inline-block px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-mono text-[11px] text-emerald-300">
+                        Código / Valor: {hoveredCampo.valor}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="lg:col-span-2 bg-[#030711]/90 border border-slate-800/90 rounded-xl p-3.5">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">
+                      Especificação Completa do Manual ({hoveredCampo.manual_titulo} — Ed. {hoveredCampo.edicao})
+                    </div>
+                    <p className="text-slate-200 leading-relaxed whitespace-pre-line">
+                      {hoveredCampo.descricao || "Campo estrutural mapeado diretamente das tabelas técnicas oficiais."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Results Table */}
             <div className="bg-[#080f1e] border border-slate-800/80 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
@@ -815,7 +889,7 @@ export default function CentralArquivosPage() {
                       <th className="py-3 px-3">Posição / DE / PDS</th>
                       <th className="py-3 px-3">Formato</th>
                       <th className="py-3 px-4">Nome do Campo / Valor</th>
-                      <th className="py-3 px-4">Descrição Técnica Oficial</th>
+                      <th className="py-3 px-4">Descrição Técnica Oficial (Passe o mouse ou clique)</th>
                       <th className="py-3 px-3">Pág. PDF</th>
                     </tr>
                   </thead>
@@ -833,57 +907,107 @@ export default function CentralArquivosPage() {
                         </td>
                       </tr>
                     ) : (
-                      campoResults.map((row) => (
-                        <tr key={row.id} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="py-2.5 px-4 whitespace-nowrap">
-                            <span
-                              className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mr-1.5 ${
-                                row.bandeira === "Visa"
-                                  ? "bg-blue-500/15 text-blue-300"
-                                  : row.bandeira === "Mastercard"
-                                  ? "bg-amber-500/15 text-amber-300"
-                                  : "bg-emerald-500/15 text-emerald-300"
+                      campoResults.map((row) => {
+                        const isExpanded = expandedCampoId === row.id;
+                        const isHovered = hoveredCampo?.id === row.id;
+                        return (
+                          <React.Fragment key={row.id}>
+                            <tr
+                              onMouseEnter={() => setHoveredCampo(row)}
+                              onClick={() => setExpandedCampoId(isExpanded ? null : row.id)}
+                              className={`cursor-pointer transition-colors ${
+                                isExpanded
+                                  ? "bg-blue-950/40"
+                                  : isHovered
+                                  ? "bg-slate-900/80"
+                                  : "hover:bg-slate-900/50"
                               }`}
                             >
-                              {row.bandeira}
-                            </span>
-                            <div className="text-[11px] font-mono text-slate-400 mt-0.5">{row.doc_id}</div>
-                          </td>
-                          <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px] max-w-[200px]">
-                            <div className="line-clamp-2">{row.registro || row.tipo}</div>
-                          </td>
-                          <td className="py-2.5 px-3 font-mono whitespace-nowrap">
-                            {row.pos_inicio !== null && row.pos_fim !== null ? (
-                              <span className="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 font-bold">
-                                Pos {row.pos_inicio}–{row.pos_fim} ({row.tamanho}B)
-                              </span>
-                            ) : row.de || row.pds ? (
-                              <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 font-bold">
-                                {row.de ? `DE ${row.de}` : ""} {row.pds ? `PDS ${row.pds}` : ""}
-                              </span>
-                            ) : (
-                              <span className="text-slate-500">{row.tipo}</span>
+                              <td className="py-2.5 px-4 whitespace-nowrap">
+                                <span
+                                  className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mr-1.5 ${
+                                    row.bandeira === "Visa"
+                                      ? "bg-blue-500/15 text-blue-300"
+                                      : row.bandeira === "Mastercard"
+                                      ? "bg-amber-500/15 text-amber-300"
+                                      : "bg-emerald-500/15 text-emerald-300"
+                                  }`}
+                                >
+                                  {row.bandeira}
+                                </span>
+                                <div className="text-[11px] font-mono text-slate-400 mt-0.5">{row.doc_id}</div>
+                              </td>
+                              <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px] max-w-[200px]">
+                                <div className="line-clamp-2">{row.registro || row.tipo}</div>
+                              </td>
+                              <td className="py-2.5 px-3 font-mono whitespace-nowrap">
+                                {row.pos_inicio !== null && row.pos_fim !== null ? (
+                                  <span className="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 font-bold">
+                                    Pos {row.pos_inicio}–{row.pos_fim} ({row.tamanho}B)
+                                  </span>
+                                ) : row.de || row.pds ? (
+                                  <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 font-bold">
+                                    {row.de ? `DE ${row.de}` : ""} {row.pds ? `PDS ${row.pds}` : ""}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-500">{row.tipo}</span>
+                                )}
+                              </td>
+                              <td className="py-2.5 px-3 font-mono text-amber-300 whitespace-nowrap">
+                                {row.formato || "—"}
+                              </td>
+                              <td className="py-2.5 px-4 font-semibold text-white max-w-[240px]">
+                                <div>{row.nome || "—"}</div>
+                                {row.valor && (
+                                  <div className="text-[11px] font-mono text-emerald-400 mt-0.5">
+                                    Valor/Código: {row.valor}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-2.5 px-4 text-slate-300 max-w-md">
+                                <div className={isExpanded ? "leading-relaxed text-white" : "line-clamp-2 leading-relaxed"}>
+                                  {row.descricao || "—"}
+                                </div>
+                                <div className="text-[10px] text-blue-400 mt-1 flex items-center gap-1 font-medium">
+                                  {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                  {isExpanded ? "Ocultar ficha técnica" : "Clique para expandir ficha completa"}
+                                </div>
+                              </td>
+                              <td className="py-2.5 px-3 font-mono text-slate-400 whitespace-nowrap">
+                                p.{row.pagina}
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <tr className="bg-blue-950/25 border-b border-blue-500/30">
+                                <td colSpan={7} className="p-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                    <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                                      <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                                        Origem Normativa & Localização
+                                      </div>
+                                      <div className="text-white font-semibold">{row.manual_titulo}</div>
+                                      <div className="text-slate-400 font-mono text-[11px]">
+                                        Doc ID: {row.doc_id} · Edição: {row.edicao} · Página PDF: {row.pagina}
+                                      </div>
+                                      <div className="text-slate-300 font-mono text-[11px]">
+                                        Tipo: {row.tipo} · Registro: {row.registro || "—"}
+                                      </div>
+                                    </div>
+                                    <div className="md:col-span-2 bg-[#030711] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                                      <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                                        Texto Integral da Regra / Descrição do Campo
+                                      </div>
+                                      <p className="text-slate-200 leading-relaxed whitespace-pre-line">
+                                        {row.descricao || "Sem descrição textual adicional."}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
                             )}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-amber-300 whitespace-nowrap">
-                            {row.formato || "—"}
-                          </td>
-                          <td className="py-2.5 px-4 font-semibold text-white max-w-[240px]">
-                            <div>{row.nome || "—"}</div>
-                            {row.valor && (
-                              <div className="text-[11px] font-mono text-emerald-400 mt-0.5">
-                                Valor/Código: {row.valor}
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-4 text-slate-400 max-w-md">
-                            <div className="line-clamp-3 leading-relaxed">{row.descricao || "—"}</div>
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-slate-400 whitespace-nowrap">
-                            p.{row.pagina}
-                          </td>
-                        </tr>
-                      ))
+                          </React.Fragment>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -1016,6 +1140,101 @@ export default function CentralArquivosPage() {
               </div>
             </div>
 
+            {/* LIVE HOVER INSPECTOR FOR BILLING (RAIO-X DO EVENTO) */}
+            {hoveredBilling && (
+              <div className="bg-gradient-to-r from-purple-950/40 via-[#080f1e] to-blue-950/30 border border-purple-500/40 rounded-2xl p-5 shadow-xl transition-all">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 mb-4">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-200 text-[10px] font-bold uppercase tracking-wider">
+                      <Eye className="w-3.5 h-3.5" /> Raio-X do Evento (Passe o mouse ou clique na linha)
+                    </span>
+                    <span
+                      className={`px-2.5 py-0.5 rounded text-xs font-bold ${
+                        hoveredBilling.bandeira === "Mastercard"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                          : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                      }`}
+                    >
+                      {hoveredBilling.bandeira} · {hoveredBilling.sistema}
+                    </span>
+                    <span className="px-3 py-0.5 rounded-lg bg-slate-900 border border-purple-500/40 font-mono text-sm font-extrabold text-purple-300">
+                      {hoveredBilling.codigo}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs font-mono text-slate-200">
+                      Service {hoveredBilling.serviceId} — {hoveredBilling.serviceLabelPt || "Serviço Regulamentado"}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold">
+                      Quem Paga: {hoveredBilling.quemPaga}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Fonte: {hoveredBilling.fonte}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 text-xs">
+                  {/* Col 1: O que é em Português Claro */}
+                  <div className="lg:col-span-5 bg-[#030711]/90 border border-slate-800/90 rounded-xl p-4 space-y-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5" /> Do que se trata (Explicação Executiva)
+                    </div>
+                    <div className="text-sm font-bold text-white">{hoveredBilling.nome}</div>
+                    <p className="text-slate-200 leading-relaxed">
+                      {hoveredBilling.explicacaoPt ||
+                        `Evento oficial de faturamento ${hoveredBilling.sistema} (${hoveredBilling.codigo}) aplicável ao ${hoveredBilling.quemPaga}.`}
+                    </p>
+                    <div className="pt-2 border-t border-slate-800/80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-0.5">
+                        Gatilho Técnico & Mensageria:
+                      </span>
+                      <span className="text-slate-300">
+                        {hoveredBilling.gatilhoPt || "Disparado conforme regra de negócio do evento e liquidado na fatura da bandeira."}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Col 2: Regra Normativa Original Completa */}
+                  <div className="lg:col-span-4 bg-[#030711]/90 border border-slate-800/90 rounded-xl p-4 space-y-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                      Regra Oficial Completa (Manual da Bandeira)
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      {hoveredBilling.descricao}
+                    </p>
+                    <div className="pt-2 border-t border-slate-800/80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                        Como Conciliar no Backoffice:
+                      </span>
+                      <span className="text-slate-200 font-medium">{hoveredBilling.reconciliacao}</span>
+                    </div>
+                  </div>
+
+                  {/* Col 3: Alíquotas e Tiers Limpos */}
+                  <div className="lg:col-span-3 bg-[#030711]/90 border border-emerald-500/30 rounded-xl p-4 space-y-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                      Alíquotas & Tiers Extraídos ({hoveredBilling.rates?.length || 0})
+                    </div>
+                    {hoveredBilling.rates && hoveredBilling.rates.length > 0 ? (
+                      <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                        {hoveredBilling.rates.map((r, i) => (
+                          <div
+                            key={i}
+                            className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 font-mono text-xs text-emerald-200 font-semibold"
+                          >
+                            {r}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-slate-400 text-[11px] leading-relaxed">
+                        Tarifa variável por faixa de volume mensal (Tiered Schedule) ou cotação cambial da fatura. Consulte a página indicada em <strong className="text-white">{hoveredBilling.fonte}</strong>.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Billing Cards / Table */}
             <div className="bg-[#080f1e] border border-slate-800/80 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
@@ -1026,7 +1245,7 @@ export default function CentralArquivosPage() {
                       <th className="py-3 px-3">Event ID / Billing Line</th>
                       <th className="py-3 px-3">Service / Grupo</th>
                       <th className="py-3 px-3">Quem Paga</th>
-                      <th className="py-3 px-4">Nome & Regra de Gatilho</th>
+                      <th className="py-3 px-4">Nome & Explicação (Passe o mouse ou clique)</th>
                       <th className="py-3 px-4">Alíquotas / Tiers Extraídos</th>
                       <th className="py-3 px-4">Conciliação & Fonte</th>
                     </tr>
@@ -1045,61 +1264,152 @@ export default function CentralArquivosPage() {
                         </td>
                       </tr>
                     ) : (
-                      billingResults.map((b, idx) => (
-                        <tr key={`${b.codigo}-${idx}`} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                b.bandeira === "Mastercard"
-                                  ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                                  : "bg-blue-500/15 text-blue-300 border border-blue-500/30"
+                      billingResults.map((b, idx) => {
+                        const rowKey = `${b.codigo}-${idx}`;
+                        const isExpanded = expandedBillingKey === rowKey;
+                        const isHovered = hoveredBilling?.codigo === b.codigo && hoveredBilling?.fonte === b.fonte;
+                        return (
+                          <React.Fragment key={rowKey}>
+                            <tr
+                              onMouseEnter={() => setHoveredBilling(b)}
+                              onClick={() => setExpandedBillingKey(isExpanded ? null : rowKey)}
+                              className={`cursor-pointer transition-colors ${
+                                isExpanded
+                                  ? "bg-purple-950/35"
+                                  : isHovered
+                                  ? "bg-slate-900/80"
+                                  : "hover:bg-slate-900/50"
                               }`}
                             >
-                              {b.bandeira}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 font-mono font-bold text-purple-300 whitespace-nowrap">
-                            {b.codigo}
-                          </td>
-                          <td className="py-3 px-3 font-mono text-slate-300 whitespace-nowrap">
-                            {b.serviceId}
-                          </td>
-                          <td className="py-3 px-3 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                                b.quemPaga.includes("Adquirente") && !b.quemPaga.includes("Emissor")
-                                  ? "bg-cyan-500/15 text-cyan-300"
-                                  : b.quemPaga.includes("Emissor") && !b.quemPaga.includes("Adquirente")
-                                  ? "bg-rose-500/15 text-rose-300"
-                                  : "bg-slate-800 text-slate-300"
-                              }`}
-                            >
-                              {b.quemPaga}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 max-w-md">
-                            <div className="font-bold text-white">{b.nome}</div>
-                            <div className="text-slate-400 text-[11px] line-clamp-2 mt-0.5">{b.descricao}</div>
-                          </td>
-                          <td className="py-3 px-4 font-mono text-[11px] text-emerald-300 max-w-xs">
-                            {b.rates && b.rates.length > 0 ? (
-                              <div className="space-y-0.5">
-                                {b.rates.slice(0, 3).map((r, i) => (
-                                  <div key={i} className="truncate">
-                                    • {r}
+                              <td className="py-3 px-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                    b.bandeira === "Mastercard"
+                                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                                      : "bg-blue-500/15 text-blue-300 border border-blue-500/30"
+                                  }`}
+                                >
+                                  {b.bandeira}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 font-mono font-bold text-purple-300 whitespace-nowrap">
+                                {b.codigo}
+                              </td>
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <div className="font-mono font-bold text-slate-200">{b.serviceId}</div>
+                                {b.serviceLabelPt && (
+                                  <div className="text-[10px] text-slate-400 max-w-[150px] truncate" title={b.serviceLabelPt}>
+                                    {b.serviceLabelPt}
                                   </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-slate-500">Ver tabela de tiers no PDF</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                    b.quemPaga.includes("Adquirente") && !b.quemPaga.includes("Emissor")
+                                      ? "bg-cyan-500/15 text-cyan-300"
+                                      : b.quemPaga.includes("Emissor") && !b.quemPaga.includes("Adquirente")
+                                      ? "bg-rose-500/15 text-rose-300"
+                                      : "bg-slate-800 text-slate-300"
+                                  }`}
+                                >
+                                  {b.quemPaga}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 max-w-md">
+                                <div className="font-bold text-white">{b.nome}</div>
+                                {b.explicacaoPt && (
+                                  <div className="text-purple-300/90 text-[11px] font-medium mt-0.5 line-clamp-1">
+                                    {b.explicacaoPt}
+                                  </div>
+                                )}
+                                <div className="text-slate-400 text-[11px] line-clamp-2 mt-0.5">{b.descricao}</div>
+                                <div className="text-[10px] text-purple-400 mt-1 flex items-center gap-1 font-medium">
+                                  {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                  {isExpanded ? "Ocultar detalhes" : "Passe o mouse ou clique para abrir Raio-X"}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 font-mono text-[11px] text-emerald-300 max-w-xs">
+                                {b.rates && b.rates.length > 0 ? (
+                                  <div className="space-y-1">
+                                    {b.rates.slice(0, 3).map((r, i) => (
+                                      <div
+                                        key={i}
+                                        className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 truncate"
+                                        title={r}
+                                      >
+                                        • {r}
+                                      </div>
+                                    ))}
+                                    {b.rates.length > 3 && (
+                                      <div className="text-[10px] text-emerald-400 pl-1">
+                                        + {b.rates.length - 3} faixas/regiões (passe o mouse)
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-slate-500">Por faixa de volume (ver manual)</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-[11px] text-slate-400">
+                                <div className="text-slate-200 font-medium">{b.reconciliacao}</div>
+                                <div className="font-mono text-[10px] text-slate-400 mt-0.5">{b.fonte}</div>
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <tr className="bg-purple-950/25 border-b border-purple-500/30">
+                                <td colSpan={7} className="p-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                    <div className="bg-[#030711] border border-slate-800 rounded-xl p-4 space-y-2">
+                                      <div className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
+                                        O que é esta tarifa (Português)
+                                      </div>
+                                      <p className="text-slate-200 leading-relaxed">
+                                        {b.explicacaoPt || b.descricao}
+                                      </p>
+                                      {b.gatilhoPt && (
+                                        <div className="pt-2 border-t border-slate-800 text-slate-300">
+                                          <strong className="text-amber-300">Gatilho:</strong> {b.gatilhoPt}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="bg-[#030711] border border-slate-800 rounded-xl p-4 space-y-2">
+                                      <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                                        Descrição Original Completa ({b.fonte})
+                                      </div>
+                                      <p className="text-slate-200 leading-relaxed">{b.descricao}</p>
+                                      <div className="pt-2 border-t border-slate-800 text-slate-400">
+                                        <strong className="text-slate-200">Conciliação:</strong> {b.reconciliacao}
+                                      </div>
+                                    </div>
+                                    <div className="bg-[#030711] border border-slate-800 rounded-xl p-4 space-y-2">
+                                      <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                                        Todas as Alíquotas & Regiões Extraídas
+                                      </div>
+                                      {b.rates && b.rates.length > 0 ? (
+                                        <div className="space-y-1.5">
+                                          {b.rates.map((r, i) => (
+                                            <div
+                                              key={i}
+                                              className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25 font-mono text-emerald-200"
+                                            >
+                                              • {r}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <p className="text-slate-400">
+                                          Alíquota escalonada por tier de volume no manual oficial ({b.fonte}).
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
                             )}
-                          </td>
-                          <td className="py-3 px-4 text-[11px] text-slate-400">
-                            <div className="text-slate-200 font-medium">{b.reconciliacao}</div>
-                            <div className="font-mono text-[10px] text-slate-400 mt-0.5">{b.fonte}</div>
-                          </td>
-                        </tr>
-                      ))
+                          </React.Fragment>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
