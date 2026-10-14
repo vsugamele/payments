@@ -97,6 +97,41 @@ const SEGMENT_COLORS = [
   "bg-indigo-500/20 border-indigo-500/40 text-indigo-200",
 ];
 
+const BATCH_SAMPLES: Record<string, { label: string; brand: string; desc: string; lines: string[] }> = {
+  visa_base2: {
+    label: "Lote Visa Base II Completo (TC 05 TCR 0 + TCR 1 + TCR 5 + TC 46 VSS)",
+    brand: "Visa",
+    desc: "Sequência multi-registro de 168 bytes contendo Draft Data (TCR 0), Dados Adicionais (TCR 1), Payment Service Data (TCR 5) e Resumo de Liquidação VSS (TC 46).",
+    lines: [
+      "05004111110000001234   744659026105000001234561015000000125000986SUPERMERCADO EXTRA       SAO PAULO    SP BR0541100000   100986N76543210000000000000  99 5  0000000000A",
+      "05010000000000000000000000BRASIL12345678900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "0505382610500123456Y00000012500098605000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "05004532110000009876   744659026105000006543211015000000489000986LOJA ELETRONICOS ONLINE  SAO PAULO    SP BR0573200000   100986N11223340000000000000  01 7  00000000000",
+      "4600400001499999000126105126105210098611021  000000001500000000187500000CR000000000185250000DB000000000002250000CR98600000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  mc_mpe_bins: {
+    label: "Lote Mastercard MPE / T068 — Tabela IP0040T1 (3 Faixas de BIN de 194 Bytes)",
+    brand: "Mastercard",
+    desc: "Bloco de registros de 194 bytes da tabela IP0040T1 mapeando BIN Ranges de Crédito Black (MCW), Platinum (MPL) e Débito Standard (MDS).",
+    lines: [
+      "26105083015IP0040T1A55363600000000000005536369999999999999MCWMCC001234BRA9862N98620000000000000000NYNNNNY16C0000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "26105083015IP0040T1A54916700000000000005491679999999999999MPLMCC001234BRA9862N98620000000000000000NYNNNNY16C0000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "26105083015IP0040T1A52008200000000000005200829999999999999MDSMSC005678BRA9862N98620000000000000000YYNNNNY16D0000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  elo_lote: {
+    label: "Lote Elo 26.2 Liquidação Completo (Header B0 + Transações + Trailer BZ)",
+    brand: "Elo",
+    desc: "Estrutura de arquivo de remessa Elo contendo Header B0 (168B), Transações de Compra e Trailer BZ (200B) com batimento de controle.",
+    lines: [
+      "B010202604150001009900012345202604151430000001079861                                                                                                                0000",
+      "05006363680000001122   700123426105000001112221015000000089900986POSTO IPIRANGA CENTRO    CURITIBA     PR BR0554100000   100986N99887760000000000000  05 5  0000000000A",
+      "BZ10000015422026041500000012000000001850000000000002000000000012000000000045000000000095000000000001000000000003500020260416000000000000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  }
+};
+
 export default function CentralArquivosPage() {
   const [activeTab, setActiveTab] = useState<"parser" | "campos" | "billing" | "arquitetura">("parser");
 
@@ -115,6 +150,10 @@ export default function CentralArquivosPage() {
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(0);
   const [loadingLayout, setLoadingLayout] = useState(false);
   const [copiedLine, setCopiedLine] = useState(false);
+
+  // Tab 1B: Multi-Record Batch Inspector state
+  const [batchPresetKey, setBatchPresetKey] = useState<string>("visa_base2");
+  const [batchRawText, setBatchRawText] = useState<string>(BATCH_SAMPLES.visa_base2.lines.join("\n"));
 
   // Tab 2: Explorador de Campos state
   const [campoQuery, setCampoQuery] = useState("");
@@ -142,6 +181,15 @@ export default function CentralArquivosPage() {
   const [loadingBilling, setLoadingBilling] = useState(false);
   const [hoveredBilling, setHoveredBilling] = useState<BillingRow | null>(null);
   const [expandedBillingKey, setExpandedBillingKey] = useState<string | null>(null);
+
+  // Tab 3B: Monthly Invoice Simulator state
+  const [showInvoiceSim, setShowInvoiceSim] = useState<boolean>(true);
+  const [simDomTx, setSimDomTx] = useState<number>(500000);
+  const [simIntlTx, setSimIntlTx] = useState<number>(15000);
+  const [simTpvBrl, setSimTpvBrl] = useState<number>(45000000);
+  const [simTokenPct, setSimTokenPct] = useState<number>(65);
+  const [simChargebacks, setSimChargebacks] = useState<number>(380);
+  const [simExcessiveRetries, setSimExcessiveRetries] = useState<number>(6200);
 
   // Load overview on mount + support ?tab= query param
   useEffect(() => {
@@ -666,6 +714,244 @@ export default function CentralArquivosPage() {
                 </div>
               </div>
             )}
+
+            {/* ==============================================================
+                MODO LOTE MULTI-LINHA (MULTI-RECORD BATCH INSPECTOR & AUDITOR)
+               ============================================================== */}
+            <div className="bg-[#080f1e] border border-cyan-500/30 rounded-2xl p-6 space-y-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5" /> Auditoria de Lote Multi-Registro (Multi-Record Batch Inspector)
+                  </span>
+                  <h3 className="text-base font-bold text-white mt-0.5">
+                    Validador de Sequência de Arquivo: Header, Transações (TCR 0 / TCR 1 / TCR 5), Tabelas de BIN e Trailer
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Cole um bloco de linhas do seu arquivo de clearing/tabela MPE ou selecione um lote oficial abaixo para auditar valores, integridade de tamanho e riscos de downgrade em massa.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {Object.entries(BATCH_SAMPLES).map(([key, sample]) => (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setBatchPresetKey(key);
+                        setBatchRawText(sample.lines.join("\n"));
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                        batchPresetKey === key
+                          ? "bg-cyan-600/25 border-cyan-400 text-cyan-200"
+                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {sample.brand}: {key === "visa_base2" ? "Lote Base II" : key === "mc_mpe_bins" ? "Lote MPE IP0040T1" : "Lote Elo B0..BZ"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Conteúdo do Lote Multi-Linha (1 registro posicional por linha):
+                </label>
+                <textarea
+                  value={batchRawText}
+                  onChange={(e) => setBatchRawText(e.target.value)}
+                  rows={5}
+                  spellCheck={false}
+                  className="w-full font-mono text-[11px] bg-[#030711] border border-slate-800 focus:border-cyan-500 rounded-xl p-3.5 text-cyan-200 leading-relaxed focus:outline-none"
+                />
+              </div>
+
+              {/* Parsed Batch Rows */}
+              {(() => {
+                const lines = batchRawText
+                  .split(/\r?\n/)
+                  .map((l) => l.trimEnd())
+                  .filter((l) => l.length > 0);
+
+                let totalBatchAmountBrl = 0;
+                let warningCount = 0;
+
+                const parsedRows = lines.map((line, idx) => {
+                  const prefix2 = line.slice(0, 2);
+                  const prefix4 = line.slice(0, 4);
+                  const hasIp0040 = line.includes("IP0040T1");
+
+                  let recordType = "Registro Posicional";
+                  let presetTarget = "visa_tc05_tcr0";
+                  let expectedLen = 168;
+                  let summary = "";
+                  let amountBrl = 0;
+                  let status: "OK" | "WARN" = "OK";
+                  let statusNote = "Estrutura posicional íntegra e qualificada";
+
+                  if (hasIp0040) {
+                    recordType = "Mastercard MPE IP0040T1 (BIN Range)";
+                    presetTarget = "mc_mpe_ip0040t1";
+                    expectedLen = 194;
+                    const lowBin = line.slice(20, 26);
+                    const gcmsProd = line.slice(58, 61);
+                    const country = line.slice(70, 73);
+                    summary = `Faixa BIN ${lowBin}.. · Produto GCMS: ${gcmsProd} · País: ${country}`;
+                  } else if (prefix2 === "B0") {
+                    recordType = "Elo Header de Arquivo (B0)";
+                    presetTarget = "elo_b0_header";
+                    expectedLen = 168;
+                    const dt = line.slice(4, 12);
+                    summary = `Data Remessa: ${dt} · Moeda: ${line.slice(47, 50) || "986"}`;
+                  } else if (prefix2 === "BZ") {
+                    recordType = "Elo Trailer de Lote (BZ)";
+                    presetTarget = "elo_bz_trailer";
+                    expectedLen = 200;
+                    const qtd = parseInt(line.slice(4, 12) || "0", 10);
+                    summary = `Total Registros no Lote: ${qtd.toLocaleString("pt-BR")}`;
+                  } else if (prefix4 === "0500") {
+                    recordType = "Draft Data Principal (TC 05 · TCR 0)";
+                    presetTarget = "visa_tc05_tcr0";
+                    expectedLen = 168;
+                    const pan = line.slice(4, 20).trim();
+                    const rawAmt = parseInt(line.slice(52, 64) || "0", 10);
+                    amountBrl = isNaN(rawAmt) ? 0 : rawAmt / 100;
+                    totalBatchAmountBrl += amountBrl;
+                    const merchant = line.slice(67, 92).trim();
+                    const mcc = line.slice(109, 113);
+                    const reimbAttr = line.slice(167, 168) || "0";
+                    summary = `PAN ${pan.slice(0, 6)}******${pan.slice(-4)} · ${merchant || "Lojista"} · MCC ${mcc} · Reimb. Attr: '${reimbAttr}'`;
+                    if (reimbAttr === "0" || reimbAttr === " ") {
+                      status = "WARN";
+                      warningCount++;
+                      statusNote = "Posição 168 (Reimbursement Attribute = '0'): Transação cairá na tarifa Standard/EIRF (Downgrade)";
+                    }
+                  } else if (prefix4 === "0501") {
+                    recordType = "Dados Adicionais & Chargeback (TC 05 · TCR 1)";
+                    presetTarget = "visa_tc05_tcr1";
+                    expectedLen = 168;
+                    summary = `Doc/Texto Nacional: ${line.slice(26, 45).trim() || "Complemento TCR 1"}`;
+                  } else if (prefix4 === "0505") {
+                    recordType = "Payment Service Data / 3DS (TC 05 · TCR 5)";
+                    presetTarget = "visa_tc05_tcr5";
+                    expectedLen = 168;
+                    const txId = line.slice(4, 19).trim();
+                    const authInd = line.slice(19, 20);
+                    summary = `Transaction ID: ${txId} · Auth Characteristic Indicator: '${authInd}'`;
+                  } else if (prefix4 === "4600") {
+                    recordType = "Visa VSS Settlement Summary (TC 46 · TCR 0)";
+                    presetTarget = "visa_tc46_tcr0";
+                    expectedLen = 168;
+                    const reportId = line.slice(40, 45).trim();
+                    summary = `Relatório VSS-${reportId || "110"} · Moeda Liquidação: 986 (BRL)`;
+                  }
+
+                  if (line.length < expectedLen - 10) {
+                    status = "WARN";
+                    warningCount++;
+                    statusNote = `Comprimento divergente (${line.length}B vs ${expectedLen}B esperados) — risco de Edit Reject`;
+                  }
+
+                  return {
+                    idx: idx + 1,
+                    line,
+                    recordType,
+                    presetTarget,
+                    expectedLen,
+                    actualLen: line.length,
+                    summary,
+                    amountBrl,
+                    status,
+                    statusNote
+                  };
+                });
+
+                return (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5">
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400">Registros no Lote</div>
+                        <div className="text-lg font-extrabold text-white font-mono mt-0.5">
+                          {parsedRows.length} linhas
+                        </div>
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5">
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400">Soma Financeira (TCR 0 Compra)</div>
+                        <div className="text-lg font-extrabold text-emerald-400 font-mono mt-0.5">
+                          {totalBatchAmountBrl > 0
+                            ? totalBatchAmountBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                            : "Tabela / Sem Valor Financeiro"}
+                        </div>
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5">
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400">Diagnóstico de Compliance do Lote</div>
+                        <div className={`text-sm font-bold mt-1 ${warningCount > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                          {warningCount > 0
+                            ? `${warningCount} alerta(s) de Downgrade / Comprimento detectado(s)`
+                            : "100% Qualificado · Zero Rejeições Sintáticas"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+                            <th className="py-2.5 px-3">#</th>
+                            <th className="py-2.5 px-3">Tipo de Registro Detectado</th>
+                            <th className="py-2.5 px-3">Bytes</th>
+                            <th className="py-2.5 px-3">Campos Chave Extraídos</th>
+                            <th className="py-2.5 px-3">Valor (R$)</th>
+                            <th className="py-2.5 px-3">Status & Auditoria de Qualificação</th>
+                            <th className="py-2.5 px-3">Ação</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {parsedRows.map((r) => (
+                            <tr key={r.idx} className="hover:bg-slate-900/60 transition-colors">
+                              <td className="py-2.5 px-3 font-mono text-slate-400">L{r.idx}</td>
+                              <td className="py-2.5 px-3 font-bold text-white">{r.recordType}</td>
+                              <td className="py-2.5 px-3 font-mono text-slate-300">
+                                {r.actualLen} / {r.expectedLen}B
+                              </td>
+                              <td className="py-2.5 px-3 font-mono text-[11px] text-cyan-200">{r.summary}</td>
+                              <td className="py-2.5 px-3 font-mono font-bold text-emerald-300 whitespace-nowrap">
+                                {r.amountBrl > 0
+                                  ? r.amountBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                                  : "—"}
+                              </td>
+                              <td className="py-2.5 px-3">
+                                <span
+                                  className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mr-1.5 ${
+                                    r.status === "OK"
+                                      ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                                      : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                                  }`}
+                                >
+                                  {r.status === "OK" ? "QUALIFICADO" : "ALERTA DOWNGRADE"}
+                                </span>
+                                <span className="text-[11px] text-slate-300">{r.statusNote}</span>
+                              </td>
+                              <td className="py-2.5 px-3 whitespace-nowrap">
+                                <button
+                                  onClick={() => {
+                                    setSelectedPresetId(r.presetTarget);
+                                    setTimeout(() => setRawLine(r.line), 120);
+                                    window.scrollTo({ top: 180, behavior: "smooth" });
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 text-[11px] font-bold transition-colors"
+                                >
+                                  Abrir Byte-a-Byte ↑
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         )}
 
@@ -1021,6 +1307,274 @@ export default function CentralArquivosPage() {
            ========================================================= */}
         {activeTab === "billing" && (
           <div className="space-y-6">
+            {/* ===============================================================
+                SIMULADOR & AUDITOR DE FATURA MENSAL (MCBS BRASIL + VISA VSS)
+               =============================================================== */}
+            <div className="bg-gradient-to-r from-[#080f1e] via-[#0b0f24] to-[#080f1e] border border-purple-500/35 rounded-2xl p-6 space-y-5">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" /> Calculadora & Auditoria de Fatura Mensal de Bandeira (MCBS + Visa VSS)
+                  </span>
+                  <h3 className="text-base font-bold text-white mt-0.5">
+                    Simule sua Volumetria Mensal, Projete o Custo por Event ID e Descubra Vazamentos Evitáveis
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowInvoiceSim(!showInvoiceSim)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200 flex items-center gap-1.5 self-start md:self-auto"
+                >
+                  {showInvoiceSim ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  <span>{showInvoiceSim ? "Recolher Simulador de Fatura" : "Abrir Simulador de Fatura"}</span>
+                </button>
+              </div>
+
+              {showInvoiceSim && (() => {
+                // Calculation using official MCBS Brazil & Visa VSS reference rates
+                const mcAuthDomBrl = simDomTx * 0.0272; // 2AB1006: BRL 0,0272 / tx
+                const mcAuthIntlBrl = simIntlTx * 0.1814; // 2AB1009: BRL 0,1814 / tx
+                const mcClearingBrl = simDomTx * 0.0195; // 2SW /GCMS Clearing per tx
+                const nonTokenizedTx = Math.round(simDomTx * ((100 - simTokenPct) / 100) * 0.45); // CNP non-tokenized portion
+                const mcNonTokenPenaltyBrl = nonTokenizedTx * 0.065; // Digital Enablement / Non-tokenized fee delta
+                const mcChargebackFeeBrl = simChargebacks * 45.0; // 1CA / MCOM Dispute filing fee
+                const mcRetryPenaltyBrl = simExcessiveRetries * 0.35; // TPE / Excessive Retry penalty
+
+                const visaAssessmentBrl = simTpvBrl * 0.0011; // 5B1107045 Acquirer Marketing/Service Fee (~11 bps)
+                const visaCrossBorderBrl = simIntlTx * 1.45; // International Service Assessment / Cross-Border
+
+                const totalEstimatedInvoiceBrl =
+                  mcAuthDomBrl +
+                  mcAuthIntlBrl +
+                  mcClearingBrl +
+                  mcNonTokenPenaltyBrl +
+                  mcChargebackFeeBrl +
+                  mcRetryPenaltyBrl +
+                  visaAssessmentBrl +
+                  visaCrossBorderBrl;
+
+                const avoidableLeakageBrl = mcNonTokenPenaltyBrl + mcRetryPenaltyBrl + mcChargebackFeeBrl * 0.4;
+
+                const simLines = [
+                  {
+                    brand: "Mastercard",
+                    code: "2AB1006",
+                    service: "Service AB (Autorização)",
+                    desc: "Autorização Doméstica Card Present / CNP (Brasil)",
+                    formula: `${simDomTx.toLocaleString("pt-BR")} tx × R$ 0,0272`,
+                    amount: mcAuthDomBrl,
+                    avoidable: false
+                  },
+                  {
+                    brand: "Mastercard",
+                    code: "2AB1009",
+                    service: "Service AB (Cross-Border)",
+                    desc: "Autorização Internacional / Cross-Border (SAMEA/Global)",
+                    formula: `${simIntlTx.toLocaleString("pt-BR")} tx × R$ 0,1814`,
+                    amount: mcAuthIntlBrl,
+                    avoidable: false
+                  },
+                  {
+                    brand: "Visa",
+                    code: "5B1107045",
+                    service: "Service Fees (VSS-140)",
+                    desc: "Acquirer Marketing & Service Fee sobre TPV Doméstico",
+                    formula: `TPV R$ ${(simTpvBrl / 1_000_000).toFixed(1)}M × 0,11%`,
+                    amount: visaAssessmentBrl,
+                    avoidable: false
+                  },
+                  {
+                    brand: "Mastercard",
+                    code: "2NW",
+                    service: "Service NW (Digital / Token)",
+                    desc: `Sobretaxa de Credencial Não-Tokenizada (${100 - simTokenPct}% sem Token MDES/VTS)`,
+                    formula: `${nonTokenizedTx.toLocaleString("pt-BR")} tx CNP sem token × R$ 0,065`,
+                    amount: mcNonTokenPenaltyBrl,
+                    avoidable: true
+                  },
+                  {
+                    brand: "Mastercard",
+                    code: "Chargeback",
+                    service: "Service CA (Disputas MCOM/VROL)",
+                    desc: "Tarifas de Processamento de Disputas / 1º Chargeback (1CA / VROL)",
+                    formula: `${simChargebacks.toLocaleString("pt-BR")} disputas × R$ 45,00`,
+                    amount: mcChargebackFeeBrl,
+                    avoidable: true
+                  },
+                  {
+                    brand: "Visa",
+                    code: "Misuse",
+                    service: "System Integrity / TPE",
+                    desc: "Multa de Retentativas Excessivas / Hard Decline Retries (TPE & Visa Integrity)",
+                    formula: `${simExcessiveRetries.toLocaleString("pt-BR")} retentativas × R$ 0,35`,
+                    amount: mcRetryPenaltyBrl,
+                    avoidable: true
+                  }
+                ];
+
+                return (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          Tx Domésticas / Mês
+                        </label>
+                        <input
+                          type="number"
+                          value={simDomTx}
+                          onChange={(e) => setSimDomTx(Math.max(0, Number(e.target.value)))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-white"
+                        />
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          Tx Cross-Border / Mês
+                        </label>
+                        <input
+                          type="number"
+                          value={simIntlTx}
+                          onChange={(e) => setSimIntlTx(Math.max(0, Number(e.target.value)))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-white"
+                        />
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          TPV Mensal (R$)
+                        </label>
+                        <input
+                          type="number"
+                          value={simTpvBrl}
+                          onChange={(e) => setSimTpvBrl(Math.max(0, Number(e.target.value)))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-white"
+                        />
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          % Tokenizado (VTS/MDES)
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={simTokenPct}
+                          onChange={(e) => setSimTokenPct(Math.min(100, Math.max(0, Number(e.target.value))))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-emerald-300"
+                        />
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          Chargebacks / Mês
+                        </label>
+                        <input
+                          type="number"
+                          value={simChargebacks}
+                          onChange={(e) => setSimChargebacks(Math.max(0, Number(e.target.value)))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-amber-300"
+                        />
+                      </div>
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
+                          Retentativas Recusadas
+                        </label>
+                        <input
+                          type="number"
+                          value={simExcessiveRetries}
+                          onChange={(e) => setSimExcessiveRetries(Math.max(0, Number(e.target.value)))}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-rose-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="bg-[#030711] border border-purple-500/30 rounded-xl p-4">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
+                          Fatura Mensal Estimada (Scheme Fees)
+                        </div>
+                        <div className="text-xl font-black font-mono text-white mt-1">
+                          {totalEstimatedInvoiceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">
+                          Custo efetivo de bandeira: {simTpvBrl > 0 ? ((totalEstimatedInvoiceBrl / simTpvBrl) * 100).toFixed(3) : "0.000"}% do TPV
+                        </div>
+                      </div>
+
+                      <div className="bg-[#030711] border border-amber-500/30 rounded-xl p-4">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                          Vazamentos Evitáveis (Economia Destravável)
+                        </div>
+                        <div className="text-xl font-black font-mono text-amber-300 mt-1">
+                          {avoidableLeakageBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} / mês
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">
+                          Anualizado: {(avoidableLeakageBrl * 12).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/ano em multas e falta de token
+                        </div>
+                      </div>
+
+                      <div className="bg-[#030711] border border-emerald-500/30 rounded-xl p-4 flex flex-col justify-between">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                          Ação Direta na Tabela Abaixo
+                        </div>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">
+                          Clique em qualquer linha simulada abaixo para filtrar os códigos oficiais correspondentes na base de 13.181 eventos.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+                            <th className="py-2 px-3">Bandeira</th>
+                            <th className="py-2 px-3">Código / Família</th>
+                            <th className="py-2 px-3">Evento Simulado na Fatura</th>
+                            <th className="py-2 px-3">Memória de Cálculo</th>
+                            <th className="py-2 px-3">Custo Mensal</th>
+                            <th className="py-2 px-3">Natureza</th>
+                            <th className="py-2 px-3">Inspecionar</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {simLines.map((sl, i) => (
+                            <tr key={i} className="hover:bg-slate-900/60">
+                              <td className="py-2 px-3 font-bold text-white">{sl.brand}</td>
+                              <td className="py-2 px-3 font-mono text-purple-300 font-bold">{sl.code}</td>
+                              <td className="py-2 px-3 text-slate-200">{sl.desc}</td>
+                              <td className="py-2 px-3 font-mono text-slate-400">{sl.formula}</td>
+                              <td className="py-2 px-3 font-mono font-bold text-emerald-300">
+                                {sl.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                              </td>
+                              <td className="py-2 px-3">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                    sl.avoidable
+                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                      : "bg-slate-800 text-slate-300"
+                                  }`}
+                                >
+                                  {sl.avoidable ? "VAZAMENTO EVITÁVEL" : "CUSTO BASE REDE"}
+                                </span>
+                              </td>
+                              <td className="py-2 px-3">
+                                <button
+                                  onClick={() => {
+                                    setBillingQuery(sl.code);
+                                    setBillingBrand(sl.brand);
+                                    runSearchBilling({ q: sl.code, brand: sl.brand });
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/40 text-purple-300 text-[11px] font-bold"
+                                >
+                                  Filtrar na Tabela ↓
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
             <div className="bg-[#080f1e] border border-slate-800/80 rounded-2xl p-6 space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
