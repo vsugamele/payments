@@ -71,7 +71,7 @@ def build_cv():
     r_sep1.font.size = Pt(9.5)
     r_sep1.font.color.rgb = COLOR_MUTED
     
-    r_tel = p_contact.add_run("(11) 99628-0159")
+    r_tel = p_contact.add_run("(11) 97654-6714")
     r_tel.font.size = Pt(9.5)
     r_tel.font.color.rgb = COLOR_MUTED
     

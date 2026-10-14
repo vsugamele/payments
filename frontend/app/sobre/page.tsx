@@ -230,6 +230,15 @@ export default function SobrePage() {
                   <MapPin size={13} className="text-primary" />
                   São Paulo, Brasil
                 </div>
+
+                <a
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
+                >
+                  (11) 97654-6714
+                </a>
                 
                 <a
                   href="mailto:vsugamele@gmail.com"

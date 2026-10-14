@@ -21,11 +21,11 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-slate-400 hover:text-emerald-400 flex items-center justify-center transition-all"
-                title="WhatsApp ((11) 99628-0159)"
+                title="WhatsApp ((11) 97654-6714)"
               >
                 <MessageCircle size={14} />
               </a>
@@ -99,12 +99,12 @@ export function Footer() {
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contato Direto</p>
             <div className="space-y-2 text-xs">
               <a
-                href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-emerald-400 hover:text-emerald-300 transition-colors font-semibold"
               >
-                (11) 99628-0159 (WhatsApp)
+                (11) 97654-6714 (WhatsApp)
               </a>
               <a
                 href="mailto:vsugamele@gmail.com"

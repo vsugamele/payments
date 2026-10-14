@@ -316,13 +316,13 @@ export default function HomePage() {
                 </div>
 
                 <a
-                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
                 >
                   <MessageCircle size={13} className="text-emerald-400" />
-                  (11) 99628-0159
+                  (11) 97654-6714
                 </a>
                 
                 <a
@@ -352,7 +352,7 @@ export default function HomePage() {
               {/* Botões de Ação */}
               <div className="flex flex-wrap gap-3 mt-6">
                 <a
-                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-md shadow-emerald-600/30 transition-all"
@@ -711,13 +711,13 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap justify-center gap-3 pt-3">
                 <a
-                  href="https://wa.me/5511996280159?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all"
                 >
                   <MessageCircle size={15} />
-                  WhatsApp Direto ((11) 99628-0159)
+                  WhatsApp Direto ((11) 97654-6714)
                 </a>
                 <a
                   href="mailto:vsugamele@gmail.com"
