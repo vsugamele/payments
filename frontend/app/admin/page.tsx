@@ -175,6 +175,14 @@ export default function AdminPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/editor"
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/25 transition-all"
+            >
+              <FileText size={14} />
+              <span>Doc Studio (Criar Documentos)</span>
+            </Link>
+
             <button
               onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
               className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-xs font-bold text-purple-200 flex items-center gap-2 transition-all"
@@ -243,6 +251,13 @@ export default function AdminPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Link
+                href="/editor"
+                className="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-xs font-bold text-emerald-300 flex items-center gap-1.5 transition-all"
+              >
+                <FileText size={13} />
+                <span>Editor de Documentos (IA)</span>
+              </Link>
               <Link
                 href="/compliance/arquivos?tab=parser"
                 className="px-3 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-xs font-bold text-blue-300 flex items-center gap-1.5 transition-all"

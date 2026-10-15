@@ -88,6 +88,16 @@ export function OwnerBar() {
             </kbd>
           </button>
 
+          {pathname !== "/editor" && (
+            <Link
+              href="/editor"
+              className="px-2.5 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center gap-1 transition-all"
+              title="Abrir Doc Studio (Editor de Documentos & Pareceres)"
+            >
+              <span>Editor Docs</span>
+            </Link>
+          )}
+
           {pathname !== "/admin" && (
             <Link
               href="/admin"
