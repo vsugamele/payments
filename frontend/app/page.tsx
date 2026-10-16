@@ -695,6 +695,96 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── Vitrine Executiva: Engenharia Proprietária de Meios de Pagamento ── */}
+        <section id="engenharia-proprietaria" className="pt-20 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-border pb-4">
+            <div className="space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                <Network size={12} /> Engenharia Aplicada & Automação Regulatória
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-foreground">
+                Ecossistema Proprietário de Auditoria de Bandeiras & Mensageria
+              </h2>
+              <p className="text-xs text-muted-foreground max-w-3xl leading-relaxed">
+                Além da atuação executiva na gestão de arranjos e produtos, desenvolvi motores proprietários de engenharia de dados e conformidade técnica para automatizar a conciliação de intercâmbio, auditoria de faturas de bandeira e dissecação de releases regulatórias.
+              </p>
+            </div>
+            <span className="text-[11px] font-mono text-muted-foreground shrink-0">
+              Stack Proprietária · SQLite FTS5 · ISO 8583 / IPM / Base II
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                metric: "35.336",
+                unit: "Documentos Indexados",
+                title: "Acervo Normativo & RAG FTS5",
+                desc: "Base proprietária com 1,4 milhão de páginas de manuais técnicos, boletins ANB/GLB e releases Visa, Mastercard, Elo e BACEN indexados localmente.",
+                badge: "SQLite FTS5 · 1,4M Páginas",
+              },
+              {
+                metric: "17.106",
+                unit: "Campos & Posições",
+                title: "Motor Posicional MPE, IPM & Base II",
+                desc: "Mapeamento byte-a-byte de registros T068/T067 (1.014B), TC 05/06/33/46 (168B), Elo Remessa/Retorno (1.024B) e subcampos ISO 8583 DE/PDS.",
+                badge: "campos.sqlite3 · Byte-a-Byte",
+              },
+              {
+                metric: "13.181",
+                unit: "Eventos de Fatura",
+                title: "Auditoria MCBS Brasil & Visa VSS",
+                desc: "Catálogo auditável de 2.267 códigos Mastercard Consolidated Billing (T461) e 10.914 linhas Visa Settlement (VSS-110/120/140) para estancar vazamentos.",
+                badge: "Scheme Fees · FinOps",
+              },
+              {
+                metric: "141",
+                unit: "Regras Booleanas",
+                title: "Compilador de Qualificação & Downgrade",
+                desc: "Avaliador determinístico de elegibilidade tarifária (IRD, FPI e IRQ) que detecta causas de downgrade para Standard antes da liquidação.",
+                badge: "Intercâmbio & Bacen Cap",
+              },
+              {
+                metric: "381",
+                unit: "Mandates & Releases",
+                title: "Motor de Comportamento em 3 Lentes",
+                desc: "Triagem automatizada de releases (25.2 a 26.2) projetando impactos nas lentes Técnica (ISO/IPM), Normativa e de Negócio por papel no arranjo.",
+                badge: "Adquirente · Emissor · PayFac",
+              },
+              {
+                metric: "1.014B",
+                unit: "Desblocador Binário",
+                title: "Inspetor & Reconciliador de Clearing",
+                desc: "Decodificador de blocos físicos de mainframe com remoção de RDW/BDW, conversão EBCDIC/ASCII e conciliação de tabelas IP0040T1 e ARDEF.",
+                badge: "Mainframe · EBCDIC / ASCII",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="p-5 rounded-2xl bg-card border border-border hover:border-blue-500/40 transition-all flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xl font-black font-mono text-blue-500">
+                        {item.metric}
+                      </span>
+                      <span className="text-[11px] font-semibold text-muted-foreground">
+                        {item.unit}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                      {item.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* ── Box de Contato Direto ─────────────────────────────────────────── */}
         <section id="contato" className="pt-20">
           <div className="rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-950/30 via-slate-900 to-black p-8 md:p-12 text-center relative overflow-hidden">

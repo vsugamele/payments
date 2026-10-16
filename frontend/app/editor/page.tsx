@@ -70,6 +70,8 @@ import ReleaseDiffModal from "@/components/editor/ReleaseDiffModal";
 import SnippetsDrawer from "@/components/editor/SnippetsDrawer";
 import BehaviorEngineModal from "@/components/editor/BehaviorEngineModal";
 import AcervoSearchModal from "@/components/editor/AcervoSearchModal";
+import QuickDatabaseInsertModal from "@/components/editor/QuickDatabaseInsertModal";
+import { consumeDocStudioPayload } from "@/lib/docStudioBridge";
 
 interface TocItem {
   id: string;
@@ -238,6 +240,8 @@ export default function DocStudioEditor() {
   const [isSnippetsDrawerOpen, setIsSnippetsDrawerOpen] = useState<boolean>(false);
   const [isBehaviorModalOpen, setIsBehaviorModalOpen] = useState<boolean>(false);
   const [isAcervoModalOpen, setIsAcervoModalOpen] = useState<boolean>(false);
+  const [isQuickDbModalOpen, setIsQuickDbModalOpen] = useState<boolean>(false);
+  const [bridgeToast, setBridgeToast] = useState<string | null>(null);
   const [showExportMenu, setShowExportMenu] = useState<boolean>(false);
 
   // AI Configuration State
@@ -472,6 +476,42 @@ export default function DocStudioEditor() {
       setBulletinMeta(ARTIGO_IA_METADATA);
     }
 
+    // Check if an analytical engine sent a payload via DocStudioBridge
+    const bridgePayload = consumeDocStudioPayload();
+    if (bridgePayload) {
+      if (bridgePayload.mode === "full_dossier") {
+        initialId = `doc-dossier-${Date.now()}`;
+        initialTitle = bridgePayload.title;
+        initialContent = bridgePayload.html;
+        if (bridgePayload.metadata) {
+          setBulletinMeta((prev) => ({
+            ...prev,
+            brand: bridgePayload.metadata?.brand || prev.brand,
+            brandName: bridgePayload.metadata?.brandName || prev.brandName,
+            title: bridgePayload.title,
+            referenceId: bridgePayload.metadata?.referenceId || prev.referenceId,
+            category: bridgePayload.metadata?.category || prev.category,
+            effectiveDate: bridgePayload.metadata?.effectiveDate || prev.effectiveDate,
+            riskLevel: bridgePayload.metadata?.riskLevel || prev.riskLevel,
+            executiveSummary: bridgePayload.metadata?.executiveSummary || prev.executiveSummary,
+            recommendedAction: bridgePayload.metadata?.recommendedAction || prev.recommendedAction,
+          }));
+        }
+        setBridgeToast(`Dossiê Executivo gerado automaticamente a partir de ${bridgePayload.sourceModule}`);
+      } else {
+        // append_html mode: if current doc is the default AI article, create a fresh technical dossier so we don't pollute the article
+        if (initialId === "doc-artigo-ia") {
+          initialId = `doc-ficha-${Date.now()}`;
+          initialTitle = bridgePayload.title || "Parecer Técnico & Especificação de Mensageria";
+          initialContent = `<h1>${initialTitle}</h1><p>Documento técnico compilado automaticamente a partir dos motores de conformidade.</p>${bridgePayload.html}`;
+        } else {
+          initialContent = `${initialContent}${bridgePayload.html}`;
+        }
+        setBridgeToast(`Bloco técnico inserido a partir de ${bridgePayload.sourceModule}`);
+      }
+      setTimeout(() => setBridgeToast(null), 6500);
+    }
+
     setDocId(initialId);
     setDocTitle(initialTitle);
     if (editorRef.current) {
@@ -479,7 +519,10 @@ export default function DocStudioEditor() {
       extractTocFromDom();
       updateStats(editorRef.current.innerText);
     }
-  }, [extractTocFromDom, updateStats]);
+    if (bridgePayload) {
+      saveDocument(initialContent, initialTitle, initialId);
+    }
+  }, [extractTocFromDom, updateStats, saveDocument]);
 
   // Mouse Selection Tracking: Silent tracking without annoying popups on regular clicks/selection
   const handleMouseUp = () => {
@@ -1351,6 +1394,16 @@ export default function DocStudioEditor() {
           >
             <Database size={14} />
             <span className="hidden xl:inline">Acervo (35k Docs)</span>
+          </button>
+
+          {/* Quick Database Insert Button (13k Billing + 17k Campos) */}
+          <button
+            onClick={() => setIsQuickDbModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25 text-xs font-semibold transition-all shadow-2xs"
+            title="Inserir Ficha Técnica de Tarifas MCBS/VSS (13.181 eventos) ou Campos SQLite (17.106 campos)"
+          >
+            <TableIcon size={14} />
+            <span className="hidden xl:inline">Tarifas & Campos (30k)</span>
           </button>
 
           <div className="h-4 w-px bg-border hidden sm:block" />
@@ -2269,6 +2322,25 @@ export default function DocStudioEditor() {
         onClose={() => setIsAcervoModalOpen(false)}
         onInsertHtml={handleInsertCustomHtml}
       />
+
+      <QuickDatabaseInsertModal
+        isOpen={isQuickDbModalOpen}
+        onClose={() => setIsQuickDbModalOpen(false)}
+        onInsertHtml={handleInsertCustomHtml}
+      />
+
+      {bridgeToast && (
+        <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-950/95 border border-emerald-500/40 text-emerald-200 text-xs font-semibold shadow-2xl animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+          <span>{bridgeToast}</span>
+          <button
+            onClick={() => setBridgeToast(null)}
+            className="ml-2 text-emerald-400/70 hover:text-white text-[11px] font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Global Print Isolation Styles */}
       <style dangerouslySetInnerHTML={{ __html: `

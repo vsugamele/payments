@@ -7,7 +7,7 @@ import {
   Terminal, Scale, FileText, Database, BookOpen,
   Layers, Globe, AlertTriangle, RefreshCw,
   LogOut, Cpu, BarChart2, DollarSign, Search,
-  Eye, CheckCircle2, Filter, Command
+  Eye, CheckCircle2, Filter, Command, Star
 } from "lucide-react";
 import {
   ADMIN_MODULE_CATEGORIES,
@@ -35,6 +35,15 @@ const ICON_MAP: Record<string, any> = {
   ArrowRight
 };
 
+const DEFAULT_PINNED_IDS = [
+  "editor",
+  "arquivos-central",
+  "provisionamento",
+  "simulador",
+  "boletins",
+  "tarifas-reais",
+];
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -44,14 +53,42 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
   const [detailedView, setDetailedView] = useState<boolean>(false);
+  const [pinnedIds, setPinnedIds] = useState<string[]>(DEFAULT_PINNED_IDS);
   const [hoveredTool, setHoveredTool] = useState<ToolCardMeta>(
-    ALL_ADMIN_TOOLS.find((t) => t.id === "arquivos-central") || ALL_ADMIN_TOOLS[0]
+    ALL_ADMIN_TOOLS.find((t) => t.id === "editor") ||
+    ALL_ADMIN_TOOLS.find((t) => t.id === "arquivos-central") ||
+    ALL_ADMIN_TOOLS[0]
   );
 
   useEffect(() => {
     const hasCookie = document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"));
     setIsAuthenticated(hasCookie);
+    try {
+      const savedPins = localStorage.getItem("vs_admin_pinned");
+      if (savedPins) {
+        const parsed = JSON.parse(savedPins);
+        if (Array.isArray(parsed)) setPinnedIds(parsed);
+      }
+    } catch {
+      // ignore
+    }
   }, []);
+
+  const togglePin = (e: React.MouseEvent, toolId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPinnedIds((prev) => {
+      const next = prev.includes(toolId)
+        ? prev.filter((id) => id !== toolId)
+        : [toolId, ...prev];
+      try {
+        localStorage.setItem("vs_admin_pinned", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -424,6 +461,62 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Barra de Módulos Fixados / Favoritos do Proprietário */}
+        {pinnedIds.length > 0 && !searchQuery && selectedRole === "ALL" && (
+          <section className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-[#090e17] to-blue-950/20 p-5 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Star size={16} className="text-amber-400 fill-amber-400" />
+                <h2 className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                  Fixados no Topo — Acesso Rápido Diário ({pinnedIds.length})
+                </h2>
+              </div>
+              <span className="text-[11px] text-slate-400">
+                Clique na estrela ★ de qualquer módulo abaixo para fixar ou desafixar da sua bancada principal
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {pinnedIds
+                .map((id) => ALL_ADMIN_TOOLS.find((t) => t.id === id))
+                .filter((t): t is ToolCardMeta => Boolean(t))
+                .map((tool) => {
+                  const ToolIcon = ICON_MAP[tool.iconName] || Cpu;
+                  return (
+                    <Link
+                      key={`pin-${tool.id}`}
+                      href={tool.url}
+                      onMouseEnter={() => setHoveredTool(tool)}
+                      className="group p-3.5 rounded-xl bg-[#030711]/90 border border-slate-800 hover:border-amber-500/50 transition-all flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${tool.color}`}>
+                          <ToolIcon size={15} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-white group-hover:text-amber-300 truncate">
+                            {tool.title}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-400 truncate">
+                            {tool.badge} · {tool.url}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => togglePin(e, tool.id)}
+                        title="Desafixar dos Favoritos"
+                        className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-500/15 transition-colors shrink-0"
+                      >
+                        <Star size={14} className="fill-amber-400" />
+                      </button>
+                    </Link>
+                  );
+                })}
+            </div>
+          </section>
+        )}
+
         {/* Lista de Categorias e Módulos */}
         {filteredModules.length === 0 ? (
           <div className="rounded-2xl border border-slate-800 bg-[#090e17] p-12 text-center space-y-3">
@@ -464,6 +557,7 @@ export default function AdminPage() {
                   {mod.tools.map((tool) => {
                     const ToolIcon = ICON_MAP[tool.iconName] || Cpu;
                     const isHovered = hoveredTool?.id === tool.id;
+                    const isPinned = pinnedIds.includes(tool.id);
                     return (
                       <Link
                         key={tool.id}
@@ -482,9 +576,23 @@ export default function AdminPage() {
                             >
                               <ToolIcon size={16} />
                             </div>
-                            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
-                              {tool.badge}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
+                                {tool.badge}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => togglePin(e, tool.id)}
+                                title={isPinned ? "Desafixar do topo" : "Fixar no topo (Favoritos)"}
+                                className={`p-1.5 rounded-lg border transition-colors ${
+                                  isPinned
+                                    ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                                    : "bg-slate-900/80 border-slate-800 text-slate-500 hover:text-amber-300"
+                                }`}
+                              >
+                                <Star size={12} className={isPinned ? "fill-amber-400" : ""} />
+                              </button>
+                            </div>
                           </div>
 
                           <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">

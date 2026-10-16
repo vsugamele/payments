@@ -6,8 +6,13 @@ import {
   Database, Search, Terminal, FileCode2, DollarSign, Layers,
   ArrowLeft, RefreshCw, CheckCircle2, Filter, Copy, Check,
   BookOpen, ArrowRight, Sparkles, ShieldCheck, Cpu, Sliders,
-  Eye, ChevronDown, ChevronUp, Info
+  Eye, ChevronDown, ChevronUp, Info, FileText
 } from "lucide-react";
+import {
+  sendToDocStudio,
+  buildBillingEventHtmlBlock,
+  buildCampoHtmlBlock,
+} from "@/lib/docStudioBridge";
 
 interface DocumentoMeta {
   doc_id: string;
@@ -882,13 +887,64 @@ export default function CentralArquivosPage() {
                             : "Tabela / Sem Valor Financeiro"}
                         </div>
                       </div>
-                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5">
-                        <div className="text-[10px] uppercase tracking-wider text-slate-400">Diagnóstico de Compliance do Lote</div>
-                        <div className={`text-sm font-bold mt-1 ${warningCount > 0 ? "text-amber-400" : "text-emerald-400"}`}>
-                          {warningCount > 0
-                            ? `${warningCount} alerta(s) de Downgrade / Comprimento detectado(s)`
-                            : "100% Qualificado · Zero Rejeições Sintáticas"}
+                      <div className="bg-[#030711] border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between gap-2">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider text-slate-400">Diagnóstico de Compliance do Lote</div>
+                          <div className={`text-sm font-bold mt-1 ${warningCount > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                            {warningCount > 0
+                              ? `${warningCount} alerta(s) de Downgrade / Comprimento detectado(s)`
+                              : "100% Qualificado · Zero Rejeições Sintáticas"}
+                          </div>
                         </div>
+                        <button
+                          onClick={() => {
+                            const rowsHtml = parsedRows
+                              .map(
+                                (r) => `
+                                <tr>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-family: monospace;">L${r.idx}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${r.recordType}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-family: monospace;">${r.actualLen} / ${r.expectedLen}B</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-family: monospace;">${r.summary}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${r.amountBrl > 0 ? r.amountBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1;"><strong>${r.status === "OK" ? "QUALIFICADO" : "ALERTA DOWNGRADE"}</strong> — ${r.statusNote}</td>
+                                </tr>`
+                              )
+                              .join("");
+
+                            const html = `
+                              <div style="margin: 18px 0; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden;">
+                                <div style="background: #0f172a; color: #ffffff; padding: 10px 14px; font-size: 13px; font-weight: 700;">
+                                  Auditoria de Lote Multi-Registro (${parsedRows.length} registros · Soma TCR 0: ${totalBatchAmountBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })})
+                                </div>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                  <thead>
+                                    <tr style="background: #f8fafc; color: #334155;">
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">#</th>
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">Registro</th>
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">Bytes</th>
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">Campos Extraídos</th>
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">Valor</th>
+                                      <th style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: left;">Auditoria de Qualificação</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>${rowsHtml}</tbody>
+                                </table>
+                              </div>
+                            `;
+
+                            sendToDocStudio({
+                              mode: "append_html",
+                              title: "Laudo Técnico — Auditoria Posicional de Remessa / Retorno",
+                              sourceModule: "Inspetor de Lote Multi-Registro (/compliance/arquivos)",
+                              html,
+                            });
+                          }}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-sm transition-all"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Exportar Lote para Doc Studio (/editor)
+                        </button>
                       </div>
                     </div>
 
@@ -1131,9 +1187,22 @@ export default function CentralArquivosPage() {
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] text-slate-400">
-                    Passe o mouse sobre qualquer linha abaixo ou clique para fixar/expandir
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() =>
+                        sendToDocStudio({
+                          mode: "append_html",
+                          title: `Especificação Técnica — ${hoveredCampo.nome || hoveredCampo.registro || hoveredCampo.doc_id}`,
+                          sourceModule: "Explorador de Campos (campos.sqlite3)",
+                          html: buildCampoHtmlBlock(hoveredCampo),
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Enviar Ficha para Doc Studio (/editor)
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
@@ -1509,13 +1578,84 @@ export default function CentralArquivosPage() {
                         </div>
                       </div>
 
-                      <div className="bg-[#030711] border border-emerald-500/30 rounded-xl p-4 flex flex-col justify-between">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                          Ação Direta na Tabela Abaixo
+                      <div className="bg-[#030711] border border-emerald-500/30 rounded-xl p-4 flex flex-col justify-between gap-2">
+                        <div>
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                            Gerar Parecer de Auditoria de Fatura
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed mt-1">
+                            Exporte esta memória de cálculo completa com plano de mitigação de vazamentos direto para o Doc Studio.
+                          </p>
                         </div>
-                        <p className="text-[11px] text-slate-300 leading-relaxed">
-                          Clique em qualquer linha simulada abaixo para filtrar os códigos oficiais correspondentes na base de 13.181 eventos.
-                        </p>
+                        <button
+                          onClick={() => {
+                            const rowsHtml = simLines
+                              .map(
+                                (item) => `
+                                <tr>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${item.brand}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-family: monospace;">${item.code} (${item.service})</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1;">${item.desc}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-family: monospace;">${item.formula}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${item.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                                  <td style="padding: 8px 10px; border: 1px solid #cbd5e1;">${item.avoidable ? "Vazamento Evitável" : "Custo Operacional"}</td>
+                                </tr>`
+                              )
+                              .join("");
+
+                            const dossierHtml = `
+                              <h1>Parecer Executivo: Auditoria de Fatura Mensal de Bandeiras (MCBS & Visa VSS)</h1>
+                              <p>Relatório técnico de conciliação de <strong>Scheme Fees</strong>, <strong>Assessments</strong> e <strong>Penalidades Operacionais</strong> gerado pelo Motor de Faturamento MCBS Brasil (2.267 códigos) & Visa VSS (10.914 linhas).</p>
+                              <h2>1. Sumário Executivo de Custos & Vazamentos</h2>
+                              <ul>
+                                <li><strong>Volume Transacional Auditado:</strong> ${simDomTx.toLocaleString("pt-BR")} tx domésticas + ${simIntlTx.toLocaleString("pt-BR")} tx cross-border (TPV Mensal: ${simTpvBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })})</li>
+                                <li><strong>Fatura Mensal Total Estimada:</strong> ${totalEstimatedInvoiceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (${simTpvBrl > 0 ? ((totalEstimatedInvoiceBrl / simTpvBrl) * 100).toFixed(3) : "0.000"}% sobre TPV)</li>
+                                <li><strong>Vazamentos Evitáveis Identificados:</strong> <span style="color: #b45309; font-weight: 700;">${avoidableLeakageBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} / mês</span> (${(avoidableLeakageBrl * 12).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} anualizados)</li>
+                              </ul>
+                              <h2>2. Memória de Cálculo por Evento de Faturamento (T461 / VSS-110)</h2>
+                              <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin: 16px 0;">
+                                <thead>
+                                  <tr style="background: #0f172a; color: #ffffff;">
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Bandeira</th>
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Código / Service</th>
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Evento Auditado</th>
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Fórmula Aplicada</th>
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Impacto Mensal</th>
+                                    <th style="padding: 8px 10px; border: 1px solid #334155; text-align: left;">Natureza</th>
+                                  </tr>
+                                </thead>
+                                <tbody>${rowsHtml}</tbody>
+                              </table>
+                              <h2>3. Plano de Ação Recomendado para Redução de Custos</h2>
+                              <ol>
+                                <li><strong>Elevação da Taxa de Tokenização (VTS / MDES):</strong> Migrar credenciais COF (Card-on-File) para Network Tokens para estancar a sobretaxa de transação CNP não-tokenizada (<code>Service 2NW</code>).</li>
+                                <li><strong>Bloqueio de Retentativas em Hard Declines (TPE / Integrity):</strong> Ajustar motor de retentativas para bloquear novas submissões em códigos de recusa irreversíveis, zerando multas de <em>Transaction Processing Excellence</em>.</li>
+                                <li><strong>Automação de Pré-Disputa (Verifi RDR / Ethoca Alerts):</strong> Reduzir incidência de 1º Chargeback (<code>Service 1CA / VROL</code>) em operações de ticket sensível.</li>
+                              </ol>
+                            `;
+
+                            sendToDocStudio({
+                              mode: "full_dossier",
+                              title: "Parecer Executivo — Auditoria de Fatura Mensal MCBS & Visa VSS",
+                              sourceModule: "Simulador de Fatura Mensal (/compliance/arquivos)",
+                              html: dossierHtml,
+                              metadata: {
+                                brand: "geral",
+                                brandName: "Mastercard MCBS & Visa VSS",
+                                referenceId: "AUD-FATURA-2026",
+                                category: "Auditoria de Faturamento • Scheme Fees • FinOps de Pagamentos",
+                                effectiveDate: "Ciclo Mensal Vigente",
+                                riskLevel: avoidableLeakageBrl > 20000 ? "Alto" : "Médio",
+                                executiveSummary: `Auditoria mensal estimada em ${totalEstimatedInvoiceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}, com identificação de ${avoidableLeakageBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês em vazamentos evitáveis (sobretaxas de tokenização, retentativas e disputas).`,
+                                recommendedAction: "Executar plano de mitigação de tarifas evitáveis no motor de autorização e cofre de tokens.",
+                              },
+                            });
+                          }}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Gerar Parecer no Doc Studio (/editor)
+                        </button>
                       </div>
                     </div>
 
@@ -1721,9 +1861,25 @@ export default function CentralArquivosPage() {
                       Quem Paga: {hoveredBilling.quemPaga}
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    Fonte: {hoveredBilling.fonte}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
+                      Fonte: {hoveredBilling.fonte}
+                    </span>
+                    <button
+                      onClick={() =>
+                        sendToDocStudio({
+                          mode: "append_html",
+                          title: `Auditoria de Evento de Faturamento — ${hoveredBilling.codigo} (${hoveredBilling.bandeira})`,
+                          sourceModule: "Motor de Faturamento MCBS & Visa VSS",
+                          html: buildBillingEventHtmlBlock(hoveredBilling),
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-sm transition-all"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Enviar Evento para Doc Studio (/editor)
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 text-xs">
