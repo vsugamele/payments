@@ -13,6 +13,7 @@ import {
   buildBillingEventHtmlBlock,
   buildCampoHtmlBlock,
 } from "@/lib/docStudioBridge";
+import VisaFeeScheduleBrPanel from "@/components/compliance/VisaFeeScheduleBrPanel";
 
 interface DocumentoMeta {
   doc_id: string;
@@ -138,7 +139,7 @@ const BATCH_SAMPLES: Record<string, { label: string; brand: string; desc: string
 };
 
 export default function CentralArquivosPage() {
-  const [activeTab, setActiveTab] = useState<"parser" | "campos" | "billing" | "arquitetura">("parser");
+  const [activeTab, setActiveTab] = useState<"parser" | "campos" | "billing" | "visa_schedule" | "arquitetura">("parser");
 
   // Overview state
   const [stats, setStats] = useState<any>(null);
@@ -201,7 +202,7 @@ export default function CentralArquivosPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
-      if (tabParam === "parser" || tabParam === "campos" || tabParam === "billing" || tabParam === "arquitetura") {
+      if (tabParam === "parser" || tabParam === "campos" || tabParam === "billing" || tabParam === "visa_schedule" || tabParam === "arquitetura") {
         setActiveTab(tabParam);
       }
     }
@@ -444,6 +445,17 @@ export default function CentralArquivosPage() {
             3. Motor de Faturamento MCBS (2.267) & Visa VSS (10.914)
           </button>
           <button
+            onClick={() => setActiveTab("visa_schedule")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === "visa_schedule"
+                ? "bg-amber-600 text-white shadow-lg shadow-amber-600/25"
+                : "text-amber-300/90 hover:text-white hover:bg-slate-900 border border-amber-500/20"
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            4. Visa Fee Schedule Brasil (454 BLs · 148 Versões · Preços R$)
+          </button>
+          <button
             onClick={() => setActiveTab("arquitetura")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === "arquitetura"
@@ -452,7 +464,7 @@ export default function CentralArquivosPage() {
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            4. Manuais Indexados & Fluxo Quem-Envia / Quem-Recebe
+            5. Manuais Indexados & Fluxo Quem-Envia / Quem-Recebe
           </button>
         </div>
       </div>
@@ -2265,7 +2277,7 @@ export default function CentralArquivosPage() {
                         <strong>MCBS (Mastercard Consolidated Billing System)</strong>: 2.267 eventos no manual Brasil, cobrados via <code className="text-amber-300">IPM MTI 1740</code> e fatura MCBS por Service ID (<code className="text-amber-300">AA, AB, CA, CI, 2NW...</code>).
                       </td>
                       <td className="py-3 px-4">
-                        <strong>VSS-140 (Visa Charges)</strong>: 10.914 linhas de faturamento (<code className="text-blue-300">Billing Lines</code>) reportadas no <code className="text-blue-300">VSS-140</code> / <code className="text-blue-300">TC 46 Subgroup 5</code>.
+                        <strong>VSS-140 (Visa Charges)</strong>: 10.914 linhas de faturamento (<code className="text-blue-300">Billing Lines</code>) reportadas no <code className="text-blue-300">VSS-140</code> / <code className="text-blue-300">TC 46 Subgroup 5</code> + <strong>454 Billing Lines oficiais Brasil</strong> (148 versões de preço R$ / USD).
                       </td>
                       <td className="py-3 px-4">
                         <strong>Relatórios de Tarifas & Fee Collection Elo</strong> (<code className="text-emerald-300">Registro 25</code> e relatórios de billing).
@@ -2277,6 +2289,11 @@ export default function CentralArquivosPage() {
             </div>
           </div>
         )}
+
+        {/* =========================================================
+            TAB 4: VISA FEE SCHEDULE BRASIL (454 BLs · 148 VERSÕES · PREÇOS R$)
+           ========================================================= */}
+        {activeTab === "visa_schedule" && <VisaFeeScheduleBrPanel />}
       </div>
     </div>
   );

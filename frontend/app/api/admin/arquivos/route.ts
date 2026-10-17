@@ -3,6 +3,7 @@ import arquivosBundle from "@/data/arquivos-bundle.json";
 import mcbsData from "@/data/mcbs-billing-full.json";
 import visaBillingData from "@/data/visa-billing-full.json";
 import visaVssDepara from "@/data/visa-vss-depara-2026.json";
+import visaFeeScheduleBr from "@/data/visa-fee-schedule-br-2026.json";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,15 @@ for (const m of (visaVssDepara as any).mappings || []) {
 const DISCOUNT_BY_CODE: Record<string, any> = {};
 for (const d of (visaVssDepara as any).discounts || []) {
   DISCOUNT_BY_CODE[d.code] = d;
+}
+
+const BR_SCHEDULE_BY_CODE: Record<string, { bl: any; fv: any }> = {};
+const brData = visaFeeScheduleBr as any;
+if (brData && Array.isArray(brData.b) && Array.isArray(brData.f)) {
+  for (const bl of brData.b) {
+    const fv = brData.f[bl.fi] || null;
+    BR_SCHEDULE_BY_CODE[bl.c] = { bl, fv };
+  }
 }
 
 const VISA_CAT_PT: Record<string, string> = {
@@ -57,6 +67,7 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
 
   const depara = DEPARA_BY_NEW_CODE[bLine];
   const discMeta = DISCOUNT_BY_CODE[bLine];
+  const brSched = BR_SCHEDULE_BY_CODE[bLine];
 
   let explicacaoPt = `Linha oficial de faturamento Visa (${bLine}) da família "${catPt}" (${fGroup}), cobrada de ${quemPaga} na modalidade ${modalityPt}.`;
   let gatilhoPt = `Apurado pelo VisaNet Settlement Service (VSS) no relatório VSS-140 / registro Base II TC 46 (Vigência: ${startDate}).`;
@@ -69,6 +80,13 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
     const chLabel = discMeta.acceptanceChannel === "CNP" ? "CNP (Card Not Present)" : "CP (Card Present)";
     explicacaoPt = `Linha de Desconto Comercial / Tier Visa 2026 (${bLine}): aplica redutor tarifário (Discount) nas faturas de ${quemPaga} sobre o processamento ${discMeta.source} no canal ${chLabel}, produto ${discMeta.accountFundingSource} e faixa de ticket ${discMeta.ticketSize} USD.`;
     gatilhoPt = `Crédito/Desconto apurado automaticamente no fechamento do VSS-140 sobre os eventos elegíveis da faixa ${discMeta.ticketSize}.`;
+  } else if (brSched) {
+    const { bl, fv } = brSched;
+    const stLabel = bl.st === "Vigente" ? "VIGENTE NO BRASIL" : bl.st === "Futura" ? "VERSÃO FUTURA" : "ENCERRADA";
+    const vigenciaStart = String(bl.s || "").slice(0, 10);
+    const vigenciaEnd = String(bl.e || "").startsWith("9999") ? "Indeterminado" : String(bl.e || "").slice(0, 10);
+    explicacaoPt = `[${stLabel} · Produto: ${bl.p}] Tarifa "${bl.n}" (${bLine}) aplicável a ${bl.ct || quemPaga}. Vigência: ${vigenciaStart} → ${vigenciaEnd} (${bl.nv} ${bl.nv === 1 ? "versão histórica" : "versões históricas"} no portal feeschedule.visaonline.com). ${bl.ld || invDesc}`;
+    gatilhoPt = `Fatura mensal VOIP (emitida no 4º dia útil, vencimento no 10º dia útil em BRL para Visa do Brasil Empreendimentos Ltda., reajuste anual IPCA em março).`;
   } else if (textLower.includes("marketing fee") || fGroup.includes("Card Service Fees")) {
     explicacaoPt = `Taxa de Serviço e Marketing Visa (${bLine}) cobrada de ${quemPaga} (${modalityPt}) sobre o volume doméstico liquidado (TPV). Compõe o Assessment Fee trimestral/mensal da bandeira.`;
     gatilhoPt = `Incide sobre o volume total de pagamentos domésticos e saques liquidados no Base II (TC 05 / TC 07), reportado no VSS-140.`;
@@ -112,6 +130,11 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
         `Faixa de Ticket (USD): ${discMeta.ticketSize}`,
         `Vigência Oficial: ${startDate}`,
       ]
+    : brSched && brSched.fv?.rateBullets?.length > 0
+    ? [
+        `Status Brasil: ${brSched.bl.st} (${String(brSched.bl.s || "").slice(0, 10)} → ${String(brSched.bl.e || "").startsWith("9999") ? "Indeterminado" : String(brSched.bl.e || "").slice(0, 10)}) · ${brSched.bl.nv} versões`,
+        ...brSched.fv.rateBullets.slice(0, 6),
+      ]
     : [
         `Fatura VSS: ${invDesc || fName}`,
         `Modalidade: ${modalityPt}`,
@@ -121,6 +144,8 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
   return {
     serviceLabelPt: depara
       ? `${catPt} · De-Para ${depara.oldCode} (${depara.source})`
+      : brSched
+      ? `${catPt} · ${brSched.bl.p} (${brSched.bl.st})`
       : `${catPt} · ${fGroup}`,
     explicacaoPt,
     gatilhoPt,
@@ -279,12 +304,16 @@ function handleArquivos(payload: Record<string, any>) {
         const fCat = String(item["Fee category"] || "");
         const fGroup = String(item["Fee Group"] || "VSS");
         const depara = DEPARA_BY_NEW_CODE[bLine] || DISCOUNT_BY_CODE[bLine] || null;
+        const brSched = BR_SCHEDULE_BY_CODE[bLine] || null;
 
         if (q) {
           const deparaText = depara
             ? `${depara.existingLine || ""} ${depara.oldCode || ""} ${depara.source || ""} ${depara.ticketSize || ""} ${depara.acceptanceChannel || ""} ${depara.accountFundingSource || ""} ${depara.discountCode || ""} depara`
             : "";
-          const hay = `${bLine} ${fName} ${invDesc} ${longDesc} ${fCat} ${fGroup} ${deparaText}`.toLowerCase();
+          const brText = brSched
+            ? `${brSched.bl.p || ""} ${brSched.bl.n || ""} ${brSched.bl.st || ""} ${(brSched.fv?.rateBullets || []).join(" ")} feeschedule`
+            : "";
+          const hay = `${bLine} ${fName} ${invDesc} ${longDesc} ${fCat} ${fGroup} ${deparaText} ${brText}`.toLowerCase();
           if (!hay.includes(q)) continue;
         }
 
@@ -295,22 +324,30 @@ function handleArquivos(payload: Record<string, any>) {
             bandeira: "Visa",
             sistema: depara
               ? `Visa VSS De-Para 1→20 (${depara.source})`
+              : brSched
+              ? `Visa Fee Schedule BR (${brSched.bl.p} · ${brSched.bl.st})`
               : `Visa VSS Billing (${fCat || "Fee Guide"})`,
             codigo: bLine || fName.slice(0, 12),
-            serviceId: depara?.oldCode ? `De: ${depara.oldCode}` : fGroup,
+            serviceId: depara?.oldCode
+              ? `De: ${depara.oldCode}`
+              : brSched
+              ? brSched.bl.p
+              : fGroup,
             serviceLabelPt: ptInfo.serviceLabelPt,
             nome: depara?.newBillingLineName || invDesc || fName,
-            quemPaga,
+            quemPaga: brSched?.bl?.ct || quemPaga,
             descricao: longDesc || invDesc,
             explicacaoPt: ptInfo.explicacaoPt,
             gatilhoPt: ptInfo.gatilhoPt,
             rates: ptInfo.rates,
             fonte: depara
               ? `Visa De-Para 2026 (${depara.existingLine || "Discount Tier"} · ${depara.source} · ${depara.acceptanceChannel} · ${depara.ticketSize})`
+              : brSched
+              ? `feeschedule.visaonline.com (Perfil BRAZIL · ${brSched.bl.st} · ${brSched.bl.nv} versões)`
               : "Visa Billing Line Mapping & Fee Guide (Base Oficial 2026)",
             reconciliacao: depara
               ? `Substitui ${depara.oldCode || "Tier Base"} no VSS-140 / Base II TC 46 (Desconto: ${depara.discountCode || bLine})`
-              : "Relatório VSS-140 / Registro Base II TC 46 Subgroup 4 & 5",
+              : "Relatório VSS-140 / Fatura VOIP (4º dia útil) / Base II TC 46",
           });
         }
       }
@@ -323,6 +360,13 @@ function handleArquivos(payload: Record<string, any>) {
       totalMatched: totalMcbsMatched + totalVisaMatched,
       mcbsServiceIds: mcbsServices.slice(0, 60),
       results,
+    });
+  }
+
+  if (action === "visa_fee_schedule_br") {
+    return NextResponse.json({
+      connected: true,
+      schedule: visaFeeScheduleBr,
     });
   }
 
