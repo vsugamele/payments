@@ -1741,10 +1741,11 @@ export default function CentralArquivosPage() {
                 {[
                   { label: "Mastercard 2AB1006", q: "2AB1006", brand: "Mastercard" },
                   { label: "Mastercard Digital Enablement (2NW)", q: "2NW", brand: "Mastercard" },
-                  { label: "Mastercard 3DS / Identity Check", q: "Identity Check", brand: "Mastercard" },
                   { label: "Mastercard Chargeback (1CA / 2CA)", q: "Chargeback", brand: "Mastercard" },
-                  { label: "Visa Internacional / Cross-Border", q: "International", brand: "Visa" },
-                  { label: "Visa Token / VTS", q: "Token", brand: "Visa" },
+                  { label: "Visa De-Para Adquirente (5F3516900 → 20 linhas)", q: "5F3516900", brand: "Visa" },
+                  { label: "Visa De-Para Emissor (5F3510300 → 20 linhas)", q: "5F3510300", brand: "Visa" },
+                  { label: "Visa De-Para Auth Base I (5J4203130 → 20 linhas)", q: "5J4203130", brand: "Visa" },
+                  { label: "Visa Descontos por Faixa (2398 / 2399 / 3198)", q: "Discount on all Domestic", brand: "Visa" },
                 ].map((chip, i) => (
                   <button
                     key={i}

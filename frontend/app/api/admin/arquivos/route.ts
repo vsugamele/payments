@@ -2,8 +2,19 @@ import { NextResponse } from "next/server";
 import arquivosBundle from "@/data/arquivos-bundle.json";
 import mcbsData from "@/data/mcbs-billing-full.json";
 import visaBillingData from "@/data/visa-billing-full.json";
+import visaVssDepara from "@/data/visa-vss-depara-2026.json";
 
 export const dynamic = "force-dynamic";
+
+const DEPARA_BY_NEW_CODE: Record<string, any> = {};
+for (const m of (visaVssDepara as any).mappings || []) {
+  DEPARA_BY_NEW_CODE[m.newCode] = m;
+}
+
+const DISCOUNT_BY_CODE: Record<string, any> = {};
+for (const d of (visaVssDepara as any).discounts || []) {
+  DISCOUNT_BY_CODE[d.code] = d;
+}
 
 const VISA_CAT_PT: Record<string, string> = {
   "Service Fees": "Taxa de Serviço / Assessment de Volume (TPV)",
@@ -44,10 +55,21 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
   else if (textLower.includes("prepaid")) modalityPt = "Modalidade Pré-Pago";
   else if (textLower.includes("commercial") || textLower.includes("corporate")) modalityPt = "Cartões Comerciais / Corporativos";
 
+  const depara = DEPARA_BY_NEW_CODE[bLine];
+  const discMeta = DISCOUNT_BY_CODE[bLine];
+
   let explicacaoPt = `Linha oficial de faturamento Visa (${bLine}) da família "${catPt}" (${fGroup}), cobrada de ${quemPaga} na modalidade ${modalityPt}.`;
   let gatilhoPt = `Apurado pelo VisaNet Settlement Service (VSS) no relatório VSS-140 / registro Base II TC 46 (Vigência: ${startDate}).`;
 
-  if (textLower.includes("marketing fee") || fGroup.includes("Card Service Fees")) {
+  if (depara) {
+    const chLabel = depara.acceptanceChannel === "CNP" ? "CNP (Card Not Present / E-commerce)" : "CP (Card Present / Presencial)";
+    explicacaoPt = `Reestruturação Visa 2026 (De-Para 1→20): este código novo (${bLine}) substitui a linha antiga "${depara.existingLine}" para ${quemPaga}, isolando transações de origem ${depara.source} no canal ${chLabel}, modalidade ${depara.accountFundingSource} e faixa de ticket ${depara.ticketSize} USD.`;
+    gatilhoPt = `Disparado no sistema ${depara.source} quando o ticket da transação cai na faixa ${depara.ticketSize} (${chLabel} · ${depara.accountFundingSource}). Possui linha espelho de desconto por volume: ${depara.discountCode}.`;
+  } else if (discMeta) {
+    const chLabel = discMeta.acceptanceChannel === "CNP" ? "CNP (Card Not Present)" : "CP (Card Present)";
+    explicacaoPt = `Linha de Desconto Comercial / Tier Visa 2026 (${bLine}): aplica redutor tarifário (Discount) nas faturas de ${quemPaga} sobre o processamento ${discMeta.source} no canal ${chLabel}, produto ${discMeta.accountFundingSource} e faixa de ticket ${discMeta.ticketSize} USD.`;
+    gatilhoPt = `Crédito/Desconto apurado automaticamente no fechamento do VSS-140 sobre os eventos elegíveis da faixa ${discMeta.ticketSize}.`;
+  } else if (textLower.includes("marketing fee") || fGroup.includes("Card Service Fees")) {
     explicacaoPt = `Taxa de Serviço e Marketing Visa (${bLine}) cobrada de ${quemPaga} (${modalityPt}) sobre o volume doméstico liquidado (TPV). Compõe o Assessment Fee trimestral/mensal da bandeira.`;
     gatilhoPt = `Incide sobre o volume total de pagamentos domésticos e saques liquidados no Base II (TC 05 / TC 07), reportado no VSS-140.`;
   } else if (textLower.includes("international") || textLower.includes("cross-border") || textLower.includes("isa") || textLower.includes("multi-currency")) {
@@ -76,15 +98,34 @@ function enrichVisaLinePt(item: any, quemPaga: string) {
     gatilhoPt = `Apurada por mensagem de autorização (0100/0110) ou registro de clearing (TC 05 / TC 06 / TC 07) processado na janela diária.`;
   }
 
+  const rates = depara
+    ? [
+        `De-Para Antigo → Novo: ${depara.oldCode} (${depara.oldName}) → ${bLine}`,
+        `Origem: ${depara.source} · Canal: ${depara.acceptanceChannel} · Funding: ${depara.accountFundingSource}`,
+        `Faixa de Ticket (USD): ${depara.ticketSize}`,
+        `Linha de Desconto (Discount): ${depara.discountCode}`,
+      ]
+    : discMeta
+    ? [
+        `Linha de Desconto (Discount): ${bLine}`,
+        `Origem: ${discMeta.source} · Canal: ${discMeta.acceptanceChannel} · Funding: ${discMeta.accountFundingSource}`,
+        `Faixa de Ticket (USD): ${discMeta.ticketSize}`,
+        `Vigência Oficial: ${startDate}`,
+      ]
+    : [
+        `Fatura VSS: ${invDesc || fName}`,
+        `Modalidade: ${modalityPt}`,
+        `Vigência Oficial: ${startDate}`,
+      ];
+
   return {
-    serviceLabelPt: `${catPt} · ${fGroup}`,
+    serviceLabelPt: depara
+      ? `${catPt} · De-Para ${depara.oldCode} (${depara.source})`
+      : `${catPt} · ${fGroup}`,
     explicacaoPt,
     gatilhoPt,
-    rates: [
-      `Fatura VSS: ${invDesc || fName}`,
-      `Modalidade: ${modalityPt}`,
-      `Vigência Oficial: ${startDate}`
-    ]
+    rates,
+    depara: depara || discMeta || null,
   };
 }
 
@@ -237,9 +278,13 @@ function handleArquivos(payload: Record<string, any>) {
         const longDesc = String(item["Long Description"] || "");
         const fCat = String(item["Fee category"] || "");
         const fGroup = String(item["Fee Group"] || "VSS");
+        const depara = DEPARA_BY_NEW_CODE[bLine] || DISCOUNT_BY_CODE[bLine] || null;
 
         if (q) {
-          const hay = `${bLine} ${fName} ${invDesc} ${longDesc} ${fCat} ${fGroup}`.toLowerCase();
+          const deparaText = depara
+            ? `${depara.existingLine || ""} ${depara.oldCode || ""} ${depara.source || ""} ${depara.ticketSize || ""} ${depara.acceptanceChannel || ""} ${depara.accountFundingSource || ""} ${depara.discountCode || ""} depara`
+            : "";
+          const hay = `${bLine} ${fName} ${invDesc} ${longDesc} ${fCat} ${fGroup} ${deparaText}`.toLowerCase();
           if (!hay.includes(q)) continue;
         }
 
@@ -248,18 +293,24 @@ function handleArquivos(payload: Record<string, any>) {
           const ptInfo = enrichVisaLinePt(item, quemPaga);
           results.push({
             bandeira: "Visa",
-            sistema: `Visa VSS Billing (${fCat || "Fee Guide"})`,
+            sistema: depara
+              ? `Visa VSS De-Para 1→20 (${depara.source})`
+              : `Visa VSS Billing (${fCat || "Fee Guide"})`,
             codigo: bLine || fName.slice(0, 12),
-            serviceId: fGroup,
+            serviceId: depara?.oldCode ? `De: ${depara.oldCode}` : fGroup,
             serviceLabelPt: ptInfo.serviceLabelPt,
-            nome: fName || invDesc,
+            nome: depara?.newBillingLineName || invDesc || fName,
             quemPaga,
             descricao: longDesc || invDesc,
             explicacaoPt: ptInfo.explicacaoPt,
             gatilhoPt: ptInfo.gatilhoPt,
             rates: ptInfo.rates,
-            fonte: "Visa Billing Line Mapping & Fee Guide (Base Oficial 2026)",
-            reconciliacao: "Relatório VSS-140 / Registro Base II TC 46 Subgroup 4 & 5",
+            fonte: depara
+              ? `Visa De-Para 2026 (${depara.existingLine || "Discount Tier"} · ${depara.source} · ${depara.acceptanceChannel} · ${depara.ticketSize})`
+              : "Visa Billing Line Mapping & Fee Guide (Base Oficial 2026)",
+            reconciliacao: depara
+              ? `Substitui ${depara.oldCode || "Tier Base"} no VSS-140 / Base II TC 46 (Desconto: ${depara.discountCode || bLine})`
+              : "Relatório VSS-140 / Registro Base II TC 46 Subgroup 4 & 5",
           });
         }
       }
