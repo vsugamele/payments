@@ -422,7 +422,7 @@ export default function DocStudioEditor() {
     const mktTmpl = MARKETPLACE_MASTER_TEMPLATE;
 
     const rawDocs = localStorage.getItem("vs_saved_documents");
-    const mktSeeded = localStorage.getItem("vs_marketplace_doc_seeded_v1");
+    const mktSeeded = localStorage.getItem("vs_marketplace_doc_seeded_v2");
     let initialContent = mktTmpl.content;
     let initialTitle = mktTmpl.defaultTitle;
     let initialId = "doc-dossie-marketplace";
@@ -431,11 +431,11 @@ export default function DocStudioEditor() {
     if (rawDocs) {
       try {
         let parsed: SavedDoc[] = JSON.parse(rawDocs);
-        // Ensure Marketplace Master Doc is present in list
-        const existingMkt = parsed.find(
+        // Ensure Marketplace Master Doc is present and updated to audited v2
+        const existingMktIdx = parsed.findIndex(
           (d) => d.id === "doc-dossie-marketplace" || d.title.includes("Regras de Marketplace")
         );
-        if (!existingMkt) {
+        if (existingMktIdx === -1) {
           parsed = [
             {
               id: "doc-dossie-marketplace",
@@ -445,6 +445,15 @@ export default function DocStudioEditor() {
             },
             ...parsed,
           ];
+          localStorage.setItem("vs_saved_documents", JSON.stringify(parsed));
+        } else if (!mktSeeded) {
+          parsed[existingMktIdx] = {
+            ...parsed[existingMktIdx],
+            id: "doc-dossie-marketplace",
+            title: mktTmpl.defaultTitle,
+            content: mktTmpl.content,
+            updatedAt: new Date().toISOString(),
+          };
           localStorage.setItem("vs_saved_documents", JSON.stringify(parsed));
         }
 
@@ -472,7 +481,7 @@ export default function DocStudioEditor() {
           initialTitle = mktTmpl.defaultTitle;
           initialContent = mktTmpl.content;
           activeMetaType = "marketplace";
-          localStorage.setItem("vs_marketplace_doc_seeded_v1", "true");
+          localStorage.setItem("vs_marketplace_doc_seeded_v2", "true");
         } else if (queryDoc === "artigo-ia" || queryDoc === "artigo_ia_conhecimento") {
           initialId = "doc-artigo-ia";
           initialTitle = artigoTmpl.defaultTitle;
