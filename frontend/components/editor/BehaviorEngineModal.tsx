@@ -356,6 +356,136 @@ export const BEHAVIOR_FIELDS_DATA: BehaviorFieldItem[] = [
       "Network Specifications — Authorization & Financial (April 2026)",
     ],
   },
+  {
+    id: "MC-DE048-PDS0208",
+    brand: "Mastercard",
+    fieldCode: "DE 048",
+    subfield: "SE 37 / PDS 0208 & PDS 0178",
+    name: "Payment Facilitator ID (PF ID) & Submerchant Data (Marketplace / Subcredenciador)",
+    phase: "Clearing / Liquidação",
+    messages: ["0100 (Authorization Request)", "IPM First Presentment (1240)"],
+    format: "n ...11 (PDS 0208) + ans ...201 (PDS 0178 Table 619)",
+    functionalDescription:
+      "Identifica obrigatoriamente o Subcredenciador / Payment Facilitator (PF ID de até 11 dígitos em DE 48 SE 37 na autorização e PDS 0208 no clearing IPM) e os dados cadastrais individualizados do Submerchant/Seller (PDS 0178: Submerchant ID, endereço, CEP, estado, país e documento fiscal CNPJ/CPF).",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Mandatório",
+        description:
+          "Popular o PF ID registrado na Mastercard e enviar todos os subcampos do submerchant no autorização (DE 48 SE 37) e no clearing (PDS 0208 e PDS 0178), além de DE 42 exclusivo por seller.",
+        technicalDetail:
+          "Garantir consistência exata entre o DE 48 SE 37 enviado no 0100 e os PDS 0208/0178 enviados no IPM 1240.",
+      },
+      issuer: {
+        action: "recebe",
+        requirement: "Mandatório",
+        description:
+          "Utilizar o PF ID e o Submerchant ID nos modelos de score antifraude por sublojista e exibir dados enriquecidos no extrato digital do portador.",
+        technicalDetail:
+          "Segmentar regras de autorização por combinação (PF ID +DE 42 Submerchant ID) para não bloquear todo o Marketplace por causa de um seller isolado.",
+      },
+    },
+    flow: {
+      outbound:
+        "Subcredenciador/Marketplace ➔ Adquirente ➔ Mastercard: 0100 com DE 48 SE 37 (PF ID) + DE 42 (Submerchant ID) + DE 43 (PF*Seller).",
+      inboundResponse:
+        "Emissor ➔ Mastercard ➔ Adquirente: 0110 com decisão de autorização individualizada para o submerchant.",
+      clearingImpact:
+        "Obrigatório no IPM First Presentment (MTI 1240) via PDS 0208 (PF ID) e PDS 0178 (Table 619 — Subfields 1–3 e 4–201). Auditado no relatório IP714010-AA.",
+    },
+    financialImpact:
+      "Ausência ou preenchimento inválido gera multa mensal do Data Integrity Monitoring Program: MCBS 2PN2111 (Invalid DE 48 = R$ 5.600,00/mês), MCBS 2PN2117 (Invalid Card Acceptor ID DE 42 = R$ 5.600,00/mês) e MCBS 2PN2119 (Invalid Postal Code = R$ 5.600,00/mês), além de registro anual MSP MCBS 2SC1812 (R$ 18.135,00).",
+    bulletins: [
+      "Mastercard Rules — Chapter 7: Service Providers (Payment Facilitators & Marketplaces)",
+      "Manual MCBS Brasil Ed. 13.2 (Eventos 2PN2111, 2PN2117, 2SC1812, 2SC1827)",
+    ],
+  },
+  {
+    id: "MC-VISA-DE043-PF",
+    brand: "Visa / Mastercard / Elo",
+    fieldCode: "DE 043",
+    subfield: "Posições 1–22 (Nome) • 24–36 (Cidade) • 38–40 (País)",
+    name: "Dynamic Soft Descriptor — Formatação Obrigatória PF*Seller / Marketplace",
+    phase: "Autorização",
+    messages: ["0100 (Auth Request)", "TC 05 TCR 0 (Pos 92–116)", "IPM 1240 (DE 43)"],
+    format: "ans 40 (Autorização) / ans 25 (Nome no Clearing Base II Pos 92–116)",
+    functionalDescription:
+      "Define como o nome do Marketplace ou Subcredenciador e do Seller aparece na fatura do cartão do portador. Para Subcredenciadores (PayFacs), é obrigatório o formato 'PREFIXO_PF*NOME_DO_SELLER' (prefixo de 3 a 12 caracteres seguido de asterisco e nome fantasia do sublojista). Para Marketplaces Qualificados, exibe a marca do Marketplace.",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Mandatório",
+        description:
+          "Formatar dinamicamente o DE 43 a cada transação ou sub-pedido com o prefixo registrado do PF + '*' + Nome do Seller, Cidade real do Seller e código de país (BRA).",
+        technicalDetail:
+          "Jamais enviar 'UNKNOWN', caracteres especiais inválidos ou truncar sem o asterisco separador. Garantir paridade entre 0100 e clearing (MCBS 2PN2120).",
+      },
+      issuer: {
+        action: "recebe",
+        requirement: "Mandatório",
+        description:
+          "Apresentar o DE 43 integralmente no app/fatura do portador para evitar chargebacks por não reconhecimento comercial ('Desconheço a compra' — Reason Code 13.1 / 4863).",
+        technicalDetail:
+          "Preservar o nome após o asterisco no extrato eletrônico e nas notificações push de compra aprovada.",
+      },
+    },
+    flow: {
+      outbound: "Marketplace/PayFac ➔ Adquirente ➔ Bandeira ➔ Emissor: DE 43 = 'MPAGO*LOJADOMARIO      SAO PAULO    BRA'.",
+      inboundResponse: "Mantido nos logs de autorização e impresso no comprovante e fatura do portador.",
+      clearingImpact:
+        "No Base II Visa (TC 05 TCR 0 Pos 92–116) e no IPM Mastercard (DE 43 Pos 176–272 do relatório IP714010-AA), deve coincidir com os dados da autorização.",
+    },
+    financialImpact:
+      "Formatação incorreta aciona multas mensais no MCBS: 2PN2113 (Invalid DE 43 Auth = R$ 5.600/mês), 2PN2118 (Invalid DE 43 Clearing = R$ 5.600/mês) e 2PN2120 (Desacordo Auth vs Clearing = R$ 5.000/mês), além de elevar disputas VROL (R$ 10,35 a R$ 22,35 por disputa).",
+    bulletins: [
+      "Visa Core Rules and Visa Product and Service Rules — Section 5.2 (Payment Facilitators & Marketplaces)",
+      "Mastercard Data Integrity Monitoring Program (Eventos 2PN2113 / 2PN2118 / 2PN2120)",
+    ],
+  },
+  {
+    id: "VISA-MVV-PFID-TCR",
+    brand: "Visa",
+    fieldCode: "DE 62.4 / DE 104 / TC 05",
+    subfield: "MVV + Payment Facilitator ID + Sub-Merchant ID + Foreign Retailer Indicator",
+    name: "Visa Qualifying Marketplace & Payment Facilitator Identification (Base I & Base II)",
+    phase: "Clearing / Liquidação",
+    messages: ["0100 (VIP Auth)", "TC 05 TCR 0 / TCR 1 / TCR 5 (Base II Clearing)"],
+    format: "an 10 (MVV) + n 11 (PF/Marketplace ID) + ans 15 (Sub-Merchant ID)",
+    functionalDescription:
+      "Conjunto de identificadores estruturais da Visa para Marketplaces Qualificados e Payment Facilitators. Inclui o MVV (Merchant Verification Value), o Payment Facilitator / Marketplace ID de 11 dígitos, o Sub-Merchant ID, o CNPJ/CPF do Seller no Brasil e o Foreign Retailer Indicator (obrigatório quando um Marketplace ou Facilitador processa para seller sediado no exterior).",
+    roles: {
+      acquirer: {
+        action: "envia",
+        requirement: "Mandatório",
+        description:
+          "Registrar previamente o PF ou Marketplace no portal Visa (Third Party Agent Registration — BL 5Q6562026) e trafegar PF ID, Sub-Merchant ID, Tax ID (CNPJ/CPF) e Foreign Retailer Indicator (quando cross-border).",
+        technicalDetail:
+          "Em carrinhos multi-seller com múltiplas capturas parciais sobre 1 autorização, enviar Multiple Clearing Sequence Number e Count no TCR 0/TCR 1.",
+      },
+      issuer: {
+        action: "valida",
+        requirement: "Mandatório",
+        description:
+          "Identificar se a transação pertence a um Marketplace Qualificado (MCC 5262 ou MCC específico) ou Subcredenciador, aplicando regras de risco e câmbio/IOF cabíveis (em caso de Foreign Retailer).",
+        technicalDetail:
+          "Consumir o Sub-Merchant ID e o Foreign Retailer Indicator para cálculo tributário e prevenção à lavagem de dinheiro (PLD/AML).",
+      },
+    },
+    flow: {
+      outbound:
+        "Adquirente ➔ VisaNet: 0100 e TC 05 contendo PF/Marketplace ID (11 dígitos), Sub-Merchant ID (15 pos) e CNPJ/CPF do Seller.",
+      inboundResponse:
+        "VisaNet valida registro ativo do agente e aplica a grade tarifária de VSS-120/130 e VSS-140 (De-Para 1→20 por faixa de ticket).",
+      clearingImpact:
+        "Se um carrinho for desmembrado em N capturas de clearing no Base II, cada TC 05 é tarifado na sua respectiva faixa de ticket ($0–$2 até >$50) do novo VSS 2026.",
+    },
+    financialImpact:
+      "Taxa de Registro Inicial e Renovação Anual de PF / HRIPF na Visa Brasil: R$ 32.000,00 (BL 5Q6562026). Violação por patrocinar seller irregular / URL proibida: R$ 65.000 (1ª violação), R$ 160.000 (2ª) e R$ 320.000 (3ª) por URL (BL 5Z9965656). Auditoria trimestral AMP: R$ 65.000/trimestre (BL 5Z9999105).",
+    bulletins: [
+      "Visa Brazil Fee Schedule 2026 (BLs 5Q6562026, 5Z9965656, 5Z9999105)",
+      "Visa Base II Clearing Record Layouts (TC 05 Draft Data & Brazil National Settlement)",
+    ],
+  },
 ];
 
 interface BehaviorEngineModalProps {

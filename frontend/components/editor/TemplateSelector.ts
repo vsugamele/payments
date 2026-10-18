@@ -1,3 +1,5 @@
+import { MARKETPLACE_MASTER_TEMPLATE } from "./MarketplaceMasterDoc";
+
 export interface DocumentTemplate {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface DocumentTemplate {
 }
 
 export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
+  MARKETPLACE_MASTER_TEMPLATE,
   {
     id: "artigo_ia_conhecimento",
     name: "Artigo: Quando a IA responde, quem realmente sabe?",

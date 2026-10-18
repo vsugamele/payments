@@ -72,6 +72,10 @@ import BehaviorEngineModal from "@/components/editor/BehaviorEngineModal";
 import AcervoSearchModal from "@/components/editor/AcervoSearchModal";
 import QuickDatabaseInsertModal from "@/components/editor/QuickDatabaseInsertModal";
 import { consumeDocStudioPayload } from "@/lib/docStudioBridge";
+import {
+  MARKETPLACE_MASTER_METADATA,
+  MARKETPLACE_MASTER_TEMPLATE,
+} from "@/components/editor/MarketplaceMasterDoc";
 
 interface TocItem {
   id: string;
@@ -415,46 +419,77 @@ export default function DocStudioEditor() {
     setAiModel(storedModel);
 
     const artigoTmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "artigo_ia_conhecimento") || DOCUMENT_TEMPLATES[0];
+    const mktTmpl = MARKETPLACE_MASTER_TEMPLATE;
 
     const rawDocs = localStorage.getItem("vs_saved_documents");
-    let initialContent = artigoTmpl.content;
-    let initialTitle = artigoTmpl.defaultTitle;
-    let initialId = "doc-artigo-ia";
-    let isArtigoActive = true;
+    const mktSeeded = localStorage.getItem("vs_marketplace_doc_seeded_v1");
+    let initialContent = mktTmpl.content;
+    let initialTitle = mktTmpl.defaultTitle;
+    let initialId = "doc-dossie-marketplace";
+    let activeMetaType: "marketplace" | "artigo" | "other" = "marketplace";
 
     if (rawDocs) {
       try {
         let parsed: SavedDoc[] = JSON.parse(rawDocs);
-        // Ensure article is present in list
-        const existingArticle = parsed.find(
-          (d) => d.id === "doc-artigo-ia" || d.title.includes("Quando a IA responde")
+        // Ensure Marketplace Master Doc is present in list
+        const existingMkt = parsed.find(
+          (d) => d.id === "doc-dossie-marketplace" || d.title.includes("Regras de Marketplace")
         );
-        if (!existingArticle) {
+        if (!existingMkt) {
           parsed = [
             {
-              id: "doc-artigo-ia",
-              title: artigoTmpl.defaultTitle,
-              content: artigoTmpl.content,
-              updatedAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+              id: "doc-dossie-marketplace",
+              title: mktTmpl.defaultTitle,
+              content: mktTmpl.content,
+              updatedAt: new Date().toISOString(),
             },
             ...parsed,
           ];
           localStorage.setItem("vs_saved_documents", JSON.stringify(parsed));
         }
 
+        // Ensure article is present in list
+        const existingArticle = parsed.find(
+          (d) => d.id === "doc-artigo-ia" || d.title.includes("Quando a IA responde")
+        );
+        if (!existingArticle) {
+          parsed = [
+            ...parsed,
+            {
+              id: "doc-artigo-ia",
+              title: artigoTmpl.defaultTitle,
+              content: artigoTmpl.content,
+              updatedAt: new Date().toISOString(),
+            },
+          ];
+          localStorage.setItem("vs_saved_documents", JSON.stringify(parsed));
+        }
+
         setSavedDocs(parsed);
 
-        if (queryDoc === "artigo-ia" || queryDoc === "artigo_ia_conhecimento") {
+        if (queryDoc === "marketplace" || queryDoc === "dossie_marketplace_2026" || !mktSeeded) {
+          initialId = "doc-dossie-marketplace";
+          initialTitle = mktTmpl.defaultTitle;
+          initialContent = mktTmpl.content;
+          activeMetaType = "marketplace";
+          localStorage.setItem("vs_marketplace_doc_seeded_v1", "true");
+        } else if (queryDoc === "artigo-ia" || queryDoc === "artigo_ia_conhecimento") {
           initialId = "doc-artigo-ia";
           initialTitle = artigoTmpl.defaultTitle;
           initialContent = artigoTmpl.content;
-          isArtigoActive = true;
+          activeMetaType = "artigo";
         } else if (parsed.length > 0) {
           const first = parsed[0];
           initialId = first.id;
           initialTitle = first.title;
           initialContent = first.content;
-          isArtigoActive = first.id === "doc-artigo-ia" || first.title.includes("Quando a IA responde");
+          if (first.id === "doc-dossie-marketplace" || first.title.includes("Marketplace")) {
+            activeMetaType = "marketplace";
+          } else if (first.id === "doc-artigo-ia" || first.title.includes("Quando a IA responde")) {
+            activeMetaType = "artigo";
+          } else {
+            activeMetaType = "other";
+          }
         }
       } catch (e) {
         console.error("Error loading saved docs", e);
@@ -462,17 +497,26 @@ export default function DocStudioEditor() {
     } else {
       const initialSeed: SavedDoc[] = [
         {
+          id: "doc-dossie-marketplace",
+          title: mktTmpl.defaultTitle,
+          content: mktTmpl.content,
+          updatedAt: new Date().toISOString(),
+        },
+        {
           id: "doc-artigo-ia",
           title: artigoTmpl.defaultTitle,
           content: artigoTmpl.content,
-          updatedAt: "agora",
+          updatedAt: new Date().toISOString(),
         },
       ];
       setSavedDocs(initialSeed);
       localStorage.setItem("vs_saved_documents", JSON.stringify(initialSeed));
+      localStorage.setItem("vs_marketplace_doc_seeded_v1", "true");
     }
 
-    if (isArtigoActive) {
+    if (activeMetaType === "marketplace") {
+      setBulletinMeta(MARKETPLACE_MASTER_METADATA);
+    } else if (activeMetaType === "artigo") {
       setBulletinMeta(ARTIGO_IA_METADATA);
     }
 
@@ -1158,7 +1202,9 @@ export default function DocStudioEditor() {
     const newId = "doc-" + Date.now();
     setDocId(newId);
     setDocTitle(tmpl.defaultTitle);
-    if (tmpl.id === "artigo_ia_conhecimento") {
+    if (tmpl.id === "dossie_marketplace_2026") {
+      setBulletinMeta(MARKETPLACE_MASTER_METADATA);
+    } else if (tmpl.id === "artigo_ia_conhecimento") {
       setBulletinMeta(ARTIGO_IA_METADATA);
     }
     if (editorRef.current) {
@@ -1173,7 +1219,9 @@ export default function DocStudioEditor() {
   const handleSelectDocument = (doc: SavedDoc) => {
     setDocId(doc.id);
     setDocTitle(doc.title);
-    if (doc.id === "doc-artigo-ia" || doc.title.includes("Quando a IA responde")) {
+    if (doc.id === "doc-dossie-marketplace" || doc.title.includes("Marketplace")) {
+      setBulletinMeta(MARKETPLACE_MASTER_METADATA);
+    } else if (doc.id === "doc-artigo-ia" || doc.title.includes("Quando a IA responde")) {
       setBulletinMeta(ARTIGO_IA_METADATA);
     }
     if (editorRef.current) {
@@ -1274,10 +1322,21 @@ export default function DocStudioEditor() {
 
               <button
                 onClick={() => {
+                  handleNewDocument(MARKETPLACE_MASTER_TEMPLATE);
+                }}
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600/15 to-teal-600/15 hover:from-emerald-600/25 hover:to-teal-600/25 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/30 transition-all shrink-0"
+                title="Carregar o Dossiê Mestre: Regras para Marketplaces & Subcredenciadores (Negócios, Técnica, Regulação, Custos & Multas)"
+              >
+                <Sparkles size={13} className="text-emerald-500" />
+                <span>🛒 Dossiê Marketplace</span>
+              </button>
+
+              <button
+                onClick={() => {
                   const tmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "artigo_ia_conhecimento");
                   if (tmpl) handleNewDocument(tmpl);
                 }}
-                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-500/20 transition-all shrink-0"
+                className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-500/20 transition-all shrink-0"
                 title="Carregar o ensaio: 'Quando a IA responde, quem realmente sabe?'"
               >
                 <Sparkles size={13} className="text-blue-500" />
