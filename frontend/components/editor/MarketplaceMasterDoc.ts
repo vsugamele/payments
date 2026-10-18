@@ -298,6 +298,28 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   Pelas <strong>Resoluções BCB nº 80/2021 e nº 150/2021</strong>, enquanto o seu Subcredenciador movimentar menos de <strong>R$ 500.000.000,00 (quinhentos milhões de reais) acumulados nos últimos 12 meses</strong>, você participa do arranjo sem precisar de autorização prévia de funcionamento do Bacen (embora já seja obrigado a cumprir todas as regras de CIP, Registradoras e Bandeiras). Bateu R$ 500 milhões em 12 meses, o pedido de autorização como Instituição de Pagamento na modalidade Subcredenciador passa a ser obrigatório.</p>
 </div>
 
+<!-- TRÍADE POR TIME: SEÇÃO 1 -->
+<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#1e40af; display:block; margin-bottom:6px; font-size:12.5px;">💼 Para o Time de Negócios &amp; Risco</strong>
+    <p style="margin:0; color:#1e293b;">
+      Decida antes de assinar com a Adquirente se você vai operar com <strong>Split na Adquirente</strong> (sem custo fixo de CIP/Registradora) ou como <strong>Subcredenciador Próprio</strong>. Se o seu Marketplace for híbrido (vende estoque próprio 1P e vendedores 3P), exija <strong>2 contratos/MIDs separados</strong> na Adquirente para não misturar receita de mercadoria (ICMS/IBS) com receita de intermediação (ISS/CBS).
+    </p>
+  </div>
+  <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-top:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#5b21b6; display:block; margin-bottom:6px; font-size:12.5px;">🧭 Para o Time de Produto (PMs)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Para usar o <code>MCC 5262</code> (carrinho multi-seller em 1 clique), a jornada do comprador precisa acontecer 100% dentro do seu app/site: o cliente não pode ser redirecionado para o site do seller, e o botão de "Pedir Reembolso / Ajuda" precisa abrir o SAC do seu Marketplace. Além disso, crie um dashboard interno que avise quando um seller chegar a <strong>7% do TPV</strong> ou <strong>USD 7M/ano</strong>.
+    </p>
+  </div>
+  <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-top:4px solid #059669; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#065f46; display:block; margin-bottom:6px; font-size:12.5px;">⚙️ Para o Time Técnico (Engenharia)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Nunca chumbem um único código de estabelecimento (<code>MID / DE 42</code>) hardcoded no gateway. A tabela de pedido (<code>orders</code>) precisa distinguir itens <code>1P</code> de itens <code>3P</code> e vincular cada item do carrinho ao <code>seller_id</code>, <code>submerchant_id (DE 42)</code>, <code>mcc</code>, <code>tax_id (CPF/CNPJ)</code> e <code>postal_code (CEP)</code> daquele vendedor.
+    </p>
+  </div>
+</div>
+
 <!-- =====================================================================
      SEÇÃO 2: REGULAMENTAÇÃO BRASILEIRA EXPLICADA A FUNDO
      ===================================================================== -->
@@ -389,27 +411,139 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   </tbody>
 </table>
 
+<!-- TRÍADE POR TIME: SEÇÃO 2 -->
+<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#1e40af; display:block; margin-bottom:6px; font-size:12.5px;">💼 Para o Time de Negócios &amp; Tesouraria</strong>
+    <p style="margin:0; color:#1e293b;">
+      Se a operação for Subcredenciadora, é obrigatório contratar um <strong>Banco Liquidante</strong> (participante do STR/CIP) e uma <strong>Registradora (CERC, TAG, B3 ou Nuclea)</strong>. Nunca permita que o time financeiro faça PIX ou TED manual da conta da empresa para pagar vendas de cartão aos sellers fora da grade da CIP.
+    </p>
+  </div>
+  <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-top:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#5b21b6; display:block; margin-bottom:6px; font-size:12.5px;">🧭 Para o Time de Produto (PMs)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Na tela de "Antecipação de Recebíveis" ou "Alteração de Conta Bancária" do Portal do Seller, o botão de antecipar <strong>não pode</strong> liberar o dinheiro na hora sem antes consultar via API na Registradora se aquela UR já não foi dada em garantia (gravame) pelo seller a outro banco. Além disso, o valor registrado na UR já deve ser <strong>líquido da comissão</strong> do Marketplace.
+    </p>
+  </div>
+  <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-top:4px solid #059669; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#065f46; display:block; margin-bottom:6px; font-size:12.5px;">⚙️ Para o Time Técnico (Engenharia)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Construir a rotina diária que agrega os NSUs aprovados na chave quádrupla da UR (<code>CPF/CNPJ Seller + CNPJ Sub + Arranjo + Data</code>), envia o arquivo de constituição de agenda para a Registradora, consome o arquivo de retorno de <strong>troca de titularidade/domicílio por ônus/cessão</strong> e só então gera os lotes <code>ASLC029</code>, <code>ASLC031</code> e <code>ASLC033</code> para a CIP.
+    </p>
+  </div>
+</div>
+
 <!-- =====================================================================
-     SEÇÃO 3: ENGENHARIA TÉCNICA DE MENSAGERIA EXPLICADA PASSO A PASSO
+     SEÇÃO 3: PORTAL, CADASTRO DE SELLER, AUTORIZAÇÃO E CLEARING EXPLICADOS
      ===================================================================== -->
-<h2>3. A Engenharia por Baixo do Capô: Da Autorização em Milissegundos (0100) ao Clearing Noturno (Base II, IPM e Elo 26.2)</h2>
+<h2>3. Como Tudo Funciona na Vida Real: Portal de Cadastro, Onboarding do Seller, Autorização (0100) e Clearing Noturno</h2>
 
 <p>
-  Para quem não vive o dia a dia dos manuais técnicos das bandeiras, parece que "passar o cartão" é um evento único. Na verdade, nos sistemas de <strong>Mensagem Dupla (Dual Message System)</strong> usados no Brasil para Crédito e grande parte do Débito/E-commerce na Visa, Mastercard e Elo, toda venda acontece em <strong>dois atos completamente separados no tempo e na tecnologia</strong>:
+  Aqui está o ponto que mais gera confusão quando colocamos os times de Negócios, Produto e Engenharia na mesma sala. Quando alguém lê nos manuais das bandeiras sobre <code>PF ID</code>, <code>MVV</code>, <code>Submerchant ID (DE 42)</code>, <code>DE 43</code> e <code>Registro "01"</code>, a primeira pergunta que todo mundo faz é:
+</p>
+<blockquote style="background:#fffbeb; border-left:5px solid #f59e0b; padding:12px 18px; margin:1rem 0; color:#78350f; font-style:italic; font-size:0.9rem;">
+  "Espera aí: existe um portal na internet onde a gente cadastra o Marketplace e os Sellers? Nós precisamos cadastrar cada Seller na Visa, na Mastercard e na Elo antes de ele fazer a primeira venda, ou nós mandamos os dados do Seller direto dentro da mensagem da autorização na hora da compra?"
+</blockquote>
+<p>
+  Se essa pergunta não ficar 100% clara, o Time de Produto desenha telas inúteis e o Time de Engenharia procura APIs que não existem. A verdade é que o ciclo se divide em <strong>quatro momentos completamente separados</strong> — e a regra de cadastro do Seller na <strong>Visa e Mastercard</strong> é diferente da regra da <strong>Elo</strong> e da <strong>Adquirente/Registradora</strong>. Vamos destrinchar cada um dos 4 momentos:
+</p>
+
+<h3>3.1. Momento 0 — O Cadastro da Plataforma (Marketplace ou PayFac) nos Portais das Bandeiras (Feito 1 Única Vez)</h3>
+<p>
+  Você não pode simplesmente inventar um número de <code>PF ID</code> ou sair usando o <code>MCC 5262</code> por conta própria. Antes de passar a primeira transação em produção, a sua plataforma precisa ser registrada oficialmente nas bandeiras.
+</p>
+<p>
+  <strong>Quem entra no portal da bandeira para fazer esse cadastro?</strong> Não é o Marketplace diretamente! Quem tem acesso aos portais restritos das bandeiras é a sua <strong>Adquirente Patrocinadora (Credenciadora)</strong>. O fluxo acontece assim:
 </p>
 <ul>
-  <li><strong>Ato 1 — A Autorização Online em Tempo Real (<code>ISO 8583 — Mensagem 0100 / Resposta 0110</code>):</strong> Acontece no exato segundo em que o comprador clica em "Finalizar Compra". É um pacote leve, que viaja do Checkout &rarr; Gateway &rarr; Adquirente &rarr; Bandeira (VisaNet / Banknet / Elo) &rarr; Banco Emissor e volta em menos de 1 segundo. <strong>Atenção a este ponto: na autorização, nenhum centavo sai do lugar!</strong> Ela serve apenas para o Banco Emissor verificar se o cartão existe, se a senha/criptograma/3DS são válidos, se não parece fraude e para <em>reservar (sensibilizar)</em> o limite do portador.</li>
-  <li><strong>Ato 2 — A Apresentação Financeira ou Clearing em Lote (<code>Visa Base II TC 05</code>, <code>Mastercard IPM MTI 1240</code> e <code>Arquivo de Liquidação Elo 26.2</code>):</strong> Acontece horas depois (geralmente na janela noturna ou após a confirmação do pedido). Aqui a Adquirente empacota todas as vendas confirmadas do dia em grandes arquivos posicionais recheados de dados fiscais, endereço do sublojista e indicadores de parcelamento, e envia para a Bandeira. <strong>É no Clearing que a Bandeira calcula a Tarifa de Intercâmbio, gera a obrigação financeira e roda a malha fina de auditoria de dados!</strong></li>
+  <li><strong>No Portal da Mastercard (<em>Mastercard Connect &rarr; My Company Manager / Third Party Registration — TPR / Abacus</em>):</strong> O time de Risco e Credenciamento da sua Adquirente faz login no Mastercard Connect, abre um processo de registro de <em>Payment Facilitator (PF)</em> ou <em>Marketplace</em> em nome do seu CNPJ, anexa seu dossiê de compliance e recolhe a taxa inicial (<code>MCBS 2SC1812</code> — R$ 18.135,00). Quando a Mastercard aprova, o portal gera o seu <strong><code>Payment Facilitator ID (PF ID)</code> oficial de até 11 dígitos</strong>. A Adquirente te entrega esse número para parametrizar no sistema.</li>
+  <li><strong>No Portal da Visa (<em>Visa Online — VOL &rarr; Third Party Agent Registration System — TPARS / VMORC</em>):</strong> A sua Adquirente entra no Visa Online, registra a sua empresa como <em>Payment Facilitator</em> ou <em>Qualifying Marketplace (MCC 5262)</em> e recolhe a taxa anual (<code>BL 5Q6562026</code> — R$ 32.000,00). A Visa aprova o registro, gera o seu <strong><code>Visa PF ID / Agent Unique ID</code> (11 dígitos)</strong> e, para Marketplaces Qualificados ou acordos especiais, provisiona na tabela da VisaNet o seu <strong><code>MVV (Merchant Verification Value)</code> de 10 posições alfanuméricas</strong>.</li>
+  <li><strong>No Portal da Elo:</strong> A Adquirente habilita o CNPJ da sua plataforma como Subcredenciador no portal operacional da Elo, liberando o seu código de participante para enviar arquivos de sublojistas e liquidação.</li>
 </ul>
 
-<h3>3.1. Por Que Cada Campo de Sublojista Existe e Como Ele Deve Ser Preenchido Byte a Byte</h3>
+<h3>3.2. Momento 1 — O Cadastro de Cada Seller (Onboarding): Onde É Portal/API e Onde É Automático?</h3>
 <p>
-  Quando uma transação vem de um Subcredenciador (PayFac) ou de um Marketplace, o Banco Emissor e a Bandeira fazem quatro perguntas técnicas para aquela mensagem:
+  Agora imagine que o seu Marketplace já está no ar e hoje, às 10h da manhã, a <em>"Loja do Mário"</em> acabou de se cadastrar para vender na sua plataforma. <strong>Onde você precisa cadastrar a Loja do Mário antes de ela vender o primeiro produto?</strong> Olhe a diferença entre os quatro lugares:
+</p>
+<ol>
+  <li>
+    <strong>Na Visa e na Mastercard (Sublojistas abaixo de USD 10M/ano): NÃO existe cadastro manual prévio no portal da bandeira!</strong><br/>
+    Muita gente se surpreende com isso, mas o modelo de PayFac e Marketplace foi criado pelas bandeiras justamente para permitir <strong>onboarding instantâneo (em minutos)</strong>. Você <strong>não</strong> precisa entrar num portal da Visa ou da Mastercard e digitar o CNPJ da Loja do Mário para esperar a bandeira aprovar antes de ela vender!<br/>
+    <em>O que você faz em relação à Visa e à Mastercard no momento do onboarding do Seller?</em> Apenas duas coisas:
+    <ul>
+      <li><strong>Consulta à Lista Restritiva (API MATCH™ na Mastercard e VMAS na Visa):</strong> O seu sistema (ou a API de onboarding da sua Adquirente) faz uma chamada automática ao <strong>MATCH</strong> (<code>MCBS 2NB0016</code> — R$ 0,20 por consulta) passando o CNPJ da Loja do Mário e o CPF dos sócios para garantir que eles não foram banidos por fraude no passado.</li>
+      <li><strong>Geração do Código Único Interno (<code>Submerchant ID / DE 42</code>):</strong> O seu sistema cria um ID único de até 15 caracteres para a Loja do Mário (ex.: <code>SELLER000098412</code>). A Visa e a Mastercard vão conhecer a Loja do Mário <strong>dinamicamente ("on-the-fly")</strong> quando a primeira transação dela passar carregando esse ID no <code>DE 42</code>, o nome no <code>DE 43</code> e os dados cadastrais no <code>DE 48 / PDS 0178 / TC 05</code>! (Além disso, uma vez por trimestre, a Adquirente sobe no portal da bandeira uma planilha/relatório consolidado da carteira ativa).</li>
+    </ul>
+  </li>
+  <li style="margin-top:0.5rem;">
+    <strong>Na Elo (Atenção: AQUI EXISTE Arquivo/API de Cadastro Prévio do Seller!):</strong><br/>
+    Diferente da Visa e da Mastercard, a <strong>Elo</strong> possui uma base cadastral centralizada de sublojistas alimentada pelo <strong>Arquivo de Manutenção da Base Cadastral de Sublojistas (Registros <code>"01"</code>, <code>"02"</code> e <code>"04"</code>)</strong> — que a maioria das Adquirentes expõe para você através de uma <strong>API REST de Cadastro de Sublojista</strong>.<br/>
+    Quando a Loja do Mário entra na plataforma, o seu sistema chama a API de Cadastro (que gera o <code>Registro "01"</code> na Elo) enviando o CNPJ ou CPF (Posição 45, 14 bytes), a Razão Social, o Fantasia, o Endereço/CEP e o <code>MCC</code>. E é exatamente nesse momento do cadastro que entra a <strong>trava obrigatória da Elo Release 26.2</strong>: se o vendedor se cadastrou como Pessoa Física (CPF de 11 dígitos) e o seu sistema tentar atribuir a ele um <code>MCC</code> exclusivo de Pessoa Jurídica, a Elo rejeita o cadastro do vendedor!
+  </li>
+  <li style="margin-top:0.5rem;">
+    <strong>Na Adquirente Patrocinadora (Se você usa o Motor de Split da Adquirente):</strong><br/>
+    Se você contratou o split da própria Adquirente (Cielo, Rede, Getnet, Stone, Adyen, Pagar.me), o seu backend chama a <strong>API de Onboarding / Criação de Recebedor (<em>Recipient / Submerchant API</em>)</strong> da Adquirente assim que o seller termina o cadastro. Essa API cadastra o CNPJ/CPF, o MCC, o endereço e a conta bancária do seller dentro da Adquirente e te devolve o <code>recipient_id / submerchant_id</code> que você usará nas chamadas de pagamento e split.
+  </li>
+  <li style="margin-top:0.5rem;">
+    <strong>Na Registradora (CERC, TAG, B3 ou Nuclea) e na CIP:</strong><br/>
+    O CPF/CNPJ do Seller e a conta bancária dele (domicílio) são cadastrados para que, assim que a primeira venda acontecer, as <strong>Unidades de Recebíveis (URs)</strong> sejam registradas em nome do CPF/CNPJ daquele seller.
+  </li>
+</ol>
+
+<table style="width:100%; border-collapse:collapse; margin:1.25rem 0; font-size:11.5px; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+  <thead>
+    <tr style="background:#1e293b; color:#ffffff;">
+      <th style="padding:9px 10px; text-align:left; width:18%;">Ator / Sistema</th>
+      <th style="padding:9px 10px; text-align:left; width:27%;">Cadastro da Plataforma (Feito 1 Vez no Início)</th>
+      <th style="padding:9px 10px; text-align:left; width:28%;">Cadastro de Cada Novo Seller (No Onboarding)</th>
+      <th style="padding:9px 10px; text-align:left; width:27%;">Na Hora da Venda (Autorização 0100 &amp; Clearing)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Visa</td>
+      <td style="padding:8px 10px; color:#1e293b;">Adquirente registra no portal <strong>Visa Online (TPARS / VMORC)</strong> &rarr; gera <code>Visa PF ID</code> e <code>MVV</code> (R$ 32.000/ano).</td>
+      <td style="padding:8px 10px; color:#1e293b;"><strong>Não cadastra seller manualmente no portal.</strong> Faz screening <strong>VMAS</strong> e gera o <code>Submerchant ID (DE 42)</code> interno.</td>
+      <td style="padding:8px 10px; color:#1e293b;">Envia os dados do seller <strong>dentro da transação</strong> (<code>DE 42</code>, <code>DE 43</code>, <code>DE 62/104</code> no <code>0100</code> e <code>TC 05 TCR 0/1/5</code> no Base II).</td>
+    </tr>
+    <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#b45309;">Mastercard</td>
+      <td style="padding:8px 10px; color:#1e293b;">Adquirente registra no portal <strong>Mastercard Connect (TPR / Abacus)</strong> &rarr; gera <code>PF ID</code> de 11 dígitos (R$ 18.135 ini).</td>
+      <td style="padding:8px 10px; color:#1e293b;"><strong>Não cadastra seller manualmente no portal.</strong> Consulta API <strong>MATCH™</strong> (R$ 0,20) e gera <code>DE 42</code> único do seller.</td>
+      <td style="padding:8px 10px; color:#1e293b;">Envia os dados do seller <strong>dentro da transação</strong> (<code>DE 42</code>, <code>DE 43</code>, <code>DE 48 SE 37</code> no <code>0100</code> e <code>PDS 0208/0178</code> no <code>IPM 1240</code>).</td>
+    </tr>
+    <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:8px 10px; font-weight:bold; color:#047857;">Elo (26.2)</td>
+      <td style="padding:8px 10px; color:#1e293b;">Adquirente habilita o CNPJ do Subcredenciador no <strong>Portal Operacional Elo</strong>.</td>
+      <td style="padding:8px 10px; color:#1e293b;"><strong>Exige envio prévio na Base Cadastral (<code>Registro "01"</code>, <code>"02"</code>, <code>"04"</code>)</strong> validando CPF vs. CNPJ (Pos 45) contra o <code>MCC</code>.</td>
+      <td style="padding:8px 10px; color:#1e293b;">Envia <code>DE 42 / DE 43</code> na autorização e registros <code>"00"</code>, <code>"01"</code> e <code>"02"</code> na liquidação (recebendo <code>IRQ</code> no <code>Reg "45"</code>).</td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:8px 10px; font-weight:bold; color:#0f2c59;">Adquirente, CIP &amp; Registradora</td>
+      <td style="padding:8px 10px; color:#1e293b;">Contrato comercial + homologação de API/arquivos + vínculo com CERC/TAG/B3/Nuclea e CIP/SLC.</td>
+      <td style="padding:8px 10px; color:#1e293b;">Chama <strong>API de Criação de Recebedor/Seller</strong> na Adquirente com CNPJ/CPF, CNAE/MCC, CEP e Conta Bancária.</td>
+      <td style="padding:8px 10px; color:#1e293b;">Envia regra de split da transação &rarr; gera URs na Registradora &rarr; liquida pelas grades <code>ASLC029/031/033</code> na CIP.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.3. Momento 2 e Momento 3 — Os Dois Atos da Venda: Autorização em Milissegundos (0100) vs. Clearing Noturno (1240 / TC 05)</h3>
+<p>
+  Agora que o Seller já passou pelo onboarding, o comprador entra no site às 14h32 e clica em "Comprar". Nos sistemas de <strong>Mensagem Dupla (Dual Message System)</strong> usados no Brasil pela Visa, Mastercard e Elo, essa compra acontece em <strong>dois atos completamente separados no tempo e na tecnologia</strong>:
+</p>
+<ul>
+  <li><strong>Ato 1 — A Autorização Online em Tempo Real (<code>ISO 8583 — Mensagem 0100 / Resposta 0110</code>):</strong> Acontece às 14h32, no exato segundo do clique. É um pacote leve e rápido que viaja do Checkout &rarr; Gateway/Adquirente &rarr; Bandeira &rarr; Banco Emissor e volta em menos de 1 segundo. <strong>Atenção a este ponto: na autorização, nenhum centavo sai do lugar!</strong> Ela serve apenas para o Banco Emissor checar se o cartão é válido, se não parece fraude, sensibilizar o limite do cliente e devolver o código de aprovação (<code>DE 38</code>) e o identificador de ciclo de vida (<code>Trace ID — DE 63.2 / TID</code>).</li>
+  <li><strong>Ato 2 — A Apresentação Financeira ou Clearing em Lote (<code>Visa Base II TC 05</code>, <code>Mastercard IPM MTI 1240</code> e <code>Arquivo de Liquidação Elo 26.2</code>):</strong> Acontece horas depois (geralmente na janela noturna). Aqui a Adquirente empacota todas as vendas confirmadas do dia em grandes arquivos posicionais recheados de dados fiscais, endereço completo do sublojista (<code>PDS 0178</code> / <code>TCR 1/5</code> / <code>Reg 01</code>) e indicadores de parcelamento, e envia para a Bandeira. <strong>É somente no Clearing que a Bandeira calcula a Tarifa de Intercâmbio, gera a obrigação financeira e roda os robôs de auditoria de integridade de dados (Data Integrity)!</strong></li>
+</ul>
+
+<h3>3.4. Por Que Cada Campo de Sublojista Existe e Como Ele Deve Ser Preenchido Byte a Byte</h3>
+<p>
+  Como vimos no Momento 1, na Visa e na Mastercard você não cadastrou o Seller manualmente no portal da bandeira antes da venda. Por isso, <strong>é a própria mensagem da transação (<code>0100</code> e <code>1240 / TC 05</code>) que apresenta o Seller para o Banco Emissor e para a Bandeira!</strong> Quando a mensagem chega lá, o sistema faz quatro perguntas técnicas:
 </p>
 <ol>
   <li><strong>"Quem é o intermediador responsável por esta operação?"</strong> &rarr; Respondido pelo <strong><code>PF ID (Payment Facilitator ID)</code></strong> de até 11 dígitos no campo <code>DE 48 SE 37 SF 1</code> (Autorização Mastercard), no <code>PDS 0208</code> (Clearing IPM Mastercard), no <code>DE 62 / TC 05</code> (Visa) e no <code>Registro 02</code> (Elo).</li>
   <li><strong>"Qual é o código único do vendedor (seller) lá na ponta?"</strong> &rarr; Respondido pelo <strong><code>DE 42 (Card Acceptor ID Code / Submerchant ID)</code></strong> de 15 posições alfanuméricas (<code>ans 15</code>).<br/>
-    <em>Por que jamais você pode mandar o mesmo <code>DE 42</code> genérico para todos os seus sellers?</em> Porque os modelos de inteligência artificial antifraude dos bancos emissores criam a reputação histórica de fraude e aprovação combinando o par <code>[PF ID + DE 42]</code>. Se você mandar o mesmo <code>DE 42</code> para 10.000 vendedores, basta um único golpista começar a passar cartões clonados na sua plataforma para o banco emissor enxergar um pico de fraude naquele <code>DE 42</code> e <strong>bloquear as aprovações da sua plataforma inteira</strong>! Além disso, a Mastercard multa automaticamente em <strong>R$ 5.600,00 por mês (evento <code>MCBS 2PN2117</code>)</strong> quem usa um <code>DE 42</code> que não identifica univocamente cada sublojista.</li>
+    <em>Por que jamais você pode mandar o mesmo <code>DE 42</code> genérico para todos os seus sellers?</em> Porque os motores antifraude dos bancos emissores constroem a reputação histórica de fraude e aprovação combinando o par <code>[PF ID + DE 42]</code>. Se você mandar o mesmo <code>DE 42</code> para 10.000 vendedores, basta um único golpista começar a passar cartões clonados na sua plataforma para o banco emissor enxergar um pico de fraude naquele <code>DE 42</code> e <strong>bloquear as aprovações da sua plataforma inteira</strong>! Além disso, a Mastercard multa automaticamente em <strong>R$ 5.600,00 por mês (evento <code>MCBS 2PN2117</code>)</strong> quem usa um <code>DE 42</code> que não identifica univocamente cada sublojista.</li>
   <li><strong>"O que vai aparecer impresso na fatura e na notificação do celular do cliente?"</strong> &rarr; Respondido pelo <strong><code>DE 43 (Card Acceptor Name/Location — Dynamic Soft Descriptor)</code></strong>.<br/>
     Na mensagem de Autorização (<code>0100</code>), o <code>DE 43</code> tem exatamente <strong>40 posições fixas (<code>ans 40</code>)</strong>. Veja na régua abaixo como cada posição precisa ser montada sem errar um único espaço em branco:</li>
 </ol>
@@ -494,6 +628,28 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
     </tr>
   </tbody>
 </table>
+
+<!-- TRÍADE POR TIME: SEÇÃO 3 -->
+<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#1e40af; display:block; margin-bottom:6px; font-size:12.5px;">💼 Para o Time de Negócios &amp; Operações</strong>
+    <p style="margin:0; color:#1e293b;">
+      Cobre da Adquirente Patrocinadora os números oficiais do <code>PF ID</code> (Mastercard) e do <code>Agent Unique ID / MVV</code> (Visa) gerados nos portais <em>Mastercard Connect</em> e <em>Visa Online</em> antes do Go-Live. Além disso, defina junto ao Marketing o prefixo curto da marca (3 a 7 letras + <code>*</code>) para caber nos 22 bytes do nome na fatura.
+    </p>
+  </div>
+  <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-top:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#5b21b6; display:block; margin-bottom:6px; font-size:12.5px;">🧭 Para o Time de Produto (Onboarding)</strong>
+    <p style="margin:0; color:#1e293b;">
+      No formulário de cadastro do Seller, torne obrigatórios: (1) validação do CEP nos Correios (proibindo CEPs zerados); (2) campo de "Nome na Fatura" limitado a 14 caracteres ASCII sem acento; e (3) trava automática que esconde categorias (MCCs) empresariais quando o vendedor seleciona cadastro por <strong>CPF</strong> (evitando rejeição na Elo 26.2).
+    </p>
+  </div>
+  <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-top:4px solid #059669; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#065f46; display:block; margin-bottom:6px; font-size:12.5px;">⚙️ Para o Time Técnico (Engenharia)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Salve um <strong>snapshot imutável</strong> do endereço, CEP, cidade, UF, MCC e <code>DE 42</code> do seller no momento da autorização (<code>0100</code>), juntamente com o <code>Trace ID (DE 63.2)</code> retornado na <code>0110</code>. Quando o job noturno montar o arquivo de clearing (<code>IPM 1240</code> / <code>TC 05</code>), leia desse snapshot para garantir paridade de 100% e zero multa no <code>IP714010-AA</code>.
+    </p>
+  </div>
+</div>
 
 <!-- =====================================================================
      SEÇÃO 4: A ARQUITETURA DO SPLIT, A CONTA REAL E O NOVO VISA VSS 2026
@@ -603,6 +759,28 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
       &bull; <strong>R$ 4,50 (+0,90% / +90 bps sobre R$ 500)</strong> são o seu <strong>Lucro Financeiro de Pagamentos</strong>, porque você cobrou 3,00% de MDR dos sellers (R$ 15,00) e pagou apenas 2,10% de custo total (R$ 10,50) para a Adquirente/Bandeira/Emissor!<br/>
       &bull; <strong>A Regra de Ouro Tributária (DIMP e Reforma Tributária IBS/CBS):</strong> O seu Marketplace <strong>nunca</strong> pode emitir nota fiscal nem contabilizar como receita bruta os R$ 500,00 inteiros (pois R$ 430,00 pertencem aos sellers e apenas transitaram patrimonialmente). Quem emite a NF-e da mercadoria para o consumidor final são os Sellers A (R$ 300) e B (R$ 200); o Marketplace emite apenas Nota Fiscal de Serviço (NFSe) contra os sellers sobre a comissão retida, evitando pagar PIS/COFINS/ISS sobre o dinheiro alheio!</li>
   </ol>
+</div>
+
+<!-- TRÍADE POR TIME: SEÇÃO 4 -->
+<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#1e40af; display:block; margin-bottom:6px; font-size:12.5px;">💼 Para o Time de Negócios &amp; Finanças</strong>
+    <p style="margin:0; color:#1e293b;">
+      Negocie com a Adquirente o contrato no modelo <strong>Interchange++</strong> (custo aberto de intercâmbio + bandeira + spread fixo da adquirente) em vez de MDR fechado flat. No contrato do seller, separe claramente a <strong>Taxa de Intermediação</strong> da <strong>Taxa de Processamento</strong> e emita NFSe apenas sobre os seus R$ 59,50.
+    </p>
+  </div>
+  <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-top:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#5b21b6; display:block; margin-bottom:6px; font-size:12.5px;">🧭 Para o Time de Produto (Checkout &amp; Extrato)</strong>
+    <p style="margin:0; color:#1e293b;">
+      No Portal do Seller, exiba o extrato de cada venda aberto em 3 colunas: <code>Valor Bruto da Venda (R$ 300)</code>, <code>(-) Comissão &amp; Taxa de Pagamento (R$ 42)</code> e <code>(=) Valor Líquido da Agenda/UR (R$ 258)</code>. Se o cliente cancelar apenas o item do Seller A (R$ 300), o estorno deve abater proporcionalmente apenas a UR do Seller A.
+    </p>
+  </div>
+  <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-top:4px solid #059669; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#065f46; display:block; margin-bottom:6px; font-size:12.5px;">⚙️ Para o Time Técnico (Motor de Split)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Trate sempre o <strong>arredondamento de centavos</strong> no split (ex.: R$ 100 divididos por 3 sellers = R$ 33,33 + R$ 33,33 + R$ 33,34): a soma das partes enviadas no array <code>split_rules</code> da API tem que bater <strong>exatamente até o último centavo</strong> com o <code>amount</code> capturado no clearing, ou a Adquirente rejeita a liquidação inteira.
+    </p>
+  </div>
 </div>
 
 <!-- =====================================================================
@@ -860,6 +1038,28 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
     </tr>
   </tbody>
 </table>
+
+<!-- TRÍADE POR TIME: SEÇÃO 6 -->
+<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#1e40af; display:block; margin-bottom:6px; font-size:12.5px;">💼 Para o Time de Negócios &amp; Jurídico</strong>
+    <p style="margin:0; color:#1e293b;">
+      Inclua nos Termos de Uso do Seller a cobrança de uma <strong>Taxa de Processamento de Disputa (ex.: R$ 25 a R$ 35 por chargeback)</strong> para cobrir o custo do VROL (<code>R$ 10,35 + R$ 12,00</code>) e nunca leve disputas de baixo valor para a Arbitragem da Visa (que custa <strong>R$ 2.900,00</strong> por caso).
+    </p>
+  </div>
+  <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-top:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#5b21b6; display:block; margin-bottom:6px; font-size:12.5px;">🧭 Para o Time de Produto (Risco &amp; SAC)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Como o <strong>VAMP</strong> agora soma Fraude (<code>TC 40</code>) com Desacordo Comercial (<code>TC 15</code> cód. 13), um seller que atrasa entregas destrói o índice de risco da plataforma tanto quanto um fraudador. Crie um botão de <strong>Reembolso Rápido (Rapid Dispute Resolution / Verifi / Ethoca)</strong> antes de o cliente abrir chargeback no banco.
+    </p>
+  </div>
+  <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-top:4px solid #059669; border-radius:10px; padding:12px 14px;">
+    <strong style="color:#065f46; display:block; margin-bottom:6px; font-size:12.5px;">⚙️ Para o Time Técnico (Monitoramento)</strong>
+    <p style="margin:0; color:#1e293b;">
+      Automatize a ingestão diária dos arquivos de fraude (<code>TC 40</code> / <code>SAFE</code>) e chargeback (<code>TC 15</code> / <code>IPM 1442</code>) agrupados por <code>submerchant_id (DE 42)</code>. Se qualquer seller ultrapassar <strong>0,80% de VAMP Ratio</strong> ou <strong>3% de estornos</strong>, o sistema deve pausar automaticamente o checkout e o saque daquele seller.
+    </p>
+  </div>
+</div>
 
 <!-- =====================================================================
      SEÇÃO 7: COMO PROTEGER A OPERAÇÃO NA PRÁTICA (CONTAMINAÇÃO CRUZADA E ESCROW)
