@@ -444,6 +444,600 @@ const CENARIOS_SIMULACAO: SimScenario[] = [
   },
 ];
 
+// ─── Motor Dinâmico do Laboratório "What-If" no Grafo ─────────────────────────
+
+interface WhatIfConfig {
+  ambiente: "ecom" | "presencial" | "debito";
+  bandeira: "Mastercard" | "Visa" | "Elo";
+  tier: "premium" | "standard";
+  valor: number;
+  parcelas: 1 | 3 | 10;
+  mdrPct: number;
+  token: boolean;
+  authForte: boolean;
+  clearingIntegro: boolean;
+  subcred: boolean;
+  simularFraude: boolean;
+}
+
+const WHATIF_PRESETS: Record<string, WhatIfConfig> = {
+  "ecom-qualificado": {
+    ambiente: "ecom",
+    bandeira: "Mastercard",
+    tier: "premium",
+    valor: 500,
+    parcelas: 3,
+    mdrPct: 3.2,
+    token: true,
+    authForte: true,
+    clearingIntegro: true,
+    subcred: false,
+    simularFraude: false,
+  },
+  "ecom-downgrade-vamp": {
+    ambiente: "ecom",
+    bandeira: "Visa",
+    tier: "premium",
+    valor: 500,
+    parcelas: 3,
+    mdrPct: 3.2,
+    token: false,
+    authForte: false,
+    clearingIntegro: false,
+    subcred: false,
+    simularFraude: true,
+  },
+  "payfac-split-slc": {
+    ambiente: "ecom",
+    bandeira: "Mastercard",
+    tier: "standard",
+    valor: 1000,
+    parcelas: 3,
+    mdrPct: 3.49,
+    token: true,
+    authForte: true,
+    clearingIntegro: true,
+    subcred: true,
+    simularFraude: false,
+  },
+  "presencial-debito-bacen": {
+    ambiente: "debito",
+    bandeira: "Visa",
+    tier: "premium",
+    valor: 200,
+    parcelas: 1,
+    mdrPct: 1.19,
+    token: true,
+    authForte: true,
+    clearingIntegro: true,
+    subcred: false,
+    simularFraude: false,
+  },
+};
+
+function fmtBRL(v: number, showSign = false): string {
+  const abs = Math.abs(v).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  if (!showSign) return `R$ ${abs}`;
+  return v >= 0 ? `+ R$ ${abs}` : `- R$ ${abs}`;
+}
+
+function fmtPct(v: number, showSign = false): string {
+  const s = Math.abs(v).toFixed(2).replace(".", ",") + "%";
+  if (!showSign) return s;
+  return v >= 0 ? `+${s}` : `-${s}`;
+}
+
+function buildWhatIfScenario(
+  cfg: WhatIfConfig,
+  presetId: string | null
+): SimScenario & {
+  aliquotaAlvoPct: number;
+  aliquotaRealPct: number;
+  perdaEvitavelReais: number;
+  perda10kTransacoes: string;
+  alertaDiagnostico: string;
+} {
+  const valor = Math.max(10, Number.isFinite(cfg.valor) ? cfg.valor : 500);
+  const parcelas = cfg.ambiente === "debito" ? 1 : cfg.parcelas;
+  const mdrPct = Math.max(0.3, Number.isFinite(cfg.mdrPct) ? cfg.mdrPct : 3.2);
+
+  // 1. Cálculo da Alíquota Alvo (Qualificada) vs Alíquota Real Aplicada
+  let aliquotaAlvoPct = 0.5;
+  let aliquotaRealPct = 0.5;
+  let irdLabel = "Cap Bacen 0,50%";
+
+  if (cfg.ambiente === "debito") {
+    aliquotaAlvoPct = 0.5;
+    aliquotaRealPct = 0.5; // Teto regulatório Bacen BCB 304 trava o débito em 0,50%
+    irdLabel = "Cap Bacen BCB 304 (Máx. 0,50%)";
+  } else if (cfg.ambiente === "presencial") {
+    const base =
+      cfg.tier === "premium"
+        ? parcelas === 1
+          ? 1.62
+          : parcelas === 3
+          ? 1.92
+          : 2.22
+        : parcelas === 1
+        ? 1.15
+        : parcelas === 3
+        ? 1.48
+        : 1.75;
+    aliquotaAlvoPct = base;
+    const penSemEmv = cfg.authForte ? 0 : 0.42;
+    const penDowngrade = cfg.clearingIntegro ? 0 : 0.68;
+    aliquotaRealPct = Number((base + penSemEmv + penDowngrade).toFixed(2));
+    irdLabel =
+      !cfg.clearingIntegro
+        ? cfg.bandeira === "Mastercard"
+          ? "Downgrade Standard (Atraso/Sem Ref)"
+          : "Downgrade EPR / Standard"
+        : !cfg.authForte
+        ? "Keyed / Sem Chip EMV (DE 55 ausente)"
+        : cfg.bandeira === "Mastercard"
+        ? "IRD IA/JA (Card Present EMV)"
+        : "CPS Card Present Qualified";
+  } else {
+    // E-commerce (CNP)
+    const base =
+      cfg.tier === "premium"
+        ? parcelas === 1
+          ? 1.82
+          : parcelas === 3
+          ? 2.12
+          : 2.42
+        : parcelas === 1
+        ? 1.38
+        : parcelas === 3
+        ? 1.68
+        : 1.95;
+    aliquotaAlvoPct = base;
+    const penSemToken = cfg.token ? 0 : 0.1;
+    const penSem3ds = cfg.authForte ? 0 : 0.28;
+    const penDowngrade = cfg.clearingIntegro ? 0 : 0.57;
+    aliquotaRealPct = Number((base + penSemToken + penSem3ds + penDowngrade).toFixed(2));
+    irdLabel =
+      !cfg.clearingIntegro
+        ? cfg.bandeira === "Mastercard"
+          ? "Downgrade Standard / HU (Clearing Tardio)"
+          : "Downgrade Standard / EPR (Sem DE 62.2)"
+        : !cfg.authForte
+        ? cfg.bandeira === "Mastercard"
+          ? "IRD Non-Auth (ECI 07 Sem 3DS)"
+          : "CNP Non-Authenticated (ECI 07)"
+        : cfg.bandeira === "Mastercard"
+        ? "IRD AU Qualificado (3DS + Token)"
+        : "CPS E-com Auth Qualified (ECI 05)";
+  }
+
+  // 2. Scheme Fee + Sponsor Fee + Dispute Fee
+  const schemePct = cfg.ambiente === "debito" ? 0.14 : 0.24;
+  const sponsorPct = cfg.subcred ? 0.18 : 0;
+  const disputeFeeReais = cfg.simularFraude && !cfg.authForte ? 75.0 : 0; // ~US$ 15 Dispute/VAMP Fee se não houver Liability Shift
+
+  const mdrReais = valor * (mdrPct / 100);
+  const liquidoLojistaReais = valor - mdrReais;
+  const icAlvoReais = valor * (aliquotaAlvoPct / 100);
+  const icRealReais = valor * (aliquotaRealPct / 100);
+  const schemeAndSponsorPct = schemePct + sponsorPct;
+  const schemeAndSponsorReais = valor * (schemeAndSponsorPct / 100) + disputeFeeReais;
+
+  const margemReais = mdrReais - icRealReais - schemeAndSponsorReais;
+  const margemPct = (margemReais / valor) * 100;
+
+  const perdaEvitavelReais = Math.max(0, icRealReais - icAlvoReais + disputeFeeReais);
+  const perda10kTransacoes = fmtBRL(perdaEvitavelReais * 10000);
+
+  // 3. Construção Dinâmica do Caminho Passo a Passo no Grafo SVG (R01..R62)
+  const rawSteps: Omit<SimStep, "step">[] = [];
+
+  // Passo A: Iniciação da Compra (R01)
+  rawSteps.push({
+    edgeId: "R01",
+    sourceId: "portador",
+    targetId: "ec",
+    fase: "D+0 · Checkout / POS",
+    titulo:
+      cfg.ambiente === "ecom"
+        ? `Portador Inicia Compra E-commerce (${parcelas}x)`
+        : cfg.ambiente === "debito"
+        ? "Portador Aproxima Cartão Débito no Terminal POS"
+        : `Portador Inicia Compra Presencial Crédito (${parcelas}x)`,
+    resumo: `Venda de ${fmtBRL(valor)} (${parcelas}x) com cartão ${cfg.bandeira} (${cfg.tier === "premium" ? "Black/Infinite" : "Gold/Standard"}).`,
+    pacoteIso: `DE 04 = ${fmtBRL(valor)} (${parcelas}x) · Moeda DE 49 = 986 (BRL) · Tier = ${cfg.tier.toUpperCase()}`,
+    impactoFinanceiro: `Valor Bruto: ${fmtBRL(valor)} · MDR Contratado: ${fmtPct(mdrPct)} (${fmtBRL(mdrReais)})`,
+  });
+
+  // Passo B: Captura (Subcredenciador R02+R03 vs Adquirente Direto R04)
+  if (cfg.subcred) {
+    rawSteps.push({
+      edgeId: "R02",
+      sourceId: "ec",
+      targetId: "subcredenciador",
+      fase: "D+0 · Captura PayFac",
+      titulo: "Captura via Subcredenciador (PayFac) com Identificação de Sublojista",
+      resumo: "PayFac injeta obrigatoriamente PF ID, Sub-Merchant ID e MCC real do vendedor para conformidade BRAM.",
+      pacoteIso: "DE 18 = MCC Real · DE 43 = PayFac*Sublojista · DE 48 PDS 0208 = PF ID + Sub-Merchant ID",
+      impactoFinanceiro: "Habilita split regulado na grade CIP/SLC (Circular Bacen 3.682)",
+    });
+    rawSteps.push({
+      edgeId: "R03",
+      sourceId: "subcredenciador",
+      targetId: "adquirente",
+      fase: "D+0 · Patrocínio",
+      titulo: "Submissão ao Adquirente Patrocinador (Sponsor Acquirer)",
+      resumo: "Adquirente valida sublojista contra lista MATCH e encapsula a transação sob seu BIN/ICA de rede.",
+      pacoteIso: "MTI 0100 · DE 32 = ICA/BIN Adquirente Patrocinador · Screening MATCH = OK",
+      impactoFinanceiro: `Custo de Patrocínio (Sponsor Take Rate 0,18%): - ${fmtBRL(valor * 0.0018)}`,
+    });
+  } else {
+    rawSteps.push({
+      edgeId: "R04",
+      sourceId: "ec",
+      targetId: "adquirente",
+      fase: "D+0 · Captura Direta",
+      titulo: "Captura Direta pelo Adquirente (Full Acquirer)",
+      resumo: "Estabelecimento Comercial submete a venda diretamente ao host do Adquirente credenciador.",
+      pacoteIso: `MTI 0100 · DE 42 = Merchant ID · DE 18 = MCC 5311 · DE 22 = ${cfg.ambiente === "ecom" ? (cfg.token ? "810" : "010") : cfg.authForte ? "071" : "012"}`,
+      impactoFinanceiro: "Sem intermediário PayFac (100% do Net MDR fica no Adquirente)",
+    });
+  }
+
+  // Passo C: Credencial (Tokenização R13 vs PAN Aberto R08)
+  if (cfg.token) {
+    rawSteps.push({
+      edgeId: "R13",
+      sourceId: "tokenizacao",
+      targetId: "dpan",
+      fase: "D+0 · Token de Rede",
+      titulo: `Credencial Protegida por Network Token (${cfg.bandeira === "Visa" ? "VTS" : "MDES"} DPAN)`,
+      resumo: "Substitui o FPAN real por um DPAN de escopo restrito acompanhado de criptograma dinâmico TAVV.",
+      pacoteIso: `DE 02 = DPAN Tokenizado · Criptograma TAVV presente · Token Requestor ID válido`,
+      impactoFinanceiro:
+        cfg.ambiente === "ecom"
+          ? "Evita sobretaxa de PAN aberto (+0,10 p.p.) e eleva taxa de aprovação do Emissor"
+          : "Proteção criptográfica de credencial ativa",
+    });
+  } else {
+    rawSteps.push({
+      edgeId: "R08",
+      sourceId: "portador",
+      targetId: "pan",
+      fase: "D+0 · PAN Aberto",
+      titulo: "Tráfego em FPAN Aberto (Sem Tokenização de Rede VTS/MDES)",
+      resumo: "O número real do cartão (DE 02) trafega sem tokenização, aumentando risco de exposição e custo CNP.",
+      pacoteIso: "DE 02 = FPAN 16 dígitos em aberto · Sem criptograma TAVV de Token Service",
+      impactoFinanceiro:
+        cfg.ambiente === "ecom"
+          ? `Penalidade por ausência de Token em CNP: +0,10 p.p. (- ${fmtBRL(valor * 0.001)})`
+          : "Credencial primária exposta no fluxo de captura",
+    });
+  }
+
+  // Passo D: Autenticação (3DS R21 / EMV R12 vs Sem Autenticação R51)
+  if (cfg.ambiente === "ecom") {
+    if (cfg.authForte) {
+      rawSteps.push({
+        edgeId: "R21",
+        sourceId: "3ds",
+        targetId: "eci",
+        fase: "D+0 · EMV 3DS 2.2",
+        titulo: `Autenticação 3DS 2.2 Aprovada (${cfg.bandeira === "Visa" ? "ECI 05 + CAVV" : "ECI 02 / SLI 212 + AAV"})`,
+        resumo: "ACS do Emissor autentica o portador e devolve prova criptográfica, ativando Liability Shift.",
+        pacoteIso:
+          cfg.bandeira === "Visa"
+            ? "Campo 60.8 = ECI 05 · DE 126.9 = CAVV (20 bytes) · 3DS Directory Server Tran ID"
+            : "DE 48 SE 42 (SLI) = 212 (ECI 02) · DE 48 SE 43 (UCAF/AAV) = Criptograma Emissor",
+        impactoFinanceiro: "🛡️ Liability Shift ATIVO + Qualifica tarifa autenticada (-0,28 p.p. de economia)",
+      });
+    } else {
+      rawSteps.push({
+        edgeId: "R51",
+        sourceId: "pos-entry",
+        targetId: "autorizacao",
+        fase: "D+0 · Sem 3DS (ECI 07)",
+        titulo: "Submissão E-commerce Sem Autenticação 3DS (ECI 07 / SLI 210)",
+        resumo: "Transação enviada sem prova de autenticação do portador; Lojista assume 100% do risco de fraude.",
+        pacoteIso:
+          cfg.bandeira === "Visa"
+            ? "DE 22 = 01/81 · Campo 60.8 = ECI 07 (Non-Authenticated) · Sem CAVV"
+            : "DE 22 = 010/810 · DE 48 SE 42 (SLI) = 210 (ECI 07 Non-Auth) · Sem AAV",
+        impactoFinanceiro: `⚠️ SEM Liability Shift + Sobretaxa CNP Não-Autenticado (+0,28 p.p. = - ${fmtBRL(valor * 0.0028)})`,
+      });
+    }
+  } else {
+    if (cfg.authForte) {
+      rawSteps.push({
+        edgeId: "R12",
+        sourceId: "emv",
+        targetId: "autorizacao",
+        fase: "D+0 · Chip EMV / NFC",
+        titulo: "Autenticação Criptográfica EMV Presencial (ARQC no DE 55)",
+        resumo: "Chip gera criptograma único ARQC validado pelo HSM do Emissor, garantindo presença física.",
+        pacoteIso: "DE 22 = 071/051 (Chip/Contactless) · DE 55 = Tags TLV 9F26 (ARQC), 9F27, 9F36 (ATC)",
+        impactoFinanceiro: "🛡️ Liability Shift EMV Ativo + Menor tarifa presencial da tabela",
+      });
+    } else {
+      rawSteps.push({
+        edgeId: "R51",
+        sourceId: "pos-entry",
+        targetId: "autorizacao",
+        fase: "D+0 · Digitado / Fallback",
+        titulo: "Captura Presencial Sem Criptograma EMV (DE 22 = 01 Keyed / 80 Fallback)",
+        resumo: "Ausência do DE 55 (ARQC) desqualifica a tarifa de chip presencial e transfere risco de fraude ao EC.",
+        pacoteIso: "DE 22 = 012 (PAN Key-Entered) · DE 55 = AUSENTE (Sem ARQC)",
+        impactoFinanceiro: `⚠️ Penalidade por ausência de Chip EMV: +0,42 p.p. (- ${fmtBRL(valor * 0.0042)})`,
+      });
+    }
+  }
+
+  // Passo E: Roteamento Autorização D+0 (R05 -> R06)
+  rawSteps.push({
+    edgeId: "R05",
+    sourceId: "adquirente",
+    targetId: "bandeira",
+    fase: "D+0 · Autorização 0100",
+    titulo: `Roteamento ISO 8583 0100 para ${cfg.bandeira === "Visa" ? "VisaNet VIP" : cfg.bandeira === "Mastercard" ? "Mastercard Dual Message" : "Rede Elo"}`,
+    resumo: "Adquirente transmite a requisição de autorização online para a rede da Bandeira.",
+    pacoteIso: `MTI 0100 · DE 04 = ${fmtBRL(valor)} · DE 11 STAN · DE 37 RRN · DE 18 MCC`,
+    impactoFinanceiro: "Processamento online em milissegundos",
+  });
+
+  rawSteps.push({
+    edgeId: "R06",
+    sourceId: "bandeira",
+    targetId: "emissor",
+    fase: "D+0 · Aprovação 0110",
+    titulo: "Aprovação 0110 pelo Emissor & Geração do ID de Ciclo de Vida",
+    resumo: "Emissor valida saldo/risco, aprova (DE 39 = 00) e Bandeira carimba o identificador obrigatório para o clearing.",
+    pacoteIso:
+      cfg.bandeira === "Visa"
+        ? "MTI 0110 · DE 39 = 00 · DE 38 = AuthCode · DE 62.2 = Transaction ID (15 dígitos)"
+        : "MTI 0110 · DE 39 = 00 · DE 38 = AuthCode · DE 63 = Banknet Ref Number + Banknet Date",
+    impactoFinanceiro: `Reserva de ${fmtBRL(valor)} aprovada pelo Emissor`,
+  });
+
+  // Passo F: Clearing D+1 vs Downgrade D+6 (R19 -> [R62 -> R56] ou [R22 / R52 / R55])
+  if (cfg.clearingIntegro) {
+    rawSteps.push({
+      edgeId: "R19",
+      sourceId: "autorizacao",
+      targetId: "clearing",
+      fase: "D+1 · Clearing no Prazo",
+      titulo: `Apresentação em Lote D+1 com Ciclo de Vida Íntegro (${cfg.bandeira === "Visa" ? "BASE II TC 05" : "GCMS IPM 1240"})`,
+      resumo: "Adquirente envia o clearing dentro de 24h preservando integralmente o identificador da autorização.",
+      pacoteIso:
+        cfg.bandeira === "Visa"
+          ? "BASE II TC 05 em D+1 · DE 62.2 Transaction ID preservado · Qualificação CPS mantida"
+          : `IPM MTI 1240 em D+1 · DE 63 Banknet Ref preservado · PDS 0158 = ${irdLabel}`,
+      impactoFinanceiro: "Zero penalidade de Timeliness / Integridade no Clearing",
+    });
+
+    if (cfg.ambiente === "debito") {
+      rawSteps.push({
+        edgeId: "R55",
+        sourceId: "bacen-reg",
+        targetId: "intercambio",
+        fase: "D+1 · Teto Bacen BCB 304",
+        titulo: "Aplicação do Teto Regulatório do Banco Central (0,50% no Débito)",
+        resumo: "Resolução BCB nº 304 trava o intercâmbio doméstico de débito em no máximo 0,50%, independente do Tier.",
+        pacoteIso: `Cap Regulatório BCB 304: Alíquota Débito = 0,50% (${fmtBRL(icRealReais)})`,
+        impactoFinanceiro: `Intercâmbio travado em ${fmtBRL(icRealReais)} (0,50%)`,
+      });
+    } else if (cfg.ambiente === "ecom" && cfg.authForte) {
+      rawSteps.push({
+        edgeId: "R22",
+        sourceId: "eci",
+        targetId: "intercambio",
+        fase: "D+1 · Tarifa Qualificada",
+        titulo: `Qualificação na Alíquota Alvo (${fmtPct(aliquotaRealPct)} · ${irdLabel})`,
+        resumo: "Combinação de ECI autenticado + Clearing D+1 garante a menor linha tarifária do segmento.",
+        pacoteIso: `Tabela T068 / Fee Program: ${irdLabel} → Alíquota = ${fmtPct(aliquotaRealPct)}`,
+        impactoFinanceiro: `Intercâmbio otimizado: - ${fmtBRL(icRealReais)}`,
+      });
+    } else {
+      rawSteps.push({
+        edgeId: "R52",
+        sourceId: "pos-entry",
+        targetId: "intercambio",
+        fase: "D+1 · Enquadramento IC",
+        titulo: `Enquadramento Tarifário (${fmtPct(aliquotaRealPct)} · ${irdLabel})`,
+        resumo: "Motor da Bandeira calcula a tarifa de intercâmbio conforme o modo de entrada e autenticação.",
+        pacoteIso: `Enquadramento: ${irdLabel} → Alíquota = ${fmtPct(aliquotaRealPct)} (${fmtBRL(icRealReais)})`,
+        impactoFinanceiro: `Intercâmbio apurado: - ${fmtBRL(icRealReais)}`,
+      });
+    }
+  } else {
+    // Clearing Tardio D+6 ou Truncamento de DE 62.2 / DE 63 -> Desvia para R62 -> R56 (Downgrade!)
+    rawSteps.push({
+      edgeId: "R19",
+      sourceId: "autorizacao",
+      targetId: "clearing",
+      fase: "D+6 · Clearing c/ Falha",
+      titulo: "Apresentação Tardia (D+6) ou Truncamento do ID da Autorização (DE 62.2 / DE 63)",
+      resumo: "Captura enviada fora da janela máxima (Timeliness) ou sem o identificador de ciclo de vida do 0110.",
+      pacoteIso:
+        cfg.bandeira === "Visa"
+          ? "BASE II TC 05 em D+6 · DE 62.2 (Transaction ID) = AUSENTE / TRUNCADO"
+          : "IPM MTI 1240 em D+6 · DE 63 (Banknet Reference) divergente da autorização 0110",
+      impactoFinanceiro: "Gatilho imediato de reprovação na qualificação eletrônica",
+    });
+
+    rawSteps.push({
+      edgeId: "R62",
+      sourceId: "clearing",
+      targetId: "downgrade",
+      fase: "D+6 · Regra de Downgrade",
+      titulo: "Gatilho de Downgrade Automático no Motor da Bandeira",
+      resumo: "A Bandeira rebaixa a transação para a tabela punitiva (Standard / EPR / IRD HU).",
+      pacoteIso: `Downgrade Triggered: Alíquota salta de ${fmtPct(aliquotaAlvoPct)} para ${fmtPct(aliquotaRealPct)}`,
+      impactoFinanceiro: `🚨 Penalidade de Downgrade: - ${fmtBRL(icRealReais - icAlvoReais)} extras nesta venda`,
+    });
+
+    rawSteps.push({
+      edgeId: "R56",
+      sourceId: "downgrade",
+      targetId: "intercambio",
+      fase: "D+6 · Erosão de Margem",
+      titulo: `Aplicação da Tarifa Majorada de Downgrade (${fmtPct(aliquotaRealPct)})`,
+      resumo: "O intercâmbio punitivo corrói diretamente o Net MDR do Adquirente/Subcredenciador.",
+      pacoteIso: `Relatório VSS-120 / T140: Intercâmbio Debitado = ${fmtBRL(icRealReais)} (${fmtPct(aliquotaRealPct)})`,
+      impactoFinanceiro: `Intercâmbio Punitivo: - ${fmtBRL(icRealReais)} (Alvo seria ${fmtBRL(icAlvoReais)})`,
+    });
+  }
+
+  // Passo G: Repasse ao Emissor e Liquidação CIP/SLC (R28 -> R53 [-> R54])
+  rawSteps.push({
+    edgeId: "R28",
+    sourceId: "intercambio",
+    targetId: "emissor",
+    fase: "Settlement · Repasse IC",
+    titulo: `Crédito da Tarifa de Intercâmbio (${fmtBRL(icRealReais)}) ao Emissor`,
+    resumo: "A Bandeira debita o intercâmbio do Adquirente e credita integralmente o banco Emissor do cartão.",
+    pacoteIso: `Fluxo Financeiro IC: Adquirente paga ${fmtBRL(icRealReais)} (${fmtPct(aliquotaRealPct)}) → Emissor recebe`,
+    impactoFinanceiro: `Receita do Emissor nesta venda: + ${fmtBRL(icRealReais)}`,
+  });
+
+  rawSteps.push({
+    edgeId: "R53",
+    sourceId: "settlement",
+    targetId: "cip-spb",
+    fase: "Settlement · CIP/SLC",
+    titulo: "Compensação e Liquidação Doméstica via Grade CIP / SLC",
+    resumo: "Posições multilaterais são liquidadas via STR/SPB na Câmara Interbancária de Pagamentos.",
+    pacoteIso: `Grade SLC/CIP · Líquido Lojista = ${fmtBRL(liquidoLojistaReais)} · Net MDR = ${fmtBRL(margemReais, true)}`,
+    impactoFinanceiro: `Resultado Operacional Adquirente/PayFac: ${fmtBRL(margemReais, true)} (${fmtPct(margemPct, true)})`,
+  });
+
+  if (cfg.subcred) {
+    rawSteps.push({
+      edgeId: "R54",
+      sourceId: "cip-spb",
+      targetId: "subcredenciador",
+      fase: "Liquidação · Split PayFac",
+      titulo: "Liquidação da Agenda do Sublojista na Câmara CIP/SLC",
+      resumo: "SLC liquida os recebíveis do sublojista conciliados com a Registradora (ASLC025/027).",
+      pacoteIso: `ASLC025/027 · Crédito Sublojista = ${fmtBRL(liquidoLojistaReais)} · Spread PayFac = ${fmtBRL(margemReais, true)}`,
+      impactoFinanceiro: `Sublojista recebe ${fmtBRL(liquidoLojistaReais)} · PayFac retém ${fmtBRL(margemReais, true)}`,
+    });
+  }
+
+  // Passo H: Simulação de Contestação de Fraude / Chargeback / VAMP (quando simularFraude = true)
+  if (cfg.simularFraude) {
+    if (cfg.authForte) {
+      rawSteps.push({
+        edgeId: "R23",
+        sourceId: "eci",
+        targetId: "chargeback",
+        fase: "Pós-Venda · Defesa Ativa",
+        titulo: "🛡️ Contestação de Fraude Bloqueada por Liability Shift (3DS / EMV)",
+        resumo: "Portador alega não reconhecer a compra, mas a presença de ECI 05/02 ou ARQC transfere o ônus ao Emissor.",
+        pacoteIso:
+          cfg.bandeira === "Visa"
+            ? "VCR Automatic Liability Shift Rule (Reason 10.4 Blocked by ECI 05 + CAVV)"
+            : "Mastercom Collaboration / CBK 4837 Blocked by SLI 212 (ECI 02 Full Auth)",
+        impactoFinanceiro: "Perda por Chargeback no Lojista/Adquirente = R$ 0,00 (Emissor absorve a fraude)",
+      });
+    } else {
+      rawSteps.push({
+        edgeId: "R31",
+        sourceId: "fraude",
+        targetId: "tc40",
+        fase: "D+25 · Fraude & CBK",
+        titulo: `🚨 Emissor Reporta Fraude (TC40/SAFE) e Abre Chargeback de ${fmtBRL(valor)}`,
+        resumo: "Sem autenticação 3DS/EMV (ECI 07 / Keyed), não há Liability Shift: Lojista sofre débito integral da venda.",
+        pacoteIso:
+          cfg.bandeira === "Visa"
+            ? "Aviso de Fraude TC40 + Chargeback VCR Reason Code 10.4 (Card-Absent Fraud)"
+            : "Reporte SAFE + Chargeback IPM Reason Code 4837 (No Cardholder Authorization)",
+        impactoFinanceiro: `Estorno integral de ${fmtBRL(valor)} do Lojista + Dispute Fee de R$ 75,00`,
+      });
+
+      rawSteps.push({
+        edgeId: cfg.bandeira === "Visa" ? "R32" : "R33",
+        sourceId: "tc40",
+        targetId: cfg.bandeira === "Visa" ? "vamp" : "ecp",
+        fase: "Mensal · Compliance",
+        titulo:
+          cfg.bandeira === "Visa"
+            ? "Contaminação do Índice Unificado VAMP (Visa Acquirer Monitoring Program)"
+            : "Contaminação do Programa ECP / EFM (Mastercard Excessive Chargeback)",
+        resumo: "A fraude e a disputa entram no numerador de monitoria da Bandeira, gerando risco de multa por item.",
+        pacoteIso:
+          cfg.bandeira === "Visa"
+            ? "VAMP Ratio = (TC40 + Disputas) ÷ Total TC05 · Limiar Adquirente ≥ 0,5%"
+            : "ECP / EFM Ratio mensal · Risco de Assessment em USD no relatório MCBS",
+        impactoFinanceiro: "Custo de Disputa (-R$ 75,00) + Risco de multa de US$ 4 a US$ 10 por item no VAMP/ECP",
+      });
+    }
+  }
+
+  const steps: SimStep[] = rawSteps.map((s, idx) => ({
+    ...s,
+    step: idx + 1,
+  }));
+
+  const isNegative = margemReais < 0 || (cfg.simularFraude && !cfg.authForte);
+  const hasPenalty = perdaEvitavelReais > 0.01;
+  const cor = isNegative ? "#f87171" : hasPenalty ? "#f59e0b" : "#10b981";
+  const risco: "baixo" | "medio" | "alto" | "critico" = isNegative
+    ? "critico"
+    : hasPenalty
+    ? "alto"
+    : "baixo";
+
+  const ambNome =
+    cfg.ambiente === "ecom"
+      ? `E-com ${parcelas}x`
+      : cfg.ambiente === "debito"
+      ? "Presencial Débito"
+      : `Presencial Crédito ${parcelas}x`;
+
+  const alertaDiagnostico =
+    perdaEvitavelReais > 0.01
+      ? `⚠️ Perda evitável de ${fmtBRL(perdaEvitavelReais)} nesta transação (${perda10kTransacoes} a cada 10.000 vendas) por ${
+          !cfg.clearingIntegro
+            ? "Downgrade de Clearing (D+6 / Sem ID)"
+            : !cfg.authForte
+            ? "falta de autenticação 3DS/EMV"
+            : "ausência de Tokenização DPAN"
+        }. Ative as chaves verdes ao lado para simular a recuperação de margem!`
+      : cfg.simularFraude && cfg.authForte
+      ? `🛡️ Simulação de Fraude Ativa: Graças ao 3DS/EMV ligado, o Liability Shift bloqueou o Chargeback de ${fmtBRL(valor)} na ligação R23!`
+      : `✅ Configuração Otimizada: Menor alíquota de intercâmbio (${fmtPct(aliquotaRealPct)}) atingida sem vazamento de margem.`;
+
+  return {
+    id: presetId || "what-if-custom",
+    curto: `${ambNome} · ${fmtBRL(valor)} (${cfg.bandeira})`,
+    titulo: `Simulação What-If: ${ambNome} ${fmtBRL(valor)} · ${cfg.bandeira} (${cfg.tier === "premium" ? "Black/Infinite" : "Standard"})`,
+    subtitulo: `${irdLabel} · Token ${cfg.token ? "ON" : "OFF"} · 3DS/EMV ${cfg.authForte ? "ON" : "OFF"} · Clearing ${cfg.clearingIntegro ? "D+1 OK" : "D+6 Downgrade"}${cfg.subcred ? " · PayFac CIP/SLC" : ""}`,
+    bandeira: cfg.bandeira,
+    cor,
+    risco,
+    aliquotaAlvoPct,
+    aliquotaRealPct,
+    perdaEvitavelReais,
+    perda10kTransacoes,
+    alertaDiagnostico,
+    waterfall: {
+      bruto: fmtBRL(valor),
+      mdr: `- ${fmtBRL(mdrReais)} (${fmtPct(mdrPct)})`,
+      liquidoLojista:
+        cfg.simularFraude && !cfg.authForte
+          ? `${fmtBRL(liquidoLojistaReais)} (Estornado p/ R$ 0 no CBK!)`
+          : fmtBRL(liquidoLojistaReais),
+      intercambio: `- ${fmtBRL(icRealReais)} (${fmtPct(aliquotaRealPct)} · ${irdLabel.split(" ")[0]})`,
+      schemeFee: `- ${fmtBRL(schemeAndSponsorReais)} (${fmtPct(schemeAndSponsorPct)}${disputeFeeReais > 0 ? " + R$ 75 CBK" : ""})`,
+      margemAdquirente: `${fmtBRL(margemReais, true)} (${fmtPct(margemPct, true)})`,
+      statusQualificacao: irdLabel,
+    },
+    steps,
+  };
+}
+
 const EDGE_KIND_META: Record<
   EdgeKind,
   { label: string; short: string; color: string; bg: string; border: string; dashed?: boolean }
@@ -524,10 +1118,11 @@ export default function MapaClient() {
   const [showLanes, setShowLanes] = useState<boolean>(true);
   const [efeitoBorboleta, setEfeitoBorboleta] = useState<boolean>(true);
 
-  // Estados do Simulador Visual de Transação Passo a Passo
+  // Estados do Simulador Visual de Transação Passo a Passo & Laboratório What-If
   const [simScenarioId, setSimScenarioId] = useState<string | null>(null);
   const [simStepIdx, setSimStepIdx] = useState<number>(0);
   const [simAutoPlay, setSimAutoPlay] = useState<boolean>(false);
+  const [whatIf, setWhatIf] = useState<WhatIfConfig>(WHATIF_PRESETS["ecom-qualificado"]);
 
   // Estado de Zoom e Pan do SVG
   const [zoom, setZoom] = useState<number>(1);
@@ -772,11 +1367,11 @@ export default function MapaClient() {
     return { incoming, outgoing };
   }, [activeNode, nodeMap]);
 
-  // ─── Estado Derivado do Simulador de Transação Passo a Passo ──────────────
-  const activeScenario = useMemo(
-    () => CENARIOS_SIMULACAO.find((c) => c.id === simScenarioId) || null,
-    [simScenarioId]
-  );
+  // ─── Estado Derivado do Simulador de Transação Passo a Passo & What-If ─────
+  const activeScenario = useMemo(() => {
+    if (!simScenarioId) return null;
+    return buildWhatIfScenario(whatIf, simScenarioId);
+  }, [simScenarioId, whatIf]);
 
   const activeSimStep = useMemo(() => {
     if (!activeScenario) return null;
@@ -821,8 +1416,8 @@ export default function MapaClient() {
         setSimAutoPlay(false);
         return;
       }
-      const sc = CENARIOS_SIMULACAO.find((c) => c.id === scenarioId);
-      if (!sc) return;
+      const presetCfg = WHATIF_PRESETS[scenarioId] || whatIf;
+      const sc = buildWhatIfScenario(presetCfg, scenarioId);
       // Limpa filtros restritivos para garantir que todos os nós e arestas do cenário estejam visíveis
       setBusca("");
       setCategoriaFiltro("");
@@ -832,12 +1427,40 @@ export default function MapaClient() {
       setKindFiltro("");
       setRotaAtiva(null);
       setViewMode("graph");
+      setWhatIf(presetCfg);
       setSimScenarioId(scenarioId);
       setSimStepIdx(0);
       setSimAutoPlay(false);
       applySimStepSelection(sc, 0);
     },
-    [simScenarioId, applySimStepSelection]
+    [simScenarioId, whatIf, applySimStepSelection]
+  );
+
+  const handleUpdateWhatIf = useCallback(
+    (partial: Partial<WhatIfConfig>, focusEdgeIds?: string[]) => {
+      setSimAutoPlay(false);
+      const nextCfg: WhatIfConfig = { ...whatIf, ...partial };
+      if (partial.ambiente === "debito") {
+        nextCfg.parcelas = 1;
+        if (whatIf.ambiente !== "debito") nextCfg.mdrPct = 1.19;
+      } else if (partial.ambiente && whatIf.ambiente === "debito") {
+        nextCfg.mdrPct = nextCfg.parcelas === 1 ? 2.69 : 3.2;
+      }
+      setWhatIf(nextCfg);
+      setSimScenarioId("what-if-custom");
+
+      const nextSc = buildWhatIfScenario(nextCfg, "what-if-custom");
+      let targetIdx = Math.min(simStepIdx, nextSc.steps.length - 1);
+      if (focusEdgeIds && focusEdgeIds.length > 0) {
+        const foundIdx = nextSc.steps.findIndex((s) =>
+          focusEdgeIds.includes(s.edgeId)
+        );
+        if (foundIdx >= 0) targetIdx = foundIdx;
+      }
+      setSimStepIdx(targetIdx);
+      applySimStepSelection(nextSc, targetIdx);
+    },
+    [whatIf, simStepIdx, applySimStepSelection]
   );
 
   const handleGoToSimStep = useCallback(
@@ -1652,42 +2275,51 @@ export default function MapaClient() {
             </div>
           </div>
 
-          {/* ── Simulador Visual de Transação Passo a Passo + Waterfall R$ ─────── */}
+          {/* ── Simulador Visual de Transação Passo a Passo + Laboratório What-If ─ */}
           <div className="rounded-xl bg-[#191c26] border border-[#30364b] p-3 space-y-2.5 shrink-0">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[#80ddc6] text-[10px] font-extrabold uppercase tracking-wider">
                   <Activity size={12} />
-                  Simulador de Transação (Trace D+0 → Liquidação)
+                  Laboratório &quot;What-If&quot; &amp; Trace no Grafo (D+0 → Liquidação)
                 </span>
                 <span className="text-[11px] text-[#9ba4ba] hidden sm:inline">
-                  Escolha um cenário real para animar o caminho no grafo, ver o pacote ISO 8583 e decompor o MDR/Intercâmbio em R$:
+                  Escolha um preset ou altere as chaves (Token, 3DS, Clearing D+1 vs D+6, PayFac, Fraude) para ver a rota do grafo e o Waterfall R$ mudarem ao vivo:
                 </span>
               </div>
-              {activeScenario && (
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
+                {!activeScenario ? (
                   <button
-                    onClick={handleSendScenarioToDocStudio}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-[#80ddc6]/60 text-[11px] font-bold text-[#80ddc6] transition-all cursor-pointer"
-                    title="Exporta a simulação completa (Waterfall R$ + Tabela Passo a Passo ISO 8583) para o Doc Studio"
+                    onClick={() => handleSelectScenario("ecom-qualificado")}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#273e39] hover:bg-[#314e48] border border-[#80ddc6] text-[11px] font-bold text-[#80ddc6] transition-all cursor-pointer"
                   >
-                    <FileText size={12} />
-                    Gerar Parecer da Simulação no Doc Studio
+                    🧪 Abrir Laboratório What-If
                   </button>
-                  <button
-                    onClick={() => {
-                      setSimScenarioId(null);
-                      setSimAutoPlay(false);
-                    }}
-                    className="px-2 py-1 rounded-lg bg-[#202432] hover:bg-[#2a3042] border border-[#30364b] text-[11px] text-[#9ba4ba] hover:text-white cursor-pointer"
-                  >
-                    Fechar Simulação ×
-                  </button>
-                </div>
-              )}
+                ) : (
+                  <>
+                    <button
+                      onClick={handleSendScenarioToDocStudio}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-[#80ddc6]/60 text-[11px] font-bold text-[#80ddc6] transition-all cursor-pointer"
+                      title="Exporta a simulação completa (Waterfall R$ + Tabela Passo a Passo ISO 8583) para o Doc Studio"
+                    >
+                      <FileText size={12} />
+                      Gerar Parecer da Simulação no Doc Studio
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSimScenarioId(null);
+                        setSimAutoPlay(false);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-[#202432] hover:bg-[#2a3042] border border-[#30364b] text-[11px] text-[#9ba4ba] hover:text-white cursor-pointer"
+                    >
+                      Fechar Simulação ×
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
-            {/* Botões dos 4 Cenários */}
+            {/* Botões dos 4 Cenários (Presets Rápidos) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1.5">
               {CENARIOS_SIMULACAO.map((sc) => {
                 const isSelected = simScenarioId === sc.id;
@@ -1706,7 +2338,7 @@ export default function MapaClient() {
                         {sc.curto}
                       </div>
                       <div className="text-[10px] text-[#9ba4ba] truncate">
-                        {sc.bandeira} · Margem: <b style={{ color: sc.cor }}>{sc.waterfall.margemAdquirente}</b>
+                        Preset · Margem: <b style={{ color: sc.cor }}>{sc.waterfall.margemAdquirente}</b>
                       </div>
                     </div>
                     <span
@@ -1718,10 +2350,336 @@ export default function MapaClient() {
               })}
             </div>
 
-            {/* Painel Expandido quando um Cenário está Ativo */}
+            {/* Painel Expandido do Laboratório What-If quando um Cenário está Ativo */}
             {activeScenario && activeSimStep && (
-              <div className="pt-2 border-t border-[#2a3045] space-y-2.5">
-                {/* Waterfall Financeiro em R$ */}
+              <div className="pt-2.5 border-t border-[#2a3045] space-y-2.5">
+                {/* 1. Controles de Parâmetros da Venda + 5 Chaves Técnicas de Rota */}
+                <div className="p-2.5 rounded-xl bg-[#121622] border border-[#2c334a] space-y-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 text-[11px]">
+                    {/* Ambiente */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        Modalidade / Canal
+                      </label>
+                      <select
+                        value={whatIf.ambiente}
+                        onChange={(e) =>
+                          handleUpdateWhatIf(
+                            { ambiente: e.target.value as WhatIfConfig["ambiente"] },
+                            ["R01", "R21", "R12", "R55"]
+                          )
+                        }
+                        className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-[#e9ecf6] font-semibold focus:outline-none focus:border-[#80ddc6]"
+                      >
+                        <option value="ecom">E-commerce (CNP)</option>
+                        <option value="presencial">Presencial Crédito (CP)</option>
+                        <option value="debito">Presencial Débito (Cap BCB)</option>
+                      </select>
+                    </div>
+
+                    {/* Bandeira */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        Bandeira do Arranjo
+                      </label>
+                      <select
+                        value={whatIf.bandeira}
+                        onChange={(e) =>
+                          handleUpdateWhatIf(
+                            { bandeira: e.target.value as WhatIfConfig["bandeira"] },
+                            ["R05", "R06"]
+                          )
+                        }
+                        className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-[#e9ecf6] font-semibold focus:outline-none focus:border-[#80ddc6]"
+                      >
+                        <option value="Mastercard">Mastercard (GCMS/T068)</option>
+                        <option value="Visa">Visa (VisaNet/BASE II)</option>
+                        <option value="Elo">Elo (Arranjo BR)</option>
+                      </select>
+                    </div>
+
+                    {/* Tier do Cartão */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        Tier / Produto do BIN
+                      </label>
+                      <select
+                        value={whatIf.tier}
+                        onChange={(e) =>
+                          handleUpdateWhatIf(
+                            { tier: e.target.value as WhatIfConfig["tier"] },
+                            ["R28"]
+                          )
+                        }
+                        className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-[#e9ecf6] font-semibold focus:outline-none focus:border-[#80ddc6]"
+                      >
+                        <option value="premium">Black / Infinite / Nanquim</option>
+                        <option value="standard">Gold / Platinum / Classic</option>
+                      </select>
+                    </div>
+
+                    {/* Valor Bruto R$ */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        Valor da Venda (R$)
+                      </label>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min={10}
+                          step={50}
+                          value={whatIf.valor}
+                          onChange={(e) =>
+                            handleUpdateWhatIf({
+                              valor: Math.max(10, Number(e.target.value) || 100),
+                            })
+                          }
+                          className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-[#80ddc6] font-bold focus:outline-none focus:border-[#80ddc6]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Parcelas */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        Parcelamento
+                      </label>
+                      <select
+                        value={whatIf.ambiente === "debito" ? 1 : whatIf.parcelas}
+                        disabled={whatIf.ambiente === "debito"}
+                        onChange={(e) => {
+                          const p = Number(e.target.value) as 1 | 3 | 10;
+                          const suggestedMdr = p === 1 ? 2.69 : p === 3 ? 3.2 : 3.89;
+                          handleUpdateWhatIf({ parcelas: p, mdrPct: suggestedMdr }, ["R28"]);
+                        }}
+                        className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-[#e9ecf6] font-semibold disabled:opacity-50 focus:outline-none focus:border-[#80ddc6]"
+                      >
+                        <option value={1}>1x (À Vista)</option>
+                        <option value={3}>2 a 6x (Simular 3x)</option>
+                        <option value={10}>7 a 12x (Simular 10x)</option>
+                      </select>
+                    </div>
+
+                    {/* MDR Contratado (%) */}
+                    <div>
+                      <label className="block text-[9.5px] uppercase tracking-wider text-[#9ba4ba] mb-1">
+                        MDR Cobrado EC (%)
+                      </label>
+                      <input
+                        type="number"
+                        min={0.5}
+                        max={15}
+                        step={0.1}
+                        value={whatIf.mdrPct}
+                        onChange={(e) =>
+                          handleUpdateWhatIf({
+                            mdrPct: Math.max(0.3, Number(e.target.value) || 1.0),
+                          })
+                        }
+                        className="w-full px-2 py-1 rounded-lg bg-[#191c26] border border-[#30364b] text-xs text-amber-300 font-bold focus:outline-none focus:border-[#80ddc6]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 5 Chaves Técnicas que Mudam a Rota do Grafo Ao Vivo */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-1.5 pt-1">
+                    {/* Chave 1: Tokenização */}
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf(
+                          { token: !whatIf.token },
+                          !whatIf.token ? ["R13"] : ["R08"]
+                        )
+                      }
+                      className={`px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                        whatIf.token
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-amber-500/10 border-amber-500/35 text-amber-200"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10.5px] font-bold truncate">
+                          🔐 Tokenização (DPAN)
+                        </div>
+                        <div className="text-[9.5px] opacity-80 truncate">
+                          {whatIf.token ? "ON · R13 (VTS/MDES)" : "OFF · R08 (PAN Aberto)"}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                          whatIf.token
+                            ? "bg-emerald-500 text-slate-950"
+                            : "bg-amber-500/30 text-amber-200"
+                        }`}
+                      >
+                        {whatIf.token ? "ON" : "OFF"}
+                      </span>
+                    </button>
+
+                    {/* Chave 2: 3DS 2.2 / Chip EMV */}
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf(
+                          { authForte: !whatIf.authForte },
+                          !whatIf.authForte ? ["R21", "R12"] : ["R51"]
+                        )
+                      }
+                      className={`px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                        whatIf.authForte
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-rose-500/15 border-rose-500/40 text-rose-200"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10.5px] font-bold truncate">
+                          🛡️ {whatIf.ambiente === "ecom" ? "3DS 2.2 (ECI 02/05)" : "Chip EMV (DE 55 ARQC)"}
+                        </div>
+                        <div className="text-[9.5px] opacity-80 truncate">
+                          {whatIf.authForte
+                            ? "ON · Liability Shift Ativo"
+                            : "OFF · ECI 07 / Sem Auth"}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                          whatIf.authForte
+                            ? "bg-emerald-500 text-slate-950"
+                            : "bg-rose-500 text-white"
+                        }`}
+                      >
+                        {whatIf.authForte ? "ON" : "OFF"}
+                      </span>
+                    </button>
+
+                    {/* Chave 3: Clearing D+1 Íntegro vs Downgrade D+6 */}
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf(
+                          { clearingIntegro: !whatIf.clearingIntegro },
+                          !whatIf.clearingIntegro ? ["R19", "R22", "R52"] : ["R62", "R56"]
+                        )
+                      }
+                      className={`px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                        whatIf.clearingIntegro
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-rose-500/20 border-rose-500/50 text-rose-200"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10.5px] font-bold truncate">
+                          ⏱️ Clearing &amp; Ciclo ID
+                        </div>
+                        <div className="text-[9.5px] opacity-80 truncate">
+                          {whatIf.clearingIntegro
+                            ? "D+1 OK · DE 62.2/63 Íntegro"
+                            : "D+6 / Sem ID → Downgrade!"}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                          whatIf.clearingIntegro
+                            ? "bg-emerald-500 text-slate-950"
+                            : "bg-rose-500 text-white"
+                        }`}
+                      >
+                        {whatIf.clearingIntegro ? "D+1" : "D+6"}
+                      </span>
+                    </button>
+
+                    {/* Chave 4: Subcredenciador (PayFac) */}
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf(
+                          { subcred: !whatIf.subcred },
+                          !whatIf.subcred ? ["R02", "R54"] : ["R04"]
+                        )
+                      }
+                      className={`px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                        whatIf.subcred
+                          ? "bg-blue-500/20 border-blue-400/50 text-blue-200"
+                          : "bg-[#191c26] border-[#30364b] text-[#9ba4ba]"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10.5px] font-bold truncate">
+                          🏪 Subcredenciador
+                        </div>
+                        <div className="text-[9.5px] opacity-80 truncate">
+                          {whatIf.subcred
+                            ? "PayFac ON · Split CIP/SLC"
+                            : "OFF · Adquirente Direto"}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                          whatIf.subcred
+                            ? "bg-blue-400 text-slate-950"
+                            : "bg-[#252b3d] text-[#9ba4ba]"
+                        }`}
+                      >
+                        {whatIf.subcred ? "ON" : "OFF"}
+                      </span>
+                    </button>
+
+                    {/* Chave 5: Simular Contestação de Fraude / Chargeback / VAMP */}
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf(
+                          { simularFraude: !whatIf.simularFraude },
+                          !whatIf.simularFraude ? ["R23", "R31", "R32", "R33"] : ["R01"]
+                        )
+                      }
+                      className={`px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                        whatIf.simularFraude
+                          ? whatIf.authForte
+                            ? "bg-indigo-500/20 border-indigo-400/50 text-indigo-200"
+                            : "bg-rose-500/25 border-rose-400 text-rose-100"
+                          : "bg-[#191c26] border-[#30364b] text-[#9ba4ba]"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10.5px] font-bold truncate">
+                          🚨 Simular Fraude / CBK
+                        </div>
+                        <div className="text-[9.5px] opacity-80 truncate">
+                          {whatIf.simularFraude
+                            ? whatIf.authForte
+                              ? "Bloqueado (Liability Shift)"
+                              : "CBK 10.4/4837 + VAMP/ECP!"
+                            : "OFF · Sem Contestação"}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                          whatIf.simularFraude
+                            ? whatIf.authForte
+                              ? "bg-indigo-400 text-slate-950"
+                              : "bg-rose-500 text-white"
+                            : "bg-[#252b3d] text-[#9ba4ba]"
+                        }`}
+                      >
+                        {whatIf.simularFraude ? "ON" : "OFF"}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Diagnóstico de Impacto What-If */}
+                  <div
+                    className={`px-3 py-1.5 rounded-lg border text-[11px] flex items-center justify-between gap-2 flex-wrap ${
+                      activeScenario.perdaEvitavelReais > 0.01
+                        ? "bg-rose-500/10 border-rose-500/35 text-rose-200"
+                        : "bg-emerald-500/10 border-emerald-500/30 text-emerald-200"
+                    }`}
+                  >
+                    <span>{activeScenario.alertaDiagnostico}</span>
+                    <span className="font-mono text-[10.5px] shrink-0">
+                      IC Alvo: <b>{fmtPct(activeScenario.aliquotaAlvoPct)}</b> → Aplicado:{" "}
+                      <b>{fmtPct(activeScenario.aliquotaRealPct)}</b>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Waterfall Financeiro em R$ */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-1.5 text-[11px]">
                   <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
                     <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
@@ -1743,7 +2701,7 @@ export default function MapaClient() {
                   </div>
                   <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
                     <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
-                      Scheme Fee (→ Bandeira)
+                      Scheme / Sponsor Fee
                     </span>
                     <b className="text-xs text-cyan-300">{activeScenario.waterfall.schemeFee}</b>
                   </div>
@@ -1769,7 +2727,7 @@ export default function MapaClient() {
                   </div>
                 </div>
 
-                {/* Controles do Player Passo a Passo + Cartão do Passo Atual */}
+                {/* 3. Controles do Player Passo a Passo + Cartão do Passo Atual */}
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 p-2.5 rounded-xl bg-[#121622] border border-[#30364b]">
                   <div className="flex items-center gap-1.5 flex-wrap shrink-0">
                     <button
