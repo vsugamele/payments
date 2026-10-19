@@ -12,3 +12,6 @@ Leia docs/operations/shared-workspace.md para mapa, continuidade e referências 
 - Não execute ingestões, migrações ou scripts de correção apenas para descobrir o estado.
 - O índice compartilhado não concede acesso nem conecta automaticamente modelos na nuvem.
 - Ao concluir, registre arquivos, validação, limites e próximo passo em docs/sessions/.
+
+## Skills versionadas de Payments
+As fontes locais oficiais das skills analise-boletim-bandeira e bandeiras-intercambio ficam em .agents/skills/ deste repositorio, com referencias e scripts. Prefira essas versoes no escopo Payments. Copias globais foram alinhadas em 19/10/2026; valide hashes antes de uma nova distribuicao.
