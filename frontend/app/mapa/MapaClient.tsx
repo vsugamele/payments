@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -24,8 +24,15 @@ import {
   Info,
   GitCommit,
   Compass,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  FileText,
+  Activity,
 } from "lucide-react";
 import mapaData from "@/data/mapa-conhecimento.json";
+import { sendToDocStudio } from "@/lib/docStudioBridge";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -35,6 +42,407 @@ type EdgeData = (typeof mapaData.arestas)[number];
 type RotaGuiada = (typeof mapaData.rotasGuiadas)[number];
 
 type EdgeKind = "dados" | "financeiro" | "calculo" | "compliance";
+
+interface SimStep {
+  step: number;
+  edgeId: string;
+  sourceId: string;
+  targetId: string;
+  fase: string;
+  titulo: string;
+  resumo: string;
+  pacoteIso: string;
+  impactoFinanceiro: string;
+}
+
+interface SimScenario {
+  id: string;
+  curto: string;
+  titulo: string;
+  subtitulo: string;
+  bandeira: "Mastercard" | "Visa" | "Elo" | "Todas";
+  cor: string;
+  risco: "baixo" | "medio" | "alto" | "critico";
+  waterfall: {
+    bruto: string;
+    mdr: string;
+    liquidoLojista: string;
+    intercambio: string;
+    schemeFee: string;
+    margemAdquirente: string;
+    statusQualificacao: string;
+  };
+  steps: SimStep[];
+}
+
+const CENARIOS_SIMULACAO: SimScenario[] = [
+  {
+    id: "ecom-qualificado",
+    curto: "1. E-com R$ 500 (Token + 3DS Qualificado)",
+    titulo: "E-commerce R$ 500,00 (3x) · Tokenizado MDES + 3DS 2.2 (IRD AU Qualificado)",
+    subtitulo: "Fluxo ideal CNP com Liability Shift ativo (ECI 02 / SLI 212) e clearing D+1 dentro da janela",
+    bandeira: "Mastercard",
+    cor: "#10b981",
+    risco: "baixo",
+    waterfall: {
+      bruto: "R$ 500,00",
+      mdr: "- R$ 16,00 (3,20%)",
+      liquidoLojista: "R$ 484,00",
+      intercambio: "- R$ 10,60 (2,12% · IRD AU)",
+      schemeFee: "- R$ 1,20 (0,24% · MCBS)",
+      margemAdquirente: "+ R$ 4,20 (+0,84%)",
+      statusQualificacao: "Qualificado no Alvo (IRD AU) + Liability Shift Ativo",
+    },
+    steps: [
+      {
+        step: 1,
+        edgeId: "R01",
+        sourceId: "portador",
+        targetId: "ec",
+        fase: "D+0 · Checkout",
+        titulo: "Portador Inicia Compra E-commerce com Credencial Tokenizada",
+        resumo: "Portador finaliza compra de R$ 500,00 em 3x no checkout usando cartão salvo via Network Token (DPAN).",
+        pacoteIso: "Checkout Payload · Valor = R$ 500,00 (3 parcelas) · Credencial = DPAN 5234.xxxx + Cryptogram TAVV",
+        impactoFinanceiro: "Valor Bruto da Transação: R$ 500,00",
+      },
+      {
+        step: 2,
+        edgeId: "R21",
+        sourceId: "3ds",
+        targetId: "eci",
+        fase: "D+0 · 3DS 2.2",
+        titulo: "Autenticação EMV 3DS 2.2 Frictionless (ECI 02 / SLI 212)",
+        resumo: "MPI/3DS Server envia telemetria de device ao ACS do Emissor, que aprova sem desafio e gera AAV/UCAF.",
+        pacoteIso: "DE 48 SE 42 (SLI) = 212 (ECI 02 Full Auth) · DE 48 SE 43 (UCAF/AAV) = criptograma de 28 bytes",
+        impactoFinanceiro: "Ativa Liability Shift (protege EC contra CBK de fraude) e habilita IRD eletrônico reduzido",
+      },
+      {
+        step: 3,
+        edgeId: "R05",
+        sourceId: "adquirente",
+        targetId: "bandeira",
+        fase: "D+0 · Autorização",
+        titulo: "Adquirente Roteia ISO 8583 0100 para a Bandeira",
+        resumo: "Host do Adquirente monta mensagem 0100 com POS Entry Mode 81 (E-com/CoF), MCC do lojista e dados 3DS.",
+        pacoteIso: "MTI 0100 · DE 02 = DPAN · DE 03 = 003000 · DE 04 = 000000050000 · DE 18 = 5311 · DE 22 = 810 · DE 48 = SLI 212",
+        impactoFinanceiro: "Custo de processamento de autorização (Assessment MCBS ~R$ 0,04)",
+      },
+      {
+        step: 4,
+        edgeId: "R06",
+        sourceId: "bandeira",
+        targetId: "emissor",
+        fase: "D+0 · Decisão Emissor",
+        titulo: "Detokenização MDES & Aprovação 0110 pelo Emissor",
+        resumo: "Mastercard traduz DPAN → FPAN no cofre MDES, valida TAVV/AAV e Emissor retorna aprovação DE 39 = 00.",
+        pacoteIso: "MTI 0110 · DE 38 = A94F21 · DE 39 = 00 (Approved) · DE 63 = Banknet Ref Number + Banknet Date",
+        impactoFinanceiro: "Reserva de limite de R$ 500,00 no cartão Black do portador",
+      },
+      {
+        step: 5,
+        edgeId: "R19",
+        sourceId: "autorizacao",
+        targetId: "clearing",
+        fase: "D+1 · Clearing IPM",
+        titulo: "Apresentação Single Message / Batch IPM em D+1",
+        resumo: "Adquirente submete First Presentment (MTI 1240) em D+1 preservando Banknet Ref, SLI 212 e MCC.",
+        pacoteIso: "IPM MTI 1240 · F024 = 200 · PDS 0158 = IRD AU · PDS 0052 = 212 · DE 63 idêntico ao 0110",
+        impactoFinanceiro: "Qualifica tarifa alvo sem penalidade de timeliness",
+      },
+      {
+        step: 6,
+        edgeId: "R28",
+        sourceId: "intercambio",
+        targetId: "emissor",
+        fase: "D+1 · Intercâmbio",
+        titulo: "Cálculo e Crédito da Tarifa de Intercâmbio ao Emissor (2,12%)",
+        resumo: "GCMS aplica tabela T068 para Tier Black Parcelado 2-6x Qualificado (IRD AU = 2,12%).",
+        pacoteIso: "T068 Match: Tier Black × IRD AU × Parcelado 3x → Alíquota = 2,12% (R$ 10,60)",
+        impactoFinanceiro: "Adquirente paga R$ 10,60 de Intercâmbio ao Emissor + R$ 1,20 de Scheme Fee à Bandeira",
+      },
+      {
+        step: 7,
+        edgeId: "R53",
+        sourceId: "settlement",
+        targetId: "cip-spb",
+        fase: "Settlement · CIP/SLC",
+        titulo: "Liquidação Doméstica via CIP/SLC & Repasse ao Lojista",
+        resumo: "Câmara compensa posições líquidas: Emissor envia R$ 489,40; Adquirente retém MDR líquido e paga R$ 484,00 ao EC.",
+        pacoteIso: "Relatório T067/T140 → Grade SLC/CIP (STR/SPB) → Crédito líquido EC = R$ 484,00",
+        impactoFinanceiro: "Margem Líquida do Adquirente (Net MDR) = + R$ 4,20 (+0,84%)",
+      },
+    ],
+  },
+  {
+    id: "ecom-downgrade-vamp",
+    curto: "2. E-com s/ 3DS → Downgrade + VAMP",
+    titulo: "E-commerce R$ 500,00 · Sem 3DS (ECI 07) + Clearing Tardio → Downgrade & Fraude VAMP",
+    subtitulo: "Como a ausência de 3DS/DE 62.2 e o atraso no clearing causam margem negativa e multa no programa VAMP",
+    bandeira: "Visa",
+    cor: "#f87171",
+    risco: "critico",
+    waterfall: {
+      bruto: "R$ 500,00",
+      mdr: "- R$ 16,00 (3,20%)",
+      liquidoLojista: "R$ 484,00 (Antes do CBK de R$ 500)",
+      intercambio: "- R$ 14,75 (2,95% · Downgrade Standard)",
+      schemeFee: "- R$ 2,65 (0,53% · VSS + Dispute/VAMP Fee)",
+      margemAdquirente: "- R$ 1,40 (-0,28% · Margem Negativa)",
+      statusQualificacao: "Downgrade Punitivo (+0,85% IC) + Sem Liability Shift (CBK 10.4)",
+    },
+    steps: [
+      {
+        step: 1,
+        edgeId: "R01",
+        sourceId: "portador",
+        targetId: "ec",
+        fase: "D+0 · Checkout Vulnerável",
+        titulo: "Compra CNP em PAN Aberto e Sem Autenticação 3DS",
+        resumo: "Transação submetida apenas com PAN digitado e CVV, sem Tokenização VTS e sem desafio 3DS.",
+        pacoteIso: "DE 02 = FPAN 4984.xxxx · DE 22 = 01 (Manual/Keyed) · Campo 60.8 = ECI 07 (Non-Authenticated)",
+        impactoFinanceiro: "Risco 100% no Lojista (EC) em caso de fraude CNP",
+      },
+      {
+        step: 2,
+        edgeId: "R05",
+        sourceId: "adquirente",
+        targetId: "bandeira",
+        fase: "D+0 · Autorização VIP",
+        titulo: "Autorização ECI 07 Aprovada na VisaNet (DE 62.2 Gerado)",
+        resumo: "VisaNet VIP aprova 0110 e devolve DE 62.2 (Transaction Identifier de 15 dígitos), obrigatório no clearing.",
+        pacoteIso: "MTI 0110 · DE 39 = 00 · DE 62.2 = 306123456789012 (CPS Qualification ID)",
+        impactoFinanceiro: "Tarifa estimada na autorização: 2,10% (R$ 10,50) SE apresentada até D+4 com DE 62.2",
+      },
+      {
+        step: 3,
+        edgeId: "R19",
+        sourceId: "autorizacao",
+        targetId: "clearing",
+        fase: "D+6 · Clearing Tardio",
+        titulo: "Apresentação BASE II com Atraso (D+6) e Truncamento de DE 62.2",
+        resumo: "Lojista demora 6 dias para capturar a venda e o sistema do adquirente omite o Transaction ID no TC 05.",
+        pacoteIso: "BASE II TC 05 · CPD = D+6 (fora da janela de 4 dias) · Transaction ID (DE 62.2) = AUSENTE",
+        impactoFinanceiro: "Perda imediata da elegibilidade CPS / Eletrônica",
+      },
+      {
+        step: 4,
+        edgeId: "R62",
+        sourceId: "clearing",
+        targetId: "downgrade",
+        fase: "D+6 · Regra de Downgrade",
+        titulo: "BASE II Reprova Qualificação e Dispara Downgrade Automático",
+        resumo: "Motor de intercâmbio detecta falta de ciclo de vida (DE 62.2) + Timeliness expirado e rebaixa o Fee Program.",
+        pacoteIso: "VSS/VCF Downgrade Flag = EPR / Standard Non-Qualified · Motivo: Missing Tran ID & Late Presentment",
+        impactoFinanceiro: "Penalidade tarifária de +0,85 p.p. sobre o valor da venda",
+      },
+      {
+        step: 5,
+        edgeId: "R56",
+        sourceId: "downgrade",
+        targetId: "intercambio",
+        fase: "D+6 · Erosão de Margem",
+        titulo: "Intercâmbio Salta para 2,95% (R$ 14,75) e Inverte a Margem",
+        resumo: "Como o MDR do lojista era fixo (3,20% = R$ 16,00), o salto do intercâmbio + scheme fee gera prejuízo líquido.",
+        pacoteIso: "VSS-120 Interchange Report: R$ 14,75 (2,95%) debitados do Adquirente em favor do Emissor",
+        impactoFinanceiro: "Net MDR do Adquirente cai de +R$ 4,25 para -R$ 1,40 (-0,28%)",
+      },
+      {
+        step: 6,
+        edgeId: "R31",
+        sourceId: "fraude",
+        targetId: "tc40",
+        fase: "D+25 · Fraude & CBK",
+        titulo: "Portador Contesta Compra → Emissor Envia TC40 e Chargeback 10.4",
+        resumo: "Sem ECI 05/06, o Adquirente não tem defesa de Liability Shift e sofre débito integral do Chargeback 10.4.",
+        pacoteIso: "Visa Claims Resolution (VCR) · Reason Code 10.4 (Other Fraud - Card Absent) + Aviso TC40",
+        impactoFinanceiro: "Estorno de R$ 500,00 do Lojista + Dispute Fee de US$ 15 no VSS-140",
+      },
+      {
+        step: 7,
+        edgeId: "R32",
+        sourceId: "tc40",
+        targetId: "vamp",
+        fase: "Mensal · Compliance VAMP",
+        titulo: "Contabilização Dupla no Índice VAMP (Visa Acquirer Monitoring Program)",
+        resumo: "A transação contamina o numerador unificado do VAMP (TC40 + Disputas Ciertas / TC05), aproximando multa por item.",
+        pacoteIso: "VAMP Ratio = (TC40 + Disputas) ÷ Total TC05 · Limiar Abril/2026: ≥ 0,5% Adquirente Acima do Padrão",
+        impactoFinanceiro: "Risco de Enforcement Fee de US$ 4 a US$ 10 por transação afetada",
+      },
+    ],
+  },
+  {
+    id: "payfac-split-slc",
+    curto: "3. PayFac R$ 1.000 (Split & CIP/SLC)",
+    titulo: "Marketplace / Subcredenciador (PayFac) R$ 1.000,00 · Split & Grade Centralizada CIP/SLC",
+    subtitulo: "Fluxo completo de subcredenciamento sob a Circular Bacen 3.682 com liquidação na câmara CIP/SLC",
+    bandeira: "Mastercard",
+    cor: "#f59e0b",
+    risco: "baixo",
+    waterfall: {
+      bruto: "R$ 1.000,00",
+      mdr: "- R$ 34,90 (3,49% cobrado pelo PayFac)",
+      liquidoLojista: "R$ 965,10 (Creditado ao Sublojista via SLC)",
+      intercambio: "- R$ 18,50 (1,85% ao Emissor)",
+      schemeFee: "- R$ 4,00 (0,22% MCBS + 0,18% Sponsor Acquirer)",
+      margemAdquirente: "+ R$ 12,40 (+1,24% Spread PayFac)",
+      statusQualificacao: "Subcredenciamento Regular (PF ID + Sub-Merchant ID + Grade SLC)",
+    },
+    steps: [
+      {
+        step: 1,
+        edgeId: "R01",
+        sourceId: "portador",
+        targetId: "ec",
+        fase: "D+0 · Compra Marketplace",
+        titulo: "Portador Compra R$ 1.000,00 em Vendedor (Sublojista) do Marketplace",
+        resumo: "Transação iniciada no checkout transparente hospedado pelo Subcredenciador (PayFac).",
+        pacoteIso: "Checkout PayFac · Valor Bruto = R$ 1.000,00 · Seller CNPJ vinculado ao Sub-Merchant ID",
+        impactoFinanceiro: "Valor Bruto: R$ 1.000,00",
+      },
+      {
+        step: 2,
+        edgeId: "R02",
+        sourceId: "ec",
+        targetId: "subcredenciador",
+        fase: "D+0 · Captura PayFac",
+        titulo: "Subcredenciador Identifica PF ID, Sub-Merchant ID e MCC Real",
+        resumo: "PayFac preenche obrigatoriamente o identificador de facilitador e os dados cadastrais do sublojista.",
+        pacoteIso: "DE 18 = MCC 5651 · DE 43 = NomeFantasia*Sublojista · DE 48 PDS 0208 = PF ID + Sub-Merchant ID",
+        impactoFinanceiro: "Evita multa BRAM por agregação opaca (laundering de MCC)",
+      },
+      {
+        step: 3,
+        edgeId: "R03",
+        sourceId: "subcredenciador",
+        targetId: "adquirente",
+        fase: "D+0 · Patrocínio (Sponsor)",
+        titulo: "Submissão via Adquirente Patrocinador para a Rede da Bandeira",
+        resumo: "Adquirente valida que o sublojista não consta no MATCH e envia 0100 usando seu BIN/ICA licenciados.",
+        pacoteIso: "MTI 0100 · DE 32 (Acquiring Institution ID) = ICA Adquirente · DE 39 = 00 (Aprovado)",
+        impactoFinanceiro: "Take-rate de patrocínio do Adquirente: 0,18% (R$ 1,80)",
+      },
+      {
+        step: 4,
+        edgeId: "R46",
+        sourceId: "clearing",
+        targetId: "base2-ipm",
+        fase: "D+1 · Clearing GCMS",
+        titulo: "Processamento IPM no GCMS & Cálculo de Intercâmbio (1,85%)",
+        resumo: "Bandeira processa arquivo IPM, calcula R$ 18,50 de intercâmbio para o Emissor e R$ 2,20 de fee MCBS.",
+        pacoteIso: "GCMS IPM 1240 → Relatório T140 / T067 · Intercâmbio = R$ 18,50 · MCBS Fee = R$ 2,20",
+        impactoFinanceiro: "Líquido apurado na Bandeira para a cadeia adquirente: R$ 979,30",
+      },
+      {
+        step: 5,
+        edgeId: "R53",
+        sourceId: "settlement",
+        targetId: "cip-spb",
+        fase: "D+2 · Grade CIP/SLC",
+        titulo: "Bandeira Envia Grade de Liquidação Doméstica para a CIP / SLC",
+        resumo: "Por exigência do Bacen, a compensação interbancária ocorre de forma multilateral no SLC da CIP.",
+        pacoteIso: "Arquivo de Grade Bandeira → CIP/SLC · Liquidação financeira via STR / SPB",
+        impactoFinanceiro: "Compensação multilateral sem risco de crédito bilateral",
+      },
+      {
+        step: 6,
+        edgeId: "R54",
+        sourceId: "cip-spb",
+        targetId: "subcredenciador",
+        fase: "Liquidação · Agenda",
+        titulo: "Liquidação ao Subcredenciador e Crédito na Agenda do Sublojista",
+        resumo: "SLC liquida os valores e concilia com a Registradora de Recebíveis (CERC/TAG/B3) para crédito ao Seller.",
+        pacoteIso: "Mensagens ASLC025 / ASLC027 (CIP) · Líquido Sublojista = R$ 965,10 · Spread PayFac = R$ 12,40",
+        impactoFinanceiro: "Spread Líquido PayFac = + R$ 12,40 (+1,24%) · Sublojista recebe R$ 965,10",
+      },
+    ],
+  },
+  {
+    id: "presencial-debito-bacen",
+    curto: "4. NFC Débito R$ 200 (Cap Bacen 0,50%)",
+    titulo: "Presencial Contactless NFC Débito R$ 200,00 · Chip EMV (ARQC) + Teto Bacen (0,50%)",
+    subtitulo: "Como a criptografia EMV presencial e a Resolução BCB 304 travam o intercâmbio de débito em 0,50%",
+    bandeira: "Todas",
+    cor: "#3b82f6",
+    risco: "baixo",
+    waterfall: {
+      bruto: "R$ 200,00",
+      mdr: "- R$ 2,38 (1,19% MDR Débito)",
+      liquidoLojista: "R$ 197,62 (Liquidado em D+1)",
+      intercambio: "- R$ 1,00 (0,50% · Teto Regulatório BCB 304)",
+      schemeFee: "- R$ 0,28 (0,14% · Scheme Fee Débito)",
+      margemAdquirente: "+ R$ 1,10 (+0,55%)",
+      statusQualificacao: "Card Present EMV Contactless + Cap Regulatório BCB (0,50%)",
+    },
+    steps: [
+      {
+        step: 1,
+        edgeId: "R01",
+        sourceId: "portador",
+        targetId: "ec",
+        fase: "D+0 · Terminal POS",
+        titulo: "Portador Aproxima Cartão/Carteira NFC no Terminal do Lojista",
+        resumo: "Venda presencial de R$ 200,00 na função Débito à vista lida via antena NFC (EMV Contactless).",
+        pacoteIso: "Terminal POS · Função = Débito · Valor = R$ 200,00 · Interface = Contactless ISO 14443",
+        impactoFinanceiro: "Valor Bruto: R$ 200,00",
+      },
+      {
+        step: 2,
+        edgeId: "R51",
+        sourceId: "pos-entry",
+        targetId: "autorizacao",
+        fase: "D+0 · POS Entry Mode",
+        titulo: "Preenchimento do POS Entry Mode DE 22 = 07 (Contactless EMV)",
+        resumo: "Terminal sinaliza na mensagem ISO 8583 que a leitura ocorreu via chip sem contato.",
+        pacoteIso: "DE 22 (POS Entry Mode) = 071 (Contactless Chip + PIN/CDCVM) · DE 25 = 00",
+        impactoFinanceiro: "Comprova presença física do cartão/dispositivo",
+      },
+      {
+        step: 3,
+        edgeId: "R12",
+        sourceId: "emv",
+        targetId: "autorizacao",
+        fase: "D+0 · Criptograma ARQC",
+        titulo: "Geração e Validação do Criptograma Dinâmico EMV (DE 55)",
+        resumo: "Chip gera ARQC único por transação no DE 55; HSM do Emissor valida autenticidade e responde ARPC.",
+        pacoteIso: "DE 55 TLV: Tag 9F26 (ARQC) · Tag 9F27 (CID) · Tag 9F36 (ATC) · Tag 9F10 (IAD)",
+        impactoFinanceiro: "Blindagem contra clonagem presencial (Liability Shift EMV)",
+      },
+      {
+        step: 4,
+        edgeId: "R52",
+        sourceId: "pos-entry",
+        targetId: "intercambio",
+        fase: "D+1 · Qualificação CP",
+        titulo: "Qualificação na Tabela Eletrônica Presencial (Card Present)",
+        resumo: "Presença de DE 22 = 07 + dados EMV no clearing garante enquadramento eletrônico pleno.",
+        pacoteIso: "Clearing D+1 com indicador EMV Contactless íntegro",
+        impactoFinanceiro: "Zero risco de downgrade técnico",
+      },
+      {
+        step: 5,
+        edgeId: "R55",
+        sourceId: "bacen-reg",
+        targetId: "intercambio",
+        fase: "D+1 · Teto Bacen (BCB 304)",
+        titulo: "Aplicação do Cap Regulatório do Banco Central (Máx. 0,50% no Débito)",
+        resumo: "Resolução BCB nº 304 limita qualquer tarifa de intercâmbio doméstica de débito a 0,50% por transação.",
+        pacoteIso: "Regra Bacen BCB 304: Intercâmbio Débito ≤ 0,50% (Pré-pago ≤ 0,70%)",
+        impactoFinanceiro: "Intercâmbio travado em R$ 1,00 (0,50% de R$ 200,00)",
+      },
+      {
+        step: 6,
+        edgeId: "R28",
+        sourceId: "intercambio",
+        targetId: "emissor",
+        fase: "D+1 · Liquidação Débito",
+        titulo: "Repasse de R$ 1,00 ao Emissor e Liquidação D+1 ao Lojista",
+        resumo: "Em D+1, Emissor recebe R$ 1,00 de intercâmbio, Bandeira recebe R$ 0,28 e Lojista recebe R$ 197,62.",
+        pacoteIso: "Liquidação CIP/SLC D+1 · Crédito EC = R$ 197,62 · Net MDR Adquirente = +R$ 1,10",
+        impactoFinanceiro: "Margem Líquida do Adquirente = + R$ 1,10 (+0,55%)",
+      },
+    ],
+  },
+];
 
 const EDGE_KIND_META: Record<
   EdgeKind,
@@ -115,6 +523,11 @@ export default function MapaClient() {
   const [didatico, setDidatico] = useState<boolean>(true);
   const [showLanes, setShowLanes] = useState<boolean>(true);
   const [efeitoBorboleta, setEfeitoBorboleta] = useState<boolean>(true);
+
+  // Estados do Simulador Visual de Transação Passo a Passo
+  const [simScenarioId, setSimScenarioId] = useState<string | null>(null);
+  const [simStepIdx, setSimStepIdx] = useState<number>(0);
+  const [simAutoPlay, setSimAutoPlay] = useState<boolean>(false);
 
   // Estado de Zoom e Pan do SVG
   const [zoom, setZoom] = useState<number>(1);
@@ -359,6 +772,326 @@ export default function MapaClient() {
     return { incoming, outgoing };
   }, [activeNode, nodeMap]);
 
+  // ─── Estado Derivado do Simulador de Transação Passo a Passo ──────────────
+  const activeScenario = useMemo(
+    () => CENARIOS_SIMULACAO.find((c) => c.id === simScenarioId) || null,
+    [simScenarioId]
+  );
+
+  const activeSimStep = useMemo(() => {
+    if (!activeScenario) return null;
+    return activeScenario.steps[simStepIdx] || activeScenario.steps[0] || null;
+  }, [activeScenario, simStepIdx]);
+
+  const simEdgeStepMap = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!activeScenario) return map;
+    for (const s of activeScenario.steps) {
+      map.set(s.edgeId, s.step);
+    }
+    return map;
+  }, [activeScenario]);
+
+  const simNodeSet = useMemo(() => {
+    const set = new Set<string>();
+    if (!activeScenario) return set;
+    for (const s of activeScenario.steps) {
+      set.add(s.sourceId);
+      set.add(s.targetId);
+    }
+    return set;
+  }, [activeScenario]);
+
+  const applySimStepSelection = useCallback(
+    (scenario: SimScenario, stepIndex: number) => {
+      const stepObj = scenario.steps[stepIndex];
+      if (!stepObj) return;
+      setSelectedEdgeId(stepObj.edgeId);
+      setFocusNodeId(stepObj.targetId);
+      setInspectMode("edge");
+      setEdgeDetailTab("payload");
+    },
+    []
+  );
+
+  const handleSelectScenario = useCallback(
+    (scenarioId: string) => {
+      if (simScenarioId === scenarioId) {
+        setSimScenarioId(null);
+        setSimAutoPlay(false);
+        return;
+      }
+      const sc = CENARIOS_SIMULACAO.find((c) => c.id === scenarioId);
+      if (!sc) return;
+      // Limpa filtros restritivos para garantir que todos os nós e arestas do cenário estejam visíveis
+      setBusca("");
+      setCategoriaFiltro("");
+      setBandeiraFiltro("");
+      setPapelFiltro("");
+      setSubdominioFiltro("");
+      setKindFiltro("");
+      setRotaAtiva(null);
+      setViewMode("graph");
+      setSimScenarioId(scenarioId);
+      setSimStepIdx(0);
+      setSimAutoPlay(false);
+      applySimStepSelection(sc, 0);
+    },
+    [simScenarioId, applySimStepSelection]
+  );
+
+  const handleGoToSimStep = useCallback(
+    (idx: number) => {
+      if (!activeScenario) return;
+      const bounded = (idx + activeScenario.steps.length) % activeScenario.steps.length;
+      setSimStepIdx(bounded);
+      applySimStepSelection(activeScenario, bounded);
+    },
+    [activeScenario, applySimStepSelection]
+  );
+
+  useEffect(() => {
+    if (!simAutoPlay || !activeScenario) return;
+    const timer = window.setInterval(() => {
+      setSimStepIdx((prev) => {
+        const next = (prev + 1) % activeScenario.steps.length;
+        applySimStepSelection(activeScenario, next);
+        return next;
+      });
+    }, 3400);
+    return () => window.clearInterval(timer);
+  }, [simAutoPlay, activeScenario, applySimStepSelection]);
+
+  // ─── Ponte Direta para o Doc Studio (/editor) ──────────────────────────────
+
+  const handleSendScenarioToDocStudio = useCallback(() => {
+    if (!activeScenario) return;
+    const wf = activeScenario.waterfall;
+    const stepsRows = activeScenario.steps
+      .map(
+        (s) => `
+        <tr>
+          <td><strong>#${s.step} · ${s.fase}</strong><br/><code>${s.edgeId}</code></td>
+          <td><strong>${s.titulo}</strong><br/>${s.resumo}</td>
+          <td><code>${s.pacoteIso}</code></td>
+          <td>${s.impactoFinanceiro}</td>
+        </tr>`
+      )
+      .join("");
+
+    const html = `
+      <h2>Simulação Ponta a Ponta: ${activeScenario.titulo}</h2>
+      <p><strong>Resumo do Cenário:</strong> ${activeScenario.subtitulo}</p>
+      <h3>1. Decomposição Financeira da Transação (Waterfall R$)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Componente Econômico</th>
+            <th>Valor / Alíquota</th>
+            <th>Quem Paga → Quem Recebe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Valor Bruto da Compra</strong></td>
+            <td><strong>${wf.bruto}</strong></td>
+            <td>Portador → Fluxo Transacional</td>
+          </tr>
+          <tr>
+            <td><strong>MDR Total Cobrado do Lojista</strong></td>
+            <td>${wf.mdr}</td>
+            <td>Lojista (EC) → Adquirente / Subcredenciador</td>
+          </tr>
+          <tr>
+            <td><strong>Tarifa de Intercâmbio (Issuer Fee)</strong></td>
+            <td><strong>${wf.intercambio}</strong></td>
+            <td>Adquirente → Emissor (Issuer)</td>
+          </tr>
+          <tr>
+            <td><strong>Taxas de Bandeira (Scheme Fees)</strong></td>
+            <td>${wf.schemeFee}</td>
+            <td>Adquirente → Bandeira (${activeScenario.bandeira})</td>
+          </tr>
+          <tr>
+            <td><strong>Valor Líquido Repassado ao Lojista</strong></td>
+            <td>${wf.liquidoLojista}</td>
+            <td>Liquidação via CIP/SLC → Lojista (EC)</td>
+          </tr>
+          <tr>
+            <td><strong>Margem Líquida (Net MDR Adquirente/PayFac)</strong></td>
+            <td><strong>${wf.margemAdquirente}</strong></td>
+            <td>Resultado Operacional (${wf.statusQualificacao})</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>2. Rastreabilidade Técnica Passo a Passo (D+0 → Clearing → Settlement)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Etapa / Ligação</th>
+            <th>Ação no Ecossistema</th>
+            <th>Payload ISO 8583 / Clearing / Settlement</th>
+            <th>Impacto Financeiro & Risco</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stepsRows}
+        </tbody>
+      </table>
+    `;
+
+    const normBrand =
+      activeScenario.bandeira === "Visa"
+        ? "visa"
+        : activeScenario.bandeira === "Mastercard"
+        ? "mastercard"
+        : activeScenario.bandeira === "Elo"
+        ? "elo"
+        : "geral";
+
+    const normRisk =
+      activeScenario.risco === "critico" || activeScenario.risco === "alto"
+        ? "Alto"
+        : activeScenario.risco === "medio"
+        ? "Médio"
+        : "Baixo";
+
+    sendToDocStudio({
+      mode: "full_dossier",
+      title: `Parecer de Simulação Transacional — ${activeScenario.curto}`,
+      sourceModule: "Atlas Interativo (/mapa) · Simulador de Transação",
+      html,
+      metadata: {
+        brand: normBrand,
+        brandName: activeScenario.bandeira,
+        referenceId: `SIM-${activeScenario.id.toUpperCase()}`,
+        category: "Simulação Ponta a Ponta (ISO 8583 + Intercâmbio + Liquidação)",
+        riskLevel: normRisk,
+        executiveSummary: `${activeScenario.titulo}. Status: ${wf.statusQualificacao}. Margem Líquida: ${wf.margemAdquirente}.`,
+        recommendedAction:
+          activeScenario.risco === "critico"
+            ? "Implementar autenticação EMV 3DS 2.2 + Tokenização de Rede (VTS/MDES) e garantir submissão de clearing até D+1 com preservação integral do DE 62.2 / DE 63 para eliminar downgrades e exposição ao VAMP."
+            : "Manter monitoramento contínuo da qualificação de IRD/Fee Program nos arquivos de retorno (T140/VSS-120) e conciliação diária com a grade CIP/SLC.",
+      },
+    });
+  }, [activeScenario]);
+
+  const handleSendNodeToDocStudio = useCallback(
+    (node: NoData) => {
+      const cat = catMap[node.categoria];
+      const camposHtml = (node.camposTecnicos || [])
+        .map((c) => `<li><code>${c}</code></li>`)
+        .join("");
+
+      const html = `
+        <h2>Ficha Técnica de Conceito: ${node.label}</h2>
+        <p><strong>Camada Arquitetural:</strong> ${cat?.label || node.categoria} · <strong>Bandeira/Rede:</strong> ${node.bandeira} · <strong>Subdomínio:</strong> ${SUBDOMINIO_LABELS[node.subdominio] || node.subdominio}</p>
+        ${node.analogy ? `<blockquote><strong>Tradução Executiva (Analogia):</strong> “${node.analogy}”</blockquote>` : ""}
+        <h3>1. Definição Técnica & Papel na Arquitetura</h3>
+        <p>${node.descricao}</p>
+        <h3>2. Protocolo de Rastreabilidade (Quem Envia → Quem Recebe → Como Calcula)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Dimensão</th>
+              <th>Especificação no Arranjo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Quem Envia (Origem)</strong></td>
+              <td>${node.quemEnvia}</td>
+            </tr>
+            <tr>
+              <td><strong>Quem Recebe (Destino)</strong></td>
+              <td>${node.quemRecebe}</td>
+            </tr>
+            <tr>
+              <td><strong>Como Calcula / Regra</strong></td>
+              <td><strong>${node.comoCalcula}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        ${node.impacto ? `<h3>3. Efeito Borboleta & Impacto Financeiro/Operacional</h3><p>${node.impacto}</p>` : ""}
+        ${node.excecoes ? `<h3>4. Exceções, Limites & Armadilhas</h3><p>${node.excecoes}</p>` : ""}
+        ${camposHtml ? `<h3>5. Campos ISO 8583, PDS, Tabelas & Arquivos Relacionados</h3><ul>${camposHtml}</ul>` : ""}
+      `;
+
+      const bLower = (node.bandeira || "").toLowerCase();
+      const normBrand: "visa" | "mastercard" | "elo" | "geral" =
+        bLower === "visa"
+          ? "visa"
+          : bLower === "mastercard"
+          ? "mastercard"
+          : bLower === "elo"
+          ? "elo"
+          : "geral";
+
+      sendToDocStudio({
+        mode: "full_dossier",
+        title: `Ficha Técnica — ${node.label} (${node.bandeira})`,
+        sourceModule: "Atlas Interativo (/mapa) · Inspetor de Conceito",
+        html,
+        metadata: {
+          brand: normBrand,
+          brandName: node.bandeira,
+          referenceId: `NODE-${node.id.toUpperCase()}`,
+          category: cat?.label || node.categoria,
+          riskLevel: "Médio",
+          executiveSummary: `${node.label}: ${node.descricao}`,
+          recommendedAction: node.comoCalcula,
+        },
+      });
+    },
+    [catMap]
+  );
+
+  const handleSendEdgeToDocStudio = useCallback(
+    (edge: EdgeData) => {
+      const fromNode = nodeMap.get(edge.source);
+      const toNode = nodeMap.get(edge.target);
+      const meta = EDGE_KIND_META[(edge.kind as EdgeKind) || "dados"] || EDGE_KIND_META.dados;
+
+      const html = `
+        <h2>Evidência de Relação Técnica [${edge.id}]: ${edge.label}</h2>
+        <p><strong>Fluxo:</strong> ${fromNode?.label || edge.source} → ${toNode?.label || edge.target} (${edge.direction})</p>
+        <p><strong>Natureza:</strong> ${meta.label} · <strong>Bandeira:</strong> ${edge.brand} · <strong>Janela/Timing:</strong> ${edge.timing}</p>
+        <h3>1. Regra de Negócio e Comportamento Técnico</h3>
+        <p>${edge.rule}</p>
+        ${edge.exceptions ? `<h3>2. Exceções, Riscos de Downgrade ou Penalidades</h3><p>${edge.exceptions}</p>` : ""}
+        <h3>3. Evidência Técnica (Payload ISO 8583 / Clearing / Relatórios)</h3>
+        <pre><code>${edge.payload}</code></pre>
+      `;
+
+      const bLower = (edge.brand || "").toLowerCase();
+      const normBrand: "visa" | "mastercard" | "elo" | "geral" =
+        bLower === "visa"
+          ? "visa"
+          : bLower === "mastercard"
+          ? "mastercard"
+          : bLower === "elo"
+          ? "elo"
+          : "geral";
+
+      sendToDocStudio({
+        mode: "full_dossier",
+        title: `Regra Técnica ${edge.id} — ${edge.label}`,
+        sourceModule: "Atlas Interativo (/mapa) · Inspetor de Ligação",
+        html,
+        metadata: {
+          brand: normBrand,
+          brandName: edge.brand,
+          referenceId: edge.id,
+          category: meta.label,
+          riskLevel: edge.kind === "compliance" ? "Alto" : "Médio",
+          executiveSummary: `${edge.id} (${fromNode?.label} → ${toNode?.label}): ${edge.rule}`,
+          recommendedAction: edge.exceptions || edge.payload,
+        },
+      });
+    },
+    [nodeMap]
+  );
+
   // ─── Ações de Navegação ─────────────────────────────────────────────────────
 
   const handleSelectNode = useCallback(
@@ -391,6 +1124,8 @@ export default function MapaClient() {
         setRotaAtiva(null);
         return;
       }
+      setSimScenarioId(null);
+      setSimAutoPlay(false);
       setBusca("");
       setCategoriaFiltro("");
       setBandeiraFiltro("");
@@ -411,6 +1146,8 @@ export default function MapaClient() {
   );
 
   const handleClearFilters = useCallback(() => {
+    setSimScenarioId(null);
+    setSimAutoPlay(false);
     setBusca("");
     setCategoriaFiltro("");
     setBandeiraFiltro("");
@@ -915,6 +1652,208 @@ export default function MapaClient() {
             </div>
           </div>
 
+          {/* ── Simulador Visual de Transação Passo a Passo + Waterfall R$ ─────── */}
+          <div className="rounded-xl bg-[#191c26] border border-[#30364b] p-3 space-y-2.5 shrink-0">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[#80ddc6] text-[10px] font-extrabold uppercase tracking-wider">
+                  <Activity size={12} />
+                  Simulador de Transação (Trace D+0 → Liquidação)
+                </span>
+                <span className="text-[11px] text-[#9ba4ba] hidden sm:inline">
+                  Escolha um cenário real para animar o caminho no grafo, ver o pacote ISO 8583 e decompor o MDR/Intercâmbio em R$:
+                </span>
+              </div>
+              {activeScenario && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handleSendScenarioToDocStudio}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-[#80ddc6]/60 text-[11px] font-bold text-[#80ddc6] transition-all cursor-pointer"
+                    title="Exporta a simulação completa (Waterfall R$ + Tabela Passo a Passo ISO 8583) para o Doc Studio"
+                  >
+                    <FileText size={12} />
+                    Gerar Parecer da Simulação no Doc Studio
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSimScenarioId(null);
+                      setSimAutoPlay(false);
+                    }}
+                    className="px-2 py-1 rounded-lg bg-[#202432] hover:bg-[#2a3042] border border-[#30364b] text-[11px] text-[#9ba4ba] hover:text-white cursor-pointer"
+                  >
+                    Fechar Simulação ×
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Botões dos 4 Cenários */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1.5">
+              {CENARIOS_SIMULACAO.map((sc) => {
+                const isSelected = simScenarioId === sc.id;
+                return (
+                  <button
+                    key={sc.id}
+                    onClick={() => handleSelectScenario(sc.id)}
+                    className={`text-left px-2.5 py-2 rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                      isSelected
+                        ? "bg-[#232b3e] border-[#80ddc6] shadow-[inset_3px_0_0_#80ddc6]"
+                        : "bg-[#12151f] border-[#293044] hover:border-[#80ddc6]/60"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold text-[#e9ecf6] truncate">
+                        {sc.curto}
+                      </div>
+                      <div className="text-[10px] text-[#9ba4ba] truncate">
+                        {sc.bandeira} · Margem: <b style={{ color: sc.cor }}>{sc.waterfall.margemAdquirente}</b>
+                      </div>
+                    </div>
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: sc.cor }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Painel Expandido quando um Cenário está Ativo */}
+            {activeScenario && activeSimStep && (
+              <div className="pt-2 border-t border-[#2a3045] space-y-2.5">
+                {/* Waterfall Financeiro em R$ */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-1.5 text-[11px]">
+                  <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
+                    <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
+                      Valor Bruto Compra
+                    </span>
+                    <b className="text-xs text-[#e9ecf6]">{activeScenario.waterfall.bruto}</b>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
+                    <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
+                      MDR Cobrado (EC)
+                    </span>
+                    <b className="text-xs text-amber-300">{activeScenario.waterfall.mdr}</b>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
+                    <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
+                      Intercâmbio (→ Emissor)
+                    </span>
+                    <b className="text-xs text-purple-300">{activeScenario.waterfall.intercambio}</b>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
+                    <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
+                      Scheme Fee (→ Bandeira)
+                    </span>
+                    <b className="text-xs text-cyan-300">{activeScenario.waterfall.schemeFee}</b>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#11131a] border border-[#282e42]">
+                    <span className="block text-[9px] uppercase tracking-wider text-[#9ba4ba]">
+                      Líquido Repassado EC
+                    </span>
+                    <b className="text-xs text-[#e9ecf6]">{activeScenario.waterfall.liquidoLojista}</b>
+                  </div>
+                  <div
+                    className="p-2 rounded-lg border"
+                    style={{
+                      background: `${activeScenario.cor}14`,
+                      borderColor: `${activeScenario.cor}55`,
+                    }}
+                  >
+                    <span className="block text-[9px] uppercase tracking-wider text-[#c5cbe0]">
+                      Net MDR (Margem Adq.)
+                    </span>
+                    <b className="text-xs" style={{ color: activeScenario.cor }}>
+                      {activeScenario.waterfall.margemAdquirente}
+                    </b>
+                  </div>
+                </div>
+
+                {/* Controles do Player Passo a Passo + Cartão do Passo Atual */}
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 p-2.5 rounded-xl bg-[#121622] border border-[#30364b]">
+                  <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                    <button
+                      onClick={() => {
+                        setSimAutoPlay(false);
+                        handleGoToSimStep(simStepIdx - 1);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-[#202432] hover:border-[#80ddc6] border border-[#30364b] text-xs text-[#e9ecf6] cursor-pointer flex items-center gap-1"
+                      title="Passo anterior"
+                    >
+                      <SkipBack size={12} />
+                      Ant.
+                    </button>
+                    <button
+                      onClick={() => setSimAutoPlay((a) => !a)}
+                      className={`px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer flex items-center gap-1 ${
+                        simAutoPlay
+                          ? "bg-amber-500/20 border-amber-400 text-amber-300"
+                          : "bg-[#273e39] border-[#80ddc6] text-[#80ddc6]"
+                      }`}
+                    >
+                      {simAutoPlay ? <Pause size={12} /> : <Play size={12} />}
+                      {simAutoPlay ? "Pausar" : "Auto-Play"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSimAutoPlay(false);
+                        handleGoToSimStep(simStepIdx + 1);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-[#202432] hover:border-[#80ddc6] border border-[#30364b] text-xs text-[#e9ecf6] cursor-pointer flex items-center gap-1"
+                      title="Próximo passo"
+                    >
+                      Próx.
+                      <SkipForward size={12} />
+                    </button>
+
+                    {/* Pílulas numeradas 1..N */}
+                    <div className="flex items-center gap-1 ml-1 flex-wrap">
+                      {activeScenario.steps.map((s, idx) => {
+                        const active = idx === simStepIdx;
+                        return (
+                          <button
+                            key={s.step}
+                            onClick={() => {
+                              setSimAutoPlay(false);
+                              handleGoToSimStep(idx);
+                            }}
+                            className={`px-2 py-0.5 rounded-md text-[11px] font-mono font-bold border transition-all cursor-pointer ${
+                              active
+                                ? "bg-[#80ddc6] text-[#0f172a] border-[#80ddc6]"
+                                : "bg-[#191c26] text-[#9ba4ba] border-[#30364b] hover:text-white"
+                            }`}
+                            title={`${s.fase}: ${s.titulo}`}
+                          >
+                            #{s.step} {s.edgeId}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Resumo e Pacote ISO do Passo Atual */}
+                  <div className="flex-1 min-w-0 text-xs border-t xl:border-t-0 xl:border-l border-[#282e42] pt-2 xl:pt-0 xl:pl-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-1.5 py-0.5 rounded bg-[#273e39] text-[#80ddc6] font-mono text-[10px] font-bold">
+                        PASSO #{activeSimStep.step}/{activeScenario.steps.length} · {activeSimStep.fase} · {activeSimStep.edgeId}
+                      </span>
+                      <b className="text-[#e9ecf6]">{activeSimStep.titulo}</b>
+                    </div>
+                    <p className="text-[11px] text-[#c5cbe0] mt-0.5 mb-1">
+                      {activeSimStep.resumo}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 flex-wrap font-mono text-[10.5px] bg-[#0d111a] px-2.5 py-1 rounded border border-[#252c3f]">
+                      <span className="text-[#80ddc6] truncate">{activeSimStep.pacoteIso}</span>
+                      <span className="text-[#f6c775] font-sans font-semibold shrink-0">
+                        {activeSimStep.impactoFinanceiro}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Legenda de Fluxos */}
           <div className="flex items-center justify-between gap-3 flex-wrap text-[11px] text-[#9ba4ba] px-1">
             <div className="flex items-center gap-4 flex-wrap">
@@ -1049,6 +1988,8 @@ export default function MapaClient() {
                       EDGE_KIND_META[(e.kind as EdgeKind) || "dados"] ||
                       EDGE_KIND_META.dados;
                     const isSelected = selectedEdgeId === e.id;
+                    const simStepNumber = simEdgeStepMap.get(e.id);
+                    const isCurrentSimEdge = activeSimStep?.edgeId === e.id;
                     const isDirectFocus =
                       focusNodeId &&
                       (e.source === focusNodeId || e.target === focusNodeId);
@@ -1058,13 +1999,27 @@ export default function MapaClient() {
                       butterflySet.all.has(e.target);
 
                     let opacity = 0.45;
-                    if (isSelected) {
+                    if (activeScenario) {
+                      opacity = isCurrentSimEdge
+                        ? 1
+                        : simStepNumber
+                        ? 0.88
+                        : 0.08;
+                    } else if (isSelected) {
                       opacity = 1;
                     } else if (focusNodeId && butterflySet) {
                       opacity = isDirectFocus ? 0.95 : isButterflyEdge ? 0.65 : 0.1;
                     }
 
-                    const strokeWidth = isSelected ? 3.4 : isDirectFocus ? 2.5 : 1.7;
+                    const strokeWidth = isCurrentSimEdge
+                      ? 4.2
+                      : simStepNumber
+                      ? 3.0
+                      : isSelected
+                      ? 3.4
+                      : isDirectFocus
+                      ? 2.5
+                      : 1.7;
 
                     return (
                       <g
@@ -1076,10 +2031,14 @@ export default function MapaClient() {
                         <path
                           d={geom.path}
                           fill="none"
-                          stroke={kindMeta.color}
+                          stroke={isCurrentSimEdge ? "#80ddc6" : kindMeta.color}
                           strokeWidth={strokeWidth}
                           opacity={opacity}
-                          strokeDasharray={kindMeta.dashed && !isSelected ? "5 4" : undefined}
+                          strokeDasharray={
+                            kindMeta.dashed && !isSelected && !simStepNumber
+                              ? "5 4"
+                              : undefined
+                          }
                           markerEnd={`url(#arrow-${e.kind || "dados"})`}
                         />
                         {/* Hitbox larga transparente para facilitar o clique */}
@@ -1092,27 +2051,35 @@ export default function MapaClient() {
                           <title>{`${e.id} · ${e.label} (${e.direction})`}</title>
                         </path>
 
-                        {/* Badge de código na aresta quando selecionada ou diretamente conectada ao nó focado */}
-                        {(isSelected || isDirectFocus) && (
+                        {/* Badge de código na aresta quando em simulação, selecionada ou conectada ao nó focado */}
+                        {(simStepNumber || isSelected || isDirectFocus) && (
                           <g transform={`translate(${geom.labelX}, ${geom.labelY})`}>
                             <rect
-                              x={-18}
+                              x={simStepNumber ? -26 : -18}
                               y={-9}
-                              width={36}
+                              width={simStepNumber ? 52 : 36}
                               height={18}
                               rx={5}
-                              fill={isSelected ? "#101720" : "#181d2a"}
-                              stroke={kindMeta.color}
-                              strokeWidth={isSelected ? 1.8 : 1}
+                              fill={
+                                isCurrentSimEdge
+                                  ? "#80ddc6"
+                                  : simStepNumber
+                                  ? "#132a2e"
+                                  : isSelected
+                                  ? "#101720"
+                                  : "#181d2a"
+                              }
+                              stroke={isCurrentSimEdge ? "#ffffff" : kindMeta.color}
+                              strokeWidth={isCurrentSimEdge || isSelected ? 1.8 : 1}
                             />
                             <text
                               y={3.5}
                               textAnchor="middle"
-                              fill={kindMeta.color}
+                              fill={isCurrentSimEdge ? "#0f172a" : kindMeta.color}
                               fontSize={9.5}
-                              fontWeight={700}
+                              fontWeight={800}
                             >
-                              {e.id}
+                              {simStepNumber ? `#${simStepNumber}·${e.id}` : e.id}
                             </text>
                           </g>
                         )}
@@ -1125,15 +2092,21 @@ export default function MapaClient() {
                     const cat: Categoria | undefined = catMap[n.categoria];
                     const cor = cat?.cor || "#80ddc6";
                     const isFocused = focusNodeId === n.id;
+                    const isSimEndpoint =
+                      activeSimStep &&
+                      (activeSimStep.sourceId === n.id ||
+                        activeSimStep.targetId === n.id);
+                    const isInSimScenario = simNodeSet.has(n.id);
                     const isEdgeEndpoint =
                       inspectMode === "edge" &&
                       activeEdge &&
                       (activeEdge.source === n.id || activeEdge.target === n.id);
-                    const isDimmed =
-                      focusNodeId &&
-                      butterflySet &&
-                      !butterflySet.all.has(n.id) &&
-                      !isEdgeEndpoint;
+                    const isDimmed = activeScenario
+                      ? !isInSimScenario
+                      : focusNodeId &&
+                        butterflySet &&
+                        !butterflySet.all.has(n.id) &&
+                        !isEdgeEndpoint;
                     const isUpstream = butterflySet?.upstream.has(n.id);
                     const isDownstream = butterflySet?.downstream.has(n.id);
 
@@ -1148,12 +2121,12 @@ export default function MapaClient() {
                         onClick={() => handleSelectNode(n.id)}
                         className="cursor-pointer"
                         style={{
-                          opacity: isDimmed ? 0.2 : 1,
+                          opacity: isDimmed ? 0.16 : 1,
                           transition: "opacity 0.2s ease",
                         }}
                       >
-                        {/* Halo externo quando selecionado ou endpoint da ligação ativa */}
-                        {(isFocused || isEdgeEndpoint) && (
+                        {/* Halo externo quando selecionado ou endpoint da ligação/simulação ativa */}
+                        {(isSimEndpoint || isFocused || isEdgeEndpoint) && (
                           <rect
                             x={-pillW / 2 - 5}
                             y={-pillH / 2 - 5}
@@ -1161,10 +2134,14 @@ export default function MapaClient() {
                             height={pillH + 10}
                             rx={13}
                             fill="none"
-                            stroke={isFocused ? "#80ddc6" : cor}
-                            strokeWidth={2}
-                            strokeDasharray={isEdgeEndpoint && !isFocused ? "4 3" : undefined}
-                            opacity={0.85}
+                            stroke={isSimEndpoint || isFocused ? "#80ddc6" : cor}
+                            strokeWidth={isSimEndpoint ? 2.8 : 2}
+                            strokeDasharray={
+                              isEdgeEndpoint && !isFocused && !isSimEndpoint
+                                ? "4 3"
+                                : undefined
+                            }
+                            opacity={0.95}
                           />
                         )}
 
@@ -1175,9 +2152,9 @@ export default function MapaClient() {
                           width={pillW}
                           height={pillH}
                           rx={10}
-                          fill={isFocused ? "#1e3536" : "#181e2c"}
-                          stroke={isFocused ? "#80ddc6" : cor}
-                          strokeWidth={isFocused ? 2.5 : 1.6}
+                          fill={isSimEndpoint || isFocused ? "#1e3536" : "#181e2c"}
+                          stroke={isSimEndpoint || isFocused ? "#80ddc6" : cor}
+                          strokeWidth={isSimEndpoint || isFocused ? 2.5 : 1.6}
                         />
 
                         {/* Ponto indicador da categoria */}
@@ -1623,8 +2600,19 @@ export default function MapaClient() {
                 )}
               </div>
 
-              {/* Botões de Ação / Módulos Práticos */}
+              {/* Botões de Ação / Módulos Práticos + Ponte Doc Studio */}
               <div className="flex flex-col gap-2 pt-2 border-t border-[#30364b]">
+                <button
+                  onClick={() => handleSendNodeToDocStudio(activeNode)}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/40 text-xs font-bold text-blue-200 transition-all cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <FileText size={14} className="text-[#80ddc6]" />
+                    Gerar Parecer do Conceito no Doc Studio (/editor)
+                  </span>
+                  <ArrowRight size={14} />
+                </button>
+
                 {activeNode.ferramenta && (
                   <Link
                     href={activeNode.ferramenta.href}
@@ -1880,6 +2868,20 @@ export default function MapaClient() {
                           </Link>
                         </div>
                       )}
+                    </div>
+
+                    {/* Ponte Direta para o Doc Studio (/editor) */}
+                    <div className="pt-2 border-t border-[#30364b]">
+                      <button
+                        onClick={() => handleSendEdgeToDocStudio(activeEdge)}
+                        className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/40 text-xs font-bold text-blue-200 transition-all cursor-pointer"
+                      >
+                        <span className="flex items-center gap-2">
+                          <FileText size={14} className="text-[#80ddc6]" />
+                          Gerar Parecer da Regra {activeEdge.id} no Doc Studio (/editor)
+                        </span>
+                        <ArrowRight size={14} />
+                      </button>
                     </div>
                   </>
                 );
