@@ -422,7 +422,7 @@ export default function DocStudioEditor() {
     const mktTmpl = MARKETPLACE_MASTER_TEMPLATE;
 
     const rawDocs = localStorage.getItem("vs_saved_documents");
-    const mktSeeded = localStorage.getItem("vs_marketplace_doc_seeded_v4");
+    const mktSeeded = localStorage.getItem("vs_marketplace_doc_seeded_v5");
     let initialContent = mktTmpl.content;
     let initialTitle = mktTmpl.defaultTitle;
     let initialId = "doc-dossie-marketplace";
@@ -481,7 +481,7 @@ export default function DocStudioEditor() {
           initialTitle = mktTmpl.defaultTitle;
           initialContent = mktTmpl.content;
           activeMetaType = "marketplace";
-          localStorage.setItem("vs_marketplace_doc_seeded_v4", "true");
+          localStorage.setItem("vs_marketplace_doc_seeded_v5", "true");
         } else if (queryDoc === "artigo-ia" || queryDoc === "artigo_ia_conhecimento") {
           initialId = "doc-artigo-ia";
           initialTitle = artigoTmpl.defaultTitle;
@@ -520,7 +520,7 @@ export default function DocStudioEditor() {
       ];
       setSavedDocs(initialSeed);
       localStorage.setItem("vs_saved_documents", JSON.stringify(initialSeed));
-      localStorage.setItem("vs_marketplace_doc_seeded_v4", "true");
+      localStorage.setItem("vs_marketplace_doc_seeded_v5", "true");
     }
 
     if (activeMetaType === "marketplace") {

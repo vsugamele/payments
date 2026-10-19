@@ -354,6 +354,12 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   <li>No horário da grade bancária da manhã, o banco liquidante contratado pelo Subcredenciador debita a conta de liquidação e a CIP distribui automaticamente os valores para a conta domicílio de cada seller em qualquer banco do país.</li>
 </ol>
 
+<div style="background:#fffbeb; border:1px solid #fde68a; border-left:5px solid #d97706; border-radius:12px; padding:14px 18px; margin:1rem 0; font-size:12.5px; line-height:1.65; color:#78350f;">
+  <strong style="color:#92400e; font-size:13px; display:block; margin-bottom:4px;">⏱️ DUPLA LINGUAGEM DE PRAZOS: LIQUIDAÇÃO TÉCNICA (CIP D+28) vs. REPASSE COMERCIAL AO LOJISTA (D+30)</strong>
+  Nunca confunda o prazo técnico do clearing interbancário com o prazo comercial vendido ao seu seller! Na prática brasileira do cartão de crédito à vista (ex.: arranjo <code>VCC</code> no Base II / Núclea-CIP), a instrução técnica de clearing opera com <strong>diferimento de 27 dias (liquidação financeira interbancária na grade <code>ASLC029</code> da CIP em <code>D+28 corridos</code>)</strong>. Já na ponta comercial com o lojista/seller, o contrato e o extrato exibem o repasse em <strong><code>D+30 corridos</code> (ou D+31)</strong>.<br/>
+  <strong>Por que existe essa janela de 2 dias entre o <code>D+28</code> da CIP e o <code>D+30</code> do Seller?</strong> Porque se o banco emissor e a adquirente liquidam para o Subcredenciador em <code>D+28</code>, a sua tesouraria precisa de 24h a 48h para conciliar os arquivos de retorno, aplicar eventuais retenções de chargeback/escrow e tratar rejeições de domicílio bancário (arquivo de devolução <code>ASLC024</code> por conta encerrada ou titularidade divergente) antes de soltar o dinheiro na conta do seller em <code>D+30</code> sem furar o caixa próprio!
+</div>
+
 <h3>2.3. A Revolução das Registradoras de Recebíveis (Resolução CMN nº 4.734 e Resolução BCB nº 264/2022) e o Perigo da "Dupla Liquidação"</h3>
 <p>
   Até 2021, quando um lojista vendia R$ 100.000 parcelados na maquininha ou num Marketplace, aquela agenda de recebíveis ficava "invisível" para o resto do sistema financeiro. Se o lojista quisesse pegar um empréstimo mais barato em outro banco usando suas vendas de cartão como garantia, ele esbarrava na famosa "trava bancária" ou, em casos de fraude, cedia a mesma venda duas vezes para dois bancos diferentes.
@@ -386,14 +392,14 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   <tbody>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
       <td style="padding:10px 12px; font-weight:bold; color:#0f2c59;">Segregação Patrimonial &amp; Licença de IP</td>
-      <td style="padding:10px 12px; color:#1e293b;">Lei nº 12.865/2013, Res. BCB nº 80/2021 e Res. BCB nº 150/2021</td>
+      <td style="padding:10px 12px; color:#1e293b;">Lei nº 12.865/2013, Res. BCB nº 80/2021 e Res. BCB nº 150/2021 (antiga Circ. 3.682 / BCB 522)</td>
       <td style="padding:10px 12px; color:#1e293b;">Manter recursos de sellers segregados do caixa próprio e requerer autorização de Instituição de Pagamento ao atingir <strong>R$ 500M em 12 meses</strong>.</td>
       <td style="padding:10px 12px; color:#dc2626; font-weight:600;">Processo Sancionador no Bacen, inabilitação de administradores e corte imediato de acesso ao arranjo.</td>
     </tr>
     <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
       <td style="padding:10px 12px; font-weight:bold; color:#0f2c59;">Grade Centralizada CIP / Nuclea (SLC)</td>
-      <td style="padding:10px 12px; color:#1e293b;">Resolução BCB nº 150/2021 e Manual Operacional do SLC</td>
-      <td style="padding:10px 12px; color:#1e293b;">Liquidar repasses aos sublojistas exclusivamente pelas grades <code>ASLC029</code> (Crédito), <code>ASLC031</code> (Débito) e <code>ASLC033</code> (Antecipação).</td>
+      <td style="padding:10px 12px; color:#1e293b;">Resolução BCB nº 150/2021 e Manual Operacional do SLC (Grades D+0, D+1 e D+28)</td>
+      <td style="padding:10px 12px; color:#1e293b;">Liquidar repasses aos sublojistas exclusivamente pelas grades <code>ASLC029</code> (Crédito D+28 técnico / D+30 comercial), <code>ASLC031</code> (Débito D+1) e <code>ASLC033</code> (Antecipação D+0).</td>
       <td style="padding:10px 12px; color:#dc2626; font-weight:600;">Multa operacional de câmara e suspensão do contrato pela Adquirente Patrocinadora.</td>
     </tr>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
@@ -405,7 +411,7 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
     <tr style="background:#f8fafc;">
       <td style="padding:10px 12px; font-weight:bold; color:#0f2c59;">Teto de Intercâmbio (Débito e Pré-Pago)</td>
       <td style="padding:10px 12px; color:#1e293b;">Res. BCB nº 150/2021 e Res. BCB nº 246/2022</td>
-      <td style="padding:10px 12px; color:#1e293b;">Auditar nos arquivos <code>VSS-120/130</code> e <code>IP755120-AA</code> se o intercâmbio respeita o teto máximo de <strong>0,50% no Débito</strong> e <strong>0,70% no Pré-Pago</strong>.</td>
+      <td style="padding:10px 12px; color:#1e293b;">Auditar nos arquivos <code>VSS-120/130</code>, <code>EP-704</code> e <code>IP755120-AA</code> se o intercâmbio respeita o teto máximo de <strong>0,50% no Débito</strong> e <strong>0,70% no Pré-Pago</strong>.</td>
       <td style="padding:10px 12px; color:#d97706; font-weight:600;">Sobrecusto oculto de <strong>80 a 140 bps</strong> quando cartões pré-pagos são tarifados como crédito cheio.</td>
     </tr>
   </tbody>
@@ -457,7 +463,7 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
 </p>
 <ul>
   <li><strong>No Portal da Mastercard (<em>Mastercard Connect &rarr; My Company Manager / Third Party Registration — TPR / Abacus</em>):</strong> O time de Risco e Credenciamento da sua Adquirente faz login no Mastercard Connect, abre um processo de registro de <em>Payment Facilitator (PF)</em> ou <em>Marketplace</em> em nome do seu CNPJ, anexa seu dossiê de compliance e recolhe a taxa inicial (<code>MCBS 2SC1812</code> — R$ 18.135,00). Quando a Mastercard aprova, o portal gera o seu <strong><code>Payment Facilitator ID (PF ID)</code> oficial de até 11 dígitos</strong>. A Adquirente te entrega esse número para parametrizar no sistema.</li>
-  <li><strong>No Portal da Visa (<em>Visa Online — VOL &rarr; Third Party Agent Registration System — TPARS / VMORC</em>):</strong> A sua Adquirente entra no Visa Online, registra a sua empresa como <em>Payment Facilitator</em> ou <em>Qualifying Marketplace (MCC 5262)</em> e recolhe a taxa anual (<code>BL 5Q6562026</code> — R$ 32.000,00). A Visa aprova o registro, gera o seu <strong><code>Visa PF ID / Agent Unique ID</code> (11 dígitos)</strong> e, para Marketplaces Qualificados ou acordos especiais, provisiona na tabela da VisaNet o seu <strong><code>MVV (Merchant Verification Value)</code> de 10 posições alfanuméricas</strong>.</li>
+  <li><strong>No Portal da Visa (<em>Visa Online — VOL &rarr; Program Request Management — PRM / Third Party Agent Registration — TPARS / VMORC</em>):</strong> A sua Adquirente entra no Visa Online (módulo <strong>PRM / TPARS</strong>), submete o dossiê do <em>Visa Marketplace Program (MCC 5262)</em> ou de <em>Third Party Agent / Payment Facilitator</em> e recolhe a taxa anual (<code>BL 5Q6562026</code> — R$ 32.000,00). A Visa aprova o registro, gera o seu <strong><code>Visa PF ID / Marketplace ID</code> (11 dígitos)</strong> e provisiona na tabela da VisaNet o seu <strong><code>MVV (Merchant Verification Value)</code> de 10 posições alfanuméricas</strong>.</li>
   <li><strong>No Portal da Elo:</strong> A Adquirente habilita o CNPJ da sua plataforma como Subcredenciador no portal operacional da Elo, liberando o seu código de participante para enviar arquivos de sublojistas e liquidação.</li>
 </ul>
 
@@ -472,7 +478,7 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
     <em>O que você faz em relação à Visa e à Mastercard no momento do onboarding do Seller?</em> Apenas duas coisas:
     <ul>
       <li><strong>Consulta à Lista Restritiva (API MATCH™ na Mastercard e VMAS na Visa):</strong> O seu sistema (ou a API de onboarding da sua Adquirente) faz uma chamada automática ao <strong>MATCH</strong> (<code>MCBS 2NB0016</code> — R$ 0,20 por consulta) passando o CNPJ da Loja do Mário e o CPF dos sócios para garantir que eles não foram banidos por fraude no passado.</li>
-      <li><strong>Geração do Código Único Interno (<code>Submerchant ID / DE 42</code>):</strong> O seu sistema cria um ID único de até 15 caracteres para a Loja do Mário (ex.: <code>SELLER000098412</code>). A Visa e a Mastercard vão conhecer a Loja do Mário <strong>dinamicamente ("on-the-fly")</strong> quando a primeira transação dela passar carregando esse ID no <code>DE 42</code>, o nome no <code>DE 43</code> e os dados cadastrais no <code>DE 48 / PDS 0178 / TC 05</code>! (Além disso, uma vez por trimestre, a Adquirente sobe no portal da bandeira uma planilha/relatório consolidado da carteira ativa).</li>
+      <li><strong>Geração do Código Único Interno (<code>Submerchant ID / DE 42</code>):</strong> O seu sistema cria um ID único de até 15 caracteres para a Loja do Mário (ex.: <code>SELLER000098412</code>). A Visa e a Mastercard vão conhecer a Loja do Mário <strong>dinamicamente ("on-the-fly")</strong> quando a primeira transação dela passar carregando esse ID no <code>DE 42</code>, o nome no <code>DE 43</code> e os dados cadastrais no <code>Field 104 DS 56 / DE 48 SE 37 / PDS 0178 / TC 05 TCR E</code>! (Além disso, uma vez por trimestre, a Adquirente sobe no portal da bandeira uma planilha/relatório consolidado da carteira ativa).</li>
     </ul>
   </li>
   <li style="margin-top:0.5rem;">
@@ -502,9 +508,9 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   <tbody>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
       <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Visa</td>
-      <td style="padding:8px 10px; color:#1e293b;">Adquirente registra no portal <strong>Visa Online (TPARS / VMORC)</strong> &rarr; gera <code>Visa PF ID</code> e <code>MVV</code> (R$ 32.000/ano).</td>
+      <td style="padding:8px 10px; color:#1e293b;">Adquirente registra no portal <strong>Visa Online (PRM / TPARS / VMORC)</strong> &rarr; gera <code>Visa PF/Marketplace ID</code> e <code>MVV</code> (R$ 32.000/ano).</td>
       <td style="padding:8px 10px; color:#1e293b;"><strong>Não cadastra seller manualmente no portal.</strong> Faz screening <strong>VMAS</strong> e gera o <code>Submerchant ID (DE 42)</code> interno.</td>
-      <td style="padding:8px 10px; color:#1e293b;">Envia os dados do seller <strong>dentro da transação</strong> (<code>DE 42</code>, <code>DE 43</code>, <code>DE 62/104</code> no <code>0100</code> e <code>TC 05 TCR 0/1/5</code> no Base II).</td>
+      <td style="padding:8px 10px; color:#1e293b;">Envia os dados do seller <strong>dentro da transação</strong> (<code>DE 42</code>, <code>DE 43</code>, <code>Field 104 DS 56 Tags 81–85</code> no <code>0100</code> e <code>TC 05 TCR 0/1/5/D/E</code> no Base II).</td>
     </tr>
     <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
       <td style="padding:8px 10px; font-weight:bold; color:#b45309;">Mastercard</td>
@@ -527,22 +533,57 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   </tbody>
 </table>
 
-<h3>3.3. Momento 2 e Momento 3 — Os Dois Atos da Venda: Autorização em Milissegundos (0100) vs. Clearing Noturno (1240 / TC 05)</h3>
+<h3>3.3. Momento 2 e Momento 3 — Os Dois Atos da Venda e o Diagrama da Arquitetura de Processamento</h3>
 <p>
   Agora que o Seller já passou pelo onboarding, o comprador entra no site às 14h32 e clica em "Comprar". Nos sistemas de <strong>Mensagem Dupla (Dual Message System)</strong> usados no Brasil pela Visa, Mastercard e Elo, essa compra acontece em <strong>dois atos completamente separados no tempo e na tecnologia</strong>:
 </p>
 <ul>
-  <li><strong>Ato 1 — A Autorização Online em Tempo Real (<code>ISO 8583 — Mensagem 0100 / Resposta 0110</code>):</strong> Acontece às 14h32, no exato segundo do clique. É um pacote leve e rápido que viaja do Checkout &rarr; Gateway/Adquirente &rarr; Bandeira &rarr; Banco Emissor e volta em menos de 1 segundo. <strong>Atenção a este ponto: na autorização, nenhum centavo sai do lugar!</strong> Ela serve apenas para o Banco Emissor checar se o cartão é válido, se não parece fraude, sensibilizar o limite do cliente e devolver o código de aprovação (<code>DE 38</code>) e o identificador de ciclo de vida (<code>Trace ID — DE 63.2 / TID</code>).</li>
-  <li><strong>Ato 2 — A Apresentação Financeira ou Clearing em Lote (<code>Visa Base II TC 05</code>, <code>Mastercard IPM MTI 1240</code> e <code>Arquivo de Liquidação Elo 26.2</code>):</strong> Acontece horas depois (geralmente na janela noturna). Aqui a Adquirente empacota todas as vendas confirmadas do dia em grandes arquivos posicionais recheados de dados fiscais, endereço completo do sublojista (<code>PDS 0178</code> / <code>TCR 1/5</code> / <code>Reg 01</code>) e indicadores de parcelamento, e envia para a Bandeira. <strong>É somente no Clearing que a Bandeira calcula a Tarifa de Intercâmbio, gera a obrigação financeira e roda os robôs de auditoria de integridade de dados (Data Integrity)!</strong></li>
+  <li><strong>Ato 1 — A Autorização Online em Tempo Real (<code>ISO 8583 V.I.P. / MIP — Mensagem 0100 / Resposta 0110</code>):</strong> Acontece às 14h32, no exato segundo do clique. É um pacote leve e rápido que viaja do Checkout &rarr; Gateway/Adquirente &rarr; Bandeira &rarr; Banco Emissor e volta em menos de 1 segundo. <strong>Atenção a este ponto: na autorização, nenhum centavo sai do lugar!</strong> Ela serve apenas para o Banco Emissor checar se o cartão é válido, se não parece fraude, sensibilizar o limite do cliente e devolver o código de aprovação (<code>DE 38</code>) e o identificador de ciclo de vida (<code>Trace ID — DE 63.2 / TID</code>).</li>
+  <li><strong>Ato 2 — A Apresentação Financeira ou Clearing em Lote (<code>Visa Base II TC 05</code>, <code>Mastercard IPM MTI 1240</code> e <code>Arquivo de Liquidação Elo 26.2</code>):</strong> Acontece horas depois (geralmente na janela noturna). Aqui a Adquirente empacota todas as vendas confirmadas do dia em grandes arquivos posicionais recheados de dados fiscais, endereço completo do sublojista (<code>PDS 0178</code> / <code>TCR 1/5/E</code> / <code>Reg 01</code>) e indicadores de parcelamento (<code>TCR D</code>), e envia para a Bandeira. <strong>É somente no Clearing que a Bandeira calcula a Tarifa de Intercâmbio, gera a obrigação financeira (em D+28 técnico na CIP / D+30 comercial no seller) e roda os robôs de auditoria de integridade de dados (Data Integrity / VIRP)!</strong></li>
 </ul>
+
+<div style="background:#0f172a; color:#f8fafc; border-radius:12px; padding:16px 20px; margin:1.25rem 0; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:11px; line-height:1.6; overflow-x:auto;">
+  <div style="color:#93c5fd; font-weight:bold; margin-bottom:6px;">DIAGRAMA DE FLUXO DE DADOS &amp; LIQUIDAÇÃO (END-TO-END ARQUITETURA BRASILEIRA):</div>
+  <pre style="margin:0; color:#e2e8f0; font-family:inherit;">[ATO 1: AUTORIZAÇÃO ONLINE EM MILISSEGUNDOS (T+0s — NENHUM DINHEIRO SE MOVE)]
+Portador (Cartão/Token)
+  │
+  ▼ (Checkout Único / 3DS 2.2 / DAF)
+Marketplace / PayFac (Gera Snapshot do Seller + Regra de Split)
+  │  Envia API REST ──► Switch Adquirente monta ISO 8583 (MTI 0100):
+  │                     • DE 18 (MCC 5262 ou MCC do Seller) | DE 22 (POS Entry Mode)
+  │                     • DE 42 (Submerchant ID único 15 pos) | DE 43 (PF*SELLER 40 bytes)
+  │                     • MC: DE 48 SE 37 SF 1..5 | Visa: Field 104 Usage 2 DS 56 (Tags 81..85) + Field 63.19 (FPI)
+  ▼
+Bandeira (Visa V.I.P. / Mastercard MIP / Elo) ──► Banco Emissor (Valida Score, Reserva Limite e Gera TID/DE 63.2)
+  │
+  ◄── Resposta MTI 0110: DE 39 = "00" (Aprovado) + DE 38 (Auth Code) + DE 63.2 / TCR 5 (Trace ID / TID 15 pos)
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[ATO 2: CLEARING NOTURNO (D+0 NOITE) &amp; LIQUIDAÇÃO INTERBANCÁRIA (D+28 CIP ➔ D+30 COMERCIAL SELLER)]
+Adquirente / PayFac (Job Noturno lê Snapshot Imutável da Auth)
+  │
+  ├──► 1. ENVIA ARQUIVO DE CLEARING PARA A BANDEIRA:
+  │       • Visa Base II (TC 05): TCR 0 (Draft) + TCR 1 (CEP/Tax ID) + TCR 5 (TID/MVV) + TCR D (Parcelas) + TCR E (Pos 79–86 PF/Mktplace)
+  │         (Se faltar dado obrigatório, a Visa devolve TC 04 / TCR 9 reclassificando o intercâmbio para tarifa teto!)
+  │       • Mastercard IPM (MTI 1240): DE 42 + DE 43 (6 subcampos Pos 176–274) + PDS 0208 (PF ID) + PDS 0178 (Table 619 — 201 bytes)
+  │       • Elo Liquidação (26.2): Reg "00" + Reg "01" (Pos 45 CNPJ/CPF 14 bytes) + Reg "02" (Subcred.) ──► Retorna IRQ no Reg "45"
+  │
+  ├──► 2. ATUALIZA UNIDADES DE RECEBÍVEIS (URs) NA REGISTRADORA (CERC / TAG / B3 / NUCLEA — Res. BCB 264):
+  │       • Chave UR = [CPF/CNPJ Seller] + [CNPJ Sub/Cred] + [Arranjo VCC/MCC/ECC] + [Data Vencimento]
+  │       • Consulta arquivo de retorno de Ônus/Gravame/Cessão (Troca de Domicílio Bancário) para evitar Dupla Liquidação!
+  │
+  └──► 3. LIQUIDAÇÃO FINANCEIRA NA GRADE DA NÚCLEA-CIP (SLC — Res. BCB 150):
+          • Emissor ──(D+28 Corridos na CIP)──► Adquirente / Subcredenciador (Retém Take Rate + MDR)
+          • Subcredenciador ──(Grades ASLC029 Créd / ASLC031 Déb / ASLC033 Antecip.)──► Conta Domicílio do Seller (D+30 Comercial)</pre>
+</div>
 
 <h3>3.4. Por Que Cada Campo de Sublojista Existe e Como Ele Deve Ser Preenchido Byte a Byte</h3>
 <p>
   Como vimos no Momento 1, na Visa e na Mastercard você não cadastrou o Seller manualmente no portal da bandeira antes da venda. Por isso, <strong>é a própria mensagem da transação (<code>0100</code> e <code>1240 / TC 05</code>) que apresenta o Seller para o Banco Emissor e para a Bandeira!</strong> Quando a mensagem chega lá, o sistema faz quatro perguntas técnicas:
 </p>
 <ol>
-  <li><strong>"Quem é o intermediador responsável por esta operação?"</strong> &rarr; Respondido pelo <strong><code>PF ID (Payment Facilitator ID)</code></strong> de até 11 dígitos no campo <code>DE 48 SE 37 SF 1</code> (Autorização Mastercard), no <code>PDS 0208</code> (Clearing IPM Mastercard), no <code>DE 62 / TC 05</code> (Visa) e no <code>Registro 02</code> (Elo).</li>
-  <li><strong>"Qual é o código único do vendedor (seller) lá na ponta?"</strong> &rarr; Respondido pelo <strong><code>DE 42 (Card Acceptor ID Code / Submerchant ID)</code></strong> de 15 posições alfanuméricas (<code>ans 15</code>).<br/>
+  <li><strong>"Quem é o intermediador responsável por esta operação?"</strong> &rarr; Respondido pelo <strong><code>PF ID (Payment Facilitator / Marketplace ID)</code></strong> de até 11 dígitos no campo <code>DE 48 SE 37 SF 1</code> (Autorização Mastercard), no <code>PDS 0208</code> (Clearing IPM Mastercard), no <strong><code>Field 104, Usage 2, Dataset ID 56, Tag 81 / Tag 83</code></strong> (Autorização Visa V.I.P.), no <strong><code>BASE II TC 05, TCR E (posições 79–86)</code></strong> (Clearing Visa) e no <code>Registro 02</code> (Elo).</li>
+  <li><strong>"Qual é o código único do vendedor (seller) lá na ponta e se ele é nacional ou estrangeiro?"</strong> &rarr; Respondido pelo <strong><code>DE 42 (Card Acceptor ID Code / Submerchant ID)</code></strong> de 15 posições alfanuméricas (<code>ans 15</code>) e, na Visa, complementado pelo <strong><code>Field 104, Usage 2, DS 56, Tag 84 (Foreign Retailer Indicator = 'F')</code></strong> quando o seller que vendeu dentro do Marketplace está sediado fora do Brasil!<br/>
     <em>Por que jamais você pode mandar o mesmo <code>DE 42</code> genérico para todos os seus sellers?</em> Porque os motores antifraude dos bancos emissores constroem a reputação histórica de fraude e aprovação combinando o par <code>[PF ID + DE 42]</code>. Se você mandar o mesmo <code>DE 42</code> para 10.000 vendedores, basta um único golpista começar a passar cartões clonados na sua plataforma para o banco emissor enxergar um pico de fraude naquele <code>DE 42</code> e <strong>bloquear as aprovações da sua plataforma inteira</strong>! Além disso, a Mastercard multa automaticamente em <strong>R$ 5.600,00 por mês (evento <code>MCBS 2PN2117</code>)</strong> quem usa um <code>DE 42</code> que não identifica univocamente cada sublojista.</li>
   <li><strong>"O que vai aparecer impresso na fatura e na notificação do celular do cliente?"</strong> &rarr; Respondido pelo <strong><code>DE 43 (Card Acceptor Name/Location — Dynamic Soft Descriptor)</code></strong>.<br/>
     Na mensagem de Autorização (<code>0100</code>), o <code>DE 43</code> tem exatamente <strong>40 posições fixas (<code>ans 40</code>)</strong>. Veja na régua abaixo como cada posição precisa ser montada sem errar um único espaço em branco:</li>
@@ -569,7 +610,7 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
 </p>
 
 <ol start="4">
-  <li><strong>"Quem é juridicamente o dono daquela venda perante o Fisco e qual é a natureza dele (CNPJ vs. CPF)?"</strong> &rarr; Respondido pelo <strong><code>PDS 0178 (Table 619, pág. 683 do DMC Guide)</code></strong> na Mastercard, pelos registros nacionais <strong><code>TC 05 TCR 0/1/5</code></strong> na Visa e pelo <strong><code>Registro "01" (Posição 45, 14 bytes)</code></strong> na <strong>Elo Release 26.2</strong>.<br/>
+  <li><strong>"Quem é juridicamente o dono daquela venda perante o Fisco e qual é a natureza dele (CNPJ vs. CPF)?"</strong> &rarr; Respondido pelo <strong><code>PDS 0178 (Table 619, pág. 683 do DMC Guide)</code></strong> na Mastercard, pelo <strong><code>Field 104 DS 56 Tag 85</code></strong> e <strong><code>TC 05 TCR 0 / TCR 1 / TCR 5 / TCR D / TCR E</code></strong> na Visa (com risco de reclassificação via <strong><code>TC 04 / TCR 9</code></strong> se ausente) e pelo <strong><code>Registro "01" (Posição 45, 14 bytes)</code></strong> na <strong>Elo Release 26.2</strong>.<br/>
     <em>Por que a Elo criou uma trava tão dura na Release 26.2 para CPF vs. CNPJ?</em> Porque no Brasil existem tabelas de intercâmbio incentivadas (mais baratas) pensadas para segmentos empresariais específicos (como supermercados, atacadistas, clínicas médicas ou instituições de ensino). Durante anos, alguns subcredenciadores cadastraram vendedores informais (Pessoa Física com CPF) usando MCCs exclusivos de grandes Pessoas Jurídicas para pagar menos tarifa de intercâmbio ao emissor. Com a Release 26.2, a Elo cruza os 14 bytes do campo <code>CNPJ ou CPF</code> (no Registro 01, pág. 82 do manual de liquidação) com o <code>MCC</code>: se for um CPF de 11 dígitos tentando usar um MCC restrito a PJ, o motor da Elo rejeita o registro ou recalcula automaticamente a tarifa de intercâmbio para o teto cheio, devolvendo o novo código <strong>IRQ (Interchange Rate Qualifier, 8 posições)</strong> nas posições <code>159 a 166 do Registro "45"</code>!</li>
 </ol>
 
@@ -577,10 +618,10 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   <thead>
     <tr style="background:#0f2c59; color:#ffffff;">
       <th style="padding:9px 10px; text-align:left; width:10%;">Bandeira</th>
-      <th style="padding:9px 10px; text-align:left; width:19%;">Campo / PDS / Registro &amp; Posição</th>
+      <th style="padding:9px 10px; text-align:left; width:21%;">Campo / Dataset TLV / TCR &amp; Posição</th>
       <th style="padding:9px 10px; text-align:left; width:13%;">Formato &amp; Tamanho</th>
-      <th style="padding:9px 10px; text-align:left; width:36%;">O Que Faz &amp; Como Preencher (Quem Envia &rarr; Quem Recebe)</th>
-      <th style="padding:9px 10px; text-align:left; width:22%;">Multa Oficial se Errar</th>
+      <th style="padding:9px 10px; text-align:left; width:34%;">O Que Faz &amp; Como Preencher (Quem Envia &rarr; Quem Recebe)</th>
+      <th style="padding:9px 10px; text-align:left; width:22%;">Multa / Efeito Oficial se Errar</th>
     </tr>
   </thead>
   <tbody>
@@ -613,13 +654,20 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
       <td style="padding:9px 10px; color:#dc2626; font-weight:600;"><code>MCBS 2PN2409</code> (p. 378 — <em>Trace ID Error</em>) + downgrade de tarifa de intercâmbio.</td>
     </tr>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
-      <td style="padding:9px 10px; font-weight:bold; color:#1e40af;">Visa</td>
-      <td style="padding:9px 10px; font-family:monospace; font-weight:bold; color:#0f172a;">Auth: DE 62.4 / DE 104<br/>Base II: TC 05 TCR 0, TCR 1 e TCR 5</td>
-      <td style="padding:9px 10px; font-family:monospace;">MVV: an 10<br/>PF ID: n 11<br/>Sub-ID: ans 15</td>
-      <td style="padding:9px 10px; color:#1e293b;"><strong>MVV + Payment Facilitator / Marketplace ID + Sub-Merchant Tax ID:</strong> Identifica o Marketplace Qualificado (<code>MVV</code>) ou PayFac (<code>PF ID</code> de 11 dígitos), o <code>CNPJ/CPF</code> do seller no Brasil e o <code>Foreign Retailer Indicator</code> quando o seller é estrangeiro.</td>
-      <td style="padding:9px 10px; color:#dc2626; font-weight:600;">Perda do enquadramento de Marketplace + Multa <code>BL 5Z9965656</code> (<strong>R$ 65.000 a R$ 320.000 / URL</strong>).</td>
+      <td style="padding:9px 10px; font-weight:bold; color:#1e40af;">Visa (V.I.P.)</td>
+      <td style="padding:9px 10px; font-family:monospace; font-weight:bold; color:#0f172a;">Auth: Field 104, Usage 2, Dataset 56 (Tags 81, 82, 83, 84, 85)<br/>+ Field 63.19 (FPI)<br/>+ Field 54 (6S)</td>
+      <td style="padding:9px 10px; font-family:monospace;">Tag 81/82: n 11<br/>Tag 83: ans 15<br/>Tag 84: an 1 ('F')<br/>Tag 85: ans 14</td>
+      <td style="padding:9px 10px; color:#1e293b;"><strong>TLV de Subcredenciador &amp; Marketplace na Autorização:</strong> <code>Tag 81</code> = PF ID; <code>Tag 82</code> = ISO ID; <code>Tag 83</code> = Marketplace / Sub-Merchant ID; <code>Tag 84</code> = <code>'F'</code> (<em>Foreign Retailer Indicator</em> para seller cross-border); <code>Tag 85</code> = CNPJ/CPF do Seller. O <code>Field 63.19</code> leva o <em>Fee Program Indicator (FPI)</em>.</td>
+      <td style="padding:9px 10px; color:#dc2626; font-weight:600;">Rejeição Category 3 (Data Quality) ou perda de qualificação de intercâmbio (Visa Core Rules Sec. 5.2 / 12.3).</td>
     </tr>
-    <tr style="background:#f8fafc;">
+    <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+      <td style="padding:9px 10px; font-weight:bold; color:#1e40af;">Visa (BASE II)</td>
+      <td style="padding:9px 10px; font-family:monospace; font-weight:bold; color:#0f172a;">TC 05: TCR 0, TCR 1, TCR 5, TCR D e TCR E (Pos 79–86)<br/>Reclass.: TC 04 / TCR 9</td>
+      <td style="padding:9px 10px; font-family:monospace;">MVV: an 10<br/>TID: n 15<br/>TCR E: Pos 79–86</td>
+      <td style="padding:9px 10px; color:#1e293b;"><strong>Clearing Base II &amp; Reclassificação:</strong> <code>TCR 0/1</code> levam dados básicos, CEP e CNPJ/CPF; <code>TCR 5</code> leva <code>TID</code> (15 pos) e <code>MVV</code> (10 pos); <code>TCR D</code> leva parcelas; <code>TCR E</code> (<em>Supplemental Payment Data</em>, pos 79–86) leva o PF/Marketplace ID e indicador <code>'F'</code>. Auditado nos relatórios <code>VSS-120/130/140</code>, <code>EP-704</code> e <code>SMS Raw Data</code>.</td>
+      <td style="padding:9px 10px; color:#dc2626; font-weight:600;">Retorno de <strong><code>TC 04 / TCR 9</code></strong> (reclassificação para tarifa máxima Standard) + Multa <code>BL 5Z9965656</code> (<strong>R$ 65k–R$ 320k/URL</strong>).</td>
+    </tr>
+    <tr style="background:#ffffff;">
       <td style="padding:9px 10px; font-weight:bold; color:#047857;">Elo (26.2)</td>
       <td style="padding:9px 10px; font-family:monospace; font-weight:bold; color:#0f172a;">Reg "00" (Principal)<br/>Reg "01" Pos 45–58<br/>Reg "02" (Subcred.)<br/>Reg "45" Pos 159–166</td>
       <td style="padding:9px 10px; font-family:monospace;">Reg 01: A 14<br/>(CNPJ/CPF)<br/>Reg 45: an 8 (IRQ)</td>
@@ -1135,6 +1183,48 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   </tbody>
 </table>
 
+<h3>7.2. Tabela Oficial de Códigos de Resposta (<code>DE 39</code> Category 1 a Category 4) — Onde o Seu Motor de Retentativa Pode ou Não Tentar de Novo</h3>
+<p>
+  Um dos erros de engenharia que mais queima margem em Marketplaces e plataformas de recorrência é tratar toda recusa do banco emissor (<code>DE 39</code>) do mesmo jeito. Tanto a Visa quanto a Mastercard classificam todas as respostas do <code>DE 39</code> em <strong>4 Categorias Oficiais de Retentativa</strong>. Tentar passar novamente uma transação da Categoria 1 gera multa imediata por tentativa no escuro:
+</p>
+
+<table style="width:100%; border-collapse:collapse; margin:1.25rem 0; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+  <thead>
+    <tr style="background:#1e293b; color:#ffffff;">
+      <th style="padding:9px 10px; text-align:left; width:16%;">Categoria Oficial</th>
+      <th style="padding:9px 10px; text-align:left; width:24%;">Códigos <code>DE 39</code> Típicos</th>
+      <th style="padding:9px 10px; text-align:left; width:36%;">Significado Real no Emissor</th>
+      <th style="padding:9px 10px; text-align:left; width:24%;">Regra Obrigatória no Seu Motor de Pagamento</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fef2f2; border-bottom:1px solid #fecaca;">
+      <td style="padding:8px 10px; font-weight:bold; color:#991b1b;">Category 1<br/><span style="font-size:10px;">(Issuer Will Never Approve)</span></td>
+      <td style="padding:8px 10px; font-family:monospace; font-weight:bold; color:#7f1d1d;">04, 07, 12, 14, 15, 41, 43, 57, 62 (c/ MAC 01/21), R0, R1, R3</td>
+      <td style="padding:8px 10px; color:#7f1d1d;">Cartão inválido, inexistente, reportado como perdido/roubado, conta encerrada ou ordem de Stop Payment (revogação definitiva).</td>
+      <td style="padding:8px 10px; color:#991b1b; font-weight:bold;">PROIBIDO RETENTAR (Hard Decline). Exija outro cartão ou acione o Account Updater (ABU/VAU) antes de qualquer nova tentativa.</td>
+    </tr>
+    <tr style="background:#fffbeb; border-bottom:1px solid #fde68a;">
+      <td style="padding:8px 10px; font-weight:bold; color:#92400e;">Category 2<br/><span style="font-size:10px;">(Issuer Cannot Approve at This Time)</span></td>
+      <td style="padding:8px 10px; font-family:monospace; font-weight:bold; color:#92400e;">51, 61, 65, 91, 96</td>
+      <td style="padding:8px 10px; color:#78350f;">Saldo/limite insuficiente no momento (<code>51</code>), limite de valor/quantidade excedido (<code>61/65</code>) ou indisponibilidade temporária do switch do emissor (<code>91/96</code>).</td>
+      <td style="padding:8px 10px; color:#92400e;"><strong>Retentativa Controlada Permitida:</strong> Máximo de <strong>15 tentativas em 30 dias</strong> (Visa) ou <strong>4 tentativas em 16 dias</strong> (Mastercard), sempre com intervalo espaçado.</td>
+    </tr>
+    <tr style="background:#eff6ff; border-bottom:1px solid #bfdbfe;">
+      <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">Category 3<br/><span style="font-size:10px;">(Issuer Cannot Approve with These Details)</span></td>
+      <td style="padding:8px 10px; font-family:monospace; font-weight:bold; color:#1e3a8a;">05, 54, 55, 59, 63, 75, 82, 83, N7</td>
+      <td style="padding:8px 10px; color:#1e3a8a;">Cartão vencido (<code>54</code>), CVV incorreto (<code>82/N7</code>), suspeita de fraude pelo emissor (<code>59/83</code>) ou Do Not Honor (<code>05</code>).</td>
+      <td style="padding:8px 10px; color:#1e40af;"><strong>PROIBIDO RETENTAR NO ESCURO</strong> com o mesmo payload. Só envie nova tentativa se o portador corrigir o dado (novo CVV/validade) ou passar por <strong>3DS 2.2 / DAF</strong>.</td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:8px 10px; font-weight:bold; color:#334155;">Category 4<br/><span style="font-size:10px;">(Generic / Regional Codes)</span></td>
+      <td style="padding:8px 10px; font-family:monospace; font-weight:bold; color:#334155;">Demais códigos regionais</td>
+      <td style="padding:8px 10px; color:#334155;">Códigos específicos de mercado local ou validação cadastral.</td>
+      <td style="padding:8px 10px; color:#334155;">Respeitar o teto global de 15 tentativas/30 dias e monitorar a taxa de aprovação das retentativas.</td>
+    </tr>
+  </tbody>
+</table>
+
 <!-- =====================================================================
      SEÇÃO 8: CHECKLIST EXECUTIVO DE AUDITORIA E HOMOLOGAÇÃO 360º
      ===================================================================== -->
@@ -1162,19 +1252,19 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
     <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
       <td style="padding:8px 10px; font-weight:bold; color:#1e40af;">2. Bandeiras</td>
       <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Licenças PF ID / MVV / Marketplace ID</td>
-      <td style="padding:8px 10px; color:#334155;">Exigir da Adquirente patrocinadora o comprovante de registro ativo de Third Party Agent na Visa (<code>BL 5Q6562026</code> — R$ 32.000) e MSP/PayFac na Mastercard (<code>MCBS 2SC1812</code> — R$ 18.135), com os códigos oficiais de <code>PF ID</code> e <code>MVV</code> homologados.</td>
+      <td style="padding:8px 10px; color:#334155;">Exigir da Adquirente patrocinadora o comprovante de registro ativo de Third Party Agent na Visa (<code>BL 5Q6562026</code> — R$ 32.000 via Visa PRM) e MSP/PayFac na Mastercard (<code>MCBS 2SC1812</code> — R$ 18.135 via TPR), com os códigos oficiais de <code>PF ID</code>, <code>MVV</code> e <code>Marketplace ID</code> homologados.</td>
       <td style="padding:8px 10px; text-align:center;"><span style="background:#fee2e2; color:#991b1b; font-weight:bold; padding:2px 8px; border-radius:99px; font-size:10px;">OBRIGATÓRIO</span></td>
     </tr>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
       <td style="padding:8px 10px; font-weight:bold; color:#7e22ce;">3. Engenharia ISO &amp; Clearing</td>
-      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Paridade Byte a Byte (DE 42, DE 43, DE 48 e DE 63.2)</td>
-      <td style="padding:8px 10px; color:#334155;">Inspecionar um lote real de <code>0100</code>, <code>TC 05</code> e <code>IPM 1240</code>: verificar se cada seller tem um <code>DE 42</code> exclusivo, se o <code>DE 43</code> respeita a régua de 40 bytes (<code>PF*SELLER</code>), se o CEP da autorização é idêntico ao CEP do clearing e se o relatório mensal <code>IP714010-AA</code> está zerado.</td>
+      <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Paridade Byte a Byte (DE 42, DE 43, DS 56, TCR E e DE 48)</td>
+      <td style="padding:8px 10px; color:#334155;">Inspecionar um lote real de <code>0100</code>, <code>TC 05 (TCR 0/E)</code> e <code>IPM 1240</code>: verificar se o <code>Field 104 Usage 2 DS 56 (Tags 81-85)</code> e o <code>TCR E (Pos 79-86)</code> estão populados na Visa, se o <code>DE 48 SE 37 + PDS 0178</code> estão populados na Mastercard, e se o relatório mensal <code>IP714010-AA</code> e o <code>TC 04 / TCR 9</code> estão zerados.</td>
       <td style="padding:8px 10px; text-align:center;"><span style="background:#fee2e2; color:#991b1b; font-weight:bold; padding:2px 8px; border-radius:99px; font-size:10px;">OBRIGATÓRIO</span></td>
     </tr>
     <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
       <td style="padding:8px 10px; font-weight:bold; color:#7e22ce;">4. Cadastro &amp; Elo 26.2</td>
       <td style="padding:8px 10px; font-weight:bold; color:#0f172a;">Trava de Natureza Fiscal PJ (CNPJ) vs. PF (CPF)</td>
-      <td style="padding:8px 10px; color:#334155;">Garantir que o <code>Registro "01" (Pos 45, 14 bytes)</code> da Elo e o <code>PDS 0178</code> da Mastercard recebam o documento fiscal correto do seller e que o sistema impeça sellers com CPF de usarem MCCs exclusivos de Pessoa Jurídica.</td>
+      <td style="padding:8px 10px; color:#334155;">Garantir que o <code>Registro "01" (Pos 45, 14 bytes)</code> da Elo, a <code>Tag 85 (DS 56)</code> da Visa e o <code>PDS 0178</code> da Mastercard recebam o documento fiscal correto do seller e que o sistema impeça sellers com CPF de usarem MCCs exclusivos de Pessoa Jurídica.</td>
       <td style="padding:8px 10px; text-align:center;"><span style="background:#fef3c7; color:#92400e; font-weight:bold; padding:2px 8px; border-radius:99px; font-size:10px;">MANDATE 26.2</span></td>
     </tr>
     <tr style="background:#ffffff; border-bottom:1px solid #e2e8f0;">
@@ -1192,6 +1282,102 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   </tbody>
 </table>
 
+<!-- =====================================================================
+     SEÇÃO 9: KIT DE ARTEFATOS PRONTOS PARA AÇÃO (ACTION-ORIENTED)
+     ===================================================================== -->
+<h2>9. Kit de Artefatos Prontos para Ação (Para Copiar, Colar e Executar Hoje)</h2>
+<p>
+  Para que você não precise sair deste documento e escrever especificações ou e-mails do zero, deixamos abaixo os <strong>3 artefatos práticos de execução imediata</strong>: a minuta formal para enviar ao seu Adquirente Patrocinador, o contrato JSON/OpenAPI pronto para o time de Engenharia e o Checklist de Homologação com caixas de seleção.
+</p>
+
+<h3>9.1. Artefato 1 — Minuta de E-mail / Ofício Formal para o Adquirente Patrocinador (Sponsor Acquirer)</h3>
+<p>
+  Copie o modelo abaixo para formalizar junto ao time de Produtos/Risco da sua Adquirente o pedido de registro nas bandeiras e a validação da sua árvore de mensageria:
+</p>
+
+<div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:5px solid #0f2c59; border-radius:8px; padding:16px 20px; margin:1rem 0; font-family:monospace; font-size:12px; color:#1e293b; line-height:1.6;">
+  <strong>Assunto:</strong> [COMPLIANCE &amp; HOMOLOGAÇÃO] Registro Oficial de Marketplace / PayFac (Visa PRM &amp; Mastercard TPR) e Validação de Mensageria (DS 56 / TCR E / DE 48)<br/><br/>
+  Prezado time de Parcerias, Risco e Homologação da <strong>[Nome da Adquirente Patrocinadora]</strong>,<br/><br/>
+  Com o objetivo de garantir 100% de conformidade da operação da <strong>[Nome da Sua Plataforma / Marketplace]</strong> (CNPJ <strong>[00.000.000/0001-00]</strong>) com as regras do <em>Visa Core Rules (Seções 5.3.4 e 12.3.2.1)</em>, <em>Mastercard Transaction Processing Rules</em>, <em>Release Elo 26.2</em> e <em>Resoluções BCB nº 80/2021 e 522/2026</em>, solicitamos formalmente as seguintes confirmações e provisionamentos técnicos:<br/><br/>
+  <strong>1. Registro Institucional nos Portais das Bandeiras (Sponsoring):</strong><br/>
+  • <strong>Visa (Visa Online — PRM / TPARS):</strong> Confirmação do nosso registro como <em>Third Party Agent / Marketplace / Payment Facilitator</em> e envio dos nossos identificadores alocados: <code>Payment Facilitator ID (11 dígitos)</code>, <code>Marketplace ID (8 dígitos)</code> e <code>MVV (Merchant Verification Value — 10 dígitos hex)</code>, além da habilitação do <code>MCC 5262</code>.<br/>
+  • <strong>Mastercard (Mastercard Connect — TPR / Abacus):</strong> Confirmação do nosso registro como <em>Payment Facilitator / Marketplace</em> e envio do nosso <code>PF ID (DE 48 SE 37 SF 01)</code> e <code>Independent Sales Organization ID (SF 02)</code>.<br/>
+  • <strong>Elo:</strong> Confirmação do nosso código de Subcredenciador (<code>Subcampo 10.6</code>) para envio no arquivo binário de liquidação.<br/><br/>
+  <strong>2. Homologação de Paridade de Mensageria (Autorização + Clearing):</strong><br/>
+  Solicitamos uma janela em ambiente de certificação para validarmos ponta a ponta (Autorização <code>0100</code> e Clearing <code>BASE II TC 05</code> / <code>IPM 1240</code>) o repasse sem truncamento dos seguintes campos que estamos enviando na nossa API:<br/>
+  • <strong>Visa V.I.P. &amp; BASE II:</strong> <code>DE 18 (MCC 5262)</code>, <code>DE 42</code>, <code>DE 43 (PF*SELLER)</code>, <code>Field 63.19 (FPI = PF/MP)</code>, <code>Field 104 Usage 2 Dataset 56 (Tags 81, 82, 83, 84 ['F' para sellers estrangeiros] e 85 [Tax ID])</code>, <code>BASE II TC 05 TCR 0 (Pos 75-114)</code>, <code>TCR 1 (Pos 142-151 MVV)</code> e <code>TCR E (Pos 79-86 Marketplace ID)</code>.<br/>
+  • <strong>Mastercard MIP &amp; IPM:</strong> <code>DE 18</code>, <code>DE 42</code>, <code>DE 43</code>, <code>DE 48 SE 37 (SF 01 a SF 05)</code> e <code>PDS 0178 / PDS 0208 / PDS 0209</code> no <code>IPM 1240</code> (prevenindo apontamentos no relatório <code>IP714010-AA</code>).<br/>
+  • <strong>Elo Release 26.2:</strong> <code>DE 109</code> na autorização e <code>Registro "01" (Pos 45, 14 bytes CPF/CNPJ)</code> e <code>Registro "02" (Pos 129, 22 bytes Nome Fantasia)</code> na liquidação.<br/><br/>
+  Ficamos no aguardo dos identificadores alocados e do agendamento do teste de certificação para validação conjunta dos logs.<br/><br/>
+  Atenciosamente,<br/>
+  <strong>[Seu Nome / Cargo — Arquitetura de Pagamentos &amp; Compliance]</strong>
+</div>
+
+<h3>9.2. Artefato 2 — Especificação Técnica Pronta para o Time de Engenharia (Contrato JSON / OpenAPI Checkout ➔ Switch/Split)</h3>
+<p>
+  Entregue este payload padrão ao time de Backend / Checkout. Se o serviço de pagamento da sua plataforma receber este objeto estruturado a cada pedido e fizer o <em>bind</em> direto para a Adquirente, você terá 100% dos insumos exigidos pela Visa, Mastercard, Elo e Banco Central:
+</p>
+
+<pre style="background:#0f172a; color:#f8fafc; padding:16px 20px; border-radius:10px; font-family:monospace; font-size:11.5px; line-height:1.55; overflow-x:auto; margin:1rem 0;">{
+  "transaction_reference": "ORD-2026-99887766",
+  "capture_mode": "SINGLE_CHECKOUT_MCC_5262",
+  "amount_total_cents": 30000,
+  "currency": "BRL",
+  "installments": 3,
+  "marketplace_operator": {
+    "visa_pf_id_tag81": "10020030040",
+    "visa_marketplace_id_tag83": "88776655",
+    "visa_mvv_62_20": "A1B2C3D4E5",
+    "mastercard_pf_id_se37_sf01": "9988776655",
+    "elo_subacquirer_id_10_6": "00445566"
+  },
+  "primary_submerchant_routing": {
+    "submerchant_id_de42": "SLR000098765432",
+    "soft_descriptor_de43_name": "MKT*LOJADOJOAO",
+    "soft_descriptor_de43_city": "SAO PAULO",
+    "soft_descriptor_de43_state": "SP",
+    "postal_code_de48_sf05": "01310100",
+    "country_code": "BRA",
+    "tax_id_type": "CNPJ",
+    "tax_id_number_tag85_pds0178": "12345678000199",
+    "seller_mcc_de18": "5262",
+    "foreign_retailer_indicator_tag84": null
+  },
+  "split_rules": [
+    {
+      "recipient_type": "MARKETPLACE_COMMISSION",
+      "recipient_id": "MKT_MASTER_ACCOUNT",
+      "amount_cents": 3600,
+      "settlement_target": "D+2_INTERNAL",
+      "liable_for_chargeback": false
+    },
+    {
+      "recipient_type": "SELLER_NET_PROCEEDS",
+      "recipient_id": "SLR000098765432",
+      "tax_id": "12345678000199",
+      "amount_cents": 26400,
+      "cip_slc_settlement_grade": "D+28_CORRIDOS_ASLC029",
+      "commercial_seller_payout_sla": "D+30_CORRIDOS_ESCROW_DELIVERED",
+      "liable_for_chargeback": true,
+      "escrow_release_condition": "CARRIER_DELIVERY_CONFIRMED"
+    }
+  ]
+}</pre>
+
+<h3>9.3. Artefato 3 — Checklist Prático de Homologação (Go-Live Gate)</h3>
+<p>
+  Imprima ou percorra esta lista de verificação antes de virar a chave em produção:
+</p>
+<div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:10px; padding:16px 20px; margin:1rem 0; font-size:13px; color:#1e293b; line-height:1.85;">
+  <code>[ ]</code> <strong>1. Registro Institucional Ativo:</strong> <code>PF ID</code>, <code>Marketplace ID</code> e <code>MVV</code> recebidos formalmente da Adquirente após cadastro no <strong>Visa PRM</strong> e <strong>Mastercard TPR</strong>.<br/>
+  <code>[ ]</code> <strong>2. Coerência CPF/CNPJ &times; MCC (Mandate Elo 26.2):</strong> Trava ativa no onboarding impedindo que sellers cadastrados com CPF utilizem MCCs exclusivos de Pessoa Jurídica.<br/>
+  <code>[ ]</code> <strong>3. Paridade de Autorização e Clearing Visa:</strong> Log homologado comprovando o envio do <code>Field 104 Usage 2 DS 56 (Tags 81-85)</code> no <code>0100</code> e do <code>TC 05 TCR 0 + TCR E (Pos 79-86)</code> no <code>BASE II</code>, com zero ocorrências de <code>TC 04 / TCR 9</code> (Reclassificação).<br/>
+  <code>[ ]</code> <strong>4. Paridade de Autorização e Clearing Mastercard:</strong> Log homologado comprovando que o <code>DE 42</code>, o <code>DE 43</code> e o <code>DE 48 SE 37</code> são idênticos entre o <code>0100</code> e o <code>IPM 1240</code>, com o <code>PDS 0178</code> preenchido e relatório <code>IP714010-AA</code> zerado.<br/>
+  <code>[ ]</code> <strong>5. Dupla Linguagem de Liquidação e Buffer Bancário:</strong> Grades da CIP/Núclea configuradas em <code>D+27/D+28 corridos</code> e contrato/painel do seller parametrizado em <code>D+30 corridos</code> (2 dias úteis de buffer para tratamento de devoluções <code>ASLC024</code>).<br/>
+  <code>[ ]</code> <strong>6. Motor de Retentativa Inteligente (Category 1 a 4):</strong> Bloqueio imediato de retentativa para códigos <code>DE 39 Category 1</code> (<code>04, 14, 41, 43, R0, R1, R3</code>) e exigência de correção de dados ou <code>3DS 2.2 / DAF</code> para <code>Category 3</code> (<code>54, 59, 82, 83</code>).<br/>
+  <code>[ ]</code> <strong>7. Segregação Contábil e DIMP:</strong> Contabilização apenas da comissão/spread como receita própria da plataforma e repasse dos sellers segregado em conta patrimonial transitória conciliada com a DIMP.
+</div>
+
 <div style="border-left:5px solid #2563eb; background:#eff6ff; padding:16px 20px; border-radius:0 12px 12px 0; margin:1.5rem 0;">
   <strong style="color:#1e40af; font-size:14px;">💡 Dica Prática do Doc Studio (EcommIT):</strong>
   <p style="margin:6px 0 0 0; font-size:13px; line-height:1.6; color:#1e293b;">
@@ -1199,3 +1385,4 @@ export const MARKETPLACE_MASTER_TEMPLATE: DocumentTemplate = {
   </p>
 </div>`,
 };
+
