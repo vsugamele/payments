@@ -677,6 +677,83 @@ Adquirente / PayFac (Job Noturno lê Snapshot Imutável da Auth)
   </tbody>
 </table>
 
+<h3>3.5. Puxando o Fio do Novelo na Mensageria: Os 5 Elos de Causa e Efeito dos Campos Mais Críticos</h3>
+<p>
+  Uma tabela de especificação tradicional apenas lista o nome do campo e o tamanho em bytes — funcionando como um dicionário estático que deixa o desenvolvedor e o PM sem saber como reagir quando algo dá errado. Abaixo, <strong>puxamos o fio do novelo nos 5 elos completos de causa e efeito</strong> para os 3 mecanismos mais sensíveis da arquitetura de Marketplace:
+</p>
+
+<!-- NOVELO 1: DS 56 & TCR E -->
+<div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:5px solid #1e40af; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#1e3a8a; font-size:13.5px; margin-bottom:8px;">
+    🧶 NOVELO 1 — <code>Field 104, Usage 2, Dataset 56 (Tags 81 a 85)</code> + <code>BASE II TC 05, TCR E (Pos 79–86)</code> (Visa Marketplace &amp; Foreign Retailer)
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> É o container TLV estruturado da Visa que identifica, dentro da mesma transação, quem é o Subcredenciador (<code>Tag 81</code>), quem é o Marketplace (<code>Tag 83</code>), se o seller da ponta é estrangeiro (<code>Tag 84 = 'F'</code>) e qual é o documento fiscal do seller (<code>Tag 85</code>), espelhado à noite nas posições <code>79–86 do TCR E</code>.</li>
+    <li><strong>Onde e quem envia:</strong> Trafega na ida da <strong>Autorização (<code>0100</code>)</strong> e na apresentação do <strong>Clearing (<code>BASE II TC 05</code>)</strong>, enviado pelo <strong>Gateway/Marketplace &rarr; Adquirente &rarr; VisaNet &rarr; Banco Emissor</strong>.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Carrinho Híbrido Multi-Seller):</em> O consumidor compra um tênis de um seller nacional e um fone de ouvido de outro seller no mesmo checkout sob o <code>MCC 5262</code>.</li>
+        <li><em>Cenário 2 (Cross-Border Seller dentro de Marketplace Nacional):</em> O comprador brasileiro paga em Reais (BRL) na plataforma, mas o vendedor daquele item está domiciliado na China, nos EUA ou no Uruguai — exigindo obrigatoriamente a <code>Tag 84 = 'F'</code> (<em>Foreign Retailer Indicator</em>).</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> Se a plataforma operar sellers estrangeiros sem enviar <code>Tag 84 = 'F'</code> ou omitir a <code>Tag 83 / TCR E (Pos 79–86)</code>, a Visa enquadra a omissão como ocultação de jurisdição (<em>True Country of Origin</em>) no programa <strong>VIRP</strong>, com multa de <strong>USD 25.000 a USD 50.000/mês</strong> e perda imediata do teto de tarifa das Faixas 1 a 5 do <code>VSS-140</code>.</li>
+    <li><strong>Ação Recomendada (Backend + Painel de Produto):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend/Switch:</em> Ler o país de domicílio do seller no cadastro; se <code>seller.country != 'BRA'</code>, injetar automaticamente <code>DS 56 Tag 84 = 'F'</code> no <code>0100</code> e replicar no <code>TCR E</code>.</li>
+        <li><em>No Checkout/Fatura (UX):</em> Avisar de forma transparente na tela do pedido quando o item for enviado por vendedor internacional, evitando chargeback por estranhamento do portador.</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<!-- NOVELO 2: TC 04 / TCR 9 & IP714010-AA -->
+<div style="background:#fffbeb; border:1px solid #fde68a; border-left:5px solid #d97706; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#92400e; font-size:13.5px; margin-bottom:8px;">
+    🧶 NOVELO 2 — <code>BASE II TC 04 / TCR 9</code> (Reclassification Advice Visa) &amp; Relatório <code>IP714010-AA</code> (Mastercard Data Integrity)
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> O <code>TC 04 / TCR 9</code> é o registro de aviso de reclassificação devolvido pela Visa no arquivo de retorno do Base II quando uma transação apresentada no <code>TC 05</code> perde a tarifa de intercâmbio esperada e é rebaixada para a tarifa cheia (<em>Standard / Non-Qualified</em>). Na Mastercard, o equivalente de auditoria de integridade de sublojista é o relatório mensal <code>IP714010-AA</code>.</li>
+    <li><strong>Onde e quem envia:</strong> Trafega no <strong>sentido inverso do Clearing (Retorno da Bandeira &rarr; Adquirente &rarr; Conciliação do Marketplace)</strong> em D+1 após o processamento do lote noturno.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Quebra de Paridade Auth &times; Clearing):</em> O time de checkout enviou o CEP correto do seller e o <code>DE 63.2 (Trace ID)</code> na autorização (<code>0100</code>), mas o sistema financeiro gerou o arquivo noturno de clearing com o CEP da sede do Marketplace ou sem o <code>TCR E / MVV</code>.</li>
+        <li><em>Cenário 2 (Captura Tardia fora da Janela):</em> O seller demorou 12 dias para faturar o pedido e a captura financeira foi enviada depois do prazo de validade da pré-autorização sem renovação.</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> O intercâmbio da venda sobe silenciosamente de ~1,55% para <strong>mais de 2,30% (Standard)</strong>, comendo até 40% da margem líquida (<em>take rate</em>) do Marketplace naquela venda, além de disparar as multas de <strong>R$ 5.600,00/mês por regra violada</strong> (<code>MCBS 2PN2104 / 2PN2119 / 2PN2410</code>).</li>
+    <li><strong>Ação Recomendada (Backend + Conciliação Financeira):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend:</em> Construir o lote de clearing lendo estritamente do <em>Snapshot Imutável da Autorização</em> (mesmo <code>DE 42</code>, mesmo CEP, mesmo <code>Trace ID</code> e mesmo <code>MVV</code>).</li>
+        <li><em>No Painel de Conciliação:</em> Automatizar um alerta diário para qualquer ocorrência de <code>TC 04 / TCR 9</code> ou apontamento no <code>IP714010-AA</code> antes do fechamento do mês.</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<!-- NOVELO 3: REGISTRO 01 POS 45 & REGISTRO 45 POS 159-166 ELO 26.2 -->
+<div style="background:#ecfdf5; border:1px solid #a7f3d0; border-left:5px solid #059669; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#065f46; font-size:13.5px; margin-bottom:8px;">
+    🧶 NOVELO 3 — <code>Registro "01" (Pos 45–58, 14 bytes CPF/CNPJ)</code> + <code>Registro "45" (Pos 159–166, IRQ)</code> (Mandate Elo Release 26.2)
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> O <code>Registro "01" (Posição 45)</code> é o campo de documento fiscal do sublojista na base cadastral da Elo, e o <code>IRQ (Interchange Rate Qualifier)</code> de 8 posições no <code>Registro "45"</code> é o qualificador oficial da tarifa de intercâmbio aplicada pela Elo na liquidação.</li>
+    <li><strong>Onde e quem envia:</strong> O <code>Registro "01"</code> é enviado pelo <strong>Subcredenciador/Adquirente &rarr; Elo</strong> no arquivo cadastral/liquidação; o <code>Registro "45"</code> volta da <strong>Elo &rarr; Adquirente/Subcredenciador</strong> no retorno da liquidação.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Vendedor Pessoa Física em Categoria Empresarial):</em> Um vendedor autônomo se cadastra na plataforma usando seu <strong>CPF (11 dígitos)</strong>, mas escolhe no formulário de onboarding uma categoria comercial (MCC) exclusiva de Pessoa Jurídica (ex.: atacadista, supermercado ou instituição de ensino).</li>
+        <li><em>Cenário 2 (Formatação Incorreta de 14 Bytes):</em> O motor envia um CPF sem o alinhamento ou preenchimento esperado de 14 posições alfanuméricas no arquivo posicional.</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> A partir de <strong>18/05/2026 (Homologação) e 03/08/2026 (Produção)</strong>, a Elo rejeita o registro cadastral ou recalcula automaticamente o <code>IRQ</code> no <code>Registro "45"</code> para a tarifa teto, gerando prejuízo direto no MDR cobrado do seller.</li>
+    <li><strong>Ação Recomendada (Backend + UX de Onboarding):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend:</em> Criar tabela de validação cruzada <code>Tipo_Documento (CPF vs. CNPJ) &times; Lista_MCCs_Permitidos</code> na API de criação de seller.</li>
+        <li><em>Na Tela de Cadastro do Seller (UX/UI):</em> Assim que o usuário digitar um CPF (11 dígitos), filtrar dinamicamente o <em>dropdown</em> de "Ramo de Atividade" exibindo apenas categorias permitidas para Pessoa Física, com o aviso amigável: <em>"Para selecionar categorias atacadistas ou empresariais específicas, informe um CNPJ válido."</em></li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
 <!-- TRÍADE POR TIME: SEÇÃO 3 -->
 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:1.25rem 0; font-size:12px; line-height:1.55;">
   <div style="background:#eff6ff; border:1px solid #bfdbfe; border-top:4px solid #2563eb; border-radius:10px; padding:12px 14px;">
@@ -1224,6 +1301,84 @@ Adquirente / PayFac (Job Noturno lê Snapshot Imutável da Auth)
     </tr>
   </tbody>
 </table>
+
+<h3>7.3. Puxando o Fio do Novelo nos Códigos de Recusa (<code>DE 39</code>): Do Switch do Emissor até a Mensagem Exata no Checkout</h3>
+<p>
+  Quando uma documentação técnica apenas joga um código seco — como <code>Bit 39 = 40 (Function Not Supported)</code> —, ela age como um dicionário estático: o desenvolvedor não sabe o que bloquear no backend, o PM não sabe qual mensagem exibir na tela e o comprador abandona o carrinho sem entender por que a venda falhou. Abaixo, desenrolamos os <strong>5 elos completos de causa e efeito</strong> para as 3 recusas mais críticas na operação de um Marketplace:
+</p>
+
+<!-- NOVELO DE 39 = 40 -->
+<div style="background:#fef2f2; border:1px solid #fecaca; border-left:5px solid #dc2626; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#991b1b; font-size:13.5px; margin-bottom:8px;">
+    🧶 CASO 1 — <code>Bit 39 = 40 (Function Not Supported)</code>: Por Que o Cartão Funciona à Vista, mas Recusa no Parcelado ou no Token
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> O <code>Bit 39 (Response Code)</code> é o código de retorno de 2 posições da ISO 8583. O valor <code>40</code> significa que o Emissor (ou a própria VisaNet/Mastercard) recusou a transação porque a <strong>funcionalidade solicitada na captura não é suportada por aquele cartão, BIN ou conta</strong>.</li>
+    <li><strong>Onde e quem envia:</strong> Trafega na <strong>mensagem de resposta da autorização (<code>0110</code> ou <code>0210</code>)</strong>, enviada pelo <strong>Banco Emissor / Bandeira de volta ao Adquirente / Gateway do Marketplace</strong>.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Parcelado em Cartão Estrangeiro):</em> Um turista ou comprador tenta pagar um pedido <strong>parcelado lojista (ex.: 6x sem juros)</strong> usando um cartão emitido fora do Brasil — cartões internacionais não suportam o arranjo doméstico brasileiro de parcelamento na captura.</li>
+        <li><em>Cenário 2 (Tokenização / Wallet / AFT):</em> Tentativa de realizar um <em>Account Verification</em>, <em>Account Funding Transaction (AFT)</em> ou cobrança recorrente usando um tipo de Token cujo BIN do emissor não tem essa função habilitada.</li>
+        <li><em>Cenário 3 (Aproximação / NFC em App Presencial):</em> O terminal tentou forçar uma leitura com dados de tarja (MSD) em uma carteira digital que exige criptograma EMV/qVSDC.</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> O código <code>40</code> comporta-se como <strong>Hard Decline / Não Re-tentável na mesma condição</strong>. Se o gateway do Marketplace tentar reprocessar automaticamente a mesma transação (com o mesmo número de parcelas ou mesmo tipo de captura), a bandeira aplica a <strong>multa por retentativa indevida</strong>.</li>
+    <li><strong>Ação Recomendada (O que o Dev e o Produto devem fazer):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend/Gateway:</em> Bloquear imediatamente o motor de retentativas automáticas para aquela combinação de payload (não reenviar com parcelas &gt; 1).</li>
+        <li><em>Na Tela do Checkout (UX/UI):</em> Exibir ao comprador a mensagem exata: <strong>"A modalidade escolhida não é suportada por este cartão. Por favor, tente novamente utilizando outro cartão ou escolha o pagamento à vista (1x)."</strong> (Dica de conversão: se o BIN do cartão for internacional, já desabilitar preventivamente as opções de parcelamento na UI).</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<!-- NOVELO DE 39 = 59 / 83 -->
+<div style="background:#fffbeb; border:1px solid #fde68a; border-left:5px solid #d97706; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#92400e; font-size:13.5px; margin-bottom:8px;">
+    🧶 CASO 2 — <code>Bit 39 = 59 (Visa) / 83 (Mastercard) (Suspected Fraud)</code>: Quando o Motor Antifraude do Banco Emissor Freia a Compra
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> Código de recusa no <code>DE 39</code> indicando que o cartão existe e tem limite, mas o motor neural de prevenção a fraudes do <strong>Banco Emissor</strong> bloqueou a compra preventivamente por comportamento atípico.</li>
+    <li><strong>Onde e quem envia:</strong> Trafega na resposta <strong><code>0110</code></strong> do <strong>Banco Emissor &rarr; Bandeira &rarr; Adquirente &rarr; Gateway do Marketplace</strong>.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Seller Novo + Produto de Alta Liquidez sem 3DS):</em> Comprador tentando adquirir um smartphone de R$ 4.500 em um seller recém-cadastrado (<code>DE 42</code> sem histórico no emissor) em uma transação enviada sem autenticação <code>3DS 2.2 / DAF</code>.</li>
+        <li><em>Cenário 2 (Contaminação de <code>DE 42</code> Genérico):</em> O Marketplace cometeu o erro de usar o mesmo <code>DE 42</code> para todos os vendedores; um seller sofreu ataque de testagem de cartão (<em>carding</em>) e o emissor levantou barreira para todo o <code>DE 42</code>.</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> Enquadrado na <strong>Category 3 (Issuer Cannot Approve with These Details)</strong>. Retentar no escuro com o mesmo payload sem autenticação gera multa de retentativa e derruba o índice de aprovação do BIN.</li>
+    <li><strong>Ação Recomendada (O que o Dev e o Produto devem fazer):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend/Gateway:</em> Bloquear retentativa silenciosa (sem autenticação) e acionar automaticamente o fluxo de <strong>Step-up para 3DS 2.2 / Visa DAF</strong> (enviando o desafio biométrico no app do banco do portador).</li>
+        <li><em>Na Tela do Checkout (UX/UI):</em> Exibir ao comprador: <strong>"Para sua segurança, seu banco solicitou uma confirmação rápida no aplicativo. Confirme a notificação no app do seu banco ou autentique abaixo para concluir seu pedido."</strong></li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<!-- NOVELO DE 39 = 82 / N7 -->
+<div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #2563eb; border-radius:10px; padding:16px 20px; margin:1.25rem 0; font-size:12.5px; line-height:1.6;">
+  <div style="font-weight:bold; color:#1e40af; font-size:13.5px; margin-bottom:8px;">
+    🧶 CASO 3 — <code>Bit 39 = 82 / N7 (Negative CAM, dCVV, iCVV, or CVV Results)</code>: Falha de Código de Segurança ou Criptograma em Cartão Salvo
+  </div>
+  <ol style="margin:0 0 0 18px; padding:0; color:#1e293b;">
+    <li><strong>O que é o campo e o valor:</strong> Retorno no <code>DE 39</code> informando que a validação criptográfica do código de segurança (<code>CVV2 / CVC2</code>) ou do criptograma dinâmico do token falhou no HSM do Banco Emissor.</li>
+    <li><strong>Onde e quem envia:</strong> Resposta <strong><code>0110</code></strong> do <strong>Banco Emissor &rarr; Bandeira &rarr; Adquirente &rarr; Gateway</strong>.</li>
+    <li><strong>Quando e por que acontece (Gatilhos Reais de Mercado):</strong>
+      <ul style="margin:4px 0 4px 16px; padding:0;">
+        <li><em>Cenário 1 (Cartão Virtual com CVV Dinâmico Expirado):</em> O comprador salvou um cartão virtual no Marketplace há 2 semanas; o banco emissor gira o CVV dinâmico a cada 24h e o checkout tentou reutilizar um CVV antigo ou inválido.</li>
+        <li><em>Cenário 2 (Erro de Digitação no Checkout):</em> O comprador inverteu dois dígitos do código de 3 números no verso do cartão.</li>
+      </ul>
+    </li>
+    <li><strong>Impacto no Negócio e Regras de Risco:</strong> <strong>Category 3</strong> — proibido reprocessar automaticamente os mesmos dados (o CVV errado nunca vai passar sozinho e cada tentativa repetida soma multa e alerta de ataque de força bruta / <em>enumeration</em> no VAMP).</li>
+    <li><strong>Ação Recomendada (O que o Dev e o Produto devem fazer):</strong>
+      <ul style="margin:4px 0 0 16px; padding:0;">
+        <li><em>No Backend/Gateway:</em> Jamais armazenar CVV após a autorização (violação PCI-DSS); para cartões salvos (<em>Card-on-File</em>), substituir o PAN por <strong>Network Token (VTS/MDES)</strong> com criptograma dinâmico TAVV/DSRP.</li>
+        <li><em>Na Tela do Checkout (UX/UI):</em> Destacar em vermelho o campo de CVV e exibir: <strong>"O código de segurança (CVV) informado não confere ou expirou (comum em cartões virtuais). Confira os 3 dígitos no app do seu banco e tente novamente."</strong></li>
+      </ul>
+    </li>
+  </ol>
+</div>
 
 <!-- =====================================================================
      SEÇÃO 8: CHECKLIST EXECUTIVO DE AUDITORIA E HOMOLOGAÇÃO 360º

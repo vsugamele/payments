@@ -158,6 +158,17 @@ export default function AiFloatingToolbar({
                   <div className="text-[10px] text-muted-foreground">Mais dados e detalhes</div>
                 </div>
               </button>
+
+              <button
+                onClick={() => handleAction("unravel_thread")}
+                className="col-span-2 flex items-center gap-2 p-2 rounded-xl text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/25 transition-all text-left"
+              >
+                <Sparkles size={14} className="text-rose-500 shrink-0" />
+                <div>
+                  <div className="font-bold text-foreground">🧶 Puxar o Fio do Novelo (5 Elos de Causa e Efeito)</div>
+                  <div className="text-[10px] text-muted-foreground">1. O que é • 2. Onde trafega • 3. Gatilhos reais • 4. Risco/Multa • 5. Backend + UX</div>
+                </div>
+              </button>
             </div>
 
             {/* Change Tone Menu */}

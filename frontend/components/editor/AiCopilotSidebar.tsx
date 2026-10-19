@@ -46,14 +46,13 @@ export default function AiCopilotSidebar({
     {
       id: "welcome",
       role: "assistant",
-      content: `Olá! Sou o seu **Copilot de Inteligência Documental** (A Máquina).
-Tenho visão completa do que você está escrevendo no editor ao lado.
+      content: `Olá! Sou o seu **Copilot Sênior de Pagamentos & Mensageria** (A Máquina).
+Opero com **Grounding Técnico Extremo (ISO 8583 / Base II / IPM / Elo)**, **Dupla Linguagem (CIP D+28 vs. Comercial D+30)** e a **Regra do Novelo (5 Elos de Causa e Efeito)**.
 
 💡 **O que posso fazer:**
-- **Auditar o documento** em busca de furos lógicos e oportunidades.
-- **Gerar sumários executivos** e conclusões de alto impacto.
-- **Continuar redigindo** novas seções com base no contexto.
-- **Tirar dúvidas** ou sugerir dados técnicos.`,
+- **🧶 Desenrolar o Novelo (5 Elos)** de qualquer Bit, Tag TLV ou código \`DE 39\`.
+- **Auditar o documento** buscando furos de paridade Auth vs. Clearing.
+- **Gerar sumários executivos** e especificações prontas para Engenharia e Produto.`,
     },
   ]);
   const [inputPrompt, setInputPrompt] = useState("");
@@ -87,6 +86,8 @@ Tenho visão completa do que você está escrevendo no editor ao lado.
           content: `Comando Rápido: ${
             actionType === "audit_document"
               ? "Auditar Documento Completo"
+              : actionType === "unravel_thread"
+              ? "🧶 Puxar o Fio do Novelo (5 Elos de Causa e Efeito)"
               : actionType === "executive_summary"
               ? "Gerar Sumário Executivo"
               : "Continuar Escrevendo a Próxima Seção"
@@ -156,7 +157,7 @@ Tenho visão completa do que você está escrevendo no editor ao lado.
           <div>
             <h3 className="text-xs font-bold text-foreground">Copilot Documental</h3>
             <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <Sparkles size={10} className="text-blue-400" /> A Máquina (Visão Total)
+              <Sparkles size={10} className="text-blue-400" /> Consultor Sênior + Regra do Novelo
             </p>
           </div>
         </div>
@@ -176,6 +177,16 @@ Tenho visão completa do que você está escrevendo no editor ao lado.
           Ações Rápidas em 1 Clique
         </p>
         <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => handleSendMessage(inputPrompt || "Bit 39 = 40 (Function Not Supported)", "unravel_thread")}
+            disabled={isLoading}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/25 text-[11px] font-semibold transition-colors"
+            title="Desenrola os 5 elos de causa e efeito (O que é, Onde trafega, Gatilhos, Risco e Ação Backend + UX)"
+          >
+            <Sparkles size={12} />
+            🧶 Regra do Novelo (5 Elos)
+          </button>
+
           <button
             onClick={() => handleSendMessage(undefined, "audit_document")}
             disabled={isLoading}
