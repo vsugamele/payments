@@ -1433,6 +1433,130 @@ const SWIMLANES = [
   { y: 755, h: 175, title: "CAMADA 5 · MOTORES DE BANDEIRA (VISANET/VSS/VCF, GCMS/MPE T068, ELO) & PROGRAMAS (VAMP/ECP/MATCH)", color: "#06b6d4" },
 ];
 
+interface BrandEquivalenceSpec {
+  titulo: string;
+  visa: { codigo: string; mensageria: string; regra: string; deepLink: string };
+  mastercard: { codigo: string; mensageria: string; regra: string; deepLink: string };
+  elo: { codigo: string; mensageria: string; regra: string; deepLink: string };
+}
+
+function getBrandEquivalence(subdominio?: string): BrandEquivalenceSpec {
+  switch (subdominio) {
+    case "intercambio":
+      return {
+        titulo: "Qualificação de Intercâmbio (FPI vs. IRD vs. Matriz Elo)",
+        visa: {
+          codigo: "FPI + PID (F^, P^, N^, C^, I^)",
+          mensageria: "BASE II TC 05 · Pos 60.8 ECI + DE 62.2 TID",
+          regra: "866 regras (Tables 3-12 a 3-38 + 326 MCCs NNSS). Falta de TID gera Downgrade EIRF.",
+          deepLink: "/mapa/irds?brand=Visa&mode=tables",
+        },
+        mastercard: {
+          codigo: "IRD (PDS 0158 · IA, JÁ, AU, AV, AW, VF)",
+          mensageria: "IPM 1240 · DE 63 Banknet Ref + DE 48 SE 42 SLI",
+          regra: "820 regras (Table 76 + GCMS T164/T165 + 76 MCCs). Clearing tardio cai em IRD 80.",
+          deepLink: "/mapa/irds?brand=Mastercard&mode=tables",
+        },
+        elo: {
+          codigo: "Faixa BIN + 21 Segmentos MCC",
+          mensageria: "Elo ISO 8583 / Base 2 · NSU + ECI",
+          regra: "417 regras oficiais + 381 MCCs de Redução Fee (Caps R$ 0,35 em Governo, 0,36% Supermercado).",
+          deepLink: "/mapa/irds?brand=Elo&mode=tables",
+        },
+      };
+    case "autorizacao":
+    case "seguranca":
+      return {
+        titulo: "Autorização Online (D+0), 3DS 2.2 & Criptograma",
+        visa: {
+          codigo: "VIP System · MTI 0100 / 0110",
+          mensageria: "DE 62.2 (Transaction ID 15 díg) + Pos 126.9 CAVV + ECI 05/06/07",
+          regra: "ECI 05 ativa Liability Shift (Regra 10.4) e tarifa CP/3DS reduzida.",
+          deepLink: "/mapa/irds?brand=Visa&node=VISA_GEN_T",
+        },
+        mastercard: {
+          codigo: "Banknet CIS · MTI 0100 / 0110",
+          mensageria: "DE 63 (Banknet Ref 9 chars + Data) + DE 48 SE 42 (SLI 212/211/210) + SE 43 AAV",
+          regra: "SLI 212 qualifica IRDs AU/AV/AW (-32 bps vs HU/HV/HW) e protege contra CBK 4837.",
+          deepLink: "/mapa/irds?brand=Mastercard&node=IRD_AU_AV_AW",
+        },
+        elo: {
+          codigo: "Switch Elo · MTI 0100 / 0110",
+          mensageria: "DE 55 EMV ARQC + Protocolo 3DS 2.2 Elo + Tokenização DPAN",
+          regra: "Autenticação EMV/3DS diferencia taxa presencial vs. CNP e garante troca de responsabilidade.",
+          deepLink: "/mapa/irds?brand=Elo&node=ELO_T",
+        },
+      };
+    case "clearing":
+    case "liquidacao":
+      return {
+        titulo: "Clearing em Lote (D+1), FX & Liquidação (CIP / Cross-Border)",
+        visa: {
+          codigo: "BASE II (TC 05 / TC 06) + VSS-110/120/130",
+          mensageria: "EPX / Edit Package · DE 4 (Tx) → DE 6 (Billing) · Cut-off 07h05 GMT",
+          regra: "Liquidação doméstica via CIP SLC (VISC) e internacional em USD/EUR com FPA no VSS.",
+          deepLink: "/mapa/liquidacao?brand=visa&edge=V04",
+        },
+        mastercard: {
+          codigo: "GCMS IPM (MTI 1240) + T140 / T461",
+          mensageria: "Blocos físicos de 1014B (0x4040) · DE 4 → DE 5 (Settlement) → DE 6 (Billing)",
+          regra: "Janelas MPE T068 (IP0030T1, T164, T165, T168 FX); doméstica no SLC (MASC) e cross-border T461.",
+          deepLink: "/mapa/liquidacao?brand=mastercard&edge=M03",
+        },
+        elo: {
+          codigo: "Liquidação Elo / B3 + CIP SLC",
+          mensageria: "Arquivos de compensação Elo + Grades ASLC029 (Crédito) e ASLC031 (Débito)",
+          regra: "Compensação multilateral doméstica na CIP/SILOC com janelas diárias de liquidação.",
+          deepLink: "/mapa/irds?brand=Elo&mode=gcms",
+        },
+      };
+    case "scheme_fees":
+      return {
+        titulo: "Faturamento da Bandeira (Scheme Fees / Assessments)",
+        visa: {
+          codigo: "Visa GMR / VIC Billing + VSS-110",
+          mensageria: "Jurisdiction Code + Fee Program + Eventos de Autorização/Clearing/Disputa",
+          regra: "Cobrança de Volume Assessment, International Acquiring/Service Fee e eventos de rede.",
+          deepLink: "/mapa/liquidacao?brand=visa&edge=V14",
+        },
+        mastercard: {
+          codigo: "MCBS (Billing System) · Arquivo T145",
+          mensageria: "ICA + Billing Event 014833.X + Tier Progressivo + Reversão R39",
+          regra: "Auditável no Atlas MCBS (/mapa/mcbs) com 15 relações literais (R01–R15) e fatura consolidada.",
+          deepLink: "/mapa/mcbs?edge=R01",
+        },
+        elo: {
+          codigo: "Faturamento Elo (Tabela Fee Elo v2)",
+          mensageria: "Assessments por volume, conectividade, tokenização e processamento de disputas",
+          regra: "381 MCCs contam com política específica de redução de fee e intercâmbio.",
+          deepLink: "/mapa/irds?brand=Elo&mode=mccs",
+        },
+      };
+    default:
+      return {
+        titulo: "Disputas, Chargebacks, Fraude & Monitoria (VAMP / ECP)",
+        visa: {
+          codigo: "VROL · TC 15 (Disputa) + TC 40 (Fraude)",
+          mensageria: "Códigos 10.1 a 13.9 · Visa Acquirer Monitoring Program (VAMP Unificado Abr/2025)",
+          regra: "Soma TC 40 + TC 15 sobre vendas CNP (TC 05); teto 1,5% EC e 0,5% Adquirente.",
+          deepLink: "/mapa/liquidacao?brand=visa&edge=V10",
+        },
+        mastercard: {
+          codigo: "Mastercom · MTI 1442 (CBK) + SAFE",
+          mensageria: "Códigos 4837 (Fraude), 4853 (Desacordo) · ECP (Excessive Chargeback) + EFM",
+          regra: "Alerta com ≥ 100 CBKs e ≥ 1,0% a 1,5% de razão sobre vendas do mês anterior.",
+          deepLink: "/mapa/liquidacao?brand=mastercard&edge=M08",
+        },
+        elo: {
+          codigo: "Plataforma de Disputas Elo",
+          mensageria: "Ciclo de 1º Chargeback, Reapresentação e Arbitragem doméstica",
+          regra: "Prazos e códigos alinhados ao mercado brasileiro com proteção via EMV e 3DS.",
+          deepLink: "/mapa/irds?brand=Elo",
+        },
+      };
+  }
+}
+
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
 export default function MapaClient() {
@@ -1449,7 +1573,7 @@ export default function MapaClient() {
   const [focusNodeId, setFocusNodeId] = useState<string | null>("intercambio");
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>("R28");
   const [inspectMode, setInspectMode] = useState<"node" | "edge">("node");
-  const [edgeDetailTab, setEdgeDetailTab] = useState<"payload" | "nodes" | "tools">("payload");
+  const [edgeDetailTab, setEdgeDetailTab] = useState<"payload" | "nodes" | "compare" | "tools">("payload");
   const [viewMode, setViewMode] = useState<"graph" | "matrix" | "raiox">("graph");
   const [didatico, setDidatico] = useState<boolean>(true);
   const [showLanes, setShowLanes] = useState<boolean>(true);
@@ -3102,10 +3226,30 @@ export default function MapaClient() {
                     }`}
                   >
                     <span>{activeScenario.alertaDiagnostico}</span>
-                    <span className="font-mono text-[10.5px] shrink-0">
-                      IC Alvo: <b>{fmtPct(activeScenario.aliquotaAlvoPct)}</b> → Aplicado:{" "}
-                      <b>{fmtPct(activeScenario.aliquotaRealPct)}</b>
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap shrink-0">
+                      <span className="font-mono text-[10.5px]">
+                        IC Alvo: <b>{fmtPct(activeScenario.aliquotaAlvoPct)}</b> → Aplicado:{" "}
+                        <b>{fmtPct(activeScenario.aliquotaRealPct)}</b>
+                      </span>
+                      <Link
+                        href={`/mapa/irds?brand=${whatIf.bandeira}&mode=tables`}
+                        className="px-2 py-0.5 rounded bg-[#273e39] hover:bg-[#314e48] border border-[#80ddc6]/40 text-[#80ddc6] text-[10px] font-bold"
+                      >
+                        📊 Ver IRD nas 2.103 Tabelas ↗
+                      </Link>
+                      <Link
+                        href="/simulador"
+                        className="px-2 py-0.5 rounded bg-[#202432] hover:border-[#80ddc6] border border-[#30364b] text-[#e9ecf6] text-[10px] font-semibold"
+                      >
+                        🧮 Simulador IC ↗
+                      </Link>
+                      <Link
+                        href={`/mapa/liquidacao?brand=${whatIf.bandeira === "Visa" ? "visa" : "mastercard"}`}
+                        className="px-2 py-0.5 rounded bg-[#202432] hover:border-[#80ddc6] border border-[#30364b] text-[#b6a0f2] text-[10px] font-semibold"
+                      >
+                        🌍 Liquidação ↗
+                      </Link>
+                    </div>
                   </div>
                 </div>
 
@@ -4199,6 +4343,79 @@ export default function MapaClient() {
                 </div>
               )}
 
+              {/* ⚔️ Confronto Visa × Mastercard × Elo */}
+              {(() => {
+                const cmp = getBrandEquivalence(activeNode.subdominio);
+                return (
+                  <div className="p-3 rounded-xl bg-[#141822] border border-[#30364b] space-y-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#f6c775]">
+                        ⚔️ Confronto Visa × Mastercard × Elo
+                      </span>
+                      <span className="text-[10px] text-[#9ba4ba] truncate">
+                        {cmp.titulo}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 text-[11px]">
+                      <div className="p-2 rounded-lg bg-[#191d2b] border border-blue-500/30">
+                        <div className="flex items-center justify-between gap-2">
+                          <b className="text-blue-300">🟦 VISA: {cmp.visa.codigo}</b>
+                          <Link
+                            href={cmp.visa.deepLink}
+                            className="text-[10px] text-[#80ddc6] font-bold hover:underline shrink-0"
+                          >
+                            Ver no Atlas ↗
+                          </Link>
+                        </div>
+                        <div className="font-mono text-[10px] text-blue-200/80 mt-0.5">
+                          {cmp.visa.mensageria}
+                        </div>
+                        <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                          {cmp.visa.regra}
+                        </p>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-[#191d2b] border border-amber-500/30">
+                        <div className="flex items-center justify-between gap-2">
+                          <b className="text-amber-300">🟧 MASTERCARD: {cmp.mastercard.codigo}</b>
+                          <Link
+                            href={cmp.mastercard.deepLink}
+                            className="text-[10px] text-[#80ddc6] font-bold hover:underline shrink-0"
+                          >
+                            Ver no Atlas ↗
+                          </Link>
+                        </div>
+                        <div className="font-mono text-[10px] text-amber-200/80 mt-0.5">
+                          {cmp.mastercard.mensageria}
+                        </div>
+                        <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                          {cmp.mastercard.regra}
+                        </p>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-[#191d2b] border border-emerald-500/30">
+                        <div className="flex items-center justify-between gap-2">
+                          <b className="text-emerald-300">🟩 ELO: {cmp.elo.codigo}</b>
+                          <Link
+                            href={cmp.elo.deepLink}
+                            className="text-[10px] text-[#80ddc6] font-bold hover:underline shrink-0"
+                          >
+                            Ver no Atlas ↗
+                          </Link>
+                        </div>
+                        <div className="font-mono text-[10px] text-emerald-200/80 mt-0.5">
+                          {cmp.elo.mensageria}
+                        </div>
+                        <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                          {cmp.elo.regra}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Conexões Diretas A Montante e A Jusante (Navegáveis) */}
               <div className="grid grid-cols-1 gap-2.5 pt-1">
                 {activeNodeConnections.incoming.length > 0 && (
@@ -4268,6 +4485,17 @@ export default function MapaClient() {
 
               {/* Botões de Ação / Módulos Práticos + Ponte Doc Studio */}
               <div className="flex flex-col gap-2 pt-2 border-t border-[#30364b]">
+                <Link
+                  href={`/mapa/irds?brand=${activeNode.bandeira !== "Todas" ? activeNode.bandeira : "Mastercard"}`}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-xs font-bold text-amber-200 transition-all"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📊</span>
+                    Abrir no Atlas de IRDs &amp; 2.103 Tabelas (/mapa/irds)
+                  </span>
+                  <ArrowRight size={14} />
+                </Link>
+
                 <button
                   onClick={() => handleSendNodeToDocStudio(activeNode)}
                   className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/40 text-xs font-bold text-blue-200 transition-all cursor-pointer"
@@ -4327,6 +4555,7 @@ export default function MapaClient() {
                   EDGE_KIND_META.dados;
                 const fromNode = nodeMap.get(activeEdge.source);
                 const toNode = nodeMap.get(activeEdge.target);
+                const edgeCmp = getBrandEquivalence(activeEdge.subdominio);
 
                 return (
                   <>
@@ -4417,7 +4646,7 @@ export default function MapaClient() {
 
                     {/* Abas de Evidência / Payload / Comparativo (Estilo Liquidação Internacional) */}
                     <div>
-                      <div className="flex gap-1.5 mb-2">
+                      <div className="flex gap-1.5 flex-wrap mb-2">
                         <button
                           onClick={() => setEdgeDetailTab("payload")}
                           className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border cursor-pointer ${
@@ -4427,6 +4656,16 @@ export default function MapaClient() {
                           }`}
                         >
                           Payload & Campos
+                        </button>
+                        <button
+                          onClick={() => setEdgeDetailTab("compare")}
+                          className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border cursor-pointer ${
+                            edgeDetailTab === "compare"
+                              ? "bg-[#202432] border-[#f6c775] text-[#f6c775]"
+                              : "bg-[#141822] border-[#30364b] text-[#9ba4ba]"
+                          }`}
+                        >
+                          ⚔️ Visa × MC × Elo
                         </button>
                         <button
                           onClick={() => setEdgeDetailTab("nodes")}
@@ -4446,7 +4685,7 @@ export default function MapaClient() {
                               : "bg-[#141822] border-[#30364b] text-[#9ba4ba]"
                           }`}
                         >
-                          Simuladores
+                          Atlas & Simuladores
                         </button>
                       </div>
 
@@ -4454,6 +4693,64 @@ export default function MapaClient() {
                         <blockquote className="m-0 p-3 rounded-xl bg-[#101720] border-l-2 border-[#80ddc6] font-mono text-[11px] text-[#d8dfee] whitespace-pre-wrap leading-relaxed">
                           {activeEdge.payload}
                         </blockquote>
+                      )}
+
+                      {edgeDetailTab === "compare" && (
+                        <div className="space-y-1.5 text-[11px]">
+                          <div className="p-2 rounded-lg bg-[#101720] border border-blue-500/30">
+                            <div className="flex items-center justify-between gap-2">
+                              <b className="text-blue-300">🟦 VISA: {edgeCmp.visa.codigo}</b>
+                              <Link
+                                href={edgeCmp.visa.deepLink}
+                                className="text-[10px] text-[#80ddc6] font-bold hover:underline"
+                              >
+                                Abrir ↗
+                              </Link>
+                            </div>
+                            <div className="font-mono text-[10px] text-blue-200/80 mt-0.5">
+                              {edgeCmp.visa.mensageria}
+                            </div>
+                            <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                              {edgeCmp.visa.regra}
+                            </p>
+                          </div>
+
+                          <div className="p-2 rounded-lg bg-[#101720] border border-amber-500/30">
+                            <div className="flex items-center justify-between gap-2">
+                              <b className="text-amber-300">🟧 MASTERCARD: {edgeCmp.mastercard.codigo}</b>
+                              <Link
+                                href={edgeCmp.mastercard.deepLink}
+                                className="text-[10px] text-[#80ddc6] font-bold hover:underline"
+                              >
+                                Abrir ↗
+                              </Link>
+                            </div>
+                            <div className="font-mono text-[10px] text-amber-200/80 mt-0.5">
+                              {edgeCmp.mastercard.mensageria}
+                            </div>
+                            <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                              {edgeCmp.mastercard.regra}
+                            </p>
+                          </div>
+
+                          <div className="p-2 rounded-lg bg-[#101720] border border-emerald-500/30">
+                            <div className="flex items-center justify-between gap-2">
+                              <b className="text-emerald-300">🟩 ELO: {edgeCmp.elo.codigo}</b>
+                              <Link
+                                href={edgeCmp.elo.deepLink}
+                                className="text-[10px] text-[#80ddc6] font-bold hover:underline"
+                              >
+                                Abrir ↗
+                              </Link>
+                            </div>
+                            <div className="font-mono text-[10px] text-emerald-200/80 mt-0.5">
+                              {edgeCmp.elo.mensageria}
+                            </div>
+                            <p className="text-[10.5px] text-[#c5cbe0] mt-0.5 mb-0">
+                              {edgeCmp.elo.regra}
+                            </p>
+                          </div>
+                        </div>
                       )}
 
                       {edgeDetailTab === "nodes" && (
@@ -4495,6 +4792,13 @@ export default function MapaClient() {
 
                       {edgeDetailTab === "tools" && (
                         <div className="flex flex-col gap-2">
+                          <Link
+                            href="/mapa/irds"
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-xs text-amber-200 font-bold"
+                          >
+                            <span>📊 Ir para Atlas de IRDs &amp; 2.103 Tabelas (/mapa/irds)</span>
+                            <ArrowRight size={13} />
+                          </Link>
                           {fromNode?.ferramenta && (
                             <Link
                               href={fromNode.ferramenta.href}
@@ -4522,14 +4826,14 @@ export default function MapaClient() {
                             href="/mapa/liquidacao"
                             className="flex items-center justify-between p-2.5 rounded-xl bg-[#141822] hover:border-[#80ddc6] border border-[#30364b] text-xs text-[#e9ecf6]"
                           >
-                            <span>🌍 Ir para Atlas de Liquidação Internacional</span>
+                            <span>🌍 Ir para Atlas de Liquidação Internacional (31 regras)</span>
                             <ArrowRight size={13} />
                           </Link>
                           <Link
                             href="/mapa/mcbs"
                             className="flex items-center justify-between p-2.5 rounded-xl bg-[#141822] hover:border-[#80ddc6] border border-[#30364b] text-xs text-[#e9ecf6]"
                           >
-                            <span>🧾 Ir para Atlas MCBS Faturamento</span>
+                            <span>🧾 Ir para Atlas MCBS Faturamento (15 regras)</span>
                             <ArrowRight size={13} />
                           </Link>
                         </div>

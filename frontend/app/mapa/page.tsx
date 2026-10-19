@@ -54,6 +54,12 @@ export default function MapaPage() {
             Conceitos Gerais
           </Link>
           <Link
+            href="/mapa/irds"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+          >
+            IRDs & Tabelas (2.103)
+          </Link>
+          <Link
             href="/mapa/liquidacao"
             className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
           >
