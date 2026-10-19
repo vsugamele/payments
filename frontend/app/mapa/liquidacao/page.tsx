@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Network, Layers, FileText } from "lucide-react";
+import { ArrowLeft, Network, Calculator, FileText, FolderOpen } from "lucide-react";
 
 export const metadata = {
   title: "Atlas de Liquidação Internacional — VS Payments",
@@ -63,6 +63,31 @@ export default function LiquidacaoPage() {
             className="text-xs font-semibold px-3 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all"
           >
             MCBS Faturamento
+          </Link>
+        </div>
+
+        {/* Links rápidos de apoio */}
+        <div className="hidden xl:flex items-center gap-2">
+          <Link
+            href="/editor"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 transition-all"
+          >
+            <FileText size={12} />
+            Doc Studio
+          </Link>
+          <Link
+            href="/acervo"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/20 transition-all"
+          >
+            <FolderOpen size={12} />
+            Acervo
+          </Link>
+          <Link
+            href="/simulador"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-muted-foreground hover:text-white transition-all"
+          >
+            <Calculator size={12} />
+            Simulador IC
           </Link>
         </div>
       </div>

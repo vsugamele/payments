@@ -1038,6 +1038,343 @@ function buildWhatIfScenario(
   };
 }
 
+interface RaioXFieldRow {
+  id: string;
+  campo: string;
+  nome: string;
+  edgeId: string;
+  req0100: {
+    codigo: string;
+    detalhe: string;
+  };
+  resp0110: {
+    codigo: string;
+    detalhe: string;
+    ator: string;
+  };
+  clearing1240: {
+    codigo: string;
+    detalhe: string;
+  };
+  status: "ok" | "alerta" | "downgrade";
+  statusLabel: string;
+  impactoRegra: string;
+}
+
+function buildRaioXFields(
+  cfg: WhatIfConfig,
+  sc: ReturnType<typeof buildWhatIfScenario>
+): RaioXFieldRow[] {
+  const isEcom = cfg.ambiente === "ecom";
+  const isDebito = cfg.ambiente === "debito";
+  const isVisa = cfg.bandeira === "Visa";
+  const isMC = cfg.bandeira === "Mastercard";
+
+  const clearingMsg = isVisa
+    ? "BASE II TC 05 (TCR 0/1/5/7)"
+    : isMC
+    ? "IPM 1240 (First Presentment)"
+    : "Arquivo Liquidação Elo";
+
+  const tidLabel = isVisa
+    ? "DE 62.2 (Transaction ID 15 díg.)"
+    : isMC
+    ? "DE 63 (Banknet Ref 9 chars + MMDD)"
+    : "NSU Elo + Ciclo ID";
+
+  const irdField = isVisa
+    ? "Fee Program Indicator (FPI)"
+    : isMC
+    ? "PDS 0158 (Interchange Rate Designator)"
+    : "Tabela Intercâmbio Elo";
+
+  return [
+    {
+      id: "rx-de02",
+      campo: "DE 02 + DE 48 SE 33",
+      nome: "Credencial (FPAN vs Network Token DPAN + TAVV)",
+      edgeId: cfg.token ? "R13" : "R08",
+      req0100: cfg.token
+        ? {
+            codigo: "DE 02 = DPAN (Token 16 díg.) + TAVV",
+            detalhe: `Adquirente envia Token de Rede (${isVisa ? "VTS" : isMC ? "MDES" : "Elo Token"}) + criptograma dinâmico TAVV e Token Requestor ID.`,
+          }
+        : {
+            codigo: "DE 02 = FPAN (16 díg. aberto)",
+            detalhe: isEcom
+              ? "Cartão digitado ou salvo em cofre proprietário sem tokenização de bandeira."
+              : "PAN lido diretamente do cartão físico.",
+          },
+      resp0110: cfg.token
+        ? {
+            codigo: "Detokenização DPAN → FPAN + Assurance Level",
+            detalhe: `Cofre da Bandeira (${isVisa ? "VTS" : isMC ? "MDES" : "Elo"}) valida o TAVV, entrega o FPAN real ao Emissor e devolve nível de confiança na 0110.`,
+            ator: "Bandeira → Emissor",
+          }
+        : {
+            codigo: "DE 02 = FPAN (Sem Cofre de Rede)",
+            detalhe: "Emissor recebe FPAN aberto; em CNP aplica score mais rígido (+risco de falso-positivo).",
+            ator: "Emissor",
+          },
+      clearing1240: cfg.token
+        ? {
+            codigo: `${clearingMsg}: DPAN + Token Ind.`,
+            detalhe: "Clearing referencia o DPAN e qualifica para benefício tarifário de credencial tokenizada.",
+          }
+        : {
+            codigo: `${clearingMsg}: FPAN Aberto`,
+            detalhe: isEcom
+              ? "Sem indicador de Token de Rede; elegível apenas a tarifa não-tokenizada."
+              : "Apresentação padrão com FPAN.",
+          },
+      status: cfg.token ? "ok" : "alerta",
+      statusLabel: cfg.token ? "🟢 Tokenizado (Ótimo)" : "⚠️ FPAN Aberto (-Aprovação)",
+      impactoRegra: cfg.token
+        ? "Aumenta aprovação do Emissor em +3% a +5% e cumpre requisito de segurança para menor tarifa de Intercâmbio."
+        : "Em CNP, trafegar FPAN aberto reduz aprovação e expõe a transação a sobretaxa/downgrade de credencial não tokenizada.",
+    },
+    {
+      id: "rx-de22",
+      campo: "DE 22 + DE 61",
+      nome: "POS Entry Mode (Modo de Captura & Capacidade do Terminal)",
+      edgeId: isEcom ? "R08" : "R01",
+      req0100: {
+        codigo: isEcom
+          ? cfg.token
+            ? "DE 22 = 010 / 810 (COF / Token E-com)"
+            : "DE 22 = 012 / 812 (PAN Digitado CNP)"
+          : cfg.token
+          ? "DE 22 = 071 (Contactless NFC EMV)"
+          : "DE 22 = 051 (Chip EMV Contato)",
+        detalhe: isEcom
+          ? "Identifica transação Card-Not-Present (E-commerce) e capacidade de captura de segurança."
+          : "Identifica leitura física presencial via Chip EMV ou aproximação NFC.",
+      },
+      resp0110: {
+        codigo: "DE 22 Validado pelo Switch",
+        detalhe: "Switch da Bandeira registra o modo de entrada original da autorização para auditoria no Clearing.",
+        ator: "Switch Bandeira",
+      },
+      clearing1240: cfg.clearingIntegro
+        ? {
+            codigo: "DE 22 Idêntico à 0100 (Espelhado)",
+            detalhe: "Host de captura preserva o exato POS Entry Mode autorizado em D+0.",
+          }
+        : {
+            codigo: "🔴 DE 22 Divergente (Ex.: 012 Manual)",
+            detalhe: "Host da Adquirente/PayFac alterou ou rebaixou o POS Entry Mode ao montar o arquivo de clearing.",
+          },
+      status: cfg.clearingIntegro ? "ok" : "downgrade",
+      statusLabel: cfg.clearingIntegro ? "🟢 Espelhado Íntegro" : "🔴 Divergente (Downgrade)",
+      impactoRegra:
+        "Se o DE 22 do Clearing divergir do DE 22 autorizado na 0100, o motor da bandeira rebaixa automaticamente a transação para a tarifa Standard / Key-Entered.",
+    },
+    {
+      id: "rx-3ds-emv",
+      campo: isEcom ? "DE 48 SE 42 / Campo 60.8 (SLI / ECI)" : "DE 55 (Tags EMV ARQC / IAD)",
+      nome: isEcom
+        ? "Autenticação EMV 3DS 2.2 (SLI / ECI + Criptograma CAVV/AAV)"
+        : "Criptograma de Chip EMV Presencial (ARQC → ARPC)",
+      edgeId: isEcom ? (cfg.authForte ? "R12" : "R08") : "R11",
+      req0100: isEcom
+        ? cfg.authForte
+          ? {
+              codigo: isVisa ? "Campo 60.8 ECI = 05 + CAVV 20B" : "DE 48 SE 42 SLI = 212 + AAV (UCAF)",
+              detalhe: "Prova criptográfica gerada pelo ACS do Emissor no fluxo EMV 3DS 2.2 frictionless/challenge.",
+            }
+          : {
+              codigo: isVisa ? "Campo 60.8 ECI = 07 (Não Autenticado)" : "DE 48 SE 42 SLI = 210 (Sem 3DS)",
+              detalhe: "Transação enviada sem autenticação 3DS; risco de fraude permanece 100% com Lojista/Adquirente.",
+            }
+        : cfg.authForte
+        ? {
+            codigo: "DE 55 = 9F26 (ARQC) + 9F10 (IAD) + 9F36",
+            detalhe: "Criptograma dinâmico gerado pelo chip EMV no terminal POS + PIN Block (DE 52).",
+          }
+        : {
+            codigo: "🔴 DE 55 Ausente (Fallback Trilha POS 901)",
+            detalhe: "Leitura por tarja magnética em cartão que possui chip EMV (Technical Fallback).",
+          },
+      resp0110: isEcom
+        ? {
+            codigo: cfg.authForte ? "CAVV/AAV Validated (Liability Shift ON)" : "Aprovado Sem Liability Shift",
+            detalhe: cfg.authForte
+              ? "Emissor valida criptograma 3DS e assume a responsabilidade financeira contra fraude (10.4 / 4837)."
+              : "Emissor aprova crédito, mas não concede Liability Shift de fraude.",
+            ator: "ACS / Emissor",
+          }
+        : {
+            codigo: cfg.authForte ? "DE 55 Tag 91 = ARPC (Chip Validado)" : "Aprovado sob Risco de Fallback",
+            detalhe: cfg.authForte
+              ? "HSM do Emissor valida o ARQC e devolve o ARPC para o chip confirmar autenticidade."
+              : "Sem validação de criptograma de chip EMV.",
+            ator: "HSM Emissor",
+          },
+      clearing1240:
+        cfg.authForte && cfg.clearingIntegro
+          ? {
+              codigo: isEcom
+                ? `${clearingMsg}: SLI 212 / ECI 05 + CAVV`
+                : `${clearingMsg}: Dados EMV TCR 07 / DE 55`,
+              detalhe: "Indicador de autenticação forte espelhado integralmente na apresentação D+1.",
+            }
+          : cfg.authForte && !cfg.clearingIntegro
+          ? {
+              codigo: "🔴 SLI / ECI / CAVV Truncado no Clearing!",
+              detalhe: "A autorização teve 3DS/EMV em D+0, mas o Host omitiu o indicador no lote de Clearing D+1.",
+            }
+          : {
+              codigo: isEcom ? "SLI 210 / ECI 07 (Sem 3DS)" : "Sem Tags EMV (Fallback)",
+              detalhe: "Apresentação sem prova de autenticação forte.",
+            },
+      status: cfg.authForte && cfg.clearingIntegro ? "ok" : !cfg.authForte ? "alerta" : "downgrade",
+      statusLabel:
+        cfg.authForte && cfg.clearingIntegro
+          ? "🟢 Autenticado + Liability Shift"
+          : !cfg.authForte
+          ? "⚠️ Sem 3DS/EMV (Sem Shift)"
+          : "🔴 Truncado no Clearing",
+      impactoRegra: cfg.authForte
+        ? "Garante a menor alíquota de Intercâmbio e bloqueia Chargeback de Fraude (Liability Shift para o Emissor), desde que espelhado no Clearing."
+        : "Sem 3DS/Chip EMV, a alíquota de Intercâmbio sobe e qualquer contestação de fraude vira perda direta + contagem no VAMP/ECP.",
+    },
+    {
+      id: "rx-de38-39",
+      campo: "DE 38 + DE 39",
+      nome: "Código de Autorização (Auth ID Response) & Action Code",
+      edgeId: "R07",
+      req0100: {
+        codigo: "Ausente na 0100 (Solicitado ao Emissor)",
+        detalhe: "A mensagem 0100 pede aprovação para DE 04 = " + fmtBRL(cfg.valor) + " (DE 49 = 986 BRL).",
+      },
+      resp0110: {
+        codigo: 'DE 39 = "00" (Aprovado) · DE 38 = "A84F92"',
+        detalhe: "Gerado pelo Host do Emissor na 0110 confirmando reserva de limite (Open-to-Buy) do portador.",
+        ator: "Host Emissor",
+      },
+      clearing1240: cfg.clearingIntegro
+        ? {
+            codigo: 'DE 38 = "A84F92" (Espelhado Exato)',
+            detalhe: "Enviado na apresentação D+1 comprovando que a captura corresponde a uma autorização válida.",
+          }
+        : {
+            codigo: '🔴 DE 38 = "000000" / Divergente',
+            detalhe: "Código de autorização zerado ou corrompido pelo sistema de captura.",
+          },
+      status: cfg.clearingIntegro ? "ok" : "downgrade",
+      statusLabel: cfg.clearingIntegro ? "🟢 Espelhado Íntegro" : "🔴 Auth Code Inválido",
+      impactoRegra:
+        "Apresentar clearing sem o DE 38 exato da 0110 gera Downgrade imediato de intercâmbio e expõe a Adquirente a Chargeback técnico de falta de autorização (Visa 11.3 / MC 4808).",
+    },
+    {
+      id: "rx-tid-de63",
+      campo: tidLabel,
+      nome: "Identificador Único de Ciclo de Vida (Elo entre Autorização e Clearing)",
+      edgeId: cfg.clearingIntegro ? "R21" : "R29",
+      req0100: {
+        codigo: "DE 11 STAN + DE 37 RRN (Origem Adquirente)",
+        detalhe: "A Adquirente envia seu número sequencial (STAN/RRN), mas o ID global da Bandeira ainda não existe.",
+      },
+      resp0110: {
+        codigo: isVisa
+          ? 'DE 62.2 TID = "306281490218472" (15 díg.)'
+          : isMC
+          ? 'DE 63 = "MCC849201" + Data "1019"'
+          : 'NSU Elo = "948201948201"',
+        detalhe:
+          "Nascido no Switch da Bandeira no milissegundo da autorização e devolvido na 0110. DEVE ser gravado no banco da Adquirente.",
+        ator: "Switch Bandeira → 0110",
+      },
+      clearing1240: cfg.clearingIntegro
+        ? {
+            codigo: `${clearingMsg} (D+1): ID 100% Espelhado`,
+            detalhe: "Auto-matching perfeito em D+1 entre o log de autorização (0110) e a apresentação financeira.",
+          }
+        : {
+            codigo: `🔴 ${clearingMsg} (D+6): ID Omitido / Atrasado`,
+            detalhe:
+              "Host truncou o DE 62.2 / DE 63 ou enviou a captura após a janela máxima de tempestividade (Late Presentment).",
+          },
+      status: cfg.clearingIntegro ? "ok" : "downgrade",
+      statusLabel: cfg.clearingIntegro ? "🟢 Matching D+1 OK" : "🔴 Elo Quebrado / Downgrade",
+      impactoRegra:
+        "Principal causa de vazamento de margem no Brasil: se o DE 62.2 (Visa) ou DE 63 (MC) for truncado ou enviado fora do prazo (D+1), a bandeira aplica tarifa de penalidade (Standard / EIRF), encarecendo +45 a +65 bps!",
+    },
+    {
+      id: "rx-payfac",
+      campo: "DE 43 + DE 18 (MCC) + PDS 0176 / PF ID",
+      nome: "Identificação do Estabelecimento, MCC e Subcredenciador (PayFac)",
+      edgeId: cfg.subcred ? "R03" : "R01",
+      req0100: cfg.subcred
+        ? {
+            codigo: 'DE 43 = "PF*LOJA SUB" + PF ID + Sub-Merchant ID',
+            detalhe:
+              "Modelo Subcredenciador: envia ID do Facilitador (PF ID), código e CNPJ do Sub-lojista e MCC real (DE 18).",
+          }
+        : {
+            codigo: 'DE 43 = "LOJA DIRETA" + MID + MCC (DE 18)',
+            detalhe: "Credenciamento direto na Adquirente com Merchant ID e MCC do lojista.",
+          },
+      resp0110: {
+        codigo: "Cadastro de Merchant / MCC Validado",
+        detalhe: "Switch verifica regularidade do MID / PF ID e se o MCC é elegível ao programa de intercâmbio.",
+        ator: "Switch Bandeira",
+      },
+      clearing1240:
+        cfg.subcred && !cfg.clearingIntegro
+          ? {
+              codigo: "🔴 PF ID / CNPJ Sub-lojista Ausente no Lote",
+              detalhe: "Clearing enviado sem desmembrar o Sub-Merchant ID ou com MCC divergente da 0100.",
+            }
+          : {
+              codigo: cfg.subcred
+                ? "PDS 0176/0208 (PF ID + CNPJ Sub-EC) + MCC OK"
+                : "MID Direto + MCC Espelhado + Grade CIP/SLC",
+              detalhe: "Dados cadastrais íntegros para o clearing da bandeira e para o arquivo de liquidação CIP/SLC.",
+            },
+      status: cfg.subcred && !cfg.clearingIntegro ? "downgrade" : "ok",
+      statusLabel:
+        cfg.subcred && !cfg.clearingIntegro
+          ? "🔴 Falha Cadastro PayFac"
+          : cfg.subcred
+          ? "🟢 PayFac + CIP/SLC OK"
+          : "🟢 EC Direto OK",
+      impactoRegra: cfg.subcred
+        ? "No subcredenciamento, a consistência do PF ID + CNPJ do Sub-lojista entre 0100, Clearing e grade CIP/SLC é obrigatória pelas bandeiras e pela Res. BCB 150."
+        : "O MCC (DE 18) deve ser idêntico na autorização e no clearing para qualificar a tabela setorial de intercâmbio.",
+    },
+    {
+      id: "rx-ird",
+      campo: irdField,
+      nome: "Qualificador Final da Tarifa de Intercâmbio (Cálculo em D+1)",
+      edgeId: sc.perdaEvitavelReais > 0.01 ? "R29" : isDebito ? "R55" : "R28",
+      req0100: {
+        codigo: "Insumos enviados na 0100 (Não há IRD fixo na 0100)",
+        detalhe: `Alíquota Alvo se todos os requisitos forem cumpridos: ${fmtPct(sc.aliquotaAlvoPct)} (${fmtBRL((cfg.valor * sc.aliquotaAlvoPct) / 100)}).`,
+      },
+      resp0110: {
+        codigo: "Elegibilidade Preliminar Registrada",
+        detalhe: "Bandeira carimba no log da 0110 se houve Token, 3DS/EMV e aprovação eletrônica.",
+        ator: "Motor Bandeira",
+      },
+      clearing1240: {
+        codigo: `${sc.waterfall.statusQualificacao} → ${fmtPct(sc.aliquotaRealPct)}`,
+        detalhe:
+          sc.perdaEvitavelReais > 0.01
+            ? `🔴 Rebaixado no Clearing! Custo subiu para ${fmtBRL((cfg.valor * sc.aliquotaRealPct) / 100)} (+${fmtBRL(sc.perdaEvitavelReais)} por venda / +${sc.perda10kTransacoes} em 10k vendas).`
+            : `✅ Qualificação máxima confirmada no arquivo ${isVisa ? "VSS-120 / TC 05" : isMC ? "T140 / IPM" : "Elo"}: ${fmtBRL((cfg.valor * sc.aliquotaRealPct) / 100)}.`,
+      },
+      status: sc.perdaEvitavelReais > 0.01 ? "downgrade" : "ok",
+      statusLabel:
+        sc.perdaEvitavelReais > 0.01
+          ? `🔴 Downgrade (+${(sc.aliquotaRealPct - sc.aliquotaAlvoPct).toFixed(2)}%)`
+          : `🟢 Qualificado (${fmtPct(sc.aliquotaRealPct)})`,
+      impactoRegra:
+        "O Intercâmbio NUNCA é cobrado na autorização (0100/0110): ele é calculado exclusivamente no Clearing (D+1) cruzando a 0110 com o arquivo de apresentação.",
+    },
+  ];
+}
+
 const EDGE_KIND_META: Record<
   EdgeKind,
   { label: string; short: string; color: string; bg: string; border: string; dashed?: boolean }
@@ -1113,7 +1450,7 @@ export default function MapaClient() {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>("R28");
   const [inspectMode, setInspectMode] = useState<"node" | "edge">("node");
   const [edgeDetailTab, setEdgeDetailTab] = useState<"payload" | "nodes" | "tools">("payload");
-  const [viewMode, setViewMode] = useState<"graph" | "matrix">("graph");
+  const [viewMode, setViewMode] = useState<"graph" | "matrix" | "raiox">("graph");
   const [didatico, setDidatico] = useState<boolean>(true);
   const [showLanes, setShowLanes] = useState<boolean>(true);
   const [efeitoBorboleta, setEfeitoBorboleta] = useState<boolean>(true);
@@ -1368,10 +1705,18 @@ export default function MapaClient() {
   }, [activeNode, nodeMap]);
 
   // ─── Estado Derivado do Simulador de Transação Passo a Passo & What-If ─────
+  const whatIfComputedScenario = useMemo(() => {
+    return buildWhatIfScenario(whatIf, simScenarioId || "what-if-custom");
+  }, [whatIf, simScenarioId]);
+
   const activeScenario = useMemo(() => {
     if (!simScenarioId) return null;
-    return buildWhatIfScenario(whatIf, simScenarioId);
-  }, [simScenarioId, whatIf]);
+    return whatIfComputedScenario;
+  }, [simScenarioId, whatIfComputedScenario]);
+
+  const raioXFields = useMemo(() => {
+    return buildRaioXFields(whatIf, whatIfComputedScenario);
+  }, [whatIf, whatIfComputedScenario]);
 
   const activeSimStep = useMemo(() => {
     if (!activeScenario) return null;
@@ -1426,7 +1771,6 @@ export default function MapaClient() {
       setSubdominioFiltro("");
       setKindFiltro("");
       setRotaAtiva(null);
-      setViewMode("graph");
       setWhatIf(presetCfg);
       setSimScenarioId(scenarioId);
       setSimStepIdx(0);
@@ -1488,9 +1832,9 @@ export default function MapaClient() {
   // ─── Ponte Direta para o Doc Studio (/editor) ──────────────────────────────
 
   const handleSendScenarioToDocStudio = useCallback(() => {
-    if (!activeScenario) return;
-    const wf = activeScenario.waterfall;
-    const stepsRows = activeScenario.steps
+    const sc = activeScenario || whatIfComputedScenario;
+    const wf = sc.waterfall;
+    const stepsRows = sc.steps
       .map(
         (s) => `
         <tr>
@@ -1503,8 +1847,8 @@ export default function MapaClient() {
       .join("");
 
     const html = `
-      <h2>Simulação Ponta a Ponta: ${activeScenario.titulo}</h2>
-      <p><strong>Resumo do Cenário:</strong> ${activeScenario.subtitulo}</p>
+      <h2>Simulação Ponta a Ponta: ${sc.titulo}</h2>
+      <p><strong>Resumo do Cenário:</strong> ${sc.subtitulo}</p>
       <h3>1. Decomposição Financeira da Transação (Waterfall R$)</h3>
       <table>
         <thead>
@@ -1533,7 +1877,7 @@ export default function MapaClient() {
           <tr>
             <td><strong>Taxas de Bandeira (Scheme Fees)</strong></td>
             <td>${wf.schemeFee}</td>
-            <td>Adquirente → Bandeira (${activeScenario.bandeira})</td>
+            <td>Adquirente → Bandeira (${sc.bandeira})</td>
           </tr>
           <tr>
             <td><strong>Valor Líquido Repassado ao Lojista</strong></td>
@@ -1564,40 +1908,101 @@ export default function MapaClient() {
     `;
 
     const normBrand =
-      activeScenario.bandeira === "Visa"
+      sc.bandeira === "Visa"
         ? "visa"
-        : activeScenario.bandeira === "Mastercard"
+        : sc.bandeira === "Mastercard"
         ? "mastercard"
-        : activeScenario.bandeira === "Elo"
+        : sc.bandeira === "Elo"
         ? "elo"
         : "geral";
 
     const normRisk =
-      activeScenario.risco === "critico" || activeScenario.risco === "alto"
+      sc.risco === "critico" || sc.risco === "alto"
         ? "Alto"
-        : activeScenario.risco === "medio"
+        : sc.risco === "medio"
         ? "Médio"
         : "Baixo";
 
     sendToDocStudio({
       mode: "full_dossier",
-      title: `Parecer de Simulação Transacional — ${activeScenario.curto}`,
+      title: `Parecer de Simulação Transacional — ${sc.curto}`,
       sourceModule: "Atlas Interativo (/mapa) · Simulador de Transação",
       html,
       metadata: {
         brand: normBrand,
-        brandName: activeScenario.bandeira,
-        referenceId: `SIM-${activeScenario.id.toUpperCase()}`,
+        brandName: sc.bandeira,
+        referenceId: `SIM-${sc.id.toUpperCase()}`,
         category: "Simulação Ponta a Ponta (ISO 8583 + Intercâmbio + Liquidação)",
         riskLevel: normRisk,
-        executiveSummary: `${activeScenario.titulo}. Status: ${wf.statusQualificacao}. Margem Líquida: ${wf.margemAdquirente}.`,
+        executiveSummary: `${sc.titulo}. Status: ${wf.statusQualificacao}. Margem Líquida: ${wf.margemAdquirente}.`,
         recommendedAction:
-          activeScenario.risco === "critico"
+          sc.risco === "critico"
             ? "Implementar autenticação EMV 3DS 2.2 + Tokenização de Rede (VTS/MDES) e garantir submissão de clearing até D+1 com preservação integral do DE 62.2 / DE 63 para eliminar downgrades e exposição ao VAMP."
             : "Manter monitoramento contínuo da qualificação de IRD/Fee Program nos arquivos de retorno (T140/VSS-120) e conciliação diária com a grade CIP/SLC.",
       },
     });
-  }, [activeScenario]);
+  }, [activeScenario, whatIfComputedScenario]);
+
+  const handleSendRaioXToDocStudio = useCallback(() => {
+    const sc = whatIfComputedScenario;
+    const rowsHtml = raioXFields
+      .map(
+        (r) => `
+        <tr>
+          <td><strong>${r.campo}</strong><br/><small>${r.nome} (<code>${r.edgeId}</code>)</small></td>
+          <td><code>${r.req0100.codigo}</code><br/><small>${r.req0100.detalhe}</small></td>
+          <td><code>${r.resp0110.codigo}</code><br/><small>${r.resp0110.detalhe}</small></td>
+          <td><code>${r.clearing1240.codigo}</code><br/><small>${r.clearing1240.detalhe}</small></td>
+          <td><strong>${r.statusLabel}</strong><br/><small>${r.impactoRegra}</small></td>
+        </tr>`
+      )
+      .join("");
+
+    const html = `
+      <h2>Raio-X Diff de Mensageria: Autorização (0100 → 0110) × Clearing (D+1)</h2>
+      <p><strong>Configuração Auditada:</strong> ${sc.titulo} · <strong>Bandeira:</strong> ${whatIf.bandeira} · <strong>Status de Qualificação:</strong> ${sc.waterfall.statusQualificacao}</p>
+      <blockquote><strong>Diagnóstico Executivo:</strong> ${sc.alertaDiagnostico}</blockquote>
+      <h3>Matriz Comparativa de Ciclo de Vida dos Campos (0100 → 0110 → Clearing)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Data Element / Campo</th>
+            <th>1. Auth Request (MTI 0100 · D+0)</th>
+            <th>2. Auth Response (MTI 0110 · D+0)</th>
+            <th>3. Clearing / Apresentação (D+1)</th>
+            <th>Status & Regra de Qualificação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+
+    const normBrand =
+      whatIf.bandeira === "Visa"
+        ? "visa"
+        : whatIf.bandeira === "Mastercard"
+        ? "mastercard"
+        : "elo";
+
+    sendToDocStudio({
+      mode: "full_dossier",
+      title: `Raio-X Diff ISO 8583 (0100 → 0110 → Clearing) — ${whatIf.bandeira}`,
+      sourceModule: "Atlas Interativo (/mapa) · Raio-X Diff de Mensageria",
+      html,
+      metadata: {
+        brand: normBrand,
+        brandName: whatIf.bandeira,
+        referenceId: `RAIOX-${whatIf.bandeira.toUpperCase()}-${whatIf.ambiente.toUpperCase()}`,
+        category: "Auditoria de Mensageria ISO 8583 & Clearing D+1",
+        riskLevel: sc.perdaEvitavelReais > 0.01 ? "Alto" : "Baixo",
+        executiveSummary: sc.alertaDiagnostico,
+        recommendedAction:
+          "Garantir espelhamento bit-a-bit entre os dados retornados na 0110 (DE 38, DE 62.2 / DE 63, SLI/ECI) e o lote de Clearing D+1 (IPM 1240 / BASE II TC 05).",
+      },
+    });
+  }, [whatIf, whatIfComputedScenario, raioXFields]);
 
   const handleSendNodeToDocStudio = useCallback(
     (node: NoData) => {
@@ -1942,7 +2347,7 @@ export default function MapaClient() {
             🦋 Efeito Borboleta: {efeitoBorboleta ? "ON" : "OFF"}
           </button>
 
-          {/* Alternador Grafo vs Matriz */}
+          {/* Alternador Grafo vs Matriz vs Raio-X ISO */}
           <div className="inline-flex rounded-lg bg-[#151822] p-0.5 border border-[#30364b]">
             <button
               onClick={() => setViewMode("graph")}
@@ -1965,6 +2370,18 @@ export default function MapaClient() {
             >
               <Table2 size={12} />
               Matriz ({visibleNodes.length})
+            </button>
+            <button
+              onClick={() => setViewMode("raiox")}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                viewMode === "raiox"
+                  ? "bg-[#273e39] text-[#80ddc6]"
+                  : "text-[#9ba4ba] hover:text-white"
+              }`}
+              title="Comparador lado a lado do ciclo de vida dos campos: Autorização Request (0100) → Response (0110) → Clearing D+1 (IPM 1240 / BASE II TC 05)"
+            >
+              <GitCommit size={12} />
+              Raio-X ISO (0100→0110→Clearing)
             </button>
           </div>
 
@@ -2287,7 +2704,20 @@ export default function MapaClient() {
                   Escolha um preset ou altere as chaves (Token, 3DS, Clearing D+1 vs D+6, PayFac, Fraude) para ver a rota do grafo e o Waterfall R$ mudarem ao vivo:
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={() =>
+                    setViewMode((v) => (v === "raiox" ? "graph" : "raiox"))
+                  }
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                    viewMode === "raiox"
+                      ? "bg-purple-500/25 border-purple-400 text-purple-200"
+                      : "bg-[#202432] hover:border-purple-400/60 border-[#30364b] text-[#b6a0f2]"
+                  }`}
+                  title="Alternar entre o Grafo e o Comparador Lado a Lado 0100 → 0110 → Clearing D+1"
+                >
+                  🔬 {viewMode === "raiox" ? "Voltar ao Grafo" : "Raio-X Diff ISO (0100→0110→Clearing)"}
+                </button>
                 {!activeScenario ? (
                   <button
                     onClick={() => handleSelectScenario("ecom-qualificado")}
@@ -3180,7 +3610,7 @@ export default function MapaClient() {
                 Clique em um <b>Conceito</b> (caixa) ou <b>Ligação</b> (seta R01..R62) · Arraste o fundo para mover · Scroll do mouse para zoom
               </div>
             </div>
-          ) : (
+          ) : viewMode === "matrix" ? (
             /* VISÃO 2: MATRIZ EXECUTIVA QUEM ENVIA × QUEM RECEBE × COMO CALCULA */
             <div className="border border-[#30364b] rounded-2xl bg-[#191c26] overflow-auto max-h-[56vh]">
               <table className="w-full border-collapse text-left text-xs">
@@ -3255,6 +3685,284 @@ export default function MapaClient() {
                   })}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            /* VISÃO 3: RAIO-X DIFF DE MENSAGERIA (0100 → 0110 → CLEARING D+1) */
+            <div className="border border-[#30364b] rounded-2xl bg-[#191c26] overflow-hidden flex flex-col max-h-[60vh]">
+              {/* Barra Superior Interativa do Raio-X Diff */}
+              <div className="p-3 bg-[#131722] border-b border-[#30364b] flex flex-col gap-2.5 shrink-0">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded bg-purple-500/20 border border-purple-400/40 text-purple-200 text-[10px] font-extrabold uppercase tracking-wider">
+                        🔬 Raio-X Diff de Ciclo de Vida ISO 8583 &amp; Clearing
+                      </span>
+                      <span className="text-xs font-bold text-[#e9ecf6]">
+                        1. Auth Request (0100) → 2. Auth Response (0110) → 3. Apresentação D+1 (
+                        {whatIf.bandeira === "Visa"
+                          ? "BASE II TC 05"
+                          : whatIf.bandeira === "Mastercard"
+                          ? "IPM 1240"
+                          : "Liquidação Elo"}
+                        )
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#9ba4ba] mt-0.5 m-0">
+                      Compare quais campos nascem na autorização, quais voltam do Emissor/Bandeira na{" "}
+                      <code className="text-[#80ddc6]">0110</code> e quais{" "}
+                      <b className="text-rose-300">devem ser espelhados em D+1</b> para evitar Downgrade de Intercâmbio:
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      onClick={handleSendRaioXToDocStudio}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-[#80ddc6]/60 text-[11px] font-bold text-[#80ddc6] transition-all cursor-pointer"
+                    >
+                      <FileText size={12} />
+                      Exportar Raio-X Diff para o Doc Studio (/editor)
+                    </button>
+                    <button
+                      onClick={() => setViewMode("graph")}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#202432] hover:border-[#80ddc6] border border-[#30364b] text-[11px] font-semibold text-[#e9ecf6] cursor-pointer"
+                    >
+                      Ver no Grafo SVG
+                    </button>
+                  </div>
+                </div>
+
+                {/* Controles Rápidos para Testar Mutações de Campos direto no Raio-X */}
+                <div className="flex items-center justify-between gap-2 flex-wrap pt-1.5 border-t border-[#262c40] text-[11px]">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <select
+                      value={whatIf.bandeira}
+                      onChange={(e) =>
+                        handleUpdateWhatIf({
+                          bandeira: e.target.value as WhatIfConfig["bandeira"],
+                        })
+                      }
+                      className="px-2 py-1 rounded bg-[#191c26] border border-[#30364b] text-[11px] text-[#80ddc6] font-bold cursor-pointer"
+                    >
+                      <option value="Mastercard">Bandeira: Mastercard (IPM 1240 / DE 63)</option>
+                      <option value="Visa">Bandeira: Visa (BASE II TC 05 / DE 62.2)</option>
+                      <option value="Elo">Bandeira: Elo (Arranjo BR)</option>
+                    </select>
+
+                    <select
+                      value={whatIf.ambiente}
+                      onChange={(e) =>
+                        handleUpdateWhatIf({
+                          ambiente: e.target.value as WhatIfConfig["ambiente"],
+                        })
+                      }
+                      className="px-2 py-1 rounded bg-[#191c26] border border-[#30364b] text-[11px] text-[#e9ecf6] font-semibold cursor-pointer"
+                    >
+                      <option value="ecom">Canal: E-commerce (CNP)</option>
+                      <option value="presencial">Canal: Presencial Crédito (CP)</option>
+                      <option value="debito">Canal: Presencial Débito</option>
+                    </select>
+
+                    <button
+                      onClick={() => handleUpdateWhatIf({ token: !whatIf.token })}
+                      className={`px-2 py-1 rounded border text-[10.5px] font-bold cursor-pointer ${
+                        whatIf.token
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-amber-500/10 border-amber-500/35 text-amber-200"
+                      }`}
+                    >
+                      Token DPAN: {whatIf.token ? "ON (R13)" : "OFF (FPAN)"}
+                    </button>
+
+                    <button
+                      onClick={() => handleUpdateWhatIf({ authForte: !whatIf.authForte })}
+                      className={`px-2 py-1 rounded border text-[10.5px] font-bold cursor-pointer ${
+                        whatIf.authForte
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-rose-500/15 border-rose-500/40 text-rose-200"
+                      }`}
+                    >
+                      {whatIf.ambiente === "ecom" ? "3DS 2.2 (SLI/ECI)" : "Chip EMV (DE 55)"}:{" "}
+                      {whatIf.authForte ? "ON" : "OFF"}
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleUpdateWhatIf({ clearingIntegro: !whatIf.clearingIntegro })
+                      }
+                      className={`px-2 py-1 rounded border text-[10.5px] font-bold cursor-pointer ${
+                        whatIf.clearingIntegro
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                          : "bg-rose-500/20 border-rose-500/50 text-rose-200"
+                      }`}
+                    >
+                      Espelhamento D+1:{" "}
+                      {whatIf.clearingIntegro ? "🟢 Íntegro" : "🔴 Truncado / D+6 (Downgrade)"}
+                    </button>
+
+                    <button
+                      onClick={() => handleUpdateWhatIf({ subcred: !whatIf.subcred })}
+                      className={`px-2 py-1 rounded border text-[10.5px] font-bold cursor-pointer ${
+                        whatIf.subcred
+                          ? "bg-purple-500/15 border-purple-500/40 text-purple-200"
+                          : "bg-[#202432] border-[#30364b] text-[#9ba4ba]"
+                      }`}
+                    >
+                      PayFac (PF ID): {whatIf.subcred ? "ON" : "OFF"}
+                    </button>
+                  </div>
+
+                  <span
+                    className={`font-mono text-[10.5px] px-2 py-0.5 rounded border ${
+                      whatIfComputedScenario.perdaEvitavelReais > 0.01
+                        ? "bg-rose-500/15 border-rose-500/40 text-rose-200"
+                        : "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                    }`}
+                  >
+                    IC Alvo: <b>{fmtPct(whatIfComputedScenario.aliquotaAlvoPct)}</b> → Aplicado:{" "}
+                    <b>{fmtPct(whatIfComputedScenario.aliquotaRealPct)}</b>
+                  </span>
+                </div>
+              </div>
+
+              {/* Tabela Lado a Lado: 0100 vs 0110 vs Clearing D+1 */}
+              <div className="overflow-auto flex-1">
+                <table className="w-full border-collapse text-left text-xs">
+                  <thead className="sticky top-0 bg-[#202432] border-b border-[#30364b] text-[10.5px] uppercase text-[#9ba4ba] z-10">
+                    <tr>
+                      <th className="p-3 min-w-[175px]">Campo ISO / PDS</th>
+                      <th className="p-3 min-w-[210px] border-l border-[#2d3348] text-cyan-300">
+                        1. Auth Request (MTI 0100 · D+0)
+                        <span className="block text-[9.5px] font-normal text-[#9ba4ba] normal-case">
+                          Adquirente → Bandeira → Emissor
+                        </span>
+                      </th>
+                      <th className="p-3 min-w-[210px] border-l border-[#2d3348] text-purple-300">
+                        2. Auth Response (MTI 0110 · D+0)
+                        <span className="block text-[9.5px] font-normal text-[#9ba4ba] normal-case">
+                          Emissor / Switch Bandeira → Adquirente
+                        </span>
+                      </th>
+                      <th className="p-3 min-w-[220px] border-l border-[#2d3348] text-amber-300">
+                        3. Clearing / Apresentação (D+1)
+                        <span className="block text-[9.5px] font-normal text-[#9ba4ba] normal-case">
+                          Lote{" "}
+                          {whatIf.bandeira === "Visa"
+                            ? "BASE II TC 05"
+                            : whatIf.bandeira === "Mastercard"
+                            ? "IPM 1240"
+                            : "Elo"}{" "}
+                          → Qualificação IC
+                        </span>
+                      </th>
+                      <th className="p-3 min-w-[215px] border-l border-[#2d3348]">
+                        Diagnóstico &amp; Impacto no Intercâmbio
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#282d3e]">
+                    {raioXFields.map((row) => {
+                      const isSelected = selectedEdgeId === row.edgeId;
+                      return (
+                        <tr
+                          key={row.id}
+                          onClick={() => handleSelectEdge(row.edgeId)}
+                          className={`cursor-pointer transition-colors align-top ${
+                            row.status === "downgrade"
+                              ? "bg-rose-950/20 hover:bg-rose-950/35"
+                              : isSelected
+                              ? "bg-[#25313a]"
+                              : "hover:bg-[#222736]"
+                          }`}
+                        >
+                          {/* Coluna 0: Identificação do Campo */}
+                          <td className="p-3">
+                            <div className="font-mono font-bold text-[#80ddc6] text-[11.5px]">
+                              {row.campo}
+                            </div>
+                            <div className="text-[11px] text-[#e9ecf6] font-medium mt-0.5 leading-snug">
+                              {row.nome}
+                            </div>
+                            <div className="mt-1.5 flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 rounded bg-[#11131a] border border-[#30364b] font-mono text-[10px] text-[#b6a0f2]">
+                                Ligação {row.edgeId}
+                              </span>
+                              <button
+                                onClick={(ev) => {
+                                  ev.stopPropagation();
+                                  handleSelectEdge(row.edgeId);
+                                  setViewMode("graph");
+                                }}
+                                className="px-1.5 py-0.5 rounded bg-[#273e39] text-[#80ddc6] text-[10px] font-semibold hover:opacity-90 cursor-pointer"
+                              >
+                                Ver seta ↗
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Coluna 1: MTI 0100 */}
+                          <td className="p-3 border-l border-[#262b3d]">
+                            <code className="block font-mono text-[11px] font-bold text-cyan-200 bg-[#111420] px-2 py-1 rounded border border-cyan-500/25 mb-1">
+                              {row.req0100.codigo}
+                            </code>
+                            <p className="text-[11px] text-[#c5cbe0] leading-relaxed m-0">
+                              {row.req0100.detalhe}
+                            </p>
+                          </td>
+
+                          {/* Coluna 2: MTI 0110 */}
+                          <td className="p-3 border-l border-[#262b3d]">
+                            <code className="block font-mono text-[11px] font-bold text-purple-200 bg-[#141224] px-2 py-1 rounded border border-purple-500/25 mb-1">
+                              {row.resp0110.codigo}
+                            </code>
+                            <p className="text-[11px] text-[#c5cbe0] leading-relaxed m-0">
+                              {row.resp0110.detalhe}
+                            </p>
+                            <span className="inline-block mt-1 text-[9.5px] uppercase tracking-wider text-purple-300/80 font-semibold">
+                              Origem: {row.resp0110.ator}
+                            </span>
+                          </td>
+
+                          {/* Coluna 3: Clearing D+1 */}
+                          <td className="p-3 border-l border-[#262b3d]">
+                            <code
+                              className={`block font-mono text-[11px] font-bold px-2 py-1 rounded border mb-1 ${
+                                row.status === "downgrade"
+                                  ? "bg-rose-950/60 text-rose-200 border-rose-500/50"
+                                  : row.status === "alerta"
+                                  ? "bg-amber-950/40 text-amber-200 border-amber-500/40"
+                                  : "bg-emerald-950/40 text-emerald-200 border-emerald-500/35"
+                              }`}
+                            >
+                              {row.clearing1240.codigo}
+                            </code>
+                            <p className="text-[11px] text-[#c5cbe0] leading-relaxed m-0">
+                              {row.clearing1240.detalhe}
+                            </p>
+                          </td>
+
+                          {/* Coluna 4: Status & Impacto */}
+                          <td className="p-3 border-l border-[#262b3d]">
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded text-[10.5px] font-extrabold mb-1 ${
+                                row.status === "downgrade"
+                                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                                  : row.status === "alerta"
+                                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                              }`}
+                            >
+                              {row.statusLabel}
+                            </span>
+                            <p className="text-[11px] text-[#cbd5e1] leading-relaxed m-0">
+                              {row.impactoRegra}
+                            </p>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
