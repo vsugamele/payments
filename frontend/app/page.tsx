@@ -17,44 +17,41 @@ import {
   FileCheck,
   FileDown,
   Globe2,
-  Calendar,
   Building2,
   Send,
   MessageCircle,
-  Phone,
-  BarChart3,
-  Network
 } from "lucide-react";
 
 export const metadata = {
-  title: "Vinícius Sugamele — Payments & Billing Specialist · Head de Bandeiras",
-  description: "Profissional com mais de 16 anos de experiência em meios de pagamento: EcommIT, Bandeira Elo, Getnet e American Express. Especialista em governança de bandeiras, autorização, intercâmbio, billing recorrente e chargebacks.",
+  title: "Vinícius Sugamele — Especialista & Head de Bandeiras · Meios de Pagamento",
+  description:
+    "Especialista em gestão de bandeiras e meios de pagamento com mais de 16 anos de experiência (EcommIT, Bandeira Elo, Getnet e Verifone / American Express). Atuação direta em compliance de bandeiras, certificações L3/MTIP/TQS, mandates, Data Integrity, intercâmbio e liquidação.",
 };
 
 const METRICS = [
   {
     value: "16+",
     unit: "Anos",
-    label: "Experiência Executiva",
-    desc: "Elo, Getnet, Amex, EcommIT & Verifone em liderança de meios de pagamento.",
+    label: "Experiência em Pagamentos",
+    desc: "EcommIT, Bandeira Elo, Getnet e Verifone / American Express na gestão de bandeiras e operações.",
   },
   {
-    value: "224k+",
-    unit: "BINs",
-    label: "Faixas Modeladas",
-    desc: "Mapeamento algorítmico de cascata de intercâmbio e auditoria de faturas MCBS e VSS.",
+    value: "4",
+    unit: "Bandeiras",
+    label: "Compliance & Certificações",
+    desc: "Atuação direta com Visa (ADVT/L3), Mastercard (MTIP), Elo (TQS) e American Express.",
   },
   {
     value: "+3.8%",
     unit: "Aprovação",
-    label: "Ganho Médio",
-    desc: "Otimização em projetos de Network Tokens (VTS/MDES), Smart Retries e mensageria.",
+    label: "Ganho Médio em Conversão",
+    desc: "Otimização em projetos de Network Tokens (VTS/MDES/Elo), 3DS, Account Updater e mensageria.",
   },
   {
     value: "30+",
     unit: "Players",
     label: "Ecossistema Atendido",
-    desc: "Adquirentes, bancos emissores, bandeiras globais e processadoras de mercado.",
+    desc: "Adquirentes, subadquirentes, bancos emissores, bandeiras globais e processadoras.",
   },
 ];
 
@@ -114,146 +111,176 @@ const EXPERIENCE = [
     role: "Head de Bandeiras",
     company: "EcommIT Integrated Solutions",
     period: "Out 2023 – Presente",
-    duration: "2+ anos",
-    desc: "Liderança no relacionamento técnico e de negócios com bandeiras (Visa, Mastercard, Elo, Amex). Responsável pela governança de releases semestrais, desenho de novos produtos, estratégia de intercâmbio, liquidação financeira e integração técnica. Atendimento direto a grandes parceiros e instituições como Checkout.com, Getnet, PicPay, Mercado Pago, Banco BS2, Banco Inter e Entrepay, além de processadoras de pagamento líderes de mercado como DXC Technology, AM53 e Payware.",
+    duration: "Atual",
+    desc: "Liderança no relacionamento técnico e de negócios com Visa, Mastercard, Elo e American Express. Referência em regras de bandeira para os times de Produto, Tecnologia, Riscos e Operações, conduzindo a governança de mandates/releases semestrais, certificações técnicas (Visa ADVT/L3, Mastercard MTIP, Elo TQS e Amex), prevenção de multas em Data Integrity, aprovação de waivers, controle de tarifas (MCBS/VSS), estratégia de Interchange e resolução de incidentes entre autorização e clearing. Atendimento direto a instituições como Checkout.com, Getnet, PicPay, Mercado Pago, Banco BS2, Banco Inter e Entrepay, além das processadoras DXC Technology, AM53 e Payware.",
     tags: [
+      "Visa",
+      "Mastercard",
+      "Elo",
+      "Amex",
+      "Data Integrity",
+      "Mandates & Releases",
+      "Certificações L3 / MTIP",
+      "Interchange",
+      "Tarifas MCBS / VSS",
+      "Waivers",
       "Checkout.com",
       "Getnet",
       "PicPay",
       "Mercado Pago",
       "Banco Inter",
       "Banco BS2",
-      "Entrepay",
       "DXC",
       "AM53",
       "Payware",
-      "Visa",
-      "Mastercard",
-      "Elo",
-      "Amex",
-      "Releases",
-      "Intercâmbio",
     ],
   },
   {
-    role: "Especialista de Operações",
+    role: "Especialista de Operações (Performance & Troubleshooting)",
     company: "Bandeira Elo",
     period: "Ago 2020 – Out 2023",
     duration: "3 anos",
-    desc: "Multiplicador de soluções e serviços da Elo para adquirentes e processadoras. Desenvolvimento do novo Portal Elo, monitoramento e troubleshooting de autorização e liquidação, facilitador entre Emissores (Bradesco, BB, Caixa), Credenciadores (Cielo, Getnet, Rede, Stone, PagBank) e Processadoras, otimização contínua de taxas de aprovação.",
-    tags: ["Bandeira Elo", "Autorização", "Liquidação", "Qlik Sense", "Tableau", "Troubleshooting", "Portal Elo"],
+    desc: "Atuação consultiva para maximização de taxas de aprovação e estabilidade transacional entre Emissores (Bradesco, Banco do Brasil, Caixa), Credenciadores (Cielo, Getnet, Rede, Stone, PagBank) e Processadoras. Liderança no desenvolvimento do novo Portal Elo para Adquirentes, investigação de causas-raiz de recusas e divergências entre autorização e liquidação, homologação de novos produtos (Elo TQS) e monitoramento em tempo real via Qlik Sense e Tableau.",
+    tags: [
+      "Bandeira Elo",
+      "Autorização & Clearing",
+      "Performance de Aprovação",
+      "Elo TQS",
+      "Qlik Sense",
+      "Tableau",
+      "Troubleshooting",
+      "Portal Elo",
+    ],
   },
   {
-    role: "Analista Sênior / Coordenador de Liquidação",
+    role: "Analista Sênior / Coordenador de Liquidação & Bandeiras",
     company: "Getnet",
     period: "Set 2017 – Out 2020",
     duration: "3 anos",
-    desc: "Responsável pelo desenvolvimento, homologação e rollout de projetos de Release das Bandeiras (Elo, Visa, Mastercard, Amex, Hipercard). Liderança em projetos estratégicos: QR Code, 3DS 2.0, ABU/VAU (Account Updater), Marketplace, Tokenização de Bandeira, Emissão e Consulta de BIN.",
-    tags: ["3DS 2.0", "ABU / VAU", "Tokenização", "Getnet", "Releases", "Marketplace", "Consulta BIN"],
+    desc: "Gestão completa de compliance, homologação, certificação (Visa ADVT, Mastercard M-TIP, Elo TQS e Amex) e rollout dos Releases Mandatórios das bandeiras Elo, Visa, Mastercard, Amex e Hipercard. Condução técnica da criação e certificação da processadora/adquirente dedicada (Amadeus), entrega dos reportes trimestrais regulatórios às bandeiras (QMR/GMR/EIR), auditoria técnica de faturas (MCBS/VSS) junto ao Financeiro e liderança em projetos estratégicos: 3DS 2.0, ABU/VAU (Account Updater), Tokenização de Bandeira (VTS/MDES), Contactless/HCE, QR Code e Split/Marketplace.",
+    tags: [
+      "Getnet",
+      "Compliance de Bandeiras",
+      "Releases & Mandates",
+      "Certificação Host Amadeus",
+      "3DS 2.0",
+      "ABU / VAU",
+      "Tokenização VTS/MDES",
+      "QMR / GMR",
+      "MCBS / VSS",
+    ],
   },
   {
     role: "Analista de Produção / Negócios",
     company: "Verifone / American Express",
     period: "Ago 2009 – Set 2017",
     duration: "8 anos",
-    desc: "Homologação de implementações, criação do processo EDI, implementação de monitorias de autorização/captura. Participação na migração dos servidores globais da Amex para o Bradesco (2014) e no projeto Multivan. Suporte operacional a terminais POS, gateways e processamento ISO 8583.",
-    tags: ["Amex", "EDI", "ISO 8583", "Autorização", "Processamento", "Multivan"],
+    desc: "Condução de testes, homologação e certificação de soluções de captura e EMV L2 junto a Visa, Mastercard, American Express, emissores e processadoras. Participação chave na migração dos servidores globais da American Express para o Banco Bradesco (2014), criação do processo de EDI corporativo, atuação no projeto Multivan e suporte operacional a terminais POS, Contactless, gateways e mensageria ISO 8583.",
+    tags: ["Amex", "Verifone", "EMV L2", "EDI", "ISO 8583", "Autorização & Captura", "Multivan"],
   },
 ];
 
 const KEY_PROJECTS = [
   {
-    title: "Novo Portal Elo & Monitoramento Operacional",
+    title: "Governança de Releases, Data Integrity & Tarifas",
+    company: "EcommIT",
+    desc: "Gestão executiva de mandates semestrais, prevenção de multas de Data Integrity, condução de waivers e controle de tarifas de bandeiras (MCBS/VSS) e Interchange para adquirentes, bancos e processadoras.",
+    icon: FileCheck,
+  },
+  {
+    title: "Novo Portal Elo & Performance de Autorização",
     company: "Bandeira Elo",
-    desc: "Desenvolvimento da plataforma centralizada de monitoria de autorização e liquidação em Qlik Sense e Tableau, conectando emissores e credenciadores para troubleshooting em tempo real.",
+    desc: "Liderança no desenvolvimento do novo Portal Elo para Adquirentes e estruturação da monitoria de autorização e liquidação em Qlik Sense e Tableau, elevando taxas de aprovação entre emissores e credenciadores.",
     icon: Rocket,
   },
   {
-    title: "Implantação de ABU, VAU e 3DS 2.0",
+    title: "Certificação & Homologação de Adquirência Amadeus",
     company: "Getnet",
-    desc: "Rollout do Automatic Billing Updater da Mastercard, Visa Account Updater e protocolo 3-D Secure 2.0, reduzindo perdas em cartões vencidos e garantindo liability shift.",
+    desc: "Condução técnica da criação, certificação host e homologação de processadora e adquirente dedicada junto às bandeiras, garantindo conectividade e liquidação sem falhas.",
+    icon: Globe2,
+  },
+  {
+    title: "Implantação de ABU, VAU, Tokenização e 3DS 2.0",
+    company: "Getnet",
+    desc: "Rollout de Mastercard ABU, Visa Account Updater (VAU), Tokenização de Rede (VTS/MDES) e protocolo 3-D Secure 2.0, reduzindo perdas em cartões expirados e garantindo liability shift.",
     icon: Zap,
   },
   {
     title: "Migração Global Amex para o Bradesco (2014)",
     company: "American Express / Verifone",
-    desc: "Participação ativa na migração de infraestrutura de servidores globais para o datacenter do Bradesco, arquitetando processos EDI e monitoramento de captura.",
+    desc: "Participação ativa na migração dos servidores globais da American Express para a infraestrutura do Bradesco, estruturando processos EDI e monitoria de captura e liquidação.",
     icon: Flame,
-  },
-  {
-    title: "Governança de Releases & Intercâmbio",
-    company: "EcommIT",
-    desc: "Gestão executiva de cronogramas mandatórios semestrais de bandeiras e auditoria de modelos de intercâmbio e clearing para dezenas de instituições financeiras.",
-    icon: FileCheck,
-  },
-  {
-    title: "Certificação & Homologação de Adquirência Amadeus",
-    company: "Getnet",
-    desc: "Condução técnica da criação, certificação e homologação de processadora e adquirente dedicada, garantindo conectividade e liquidação sem falhas.",
-    icon: Globe2,
   },
 ];
 
 const PAYMENTS_SOLUTIONS = [
   {
-    icon: TrendingUp,
-    title: "1. Engenharia de Autorização & Smart Routing",
-    summary: "Maximização de aprovação com inteligência de mensageria e compliance.",
-    details: [
-      "Aplicação de protocolos de autenticação avançada (Visa DAF e Mastercard DAA), integrando 3DS na primeira compra e Network Tokens nas recorrências.",
-      "Formatação rigorosa de POS Entry Mode evitando que transações seguras sofram downgrade tarifário ou recusas indevidas.",
-      "Otimização de aprovações em Stand-In Processing (STIP) durante períodos de instabilidade de emissores e roteamento inteligente por bandeira.",
-    ],
-  },
-  {
-    icon: RefreshCw,
-    title: "2. Recorrência, Smart Retries & Combate ao Churn",
-    summary: "Recuperação de faturamento legítimo respeitando rigorosamente o rulebook.",
-    details: [
-      "Classificação precisa de motivos de recusa (Soft vs. Hard Declines), garantindo total aderência às regras do Visa Art. 2.11 e Mastercard TPE.",
-      "Criação de cadências de retry sincronizadas com períodos de liquidez salarial e janelas horárias de maior aprovação bancária.",
-      "Eliminação de atrito com validação de contas via Zero-Dollar Verification sem gerar cobranças fantasma no extrato do portador.",
-    ],
-  },
-  {
-    icon: Zap,
-    title: "3. Network Tokens & Account Updater (VAU / ABU)",
-    summary: "Continuidade de billing e proteção de dados em conformidade com as bandeiras.",
-    details: [
-      "Homologação de soluções de Tokenização de Rede (Visa Token Service, MDES e Elo Token), aumentando a taxa de aprovação em até 4 pontos percentuais.",
-      "Fluxos contínuos de atualização automática de credenciais (Account Updater) para cartões expirados ou reemitidos.",
-      "Qualificação para tiers diferenciados de intercâmbio destinados a credenciais tokenizadas seguras.",
-    ],
-  },
-  {
     icon: ShieldCheck,
-    title: "4. Gestão de Chargebacks, Fraude & Monitoria",
-    summary: "Proteção contra programas punitivos e preservação de receita.",
+    title: "1. Compliance de Bandeiras, Mandates & Governança de Data Integrity",
+    summary: "Tradução dos requisitos das marcas em planos de ação executáveis por Produto, Tecnologia e Operações.",
     details: [
-      "Controle preventivo de limites de fraude e contestação para manter a operação longe dos programas punitivos (Visa VAMP e Mastercard ECP).",
-      "Implementação de 3DS 2.2 / 2.3 com Liability Shift para transferência de responsabilidade de fraude ao emissor.",
-      "Estruturação de dossiês de defesa técnica de chargeback com evidências robustas e conformidade regulatória.",
+      "Gestão ponta a ponta dos releases semestrais e mandates de Visa, Mastercard, Elo e Amex, conduzindo certificações L3 / ADVT, MTIP e TQS dentro dos prazos regulatórios.",
+      "Atuação preventiva em Data Integrity na mensageria de autorização e clearing, evitando multas operacionais e conduzindo pedidos de waiver junto às bandeiras.",
+      "Resolução estruturada de incidentes entre autorização, captura e liquidação sem impacto financeiro para estabelecimentos e parceiros.",
     ],
   },
   {
     icon: Layers,
-    title: "5. Governança de Intercâmbio & Tarifas de Rede",
-    summary: "Otimização de custos operacionais e margem de adquirência.",
+    title: "2. Controle de Tarifas de Bandeiras (MCBS / VSS) & Interchange",
+    summary: "Visão financeira e orçamentária aplicada à proteção de margem e redução de custos de processamento.",
     details: [
-      "Domínio completo das matrizes de Intercâmbio de Visa, Mastercard, Elo e Amex, assegurando o correto enquadramento tarifário por canal e segmento.",
-      "Auditoria minuciosa das faturas consolidadas de rede (VSS e MCBS), identificando cobranças indevidas de serviços e tarifas de exceção.",
-      "Modelagem estratégica de custos de processamento para adquirentes, subadquirentes e grandes plataformas.",
+      "Auditoria e controle sistemático das faturas consolidadas de rede (Mastercard MCBS e Visa VSS), identificando cobranças indevidas e tarifas de exceção.",
+      "Gestão das regras de qualificação de Interchange por produto, canal e MCC, prevenindo downgrades tarifários.",
+      "Análise de viabilidade econômico-financeira para apoiar decisões sobre novos modelos de captura, roteamento e processamento.",
+    ],
+  },
+  {
+    icon: TrendingUp,
+    title: "3. Engenharia de Autorização, Captura & Performance",
+    summary: "Maximização de taxas de aprovação com qualidade de mensageria ISO 8583 / ISO 20022.",
+    details: [
+      "Diagnóstico de recusas por código de retorno, qualidade de preenchimento de campos mandatórios (DE 22, DE 48, DE 61) e alinhamento com grandes emissores.",
+      "Integração de autenticação 3DS 2.0/2.2, Network Tokens (VTS, MDES, Elo Token) e Account Updater (VAU/ABU) para ganho real de conversão.",
+      "Acompanhamento de Stand-In Processing (STIP), disponibilidade transacional e conciliação de clearing (Base II / IPM / T068).",
+    ],
+  },
+  {
+    icon: RefreshCw,
+    title: "4. Prevenção a Fraudes, Disputas & Programas de Monitoria",
+    summary: "Proteção da operação contra programas punitivos e preservação de receita.",
+    details: [
+      "Monitoramento preventivo de índices de fraude e chargeback para manter adquirentes e subadquirentes fora de programas punitivos (Visa VAMP/VDMP/VFMP e Mastercard ECP).",
+      "Aplicação das regras de Liability Shift, Compelling Evidence 3.0 e fluxos de resolução de disputas (VROL / MCOM).",
+      "Trabalho integrado com as áreas de Chargeback, Fraudes, Riscos, Compliance e Operações.",
     ],
   },
 ];
 
 const SKILLS = [
-  { category: "Protocolos & Padrões", items: ["ISO 8583", "EMV Contactless", "PCI DSS", "3DS 2.0 / 2.2", "Network Tokens (VTS/MDES/Elo)"] },
-  { category: "Recorrência & Billing", items: ["Smart Retries", "Account Updater (VAU/ABU)", "CIT vs MIT", "Involuntary Churn Recovery", "Payment Routing"] },
-  { category: "Produtos & Operações", items: ["Crédito / Débito / Pré-pago", "Subscrições & SaaS", "QR Code / Pix", "Split de Pagamento", "Marketplace"] },
-  { category: "Disputas & Compliance", items: ["Reason Codes Visa & MC", "Programas de Monitoria (VAMP/ECP)", "Liability Shift", "VROL / MCOM"] },
-  { category: "Bandeiras & Ecossistema", items: ["Bandeira Elo", "Visa", "Mastercard", "American Express", "Hipercard", "Regulatório Bacen"] },
-  { category: "Dados & Ferramentas", items: ["Qlik Sense", "Tableau", "Python / FastAPI", "SQL / DBeaver", "Git"] },
+  {
+    category: "Compliance & Certificações",
+    items: ["Mandates & Releases", "Data Integrity", "Gestão de Waivers", "Visa ADVT / L3", "Mastercard MTIP", "Elo TQS", "Certificações Amex"],
+  },
+  {
+    category: "Protocolos & Mensageria",
+    items: ["ISO 8583 / ISO 20022", "Base II / IPM / T068", "EMV L2 & Contactless", "3DS 2.0 / 2.2", "Network Tokens (VTS/MDES/Elo)"],
+  },
+  {
+    category: "Tarifas, Finanças & Billing",
+    items: ["Interchange Qualification", "Faturas MCBS & Visa VSS", "Scheme Fees Control", "Account Updater (VAU/ABU)", "Viabilidade Financeira"],
+  },
+  {
+    category: "Produtos & Operações",
+    items: ["Captura & Processamento", "Autorização & Clearing", "QR Code / Pix", "Split & Marketplace", "Reportes Trimestrais (QMR/GMR)"],
+  },
+  {
+    category: "Disputas & Riscos",
+    items: ["Reason Codes Visa/MC/Elo", "Programas VAMP / ECP", "Liability Shift", "Prevenção a Multas", "VROL / MCOM"],
+  },
+  {
+    category: "Liderança & Ferramentas",
+    items: ["Liderança Funcional & Ágil", "Qlik Sense & Tableau", "SQL / DBeaver", "Inglês Avançado", "Espanhol para Negócios"],
+  },
 ];
 
 export default function HomePage() {
@@ -270,14 +297,13 @@ export default function HomePage() {
       >
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-[auto_1fr] items-center">
-            
             {/* Foto Oficial Vinícius Sugamele */}
             <div className="relative group mx-auto md:mx-0">
               <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500" />
               <div className="relative w-44 h-52 sm:w-52 sm:h-60 rounded-2xl overflow-hidden border-2 border-blue-500/30 shadow-2xl bg-slate-900">
                 <Image
                   src="/vinicius_sugamele.jpg"
-                  alt="Vinícius Sugamele - Payments & Billing Specialist"
+                  alt="Vinícius Sugamele - Especialista & Head de Bandeiras"
                   fill
                   sizes="(max-width: 768px) 176px, 208px"
                   priority
@@ -290,7 +316,7 @@ export default function HomePage() {
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  Payments & Billing Specialist
+                  Head de Bandeiras · Payments Specialist
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   16+ Anos de Experiência
@@ -303,9 +329,11 @@ export default function HomePage() {
               >
                 Vinícius Sugamele
               </h1>
-              
-              <p className="mb-5 text-sm sm:text-base text-muted-foreground font-medium italic">
-                &ldquo;A liderança em pagamentos é a ponte estratégica entre a infraestrutura técnica dos arranjos e o crescimento financeiro sustentável do negócio.&rdquo;
+
+              <p className="mb-5 text-sm sm:text-base text-muted-foreground font-medium">
+                Especialista em gestão de bandeiras e meios de pagamento — traduzo os requisitos de{" "}
+                <strong className="text-foreground">Visa, Mastercard, Elo e Amex</strong> em planos de ação que produto,
+                tecnologia e operações conseguem executar.
               </p>
 
               {/* Badges de Contato & Localização */}
@@ -316,7 +344,7 @@ export default function HomePage() {
                 </div>
 
                 <a
-                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20curr%C3%ADculo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors"
@@ -324,7 +352,7 @@ export default function HomePage() {
                   <MessageCircle size={13} className="text-emerald-400" />
                   (11) 97654-6714
                 </a>
-                
+
                 <a
                   href="mailto:vsugamele@gmail.com"
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-blue-400 bg-muted/50 px-3 py-1.5 rounded-lg border border-border hover:border-blue-500/40 transition-colors"
@@ -346,13 +374,18 @@ export default function HomePage() {
 
               {/* Bio Resumida */}
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
-                Head de Bandeiras na <strong>EcommIT Integrated Solutions</strong> (com suporte a instituições e parceiros como <em>Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay, DXC, AM53 e Payware</em>), com sólido histórico em posições estratégicas na <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e <strong>Verifone / American Express</strong>. Especialista em relacionamento com arranjos de pagamento, engenharia de autorização, governança de releases semestrais, billing recorrente, tokenização de rede e modelos de intercâmbio. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
+                Atuação direta com <strong>Visa, Mastercard, Elo e American Express</strong> em compliance de bandeiras,
+                certificações (L3/ADVT, MTIP, TQS), mandates/releases, controle de tarifas (MCBS/VSS), Interchange e
+                governança de <strong>Data Integrity</strong>. Hoje Head de Bandeiras na{" "}
+                <strong>EcommIT Integrated Solutions</strong>, com trajetória consolidada na{" "}
+                <strong>Bandeira Elo</strong>, <strong>Getnet</strong> e{" "}
+                <strong>Verifone / American Express</strong>. MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS.
               </p>
 
               {/* Botões de Ação */}
               <div className="flex flex-wrap gap-3 mt-6">
                 <a
-                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20curr%C3%ADculo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-md shadow-emerald-600/30 transition-all"
@@ -412,18 +445,73 @@ export default function HomePage() {
       </section>
 
       <div className="mx-auto max-w-5xl px-6">
-        {/* ── Introdução Executiva & Posicionamento ──────────────────────────── */}
+        {/* ── Sobre (Estrutura Direta: Quem Sou + Hoje + Antes + Transversal) ── */}
         <section className="pt-16">
           <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-4">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <Award className="text-blue-500" size={20} />
-              Visão Geral & Atuação no Mercado
+              Sobre
             </h2>
+
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Com mais de 16 anos dedicado integralmente à indústria de pagamentos, atuo no alinhamento de alto nível entre as regras operacionais das bandeiras globais e locais (Visa, Mastercard, Elo, American Express), as necessidades tecnológicas das adquirentes e processadoras e a viabilidade econômica das empresas que dependem de transações eletrônicas em larga escala.
+              Sou especialista em gestão de bandeiras e meios de pagamento, com mais de 16 anos de atuação direta com{" "}
+              <strong className="text-foreground">Visa, Mastercard, Elo e American Express</strong> em compliance de
+              bandeiras, certificações, mandates e governança de <strong className="text-foreground">Data Integrity</strong>.
+              Sou referência em regras de bandeira para os times técnicos e de negócios: traduzo os requisitos das
+              marcas em planos de ação que produto, tecnologia e operações conseguem executar.
             </p>
+
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Minha experiência abrange desde a governança de mandatórios técnicos e homologações de rede até a consultoria de produto para aumento contínuo de conversão, redução de custos de processamento e estruturação de governança de compliance com foco rigoroso nas diretrizes dos arranjos e regulamentações do Banco Central do Brasil.
+              Hoje, na <strong className="text-foreground">EcommIT</strong>, atuo como{" "}
+              <strong className="text-foreground">Head de Bandeiras</strong> atendendo adquirentes, subadquirentes,
+              bancos e processadoras (<em>Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay, DXC, AM53 e Payware</em>).
+              Alguns resultados e frentes sob minha liderança:
+            </p>
+
+            <ul className="space-y-2.5 pl-1">
+              {[
+                "Gestão das regras de bandeira, releases semestrais e projetos de captura e processamento, conduzindo certificações L3 / ADVT Visa, MTIP Mastercard, TQS Elo e Amex dentro dos prazos regulatórios.",
+                "Atuação preventiva em Data Integrity e qualidade de mensageria entre autorização e clearing, evitando multas operacionais e conduzindo a aprovação de waivers junto às bandeiras.",
+                "Estruturação do controle e auditoria das tarifas das bandeiras (Visa VSS e Mastercard MCBS) e projetos de qualificação de Interchange, gerando economia direta e proteção de margem para a operação.",
+                "Resolução de incidentes críticos entre autorização, captura e liquidação (clearing), preservando a continuidade operacional sem impacto financeiro para os estabelecimentos e parceiros.",
+              ].map((bullet, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  <CheckCircle2 size={15} className="text-blue-500 mt-0.5 shrink-0" />
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1">
+              Antes, na <strong className="text-foreground">Bandeira Elo</strong>, atuei por 3 anos na gestão de
+              performance, operações e troubleshooting de autorização e liquidação entre grandes Emissores (
+              <em>Bradesco, Banco do Brasil e Caixa</em>) e Credenciadores (
+              <em>Cielo, Rede, Getnet, Stone e PagBank</em>), além de liderar o desenvolvimento do novo Portal Elo para
+              Adquirentes. Na <strong className="text-foreground">Getnet</strong>, conduzi a gestão de compliance e
+              releases mandatórios com Visa, Mastercard, Elo, Amex e Hipercard, os projetos de certificação host da
+              processadora/adquirente dedicada (<em>Amadeus</em>), a entrega dos reportes trimestrais às bandeiras (
+              <em>QMR/GMR/EIR</em>), a auditoria de faturas (<em>MCBS/VSS</em>) junto ao Financeiro e o rollout de{" "}
+              <strong className="text-foreground">
+                3DS 2.0, Tokenização de Bandeira (VTS/MDES), Account Updater (ABU/VAU), QR Code e Marketplace
+              </strong>
+              . Na <strong className="text-foreground">Verifone / American Express</strong>, participei da migração
+              global dos servidores da Amex para o Bradesco e da implantação dos processos de EDI, captura e
+              certificação EMV L2.
+            </p>
+
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Trabalho de forma transversal com{" "}
+              <strong className="text-foreground">
+                Produtos, Captura, Processamento, Financeiro, Operações, Compliance, Chargeback, Fraudes,
+                Infraestrutura e NOC
+              </strong>
+              , com liderança funcional, visão financeira de impacto e práticas ágeis (MBA em Liderança, Inovação e
+              Gestão 3.0 — PUCRS). Atuo com inglês e espanhol no dia a dia.
+            </p>
+
+            <p className="text-xs sm:text-sm text-blue-400 font-semibold leading-relaxed">
+              Busco oportunidades em adquirentes, subadquirentes, emissores, bancos, fintechs, bandeiras e
+              processadoras, no Brasil e na América Latina.
             </p>
           </div>
         </section>
@@ -440,7 +528,8 @@ export default function HomePage() {
             </div>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-            Relacionamento executivo, homologações de rede e governança operacional desenvolvidos diretamente com os principais agentes da indústria financeira:
+            Relacionamento executivo, homologações de rede e governança operacional desenvolvidos diretamente com os
+            principais agentes da indústria financeira:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -507,9 +596,7 @@ export default function HomePage() {
                     <p className="text-[11px] text-muted-foreground/70">{e.duration}</p>
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">
-                  {e.desc}
-                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">{e.desc}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {e.tags.map((tag) => (
                     <span
@@ -533,7 +620,7 @@ export default function HomePage() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500">Entregas de Alto Impacto</p>
-              <h2 className="font-bold text-foreground text-2xl">Destaques de Projetos & Inovação</h2>
+              <h2 className="font-bold text-foreground text-2xl">Destaques de Projetos & Resultados</h2>
             </div>
           </div>
 
@@ -559,21 +646,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Soluções & Domínio em Payments & Billing ───────────────────────── */}
+        {/* ── Soluções & Domínio em Gestão de Bandeiras & Pagamentos ─────────── */}
         <section id="solucoes" className="pt-16">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
               <Zap size={20} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500">Especialidades Técnicas & Negócios</p>
-              <h2 className="font-bold text-foreground text-2xl">
-                Como Atuo nos Desafios de Payments & Billing
-              </h2>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500">
+                Especialidades Técnicas & Negócios
+              </p>
+              <h2 className="font-bold text-foreground text-2xl">Frentes de Atuação Executiva e Técnica</h2>
             </div>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-            Metodologias e práticas consolidadas ao longo de 16 anos atuando diretamente no coração das bandeiras, adquirentes e processadoras:
+            Práticas consolidadas ao longo de mais de 16 anos atuando diretamente entre bandeiras, adquirentes,
+            emissores e processadoras:
           </p>
 
           <div className="grid grid-cols-1 gap-5">
@@ -625,9 +713,7 @@ export default function HomePage() {
                 key={s.category}
                 className="rounded-2xl border border-border bg-card p-5 hover:border-blue-500/30 transition-all"
               >
-                <h3 className="font-bold text-foreground text-xs uppercase tracking-wider mb-3 text-blue-500">
-                  {s.category}
-                </h3>
+                <h3 className="font-bold text-xs uppercase tracking-wider mb-3 text-blue-500">{s.category}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {s.items.map((item) => (
                     <span
@@ -660,7 +746,7 @@ export default function HomePage() {
               <p className="font-bold text-foreground text-sm mb-1">MBA — Liderança, Inovação e Gestão 3.0</p>
               <p className="text-xs text-blue-500 font-semibold">PUCRS — Pontifícia Universidade Católica do RS</p>
               <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Foco em liderança de produtos digitais, inovação corporativa, agilidade e transformação de processos.
+                Foco em liderança funcional, gestão de produtos, agilidade e tomada de decisão orientada a resultados.
               </p>
               <p className="text-[11px] text-muted-foreground mt-3 font-mono">Conclusão: 2020</p>
             </div>
@@ -669,7 +755,7 @@ export default function HomePage() {
               <p className="font-bold text-foreground text-sm mb-1">Gestão da Tecnologia da Informação</p>
               <p className="text-xs text-blue-500 font-semibold">UNIP — Universidade Paulista</p>
               <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Engenharia de sistemas, governança de TI, bancos de dados relacionais e telecomunicações financeiras.
+                Engenharia de sistemas, governança de TI, bancos de dados relacionais e infraestrutura transacional.
               </p>
               <p className="text-[11px] text-muted-foreground mt-3 font-mono">Conclusão: 2011</p>
             </div>
@@ -679,8 +765,16 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { lang: "Português", level: "Nativo", desc: "Comunicação executiva e técnica fluente" },
-              { lang: "Inglês", level: "Avançado", desc: "Negociação com bandeiras globais e documentação técnica" },
-              { lang: "Espanhol", level: "Intermediário", desc: "Compreensão e comunicação profissional para LatAm" },
+              {
+                lang: "Inglês",
+                level: "Avançado",
+                desc: "Negociação direta com bandeiras globais e documentação técnica",
+              },
+              {
+                lang: "Espanhol",
+                level: "Profissional",
+                desc: "Atuação no dia a dia com equipes e operações na América Latina",
+              },
             ].map((idm) => (
               <div key={idm.lang} className="p-4 rounded-xl bg-card border border-border">
                 <div className="flex justify-between items-center mb-1">
@@ -695,96 +789,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Vitrine Executiva: Engenharia Proprietária de Meios de Pagamento ── */}
-        <section id="engenharia-proprietaria" className="pt-20 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-border pb-4">
-            <div className="space-y-1.5">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold uppercase tracking-wider text-blue-400">
-                <Network size={12} /> Engenharia Aplicada & Automação Regulatória
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-foreground">
-                Ecossistema Proprietário de Auditoria de Bandeiras & Mensageria
-              </h2>
-              <p className="text-xs text-muted-foreground max-w-3xl leading-relaxed">
-                Além da atuação executiva na gestão de arranjos e produtos, desenvolvi motores proprietários de engenharia de dados e conformidade técnica para automatizar a conciliação de intercâmbio, auditoria de faturas de bandeira e dissecação de releases regulatórias.
-              </p>
-            </div>
-            <span className="text-[11px] font-mono text-muted-foreground shrink-0">
-              Stack Proprietária · SQLite FTS5 · ISO 8583 / IPM / Base II
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                metric: "35.336",
-                unit: "Documentos Indexados",
-                title: "Acervo Normativo & RAG FTS5",
-                desc: "Base proprietária com 1,4 milhão de páginas de manuais técnicos, boletins ANB/GLB e releases Visa, Mastercard, Elo e BACEN indexados localmente.",
-                badge: "SQLite FTS5 · 1,4M Páginas",
-              },
-              {
-                metric: "17.106",
-                unit: "Campos & Posições",
-                title: "Motor Posicional MPE, IPM & Base II",
-                desc: "Mapeamento byte-a-byte de registros T068/T067 (1.014B), TC 05/06/33/46 (168B), Elo Remessa/Retorno (1.024B) e subcampos ISO 8583 DE/PDS.",
-                badge: "campos.sqlite3 · Byte-a-Byte",
-              },
-              {
-                metric: "13.181",
-                unit: "Eventos de Fatura",
-                title: "Auditoria MCBS Brasil & Visa VSS",
-                desc: "Catálogo auditável de 2.267 códigos Mastercard Consolidated Billing (T461) e 10.914 linhas Visa Settlement (VSS-110/120/140) para estancar vazamentos.",
-                badge: "Scheme Fees · FinOps",
-              },
-              {
-                metric: "141",
-                unit: "Regras Booleanas",
-                title: "Compilador de Qualificação & Downgrade",
-                desc: "Avaliador determinístico de elegibilidade tarifária (IRD, FPI e IRQ) que detecta causas de downgrade para Standard antes da liquidação.",
-                badge: "Intercâmbio & Bacen Cap",
-              },
-              {
-                metric: "381",
-                unit: "Mandates & Releases",
-                title: "Motor de Comportamento em 3 Lentes",
-                desc: "Triagem automatizada de releases (25.2 a 26.2) projetando impactos nas lentes Técnica (ISO/IPM), Normativa e de Negócio por papel no arranjo.",
-                badge: "Adquirente · Emissor · PayFac",
-              },
-              {
-                metric: "1.014B",
-                unit: "Desblocador Binário",
-                title: "Inspetor & Reconciliador de Clearing",
-                desc: "Decodificador de blocos físicos de mainframe com remoção de RDW/BDW, conversão EBCDIC/ASCII e conciliação de tabelas IP0040T1 e ARDEF.",
-                badge: "Mainframe · EBCDIC / ASCII",
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="p-5 rounded-2xl bg-card border border-border hover:border-blue-500/40 transition-all flex flex-col justify-between space-y-3"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xl font-black font-mono text-blue-500">
-                        {item.metric}
-                      </span>
-                      <span className="text-[11px] font-semibold text-muted-foreground">
-                        {item.unit}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                      {item.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* ── Box de Contato Direto ─────────────────────────────────────────── */}
         <section id="contato" className="pt-20">
           <div className="rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-950/30 via-slate-900 to-black p-8 md:p-12 text-center relative overflow-hidden">
@@ -793,15 +797,14 @@ export default function HomePage() {
                 <Send size={12} />
                 Contato Direto
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">
-                Vamos Conversar sobre Pagamentos?
-              </h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">Vamos Conversar sobre Pagamentos?</h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Disponível para trocas profissionais, projetos de consultoria estratégica, palestras e discussões sobre o futuro do ecossistema de meios de pagamento.
+                Disponível para posições estratégicas e executivas em adquirentes, subadquirentes, emissores, bancos,
+                fintechs, bandeiras e processadoras no Brasil e na América Latina.
               </p>
               <div className="flex flex-wrap justify-center gap-3 pt-3">
                 <a
-                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
+                  href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20curr%C3%ADculo%20e%20gostaria%20de%20conversar."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all"

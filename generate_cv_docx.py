@@ -54,7 +54,7 @@ def build_cv():
     p_headline = doc.add_paragraph()
     p_headline.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_headline.paragraph_format.space_after = Pt(4)
-    run_hl = p_headline.add_run("Head de Bandeiras | Especialista em Meios de Pagamento, Billing & Performance")
+    run_hl = p_headline.add_run("Head de Bandeiras | Especialista em Gestão de Bandeiras e Meios de Pagamento")
     run_hl.bold = True
     run_hl.font.size = Pt(11)
     run_hl.font.color.rgb = COLOR_ACCENT
@@ -92,7 +92,6 @@ def build_cv():
     r_in.font.color.rgb = COLOR_ACCENT
     r_in.bold = True
 
-    # Helper function for section headings
     def add_section_header(title):
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(10)
@@ -105,32 +104,65 @@ def build_cv():
         add_bottom_border(p, color_hex="0F2C59", sz="8")
         return p
 
-    # ── 2. RESUMO EXECUTIVO ───────────────────────────────────────────────
-    add_section_header("Resumo Executivo")
+    # ── 2. SOBRE / RESUMO EXECUTIVO ────────────────────────────────────────
+    add_section_header("Sobre")
     
-    p_summary1 = doc.add_paragraph()
-    p_summary1.paragraph_format.space_after = Pt(3)
-    p_summary1.paragraph_format.line_spacing = 1.15
-    p_summary1.add_run(
-        "Executivo e Especialista em Meios de Pagamento com mais de 16 anos de sólida trajetória em Bandeiras (Elo, Amex, Visa, Mastercard), Adquirência (Getnet, EcommIT) e Infraestrutura Transacional (Verifone). Especialista em engenharia de pagamentos, otimização de taxas de autorização, arquitetura de billing/recorrência, governança de releases mandatórios, tokenização de bandeira, mitigação de chargebacks e auditoria de intercâmbio/tarifas (MCBS/VSS)."
+    p_s1 = doc.add_paragraph()
+    p_s1.paragraph_format.space_after = Pt(3)
+    p_s1.paragraph_format.line_spacing = 1.15
+    p_s1.add_run(
+        "Sou especialista em gestão de bandeiras e meios de pagamento, com mais de 16 anos de atuação direta com Visa, Mastercard, Elo e American Express em compliance de bandeiras, certificações, mandates e governança de Data Integrity. Sou referência em regras de bandeira para os times técnicos e de negócios: traduzo os requisitos das marcas em planos de ação que produto, tecnologia e operações conseguem executar."
     )
-    
-    p_summary2 = doc.add_paragraph()
-    p_summary2.paragraph_format.space_after = Pt(6)
-    p_summary2.paragraph_format.line_spacing = 1.15
-    p_summary2.add_run(
-        "Histórico comprovado na liderança do relacionamento técnico-operacional entre Emissores (Bradesco, BB, Caixa), Credenciadores (Cielo, Rede, Getnet, Stone, PagBank) e Processadoras globais (DXC, AM53, Payware), além de consultoria estratégica para grandes fintechs e gateways (Checkout.com, PicPay, Mercado Pago, Banco Inter, Banco BS2). MBA em Liderança, Inovação e Gestão 3.0 pela PUCRS."
+
+    p_s2 = doc.add_paragraph()
+    p_s2.paragraph_format.space_after = Pt(3)
+    p_s2.paragraph_format.line_spacing = 1.15
+    p_s2.add_run(
+        "Hoje, na EcommIT, atuo como Head de Bandeiras atendendo adquirentes, subadquirentes, bancos e processadoras (Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay, DXC, AM53 e Payware). Alguns resultados:"
+    )
+
+    summary_bullets = [
+        "Gestão das regras de bandeira, releases semestrais e projetos de captura e processamento, conduzindo certificações L3 / ADVT Visa, MTIP Mastercard, TQS Elo e Amex dentro dos prazos regulatórios.",
+        "Atuação preventiva em Data Integrity e qualidade de mensageria entre autorização e clearing, evitando multas operacionais e conduzindo a aprovação de waivers junto às bandeiras.",
+        "Estruturação do controle e auditoria das tarifas das bandeiras (Visa VSS e Mastercard MCBS) e projetos de qualificação de Interchange, gerando economia direta e proteção de margem para a operação.",
+        "Resolução de incidentes críticos entre autorização, captura e liquidação (clearing), preservando a continuidade operacional sem impacto financeiro para os estabelecimentos e parceiros.",
+    ]
+    for b_txt in summary_bullets:
+        pb = doc.add_paragraph()
+        pb.paragraph_format.space_after = Pt(2)
+        pb.paragraph_format.left_indent = Inches(0.2)
+        pb.paragraph_format.line_spacing = 1.15
+        rb = pb.add_run("•  ")
+        rb.font.color.rgb = COLOR_ACCENT
+        rb.font.size = Pt(9)
+        rt = pb.add_run(b_txt)
+        rt.font.color.rgb = COLOR_TEXT
+        rt.font.size = Pt(9.5)
+
+    p_s3 = doc.add_paragraph()
+    p_s3.paragraph_format.space_before = Pt(3)
+    p_s3.paragraph_format.space_after = Pt(3)
+    p_s3.paragraph_format.line_spacing = 1.15
+    p_s3.add_run(
+        "Antes, na Bandeira Elo, atuei por 3 anos na gestão de performance, operações e troubleshooting de autorização e liquidação entre grandes Emissores (Bradesco, Banco do Brasil e Caixa) e Credenciadores (Cielo, Rede, Getnet, Stone e PagBank), além de liderar o desenvolvimento do novo Portal Elo para Adquirentes. Na Getnet, conduzi a gestão de compliance e releases mandatórios com Visa, Mastercard, Elo, Amex e Hipercard, os projetos de certificação host da processadora/adquirente dedicada (Amadeus), a entrega dos reportes trimestrais às bandeiras (QMR/GMR/EIR), a auditoria de faturas (MCBS/VSS) junto ao Financeiro e o rollout de 3DS 2.0, Tokenização de Bandeira (VTS/MDES), Account Updater (ABU/VAU), QR Code e Marketplace. Na Verifone / American Express, participei da migração global dos servidores da Amex para o Bradesco e da implantação dos processos de EDI, captura e certificação EMV L2."
+    )
+
+    p_s4 = doc.add_paragraph()
+    p_s4.paragraph_format.space_after = Pt(6)
+    p_s4.paragraph_format.line_spacing = 1.15
+    p_s4.add_run(
+        "Trabalho de forma transversal com Produtos, Captura, Processamento, Financeiro, Operações, Compliance, Chargeback, Fraudes, Infraestrutura e NOC, com liderança funcional, visão financeira de impacto e práticas ágeis (MBA em Liderança, Inovação e Gestão 3.0 — PUCRS). Atuo com inglês e espanhol no dia a dia. Busco oportunidades em adquirentes, subadquirentes, emissores, bancos, fintechs, bandeiras e processadoras, no Brasil e na América Latina."
     )
 
     # ── 3. MATRIZ DE COMPETÊNCIAS & DOMÍNIO TÉCNICO ────────────────────────
     add_section_header("Áreas de Expertise & Domínio Técnico")
 
     skills_data = [
-        ("Performance & Engenharia de Autorização:", " Otimização de conversão transacional, análise forense de Decline Codes, POS Entry Mode (DE 22), mensageria ISO 8583, Stand-In Processing (STIP) e roteamento inteligente (Smart Routing)."),
-        ("Inovação, Billing & Tokenização:", " Network Tokens (VTS, MDES, Elo Token), Account Updater (Mastercard ABU e Visa VAU), 3-D Secure (3DS 2.0/2.2/2.3), Smart Retries, QR Code EMVCo e Split de Pagamento para Marketplaces."),
-        ("Governança de Bandeiras & Regulatório:", " Gestão de Releases Semestrais/Mandatórios (Visa, Mastercard, Elo, Amex, Hipercard), conformidade Bacen, intercâmbio em cascata (waterfall) e auditoria de faturas de processamento (Mastercard MCBS e Visa VSS)."),
-        ("Prevenção a Fraude & Disputas:", " Programas de monitoria de Chargeback (Visa VFMP/VDMP, Mastercard ECP/MDMP), garantia de Liability Shift (ECI 05), Compelling Evidence 3.0 e MATCH Pro / BRAM."),
-        ("Analytics, Dados & Ferramentas:", " Qlik Sense, Tableau, DBeaver, SQL, Apache Hue, PostgREST/Supabase, monitoria em tempo real e troubleshooting de causa-raiz.")
+        ("Compliance de Bandeiras, Mandates & Certificações:", " Gestão de Releases Mandatórios e mandates (Visa, Mastercard, Elo, Amex, Hipercard), governança de Data Integrity, prevenção de multas e gestão de waivers, condução de homologações e certificações (Visa ADVT/L3, Mastercard MTIP, Elo TQS e Amex) e conformidade Bacen."),
+        ("Controle de Tarifas, Finanças & Interchange:", " Controle e auditoria técnica de faturas das bandeiras (Mastercard MCBS e Visa VSS), regras de qualificação de Interchange, prevenção de downgrades e análise de viabilidade financeira de produtos e processamento."),
+        ("Performance, Mensageria & Engenharia de Autorização:", " Otimização de conversão transacional, análise de Decline Codes, POS Entry Mode (DE 22), mensageria ISO 8583 / ISO 20022, fluxos de autorização e clearing/liquidação (Base II / IPM / T068) e Stand-In Processing (STIP)."),
+        ("Produtos, Tokenização & Billing:", " Desenho e evolução de produtos de pagamento, Network Tokens (VTS, MDES, Elo Token), Contactless (NFC) / HCE, EMV L2, Account Updater (Mastercard ABU e Visa VAU), 3-D Secure (3DS 2.0/2.2), QR Code EMVCo e Split/Marketplace."),
+        ("Prevenção a Fraudes, Chargeback & Monitoria:", " Gestão de disputas e regras de chargeback, programas de monitoria (Visa VAMP/VFMP/VDMP, Mastercard ECP), garantia de Liability Shift, Compelling Evidence 3.0 e análise operacional em Qlik Sense, Tableau e SQL.")
     ]
 
     for title, desc in skills_data:
@@ -203,19 +235,23 @@ def build_cv():
     # Job 1: EcommIT
     add_job_header("EcommIT Integrated Solutions", "Head de Bandeiras", "Outubro 2023 – Presente")
     add_job_bullet(
-        "Liderança estratégica no relacionamento técnico e de negócios com bandeiras globais (Visa, Mastercard, Elo, American Express), assegurando conformidade normativa e evolução contínua dos produtos.",
+        "Liderança estratégica no relacionamento técnico e de negócios com Visa, Mastercard, Elo e American Express, atuando como referência em regras de bandeira para Produto, Tecnologia, Riscos, Financeiro e Operações.",
         bold_prefix=""
     )
     add_job_bullet(
         "Checkout.com, Getnet, PicPay, Mercado Pago, Banco Inter, Banco BS2, Entrepay, além de processadoras líderes como DXC Technology, AM53 e Payware.",
-        bold_prefix="Consultoria técnica e atendimento a parceiros: "
+        bold_prefix="Atendimento e governança para parceiros: "
     )
     add_job_bullet(
-        "Governança dos Releases Semestrais Mandatórios, desenho de produtos transacionais, parametrizações de intercâmbio, liquidação financeira e integrações de core bancário/adquirente.",
+        "Gestão de mandates e Releases Semestrais Mandatórios, condução de homologações e certificações técnicas (Visa ADVT/L3, Mastercard MTIP, Elo TQS e certificações Amex), garantindo cumprimento integral dos prazos das marcas.",
         bold_prefix=""
     )
     add_job_bullet(
-        "Idealização e arquitetura de motor de cálculo de intercâmbio em cascata (waterfall) e auditoria de faturas de processamento das bandeiras cobrindo mais de 224 mil faixas de BINs.",
+        "Atuação preventiva em Data Integrity na mensageria de autorização e clearing, evitando multas operacionais, conduzindo pedidos de waiver e liderando a resolução de incidentes críticos entre captura, autorização e liquidação.",
+        bold_prefix=""
+    )
+    add_job_bullet(
+        "Estruturação do controle e auditoria de tarifas das bandeiras (Visa VSS e Mastercard MCBS) e gestão de regras de Interchange, apoiando decisões de viabilidade financeira e proteção de margem.",
         bold_prefix=""
     )
 
@@ -226,38 +262,38 @@ def build_cv():
         bold_prefix=""
     )
     add_job_bullet(
-        "Identificação contínua de causas-raiz de recusas (Do Not Honor, divergências no POS Entry Mode DE 22, timeouts de adquirente/emissor), mapeando oportunidades de incremento de conversão e receita.",
-        bold_prefix="Troubleshooting & Análise de Falhas: "
+        "Identificação contínua de causas-raiz de recusas (Do Not Honor, divergências no POS Entry Mode DE 22, timeouts de adquirente/emissor), gerenciamento de incidentes entre autorização e liquidação e recuperação de conversão.",
+        bold_prefix="Troubleshooting & Qualidade Transacional: "
     )
     add_job_bullet(
-        "Construção e acompanhamento diário de dashboards analíticos em Qlik Sense, Tableau, Apache Hue e DBeaver, garantindo visibilidade em tempo real sobre autorização, compensação e liquidação.",
+        "Construção e acompanhamento diário de painéis executivos em Qlik Sense, Tableau, Apache Hue e DBeaver, garantindo visibilidade sobre autorização, compensação e liquidação.",
         bold_prefix="Analytics & Monitoria Operacional: "
     )
     add_job_bullet(
-        "Liderança no desenvolvimento do novo Portal Elo para Adquirentes, centralizando ferramentas de suporte, relatórios e autosserviço operacional para os parceiros.",
+        "Liderança no desenvolvimento do novo Portal Elo para Adquirentes, centralizando abertura e gerenciamento de tickets, ferramentas de suporte, documentação e autosserviço operacional para os parceiros.",
         bold_prefix="Portal Elo para Adquirentes: "
     )
     add_job_bullet(
-        "Atuação como ponto focal de Operações em squads multidisciplinares de Negócios e Aceitação para homologação e lançamento de novas soluções de mercado.",
+        "Ponto focal de Operações em squads multidisciplinares de Negócios e Aceitação para apoio no desenho de produtos, homologação, certificação (Elo TQS) e lançamento de soluções no mercado.",
         bold_prefix=""
     )
 
     # Job 3: Getnet
     add_job_header("Getnet", "Analista de Sistemas Sênior / Coordenador de Liquidação & Bandeiras", "Setembro 2017 – Outubro 2020")
     add_job_bullet(
-        "Gestão completa do ciclo de desenvolvimento, homologação e rollout dos Releases Mandatórios das Bandeiras Elo, Visa, Mastercard, Amex e Hipercard.",
+        "Gestão completa de compliance, desenvolvimento, testes, homologação, certificação (Visa ADVT, Mastercard M-TIP, Elo TQS e Amex) e rollout dos Releases Mandatórios das bandeiras Elo, Visa, Mastercard, Amex e Hipercard.",
         bold_prefix=""
     )
     add_job_bullet(
-        "Liderança na implantação de 3DS 2.0 (Autenticação), Tokenização de Bandeira (VTS/MDES), Account Updater (ABU/VAU), pagamentos via QR Code EMVCo, Split de Pagamento para Marketplace e Consulta de BIN.",
-        bold_prefix="Projetos Estratégicos de Produtos: "
+        "Liderança e apoio no desenho e implantação de 3DS 2.0 (Autenticação), Tokenização de Bandeira (VTS/MDES), Contactless (NFC) / HCE, Account Updater (ABU/VAU), QR Code EMVCo, Split de Pagamento para Marketplace e Consulta de BIN.",
+        bold_prefix="Projetos Estratégicos & Desenho de Produtos: "
     )
     add_job_bullet(
-        "Condução técnica da criação, certificação e homologação de processadora/adquirente dedicada (Amadeus).",
+        "Condução técnica da criação, certificação host e homologação de processadora/adquirente dedicada (Amadeus), mantendo a documentação técnica e fluxos transacionais atualizados.",
         bold_prefix=""
     )
     add_job_bullet(
-        "Responsável pela entrega dos reportes estatísticos e regulatórios trimestrais das bandeiras (QMR/GMR/EIR) e auditoria técnica das invoices de bandeiras junto à diretoria Financeira.",
+        "Responsável pela entrega dos reportes estatísticos e regulatórios trimestrais das bandeiras (QMR/GMR/EIR), gerenciamento de tickets operacionais e auditoria técnica de invoices (MCBS/VSS) junto à diretoria Financeira.",
         bold_prefix=""
     )
 
@@ -272,11 +308,11 @@ def build_cv():
         bold_prefix=""
     )
     add_job_bullet(
-        "Homologação e certificação de produtos de submissão transacional junto a Visa, Mastercard, bancos emissores e processadoras de meios de pagamento.",
+        "Condução de testes, homologação e certificação de produtos de submissão transacional e EMV L2 junto a Visa, Mastercard, American Express, bancos emissores e processadoras de meios de pagamento.",
         bold_prefix=""
     )
     add_job_bullet(
-        "Atuação no projeto Multivan, mapeamento de fluxos operacionais e suporte a terminais POS, gateways e mensageria ISO 8583.",
+        "Atuação no projeto Multivan, mapeamento de fluxos operacionais, gerenciamento de tickets e suporte a terminais POS, Contactless, gateways e mensageria ISO 8583.",
         bold_prefix=""
     )
 
@@ -312,7 +348,7 @@ def build_cv():
     langs = [
         ("Português:", " Nativo"),
         ("Inglês:", " Avançado (Negociação técnica e documentação com bandeiras internacionais)"),
-        ("Espanhol:", " Intermediário (Comunicação corporativa para América Latina)")
+        ("Espanhol:", " Profissional (Atuação no dia a dia com operações na América Latina)")
     ]
 
     for i, (l_title, l_desc) in enumerate(langs):
