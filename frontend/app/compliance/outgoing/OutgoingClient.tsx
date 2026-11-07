@@ -20,8 +20,9 @@ import {
   OutgoingArchitectureBlueprint,
 } from './OutgoingDeveloperDiagrams';
 import { OutgoingBitmapExplorer } from './OutgoingBitmapExplorer';
+import { OutgoingReportsExplorer } from './OutgoingReportsExplorer';
 
-type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox' | 'bitmap';
+type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox' | 'bitmap' | 'reports';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -380,6 +381,20 @@ export default function OutgoingClient() {
             <span>🧮 5. Mapa de Bits (Autorização × Clearing)</span>
             <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
               128 Bits · Hex
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'reports'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-950/50'
+                : 'text-amber-300 hover:bg-slate-800/70 border border-amber-500/30'
+            }`}
+          >
+            <span>📊 6. Relatórios do Dia a Dia (Reports)</span>
+            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
+              T+0 · D+1 · M/C
             </span>
           </button>
         </div>
@@ -1395,6 +1410,13 @@ export default function OutgoingClient() {
           selectedBrand={selectedBrand}
           onSelectTable={handleOpenTableFromAnywhere}
         />
+      )}
+
+      {/* =====================================================================
+          ABA 6 — RELATÓRIOS & CONCILIAÇÃO DO OUTGOING NO DIA A DIA (REPORTS)
+         ===================================================================== */}
+      {activeTab === 'reports' && (
+        <OutgoingReportsExplorer selectedBrand={selectedBrand} />
       )}
     </div>
   );
