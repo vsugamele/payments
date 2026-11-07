@@ -13,8 +13,14 @@ import {
   OutgoingTableSpec,
 } from '@/data/outgoing-tables-flows';
 import { sendToDocStudio } from '@/lib/docStudioBridge';
+import {
+  InteractiveRuleSandbox,
+  InteractiveSwimlaneDiagram,
+  InteractiveWireInspector,
+  OutgoingArchitectureBlueprint,
+} from './OutgoingDeveloperDiagrams';
 
-type MainTab = 'tables' | 'flows' | 'matrix';
+type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -67,6 +73,7 @@ function parseNumericSize(sizeStr: string): number {
 export default function OutgoingClient() {
   const [selectedBrand, setSelectedBrand] = useState<OutgoingBrandId>('elo');
   const [activeTab, setActiveTab] = useState<MainTab>('tables');
+  const [showBlueprint, setShowBlueprint] = useState<boolean>(true);
 
   // State for Tab 1 (Separated Tables)
   const [tablePresenceFilter, setTablePresenceFilter] = useState<TablePresenceFilter>('ALL');
@@ -346,9 +353,29 @@ export default function OutgoingClient() {
           >
             <span>📐 3. Matriz Tabelas × Fluxos (M / C / N/A)</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('sandbox')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'sandbox'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
+                : 'text-emerald-300 hover:bg-slate-800/70 border border-emerald-500/30'
+            }`}
+          >
+            <span>⚡ 4. Sandbox Gatilhos [C ➔ M]</span>
+            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
+              Playground
+            </span>
+          </button>
         </div>
 
-        <div className="flex items-center gap-2 pr-2">
+        <div className="flex items-center gap-3 pr-2">
+          <button
+            onClick={() => setShowBlueprint((prev) => !prev)}
+            className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 hover:border-blue-400 text-xs font-bold text-blue-300 transition-all"
+          >
+            {showBlueprint ? '▾ Ocultar Blueprint Arquitetural' : '▸ Ver Blueprint Arquitetural (MC/Visa Dev)'}
+          </button>
           <Link
             href="/compliance/arquivos"
             className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors"
@@ -357,6 +384,14 @@ export default function OutgoingClient() {
           </Link>
         </div>
       </div>
+
+      {/* BLUEPRINT VISUAL DA ARQUITETURA FÍSICA (INSPIRADO NO MASTERCARD & VISA DEVELOPERS) */}
+      {showBlueprint && (
+        <OutgoingArchitectureBlueprint
+          brand={selectedBrand}
+          onSelectTable={handleOpenTableFromAnywhere}
+        />
+      )}
 
       {/* =====================================================================
           ABA 1 — CADA TABELA DE OUTGOING SEPARADA
@@ -702,6 +737,13 @@ export default function OutgoingClient() {
               </div>
             </div>
 
+            {/* BLOCO 3.5: DEVELOPER PAYLOAD & WIRE INSPECTOR (VISA / MASTERCARD DEVELOPER UX) */}
+            <InteractiveWireInspector
+              table={activeTable}
+              highlightedFieldNo={highlightedFieldNo}
+              onSelectField={(no) => setHighlightedFieldNo(no)}
+            />
+
             {/* BLOCO 4: LAYOUT COMPLETO CAMPO A CAMPO */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 space-y-4 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
@@ -980,6 +1022,13 @@ export default function OutgoingClient() {
                     </p>
                   </div>
                 </div>
+
+                {/* DIAGRAMA DE SEQUÊNCIA 5 ATORES (SWIMLANE DUAL-MESSAGE ESTILO VISA/MC DEVELOPER) */}
+                <InteractiveSwimlaneDiagram
+                  brand={bId}
+                  flow={activeFlow}
+                  onSelectTable={handleOpenTableFromAnywhere}
+                />
 
                 {/* DESENHO VISUAL DA SEQUÊNCIA DE TABELAS NO ARQUIVO */}
                 <div className="space-y-3">
@@ -1311,6 +1360,16 @@ export default function OutgoingClient() {
             </div>
           )}
         </div>
+      )}
+
+      {/* =====================================================================
+          ABA 4 — SANDBOX DE GATILHOS [C ➔ M] & SIMULADOR DE LOTE (PLAYGROUND)
+         ===================================================================== */}
+      {activeTab === 'sandbox' && (
+        <InteractiveRuleSandbox
+          selectedBrand={selectedBrand}
+          onSelectTable={handleOpenTableFromAnywhere}
+        />
       )}
     </div>
   );

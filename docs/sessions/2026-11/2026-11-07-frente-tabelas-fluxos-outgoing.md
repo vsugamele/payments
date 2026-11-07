@@ -25,7 +25,12 @@ Construção de uma frente dedicada (`/compliance/outgoing`) para desenhar e doc
 
 ## Arquivos Criados e Atualizados
 - [`frontend/data/outgoing-tables-flows.ts`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/data/outgoing-tables-flows.ts): Base estruturada com 28 tabelas/blocos de Outgoing separados (10 Visa, 10 Elo, 8 Mastercard), 8 fluxos operacionais por bandeira e matriz cruzada.
-- [`frontend/app/compliance/outgoing/OutgoingClient.tsx`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/app/compliance/outgoing/OutgoingClient.tsx): Interface interativa com 3 abas principais (Tabelas Separadas, Desenho de Cada Fluxo com modo comparativo 3 bandeiras, e Matriz `Tabelas × Fluxos`), régua posicional proporcional e exportação para o Doc Studio.
+- [`frontend/app/compliance/outgoing/OutgoingDeveloperDiagrams.tsx`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/app/compliance/outgoing/OutgoingDeveloperDiagrams.tsx): Componentes visuais inspirados no **Mastercard Developers** e **Visa Developer Center**:
+  1. `OutgoingArchitectureBlueprint` (Anatomia física do registro na rede `168-byte ASCII` vs `1014-byte RDW + ISO 8583 Bitmap + PDS TLV` e pipeline em 4 camadas);
+  2. `InteractiveWireInspector` (Inspetor split-pane com fita posicional `168-byte` / mapa `Bitmap + PDS TLV`, stream raw interativo e JSON decodificado);
+  3. `InteractiveSwimlaneDiagram` (Diagrama de sequência Dual-Message em 5 raias de atores e 3 fases cronológicas);
+  4. `InteractiveRuleSandbox` (Playground interativo de gatilhos onde o usuário liga/desliga atributos da transação e vê em tempo real quais tabelas e campos `[C]` viram `[M]`).
+- [`frontend/app/compliance/outgoing/OutgoingClient.tsx`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/app/compliance/outgoing/OutgoingClient.tsx): Interface interativa com 4 abas principais (Tabelas Separadas, Desenho de Cada Fluxo com modo comparativo 3 bandeiras, Matriz `Tabelas × Fluxos` e Sandbox de Gatilhos `[C ➔ M]`), blueprint arquitetural e exportação para o Doc Studio.
 - [`frontend/app/compliance/outgoing/page.tsx`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/app/compliance/outgoing/page.tsx): Página da rota `/compliance/outgoing`.
 - [`frontend/lib/adminModulesCatalog.ts`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/lib/adminModulesCatalog.ts): Registro do módulo `outgoing-arquitetura` no catálogo do Cockpit.
 - [`frontend/app/admin/page.tsx`](file:///c:/Users/vsuga/Desktop/V/Ecommit/Tabelasintercambio/frontend/app/admin/page.tsx): Inclusão do módulo nos favoritos padrão do Cockpit.
