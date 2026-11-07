@@ -466,6 +466,13 @@ export default function CentralArquivosPage() {
             <BookOpen className="w-3.5 h-3.5" />
             5. Manuais Indexados & Fluxo Quem-Envia / Quem-Recebe
           </button>
+          <Link
+            href="/compliance/outgoing"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap bg-amber-500/15 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            6. Tabelas & Fluxos de Outgoing Separados (M vs C) →
+          </Link>
         </div>
       </div>
 

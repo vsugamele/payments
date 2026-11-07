@@ -205,6 +205,29 @@ export const ADMIN_MODULE_CATEGORIES: ModuleCategoryMeta[] = [
     iconName: "Terminal",
     tools: [
       {
+        id: "outgoing-arquitetura",
+        title: "Arquitetura de Outgoing: Tabelas Separadas, Layouts (M vs C) & 8 Fluxos",
+        desc: "Desenho individualizado de cada tabela de Outgoing (Visa TCR 0..E, Elo B0/00..09/BZ, Mastercard 1644/1240/1442/1740), o que tem nela, obrigatório vs condicional e 8 fluxos desenhados passo a passo.",
+        whatItIs:
+          "Frente dedicada ao desenho completo e separado de cada tabela/registro de Outgoing (Clearing / Remessa de Liquidação) de Visa Base II, Elo Liquidação 26.2 e Mastercard GCMS/IPM. Explica de forma isolada o que é cada tabela, quando a tabela inteira é obrigatória vs condicional, o que tem dentro dela (blocos + régua posicional interativa), o layout completo campo a campo (M vs C + impacto de erro) e o desenho passo a passo de 8 fluxos operacionais.",
+        features: [
+          "Aba 1 (Cada Tabela de Outgoing Separada): Visa (TC 90, TCR 0, TCR 1, TCR 2 BR, TCR 3, TCR 5, TCR 7, TCR D, TCR E, TC 10/20, TC 91/92), Elo (Header B0, Reg 00, 01, 02, 03, 05, 07, 08, 09, Trailer BZ) e Mastercard (1644-697, 1240 Base, PDS Brasil, EMV/3DS, PayFac/Token, 1644 Addendum, 1442/1740, 1644-695)",
+          "Aba 2 (Desenho de Cada Fluxo): 8 cenários operacionais desenhados passo a passo (Compra Chip/NFC, Parcelado Brasil +10 vs 990 vs PDS 0195, E-Commerce 3DS 2.2, Subcredenciador/PayFac, Estorno/Reversão, Push Payments OCT/P2P, Companhias Aéreas IATA e Disputas/Rejeição Parcial)",
+          "Aba 3 (Matriz Cruzada Tabelas × Fluxos): Visão instantânea M / C / O / N/A com explicação da condição normativa exata"
+        ],
+        dataSources: [
+          "Visa BASE II Clearing Interchange Formats TC 01–49 & TC 50–92 (18 Apr 2026)",
+          "Elo Manual de Mensageria de Liquidação 26.2 (30/04/2026)",
+          "Mastercard Dual Message Clearing System Guide (25 Aug 2026)"
+        ],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice"],
+        keywords: ["outgoing", "tabelas", "fluxos", "tcr0", "tcr1", "tcr2", "tcr5", "tcr7", "tcre", "registro 00", "registro 01", "registro 02", "registro 07", "registro 08", "registro 09", "1240", "1644", "pds 0195", "pds 0220", "obrigatorio", "condicional"],
+        url: "/compliance/outgoing",
+        badge: "29 Tabelas + 8 Fluxos",
+        iconName: "Layers",
+        color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      },
+      {
         id: "arquivos-central",
         title: "Sistema Completo: GCMS, MPE, MCBS, Base II, VSS & Elo",
         desc: "Decodificador byte-a-byte + Lote Multi-Linha, 17.106 campos SQLite e Simulador de Fatura com 2.267 eventos MCBS + 10.914 linhas Visa.",

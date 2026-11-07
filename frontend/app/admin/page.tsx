@@ -36,6 +36,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 const DEFAULT_PINNED_IDS = [
+  "outgoing-arquitetura",
   "editor",
   "arquivos-central",
   "provisionamento",
