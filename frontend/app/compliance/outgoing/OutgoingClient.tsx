@@ -19,8 +19,9 @@ import {
   InteractiveWireInspector,
   OutgoingArchitectureBlueprint,
 } from './OutgoingDeveloperDiagrams';
+import { OutgoingBitmapExplorer } from './OutgoingBitmapExplorer';
 
-type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox';
+type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox' | 'bitmap';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -365,6 +366,20 @@ export default function OutgoingClient() {
             <span>⚡ 4. Sandbox Gatilhos [C ➔ M]</span>
             <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
               Playground
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('bitmap')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'bitmap'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-950/50'
+                : 'text-purple-300 hover:bg-slate-800/70 border border-purple-500/30'
+            }`}
+          >
+            <span>🧮 5. Mapa de Bits (Autorização × Clearing)</span>
+            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
+              128 Bits · Hex
             </span>
           </button>
         </div>
@@ -1367,6 +1382,16 @@ export default function OutgoingClient() {
          ===================================================================== */}
       {activeTab === 'sandbox' && (
         <InteractiveRuleSandbox
+          selectedBrand={selectedBrand}
+          onSelectTable={handleOpenTableFromAnywhere}
+        />
+      )}
+
+      {/* =====================================================================
+          ABA 5 — MAPA DE BITS (128 BITS): AUTORIZAÇÃO (0100/0110) × CLEARING
+         ===================================================================== */}
+      {activeTab === 'bitmap' && (
+        <OutgoingBitmapExplorer
           selectedBrand={selectedBrand}
           onSelectTable={handleOpenTableFromAnywhere}
         />
