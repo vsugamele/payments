@@ -347,3 +347,233 @@ select.input-base { appearance: none; cursor: pointer; }
   }
 }
 
+/* ============================================================================
+   EDITORIAL CLEAN DESIGN SYSTEM — LEITURA CONFORTÁVEL, ALTO CONTRASTE & CLAREZA
+   Elimina fontes microscópicas cinzas e fundos pretos cansativos em todo o sistema
+   ============================================================================ */
+
+html {
+  font-size: 16px;
+}
+
+body {
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+
+/* 1. Escala Tipográfica Ampliada (Fim das fontes 10px/11px ilegíveis) */
+.text-\[8px\],
+.text-\[9px\],
+.text-\[10px\] {
+  font-size: 0.78rem !important; /* ~12.5px em vez de 10px */
+  line-height: 1.45 !important;
+}
+
+.text-\[11px\] {
+  font-size: 0.84rem !important; /* ~13.5px em vez de 11px */
+  line-height: 1.5 !important;
+}
+
+.text-xs {
+  font-size: 0.89rem !important; /* ~14.2px em vez de 12px */
+  line-height: 1.55 !important;
+}
+
+.text-sm {
+  font-size: 0.96rem !important; /* ~15.4px em vez de 14px */
+  line-height: 1.62 !important;
+}
+
+/* 2. Modo Escuro Suave: Contraste elevado (nunca cinza apagado sobre preto) */
+html.dark .text-slate-400,
+html.dark .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+html.dark .text-slate-300 {
+  color: #e2e8f0 !important;
+}
+
+/* 3. Modo Editorial Claro (Padrão): Fundo claro elegante, cards brancos e tinta escura nítida */
+html:not(.dark) {
+  --background: #f6f7f9;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #dce2ec;
+  --muted: #eef2f6;
+  --muted-foreground: #334155;
+}
+
+/* Fundos principais que antes eram pretos (#020617, #030711, slate-950) viram papel editorial claro */
+html:not(.dark) main.bg-\[\#020617\],
+html:not(.dark) main.bg-\[\#030711\],
+html:not(.dark) main.bg-\[\#060911\],
+html:not(.dark) main.bg-slate-950,
+html:not(.dark) div.min-h-screen.bg-\[\#020617\],
+html:not(.dark) div.min-h-screen.bg-\[\#030711\],
+html:not(.dark) div.min-h-screen.bg-slate-950 {
+  background-color: #f6f7f9 !important;
+  color: #0f172a !important;
+}
+
+/* Cards e containers que usavam bg-slate-900 / bg-slate-950 viram cartões brancos/claros com sombra suave */
+html:not(.dark) .bg-slate-900\/70,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-900\/90,
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-\[\#080d16\]\/95,
+html:not(.dark) .bg-\[\#0a101d\] {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) .bg-slate-950\/95,
+html:not(.dark) .bg-slate-950\/90,
+html:not(.dark) .bg-slate-950\/80,
+html:not(.dark) .bg-slate-950\/70,
+html:not(.dark) .bg-slate-950\/50,
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-slate-900\/50,
+html:not(.dark) .bg-\[\#030711\],
+html:not(.dark) .bg-black\/70,
+html:not(.dark) .bg-black\/40,
+html:not(.dark) .bg-black\/30,
+html:not(.dark) .bg-black\/25 {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) .bg-slate-800\/90,
+html:not(.dark) .bg-slate-800 {
+  background-color: #eef2f6 !important;
+}
+
+/* Gradientes escuros viram gradientes claros editoriais */
+html:not(.dark) .from-slate-950,
+html:not(.dark) .via-slate-900\/95,
+html:not(.dark) .to-slate-950 {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-via: #f8fafc !important;
+  --tw-gradient-to: #f1f5f9 !important;
+}
+
+/* Tints coloridos (azul, esmeralda, âmbar, roxo, rosa) suaves e legíveis no modo claro */
+html:not(.dark) .bg-blue-950\/50,
+html:not(.dark) .bg-blue-950\/40,
+html:not(.dark) .bg-blue-950\/25,
+html:not(.dark) .bg-blue-950\/20,
+html:not(.dark) .bg-blue-950\/15 {
+  background-color: #eff6ff !important;
+}
+
+html:not(.dark) .bg-emerald-950\/60,
+html:not(.dark) .bg-emerald-950\/50,
+html:not(.dark) .bg-emerald-950\/40,
+html:not(.dark) .bg-emerald-950\/30,
+html:not(.dark) .bg-emerald-950\/20,
+html:not(.dark) .bg-emerald-950\/15,
+html:not(.dark) .bg-emerald-950\/10 {
+  background-color: #ecfdf5 !important;
+}
+
+html:not(.dark) .bg-amber-950\/50,
+html:not(.dark) .bg-amber-950\/30,
+html:not(.dark) .bg-amber-950\/20,
+html:not(.dark) .bg-amber-950\/15 {
+  background-color: #fffbeb !important;
+}
+
+html:not(.dark) .bg-purple-950\/50,
+html:not(.dark) .bg-purple-950\/40,
+html:not(.dark) .bg-purple-950\/20 {
+  background-color: #f5f3ff !important;
+}
+
+html:not(.dark) .bg-rose-950\/25,
+html:not(.dark) .bg-rose-950\/20,
+html:not(.dark) .bg-rose-950\/15,
+html:not(.dark) .bg-red-950\/30 {
+  background-color: #fff1f2 !important;
+}
+
+/* Bordas limpas e definidas no modo claro */
+html:not(.dark) .border-slate-800\/90,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-800\/70,
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-700 {
+  border-color: #dce2ec !important;
+}
+
+html:not(.dark) .divide-slate-800 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .divide-slate-800\/70 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Tipografia de Alto Contraste no Modo Claro */
+html:not(.dark) .text-white:not(.bg-blue-600):not(.bg-emerald-600):not(.bg-purple-600):not(.bg-amber-500):not(.bg-rose-600):not(.bg-indigo-600):not(.bg-blue-500) {
+  color: #0f172a !important;
+}
+
+/* Garante que texto dentro de botões sólidos continue branco */
+html:not(.dark) .bg-blue-600,
+html:not(.dark) .bg-blue-600 .text-white,
+html:not(.dark) .bg-blue-600 span,
+html:not(.dark) .bg-emerald-600,
+html:not(.dark) .bg-emerald-600 .text-white,
+html:not(.dark) .bg-emerald-600 span,
+html:not(.dark) .bg-purple-600,
+html:not(.dark) .bg-purple-600 .text-white,
+html:not(.dark) .bg-purple-600 span {
+  color: #ffffff !important;
+}
+
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html:not(.dark) .text-slate-300 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* Cores de destaque legíveis sobre fundo claro */
+html:not(.dark) .text-blue-400,
+html:not(.dark) .text-blue-300,
+html:not(.dark) .text-blue-200 {
+  color: #1d4ed8 !important;
+}
+
+html:not(.dark) .text-emerald-400,
+html:not(.dark) .text-emerald-300,
+html:not(.dark) .text-emerald-200,
+html:not(.dark) .text-emerald-100 {
+  color: #047857 !important;
+}
+
+html:not(.dark) .text-amber-400,
+html:not(.dark) .text-amber-300,
+html:not(.dark) .text-amber-200 {
+  color: #b45309 !important;
+}
+
+html:not(.dark) .text-purple-400,
+html:not(.dark) .text-purple-300,
+html:not(.dark) .text-purple-200,
+html:not(.dark) .text-purple-100 {
+  color: #6d28d9 !important;
+}
+
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-300,
+html:not(.dark) .text-rose-200,
+html:not(.dark) .text-rose-100,
+html:not(.dark) .text-red-300 {
+  color: #be123c !important;
+}
+
+

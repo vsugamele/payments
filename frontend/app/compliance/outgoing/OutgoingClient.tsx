@@ -75,7 +75,12 @@ function parseNumericSize(sizeStr: string): number {
 export default function OutgoingClient() {
   const [selectedBrand, setSelectedBrand] = useState<OutgoingBrandId>('elo');
   const [activeTab, setActiveTab] = useState<MainTab>('tables');
-  const [showBlueprint, setShowBlueprint] = useState<boolean>(true);
+  const [showBrandOverview, setShowBrandOverview] = useState<boolean>(false);
+  const [showBlueprint, setShowBlueprint] = useState<boolean>(false);
+
+  // Sub-views para evitar excesso de informação tudo junto na mesma tela
+  const [tableSectionView, setTableSectionView] = useState<'resumo' | 'layout' | 'wire' | 'all'>('resumo');
+  const [flowSectionView, setFlowSectionView] = useState<'sequencia' | 'atores' | 'regras' | 'all'>('sequencia');
 
   // State for Tab 1 (Separated Tables)
   const [tablePresenceFilter, setTablePresenceFilter] = useState<TablePresenceFilter>('ALL');
@@ -200,22 +205,28 @@ export default function OutgoingClient() {
   return (
     <div className="space-y-6">
       {/* =====================================================================
-          1. SELETOR DE BANDEIRA + ARQUITETURA DO ARQUIVO OUTGOING
+          1. SELETOR DE BANDEIRA LIMPO E DIRETO (RESUMO E JANELAS SOB DEMANDA)
          ===================================================================== */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-5 border-b border-slate-800/80">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-400 mb-1">
-              <span>Arquitetura de Liquidação (Clearing / Outgoing)</span>
-              <span>•</span>
-              <span>Tabelas Separadas & Fluxos Fim a Fim</span>
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`px-2.5 py-1 rounded-md border text-xs font-bold ${brandStyle.badgeBg}`}>
+                {brandMeta.badge}
+              </span>
+              <span className="px-2.5 py-1 rounded-md bg-slate-800/90 border border-slate-700 text-xs font-mono text-slate-300">
+                {brandMeta.manualTitle}
+              </span>
+              <span className="px-2.5 py-1 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-xs font-mono text-emerald-300">
+                {brandMeta.version} · Vigência: {brandMeta.effectiveDate}
+              </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white">
-              Selecione a Bandeira para Inspecionar Cada Tabela e Cada Fluxo de Outgoing
+            <h2 className="text-lg sm:text-xl font-black text-white pt-1">
+              {brandMeta.name} — {mandatoryTablesCount} Tabelas Obrigatórias e {conditionalTablesCount} Condicionais
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {BRAND_ORDER.map((bId) => {
               const b = OUTGOING_BRANDS[bId];
               const isSelected = selectedBrand === bId;
@@ -247,69 +258,69 @@ export default function OutgoingClient() {
           </div>
         </div>
 
-        {/* Resumo Normativo da Bandeira Ativa */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-5">
-          <div className="lg:col-span-7 space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`px-2.5 py-1 rounded-md border text-xs font-bold ${brandStyle.badgeBg}`}>
-                {brandMeta.badge}
-              </span>
-              <span className="px-2.5 py-1 rounded-md bg-slate-800/90 border border-slate-700 text-xs font-mono text-slate-300">
-                Fonte: {brandMeta.manualTitle}
-              </span>
-              <span className="px-2.5 py-1 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-xs font-mono text-emerald-300">
-                {brandMeta.version} · Vigência: {brandMeta.effectiveDate}
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              {brandMeta.overviewSummary}
-            </p>
-
-            <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Fórmula de Encadeamento Físico no Arquivo de Outgoing ({brandMeta.name})
-              </div>
-              <div className="font-mono text-xs text-blue-300 break-words leading-relaxed">
-                {brandMeta.hierarchyFormula}
-              </div>
-            </div>
+        {/* Botões discretos para expandir Resumo/Janelas ou Blueprint apenas quando quiser ler */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80">
+          <div className="font-mono text-xs text-blue-300 truncate max-w-3xl">
+            <strong>Encadeamento:</strong> {brandMeta.hierarchyFormula}
           </div>
-
-          {/* Janelas Diárias de Envio & Contadores */}
-          <div className="lg:col-span-5 flex flex-col justify-between gap-3 rounded-xl bg-slate-950/70 border border-slate-800/90 p-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Janelas / Cutoffs de Outgoing
-              </span>
-              <div className="flex items-center gap-2 text-[11px]">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
-                  {mandatoryTablesCount} Obrigatórias
-                </span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">
-                  {conditionalTablesCount} Condicionais
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {brandMeta.dailyWindows.map((w, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-lg bg-slate-900/90 border border-slate-800/80 px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1"
-                >
-                  <div>
-                    <div className="text-xs font-bold text-white">{w.label}</div>
-                    <div className="text-[11px] text-slate-400">{w.scope}</div>
-                  </div>
-                  <span className="text-[11px] font-mono font-bold text-amber-300 shrink-0">
-                    {w.windowTime}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setShowBrandOverview((prev) => !prev)}
+              className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 hover:border-blue-400 text-xs font-bold text-slate-300 transition-all"
+            >
+              {showBrandOverview ? '▾ Ocultar Resumo & Janelas Diárias' : '📘 Ver Resumo & Janelas Diárias'}
+            </button>
+            <button
+              onClick={() => setShowBlueprint((prev) => !prev)}
+              className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 hover:border-blue-400 text-xs font-bold text-blue-300 transition-all"
+            >
+              {showBlueprint ? '▾ Ocultar Blueprint Físico' : '🗺️ Ver Blueprint Físico (4 Camadas)'}
+            </button>
           </div>
         </div>
+
+        {/* Resumo Normativo da Bandeira Ativa (Apenas quando expandido) */}
+        {showBrandOverview && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-5 mt-4 border-t border-slate-800">
+            <div className="lg:col-span-7 space-y-3">
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {brandMeta.overviewSummary}
+              </p>
+              <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-4">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Fórmula de Encadeamento Físico no Arquivo de Outgoing ({brandMeta.name})
+                </div>
+                <div className="font-mono text-xs text-blue-300 break-words leading-relaxed">
+                  {brandMeta.hierarchyFormula}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 flex flex-col justify-between gap-3 rounded-xl bg-slate-950/70 border border-slate-800/90 p-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Janelas / Cutoffs de Outgoing
+                </span>
+              </div>
+              <div className="space-y-2">
+                {brandMeta.dailyWindows.map((w, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg bg-slate-900/90 border border-slate-800/80 px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-white">{w.label}</div>
+                      <div className="text-[11px] text-slate-400">{w.scope}</div>
+                    </div>
+                    <span className="text-[11px] font-mono font-bold text-amber-300 shrink-0">
+                      {w.windowTime}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* =====================================================================
@@ -609,8 +620,60 @@ export default function OutgoingClient() {
                 </button>
               </div>
 
+              {/* SUB-NAVEGAÇÃO DE LEITURA FOCADA (EVITA POLUIÇÃO VISUAL DE TUDO JUNTO) */}
+              <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 border border-slate-800 p-2 rounded-xl">
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setTableSectionView('resumo')}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      tableSectionView === 'resumo'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    1️⃣ O Que É, Obrigatório vs Condicional & O Que Tem
+                  </button>
+                  <button
+                    onClick={() => setTableSectionView('layout')}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      tableSectionView === 'layout'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    2️⃣ Layout dos Campos ({activeTable.fields.length} campos)
+                  </button>
+                  <button
+                    onClick={() => setTableSectionView('wire')}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      tableSectionView === 'wire'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    3️⃣ Simulador Visual 168B / JSON
+                  </button>
+                </div>
+                <button
+                  onClick={() =>
+                    setTableSectionView(tableSectionView === 'all' ? 'resumo' : 'all')
+                  }
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                    tableSectionView === 'all'
+                      ? 'bg-emerald-600 text-white border-emerald-500'
+                      : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-blue-400'
+                  }`}
+                >
+                  {tableSectionView === 'all'
+                    ? '✓ Mostrando Tudo na Mesma Tela'
+                    : '📑 Mostrar Tudo na Mesma Tela'}
+                </button>
+              </div>
+
+              {(tableSectionView === 'resumo' || tableSectionView === 'all') && (
+                <>
               {/* SEÇÃO 1: O QUE É ESTA TABELA */}
-              <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-4 space-y-2">
+              <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-wider text-blue-400">
                     1. O Que É Esta Tabela no Arquivo de Outgoing
@@ -619,7 +682,7 @@ export default function OutgoingClient() {
                     {activeTable.sourceRef.manual} ({activeTable.sourceRef.pages})
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <p className="text-sm text-slate-200 leading-relaxed">
                   {activeTable.whatItIs}
                 </p>
                 <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-amber-300">
@@ -765,16 +828,32 @@ export default function OutgoingClient() {
                   </div>
                 </div>
               </div>
+
+              {tableSectionView === 'resumo' && (
+                <div className="pt-2 flex flex-wrap items-center justify-end gap-3">
+                  <button
+                    onClick={() => setTableSectionView('layout')}
+                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all"
+                  >
+                    Avançar para 2️⃣ Layout Completo dos Campos ({activeTable.fields.length} campos) →
+                  </button>
+                </div>
+              )}
+                </>
+              )}
             </div>
 
             {/* BLOCO 3.5: DEVELOPER PAYLOAD & WIRE INSPECTOR (VISA / MASTERCARD DEVELOPER UX) */}
-            <InteractiveWireInspector
-              table={activeTable}
-              highlightedFieldNo={highlightedFieldNo}
-              onSelectField={(no) => setHighlightedFieldNo(no)}
-            />
+            {(tableSectionView === 'wire' || tableSectionView === 'all') && (
+              <InteractiveWireInspector
+                table={activeTable}
+                highlightedFieldNo={highlightedFieldNo}
+                onSelectField={(no) => setHighlightedFieldNo(no)}
+              />
+            )}
 
             {/* BLOCO 4: LAYOUT COMPLETO CAMPO A CAMPO */}
+            {(tableSectionView === 'layout' || tableSectionView === 'all') && (
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 space-y-4 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
                 <div>
@@ -892,6 +971,7 @@ export default function OutgoingClient() {
                 </table>
               </div>
             </div>
+            )}
           </div>
         </div>
       )}
@@ -960,6 +1040,40 @@ export default function OutgoingClient() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Sub-abas para não misturar tudo na mesma tela no Fluxo */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { id: 'sequencia', label: '1️⃣ Sequência das Tabelas no Arquivo' },
+                { id: 'atores', label: '2️⃣ Diagrama dos 5 Atores (0100 ➔ Outgoing)' },
+                { id: 'regras', label: '3️⃣ O Que Vira Obrigatório [C ➔ M] & De-Para' },
+                { id: 'all', label: '📑 Mostrar Tudo na Mesma Tela' },
+              ].map((sec) => {
+                const isSecActive = flowSectionView === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    onClick={() =>
+                      setFlowSectionView(
+                        sec.id as 'sequencia' | 'atores' | 'regras' | 'all'
+                      )
+                    }
+                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      isSecActive
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-600'
+                    }`}
+                  >
+                    {sec.label}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="text-[11px] text-slate-400 px-2">
+              Leitura por etapa para evitar excesso de informação junta
+            </span>
           </div>
 
           {/* Renderização do Fluxo Selecionado (1 Bandeira ou Comparativo das 3) */}
@@ -1054,160 +1168,166 @@ export default function OutgoingClient() {
                 </div>
 
                 {/* DIAGRAMA DE SEQUÊNCIA 5 ATORES (SWIMLANE DUAL-MESSAGE ESTILO VISA/MC DEVELOPER) */}
-                <InteractiveSwimlaneDiagram
-                  brand={bId}
-                  flow={activeFlow}
-                  onSelectTable={handleOpenTableFromAnywhere}
-                />
+                {(flowSectionView === 'atores' || flowSectionView === 'all') && (
+                  <InteractiveSwimlaneDiagram
+                    brand={bId}
+                    flow={activeFlow}
+                    onSelectTable={handleOpenTableFromAnywhere}
+                  />
+                )}
 
                 {/* DESENHO VISUAL DA SEQUÊNCIA DE TABELAS NO ARQUIVO */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black uppercase tracking-wider text-blue-400">
-                      1. Desenho da Sequência Física de Tabelas no Arquivo Outgoing (Passo a Passo)
-                    </span>
-                    <span className="text-[11px] text-slate-400">
-                      Clique em &quot;Inspecionar Layout&quot; para abrir os campos da tabela
-                    </span>
-                  </div>
+                {(flowSectionView === 'sequencia' || flowSectionView === 'all') && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-wider text-blue-400">
+                        1. Desenho da Sequência Física de Tabelas no Arquivo Outgoing (Passo a Passo)
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        Clique em &quot;Inspecionar Layout&quot; para abrir os campos da tabela
+                      </span>
+                    </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                    {bFlow.recordSequence.map((step) => {
-                      const isMandatoryStep = step.statusInFlow === 'Obrigatório no Fluxo';
-                      const isEnvelope = step.statusInFlow === 'Envelope do Lote';
-                      return (
-                        <div
-                          key={step.order}
-                          className={`rounded-xl p-4 border flex flex-col justify-between gap-3 ${
-                            isEnvelope
-                              ? 'bg-slate-950/60 border-slate-800'
-                              : isMandatoryStep
-                              ? 'bg-emerald-950/15 border-emerald-500/35'
-                              : 'bg-amber-950/15 border-amber-500/35'
-                          }`}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-black flex items-center justify-center">
-                                  {step.order}
-                                </span>
-                                <span className="font-mono text-xs font-black text-white">
-                                  {step.tableCode}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                      {bFlow.recordSequence.map((step) => {
+                        const isMandatoryStep = step.statusInFlow === 'Obrigatório no Fluxo';
+                        const isEnvelope = step.statusInFlow === 'Envelope do Lote';
+                        return (
+                          <div
+                            key={step.order}
+                            className={`rounded-xl p-4 border flex flex-col justify-between gap-3 ${
+                              isEnvelope
+                                ? 'bg-slate-950/60 border-slate-800'
+                                : isMandatoryStep
+                                ? 'bg-emerald-950/15 border-emerald-500/35'
+                                : 'bg-amber-950/15 border-amber-500/35'
+                            }`}
+                          >
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-black flex items-center justify-center">
+                                    {step.order}
+                                  </span>
+                                  <span className="font-mono text-xs font-black text-white">
+                                    {step.tableCode}
+                                  </span>
+                                </div>
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                    isEnvelope
+                                      ? 'bg-slate-800 text-slate-300'
+                                      : isMandatoryStep
+                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  }`}
+                                >
+                                  {step.statusInFlow}
                                 </span>
                               </div>
-                              <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                                  isEnvelope
-                                    ? 'bg-slate-800 text-slate-300'
-                                    : isMandatoryStep
-                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                }`}
+
+                              <div className="text-xs font-bold text-slate-100">
+                                {step.tableName}
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {step.roleInFlow}
+                              </p>
+                            </div>
+
+                            <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
+                              <div className="flex flex-wrap gap-1">
+                                {step.keyValuesInFlow.map((kv, kIdx) => (
+                                  <span
+                                    key={kIdx}
+                                    className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 font-mono text-[10px] text-cyan-300"
+                                  >
+                                    {kv}
+                                  </span>
+                                ))}
+                              </div>
+
+                              <button
+                                onClick={() =>
+                                  handleOpenTableFromAnywhere(bId, step.tableId)
+                                }
+                                className="w-full py-1.5 px-3 rounded-lg bg-slate-800/90 hover:bg-blue-600 text-slate-200 hover:text-white text-[11px] font-bold transition-colors text-center"
                               >
-                                {step.statusInFlow}
-                              </span>
+                                Inspecionar Layout Completo ({step.tableCode}) →
+                              </button>
                             </div>
-
-                            <div className="text-xs font-bold text-slate-100">
-                              {step.tableName}
-                            </div>
-                            <p className="text-xs text-slate-300 leading-relaxed">
-                              {step.roleInFlow}
-                            </p>
                           </div>
-
-                          <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
-                            <div className="flex flex-wrap gap-1">
-                              {step.keyValuesInFlow.map((kv, kIdx) => (
-                                <span
-                                  key={kIdx}
-                                  className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 font-mono text-[10px] text-cyan-300"
-                                >
-                                  {kv}
-                                </span>
-                              ))}
-                            </div>
-
-                            <button
-                              onClick={() =>
-                                handleOpenTableFromAnywhere(bId, step.tableId)
-                              }
-                              className="w-full py-1.5 px-3 rounded-lg bg-slate-800/90 hover:bg-blue-600 text-slate-200 hover:text-white text-[11px] font-bold transition-colors text-center"
-                            >
-                              Inspecionar Layout Completo ({step.tableCode}) →
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* ESCALONAMENTO: O QUE ERA CONDICIONAL E VIRA OBRIGATÓRIO NESTE FLUXO + DE-PARA */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
-                  {/* Escalonamento C -> M */}
-                  <div className="rounded-xl bg-amber-950/15 border border-amber-500/30 p-4 space-y-3">
-                    <div className="text-xs font-black uppercase tracking-wider text-amber-300">
-                      2. O Que é Condicional no Manual Geral, mas Vira 100% OBRIGATÓRIO Neste Fluxo
-                    </div>
-                    <div className="space-y-2.5">
-                      {bFlow.conditionalTurnedMandatory.map((esc, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-lg bg-slate-950/90 border border-slate-800 p-3 space-y-1.5"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="font-mono text-xs font-black text-white">
-                              {esc.target}
-                            </span>
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                              <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
-                                {esc.generalStatus}
+                {(flowSectionView === 'regras' || flowSectionView === 'all') && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
+                    {/* Escalonamento C -> M */}
+                    <div className="rounded-xl bg-amber-950/15 border border-amber-500/30 p-4 space-y-3">
+                      <div className="text-xs font-black uppercase tracking-wider text-amber-300">
+                        2. O Que é Condicional no Manual Geral, mas Vira 100% OBRIGATÓRIO Neste Fluxo
+                      </div>
+                      <div className="space-y-2.5">
+                        {bFlow.conditionalTurnedMandatory.map((esc, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-lg bg-slate-950/90 border border-slate-800 p-3 space-y-1.5"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="font-mono text-xs font-black text-white">
+                                {esc.target}
                               </span>
-                              <span className="text-slate-400">➔</span>
-                              <span className="px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
-                                {esc.statusInThisFlow}
-                              </span>
+                              <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                                  {esc.generalStatus}
+                                </span>
+                                <span className="text-slate-400">➔</span>
+                                <span className="px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
+                                  {esc.statusInThisFlow}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-slate-300">
+                              <strong className="text-slate-100">Gatilho:</strong> {esc.triggerCondition}
+                            </div>
+                            <div className="text-xs text-rose-300">
+                              <strong>Se faltar no Outgoing:</strong> {esc.consequenceIfMissing}
                             </div>
                           </div>
-                          <div className="text-xs text-slate-300">
-                            <strong className="text-slate-100">Gatilho:</strong> {esc.triggerCondition}
-                          </div>
-                          <div className="text-xs text-rose-300">
-                            <strong>Se faltar no Outgoing:</strong> {esc.consequenceIfMissing}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* De-Para Autorização -> Outgoing */}
-                  <div className="rounded-xl bg-blue-950/15 border border-blue-500/30 p-4 space-y-3">
-                    <div className="text-xs font-black uppercase tracking-wider text-blue-300">
-                      3. De-Para: Autorização (0100/0110) ➔ Tabelas de Outgoing
-                    </div>
-                    <div className="space-y-2.5">
-                      {bFlow.authToClearingDePara.map((dp, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-lg bg-slate-950/90 border border-slate-800 p-3 space-y-1"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                            <span className="text-cyan-300 font-bold">{dp.authField}</span>
-                            <span className="text-slate-500">➔</span>
-                            <span className="text-emerald-300 font-bold">
-                              {dp.outgoingTable} · {dp.outgoingField}
-                            </span>
+                    {/* De-Para Autorização -> Outgoing */}
+                    <div className="rounded-xl bg-blue-950/15 border border-blue-500/30 p-4 space-y-3">
+                      <div className="text-xs font-black uppercase tracking-wider text-blue-300">
+                        3. De-Para: Autorização (0100/0110) ➔ Tabelas de Outgoing
+                      </div>
+                      <div className="space-y-2.5">
+                        {bFlow.authToClearingDePara.map((dp, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-lg bg-slate-950/90 border border-slate-800 p-3 space-y-1"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+                              <span className="text-cyan-300 font-bold">{dp.authField}</span>
+                              <span className="text-slate-500">➔</span>
+                              <span className="text-emerald-300 font-bold">
+                                {dp.outgoingTable} · {dp.outgoingField}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-300 leading-relaxed">
+                              {dp.rule}
+                            </p>
                           </div>
-                          <p className="text-xs text-slate-300 leading-relaxed">
-                            {dp.rule}
-                          </p>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}

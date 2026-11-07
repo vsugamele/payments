@@ -5,63 +5,56 @@ import OutgoingClient from './OutgoingClient';
 export const metadata = {
   title: 'Arquitetura & Fluxos de Outgoing (Tabelas Separadas) | Payments Compliance',
   description:
-    'Mapa completo e separado de cada tabela de Outgoing (Visa Base II TCR 0 a TCR E, Elo Liquidação 26.2 B0/00 a 09/BZ, Mastercard IPM MTI 1644/1240/1442/1740), com o que é cada uma, o que tem nela, layout posicional, obrigatório vs condicional e 8 fluxos desenhados passo a passo.',
+    'Mapa completo e separado de cada tabela de Outgoing (Visa Base II TCR 0 a TCR E, Elo Liquidação 26.2 B0/00 a 09/BZ, Mastercard IPM MTI 1644/1240/1442/1740), com o que é cada uma, o que tem nela, layout posicional, obrigatório vs condicional, mapa de bits e relatórios do dia a dia.',
 };
 
 export default function OutgoingArchitecturePage() {
   return (
-    <main className="min-h-screen bg-[#020617] text-slate-100">
-      {/* Top Bar */}
-      <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+    <main className="min-h-screen bg-[#020617] text-slate-100 pb-20">
+      {/* Header Editorial Limpo e Legível */}
+      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <Link
               href="/admin"
-              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
-              ← Cockpit (/admin)
+              ← Voltar ao Cockpit
             </Link>
-            <div className="h-4 w-px bg-slate-800 hidden sm:block" />
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-blue-400">
-                  Módulo 02 · Clearing & Liquidação
+              <div className="flex items-center gap-2.5 mb-0.5">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-blue-400">
+                  Clearing & Liquidação (Outgoing)
                 </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
-                  Manuais Abril–Agosto/2026
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+                  Manuais Oficiais 2026
                 </span>
               </div>
-              <h1 className="text-sm sm:text-base font-black text-white">
-                Arquitetura de Outgoing: Tabelas Separadas, Layouts (M vs C) & Desenho de Cada Fluxo
+              <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                Tabelas de Outgoing Separadas, Fluxos, Mapa de Bits & Relatórios
               </h1>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href="/compliance/arquivos"
-              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500/40 hover:text-white transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
               Simulador de Mensagens
             </Link>
             <Link
-              href="/compliance/gcms"
-              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:border-emerald-500/40 hover:text-white transition-colors"
-            >
-              Mastercard GCMS Deep Dive
-            </Link>
-            <Link
               href="/comparativo"
-              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:border-amber-500/40 hover:text-white transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
-              Comparativo Autorização × Clearing
+              Autorização × Clearing
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      {/* Container Principal com Respiro Visual */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
         <OutgoingClient />
       </div>
     </main>

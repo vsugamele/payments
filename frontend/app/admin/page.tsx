@@ -53,11 +53,13 @@ export default function AdminPage() {
   // Cockpit Interactive Controls
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [detailedView, setDetailedView] = useState<boolean>(false);
+  const [showInspectorPanel, setShowInspectorPanel] = useState<boolean>(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>(DEFAULT_PINNED_IDS);
   const [hoveredTool, setHoveredTool] = useState<ToolCardMeta>(
+    ALL_ADMIN_TOOLS.find((t) => t.id === "outgoing-arquitetura") ||
     ALL_ADMIN_TOOLS.find((t) => t.id === "editor") ||
-    ALL_ADMIN_TOOLS.find((t) => t.id === "arquivos-central") ||
     ALL_ADMIN_TOOLS[0]
   );
 
@@ -110,18 +112,25 @@ export default function AdminPage() {
 
   const filteredModules = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return ADMIN_MODULE_CATEGORIES.map((mod) => {
-      const tools = mod.tools.filter((t) => {
-        if (selectedRole !== "ALL" && !t.roles.includes(selectedRole as any)) {
-          return false;
-        }
-        if (!q) return true;
-        const hay = `${t.title} ${t.desc} ${t.whatItIs} ${t.badge} ${t.url} ${t.features.join(" ")} ${t.dataSources.join(" ")} ${t.keywords.join(" ")}`.toLowerCase();
-        return hay.includes(q);
-      });
-      return { ...mod, tools };
-    }).filter((mod) => mod.tools.length > 0);
-  }, [searchQuery, selectedRole]);
+    return ADMIN_MODULE_CATEGORIES.filter((mod) => {
+      if (selectedCategory !== "ALL" && mod.category !== selectedCategory) {
+        return false;
+      }
+      return true;
+    })
+      .map((mod) => {
+        const tools = mod.tools.filter((t) => {
+          if (selectedRole !== "ALL" && !t.roles.includes(selectedRole as any)) {
+            return false;
+          }
+          if (!q) return true;
+          const hay = `${t.title} ${t.desc} ${t.whatItIs} ${t.badge} ${t.url} ${t.features.join(" ")} ${t.dataSources.join(" ")} ${t.keywords.join(" ")}`.toLowerCase();
+          return hay.includes(q);
+        });
+        return { ...mod, tools };
+      })
+      .filter((mod) => mod.tools.length > 0);
+  }, [searchQuery, selectedRole, selectedCategory]);
 
   if (isAuthenticated === null) {
     return (
@@ -372,14 +381,57 @@ export default function AdminPage() {
                   {role.label}
                 </button>
               ))}
+              <button
+                onClick={() => setShowInspectorPanel((prev) => !prev)}
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${
+                  showInspectorPanel
+                    ? "bg-purple-600 text-white border-purple-500"
+                    : "bg-slate-900/90 border-slate-800 text-slate-300 hover:border-purple-400"
+                }`}
+              >
+                {showInspectorPanel ? "▲ Ocultar Painel Raio-X" : "🔍 Abrir Painel Raio-X"}
+              </button>
             </div>
+          </div>
+
+          {/* Navegação por Categoria (para ver 1 frente por vez sem poluição visual) */}
+          <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-bold text-slate-400 mr-1">
+              Categorias:
+            </span>
+            <button
+              onClick={() => setSelectedCategory("ALL")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                selectedCategory === "ALL"
+                  ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                  : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-600"
+              }`}
+            >
+              Todas as Categorias ({ADMIN_MODULE_CATEGORIES.length})
+            </button>
+            {ADMIN_MODULE_CATEGORIES.map((cat) => {
+              const isCatSelected = selectedCategory === cat.category;
+              return (
+                <button
+                  key={cat.category}
+                  onClick={() => setSelectedCategory(cat.category)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                    isCatSelected
+                      ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                      : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-600"
+                  }`}
+                >
+                  {cat.category.replace(/^\d+\.\s*/, "")} ({cat.tools.length})
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* =====================================================================
             PAINEL DE INSPEÇÃO EM TEMPO REAL AO PASSAR O MOUSE (RAIO-X DO MÓDULO)
            ===================================================================== */}
-        {hoveredTool && (
+        {showInspectorPanel && hoveredTool && (
           <div className="rounded-2xl border border-blue-500/35 bg-gradient-to-r from-[#071124] via-[#090f1d] to-[#0d0b20] p-5 shadow-xl transition-all">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 mb-4">
               <div className="flex items-center gap-2.5 flex-wrap">
@@ -604,10 +656,10 @@ export default function AdminPage() {
                             {tool.desc}
                           </p>
 
-                          {/* Detalhamento extra exibido ao passar o mouse no card OU quando o modo Raio-X está ativo */}
+                          {/* Detalhamento extra exibido quando o modo Raio-X está ativo (sem pular ao passar o mouse) */}
                           <div
                             className={`space-y-2.5 pt-2.5 border-t border-slate-800/80 transition-all ${
-                              detailedView || isHovered ? "block" : "hidden group-hover:block"
+                              detailedView ? "block" : "hidden"
                             }`}
                           >
                             <div className="bg-[#030711]/90 border border-slate-800/80 rounded-xl p-3">
