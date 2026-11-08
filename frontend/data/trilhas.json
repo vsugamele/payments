@@ -204,6 +204,51 @@
           ]
         }
       ]
+    },
+    {
+      "id": "outgoing-liquidacao-programas",
+      "titulo": "Trilha Outgoing, Liquidação, Reports & Programas de Bandeira",
+      "subtitulo": "Domine as 28 tabelas de Outgoing (Visa Base II, Elo 26.2 e Mastercard GCMS), Mapa de Bits, Reports T+0/D+1 e os 18 Programas Oficiais.",
+      "nivel": "Avançado",
+      "cor": "#0284c7",
+      "cor_fundo": "rgba(2, 132, 199, 0.06)",
+      "cor_borda": "rgba(2, 132, 199, 0.2)",
+      "tempo_total": "90 min",
+      "modulos": [
+        {
+          "id": "m1",
+          "titulo": "Tabelas, Fluxos, Reports & Programas",
+          "licoes": [
+            {
+              "id": "outgoing-tabelas-168b-tlv",
+              "titulo": "Anatomia das Tabelas de Outgoing (168B vs TLV)",
+              "descricao": "TCR 0..E (Visa), Registros 00..09 (Elo 26.2) e MTI 1240 + PDS (Mastercard) com regras [M] vs [C]",
+              "tempo": "20 min",
+              "tipo": "Técnica",
+              "simulador": { "label": "Abrir Frente de Outgoing", "href": "/compliance/outgoing" },
+              "termos": ["Base II", "GCMS", "MTI 1240", "TCR 0", "PDS 0158"]
+            },
+            {
+              "id": "outgoing-bitmap-reports",
+              "titulo": "Mapa de Bits (0100/0110 × Clearing) & Reports Diários",
+              "descricao": "Conciliação T+0 e D+1 no SLC/B3 via VCX/VSS, Agenda Elo E0–E9 e GCMS T112 / IP714010 / T461",
+              "tempo": "35 min",
+              "tipo": "Processual",
+              "simulador": { "label": "Abrir Reports & Mapa de Bits", "href": "/compliance/outgoing" },
+              "termos": ["VSS-110", "VSS-130", "T112", "IP714010-BB", "TE01 Reg 09"]
+            },
+            {
+              "id": "outgoing-programas-waivers",
+              "titulo": "Programas de Bandeira (Data Integrity, CPS/IRD, VAMP, ECP) & Waivers",
+              "descricao": "Como falhas de mensageria acionam downgrades e multas e como estruturar um pedido de Waiver técnico",
+              "tempo": "35 min",
+              "tipo": "Normativa",
+              "simulador": { "label": "Abrir Lista de Programas & Trilha", "href": "/compliance/outgoing" },
+              "termos": ["GDIP", "Data Integrity", "VAMP", "ECP", "EFM", "PED", "PEF"]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

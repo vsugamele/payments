@@ -21,8 +21,18 @@ import {
 } from './OutgoingDeveloperDiagrams';
 import { OutgoingBitmapExplorer } from './OutgoingBitmapExplorer';
 import { OutgoingReportsExplorer } from './OutgoingReportsExplorer';
+import { OutgoingProgramsExplorer } from './OutgoingProgramsExplorer';
+import { OutgoingEducationTrack } from './OutgoingEducationTrack';
 
-type MainTab = 'tables' | 'flows' | 'matrix' | 'sandbox' | 'bitmap' | 'reports';
+type MainTab =
+  | 'tables'
+  | 'flows'
+  | 'matrix'
+  | 'sandbox'
+  | 'bitmap'
+  | 'reports'
+  | 'programs'
+  | 'education';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -406,6 +416,34 @@ export default function OutgoingClient() {
             <span>📊 6. Relatórios do Dia a Dia (Reports)</span>
             <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
               T+0 · D+1 · M/C
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('programs')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'programs'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-950/50'
+                : 'text-rose-300 hover:bg-slate-800/70 border border-rose-500/30'
+            }`}
+          >
+            <span>🛡️ 7. Lista de Programas das Bandeiras</span>
+            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
+              GDIP · CPS/IRD · VAMP · ECP
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('education')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'education'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-950/50'
+                : 'text-cyan-300 hover:bg-slate-800/70 border border-cyan-500/30'
+            }`}
+          >
+            <span>🎓 8. Trilha Educativa Passo a Passo</span>
+            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
+              5 Módulos + Quiz
             </span>
           </button>
         </div>
@@ -1537,6 +1575,25 @@ export default function OutgoingClient() {
          ===================================================================== */}
       {activeTab === 'reports' && (
         <OutgoingReportsExplorer selectedBrand={selectedBrand} />
+      )}
+
+      {/* =====================================================================
+          ABA 7 — LISTA COMPLETA DE PROGRAMAS DAS BANDEIRAS (DATA INTEGRITY, CPS/IRD, VAMP, ECP...)
+         ===================================================================== */}
+      {activeTab === 'programs' && (
+        <OutgoingProgramsExplorer
+          selectedBrand={selectedBrand}
+          onSelectBrand={(b) => setSelectedBrand(b)}
+        />
+      )}
+
+      {/* =====================================================================
+          ABA 8 — TRILHA EDUCATIVA PASSO A PASSO (5 MÓDULOS + QUIZ INTERATIVO)
+         ===================================================================== */}
+      {activeTab === 'education' && (
+        <OutgoingEducationTrack
+          onJumpToTab={(targetTab) => setActiveTab(targetTab)}
+        />
       )}
     </div>
   );
