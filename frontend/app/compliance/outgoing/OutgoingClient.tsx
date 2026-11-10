@@ -27,6 +27,7 @@ import { OutgoingBatchValidator } from './OutgoingBatchValidator';
 import { OutgoingWaiverGenerator } from './OutgoingWaiverGenerator';
 import { OutgoingDisputesExplorer } from './OutgoingDisputesExplorer';
 import { OutgoingIndustryAddendaExplorer } from './OutgoingIndustryAddendaExplorer';
+import OutgoingAcervoConnector from './OutgoingAcervoConnector';
 
 type MainTab =
   | 'tables'
@@ -40,7 +41,8 @@ type MainTab =
   | 'industry'
   | 'programs'
   | 'waivers'
-  | 'education';
+  | 'education'
+  | 'acervo';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -294,6 +296,12 @@ export default function OutgoingClient() {
             >
               {showBlueprint ? '▾ Ocultar Blueprint Físico' : '🗺️ Ver Blueprint Físico (4 Camadas)'}
             </button>
+            <button
+              onClick={() => setActiveTab('acervo')}
+              className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-700 text-xs font-bold transition-all"
+            >
+              🗄️ Acervo Plugado & 6 Filas Executadas (40.129 Ativos · 17.106 Campos)
+            </button>
           </div>
         </div>
 
@@ -498,6 +506,17 @@ export default function OutgoingClient() {
             }`}
           >
             <span>🎓 12. Trilha Educativa (5 Módulos)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('acervo')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'acervo'
+                ? 'bg-blue-700 text-white shadow-sm'
+                : 'text-blue-300 bg-slate-950 border border-blue-500/30 hover:border-blue-400'
+            }`}
+          >
+            <span>🗄️ 13. Acervo Plugado & Filas (40.129 Ativos · 17.106 Campos)</span>
           </button>
         </div>
       </div>
@@ -1663,6 +1682,16 @@ export default function OutgoingClient() {
       {activeTab === 'education' && (
         <OutgoingEducationTrack
           onJumpToTab={(targetTab) => setActiveTab(targetTab)}
+        />
+      )}
+
+      {/* =====================================================================
+          ABA 13 — CONECTOR DIRETO DO SISTEMA DE ACERVOS & 6 FILAS EXECUTADAS
+         ===================================================================== */}
+      {activeTab === 'acervo' && (
+        <OutgoingAcervoConnector
+          initialBrandFilter={selectedBrand}
+          onNavigateTab={(t) => setActiveTab(t)}
         />
       )}
     </div>

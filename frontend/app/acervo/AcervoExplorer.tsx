@@ -97,7 +97,7 @@ export default function AcervoExplorer() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Pesquise em 35.336 documentos normativos (ex: GLB 12332, VSS 110, TC 33, Edit 30)..."
+              placeholder="Pesquise em 40.129 documentos normativos (ex: GLB 12332, VSS 110, TC 33, Edit 30, Elo 27.1)..."
               className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             />
           </div>
@@ -156,7 +156,7 @@ export default function AcervoExplorer() {
             Buscando no banco offline (acervo.sqlite3)...
           </div>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            Correlacionando 517.297 unidades FTS com extração precisa de página física e citações literais.
+            Correlacionando 571.849 unidades FTS com extração precisa de página física e citações literais.
           </p>
         </div>
       )}

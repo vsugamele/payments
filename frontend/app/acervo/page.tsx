@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Search, ArrowRight, Lock, BookMarked, ExternalLink, Database, Network, DollarSign, Layers, Sparkles } from "lucide-react";
 import manuais from "@/data/manuais.json";
 import AcervoExplorer from "./AcervoExplorer";
+import OutgoingAcervoConnector from "../compliance/outgoing/OutgoingAcervoConnector";
 
 // IDs que possuem página de leitura detalhada na plataforma
 const MANUAIS_COM_VIEWER = new Set(["mc-interchange-detalhado", "vi-interchange-detalhado"]);
@@ -39,14 +40,14 @@ export default function AcervoPage() {
           >
             <Database size={14} style={{ color: "#818cf8" }} />
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#818cf8", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              Motor RAG Local &bull; 35.336 Documentos
+              Motor RAG Local &bull; 40.129 Documentos &bull; 17.106 Campos &bull; 94 Normas BCB/CMN
             </span>
           </div>
           <h1 className="font-extrabold text-foreground mb-4" style={{ fontSize: "clamp(1.85rem, 4vw, 2.85rem)" }}>
-            Acervo Normativo das Bandeiras
+            Acervo Normativo das Bandeiras &amp; BCB/CMN
           </h1>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.8, maxWidth: 580, margin: "0 auto" }}>
-            Todas as tabelas de intercâmbio, cascatas de risco e comportamentos de campos da plataforma são lastreados diretamente no nosso acervo indexado offline de 5,24 GB.
+          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.8, maxWidth: 640, margin: "0 auto" }}>
+            Todas as tabelas de Outgoing, intercâmbio, tarifas, cascatas de risco e obrigações regulatórias são lastreadas diretamente no Sistema de Acervos (5,61 GB · 571.849 páginas indexadas · 6 filas executadas em 09/11/2026).
           </p>
 
           {/* Quick Hub Links */}
@@ -82,22 +83,25 @@ export default function AcervoPage() {
         {/* Painel de Estatísticas Reais */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
-            <div className="text-2xl font-black text-foreground mb-1">35.336</div>
-            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Documentos / Hashes</div>
+            <div className="text-2xl font-black text-foreground mb-1">40.129</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Ativos Únicos (SHA-256)</div>
           </div>
           <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
-            <div className="text-2xl font-black text-blue-500 mb-1">517.297</div>
-            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Unidades FTS no Banco</div>
+            <div className="text-2xl font-black text-blue-500 mb-1">571.849</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Páginas FTS no Banco</div>
           </div>
           <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
-            <div className="text-2xl font-black text-emerald-500 mb-1">5,24 GB</div>
-            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Acervo Offline SQLite</div>
+            <div className="text-2xl font-black text-emerald-500 mb-1">17.106</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Campos de Layout (`campos.sqlite3`)</div>
           </div>
           <div className="bg-card border border-border p-5 rounded-2xl shadow-xs">
-            <div className="text-2xl font-black text-purple-500 mb-1">4 Bandeiras</div>
-            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">Visa • MC • Elo • Amex</div>
+            <div className="text-2xl font-black text-purple-500 mb-1">94 Normas</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-bold">BCB / CMN + 4 Bandeiras</div>
           </div>
         </div>
+
+        {/* Conector Completo do Sistema de Acervos & 6 Filas Executadas */}
+        <OutgoingAcervoConnector />
 
         {/* Explorador de RAG Interativo */}
         <div className="space-y-4">
