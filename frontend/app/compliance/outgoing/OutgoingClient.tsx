@@ -23,6 +23,10 @@ import { OutgoingBitmapExplorer } from './OutgoingBitmapExplorer';
 import { OutgoingReportsExplorer } from './OutgoingReportsExplorer';
 import { OutgoingProgramsExplorer } from './OutgoingProgramsExplorer';
 import { OutgoingEducationTrack } from './OutgoingEducationTrack';
+import { OutgoingBatchValidator } from './OutgoingBatchValidator';
+import { OutgoingWaiverGenerator } from './OutgoingWaiverGenerator';
+import { OutgoingDisputesExplorer } from './OutgoingDisputesExplorer';
+import { OutgoingIndustryAddendaExplorer } from './OutgoingIndustryAddendaExplorer';
 
 type MainTab =
   | 'tables'
@@ -30,8 +34,12 @@ type MainTab =
   | 'matrix'
   | 'sandbox'
   | 'bitmap'
+  | 'validator'
   | 'reports'
+  | 'disputes'
+  | 'industry'
   | 'programs'
+  | 'waivers'
   | 'education';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
@@ -334,133 +342,163 @@ export default function OutgoingClient() {
       </div>
 
       {/* =====================================================================
-          2. NAVEGAÇÃO ENTRE AS 3 VISÕES PRINCIPAIS
+          2. NAVEGAÇÃO ORGANIZADA EM 2 GRUPOS LIMPOS (SEM POLUIÇÃO VISUAL)
          ===================================================================== */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-2 rounded-2xl">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveTab('tables')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'tables'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-950/50'
-                : 'text-slate-300 hover:bg-slate-800/70'
-            }`}
-          >
-            <span>📋 1. Cada Tabela de Outgoing (Separada)</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              O que é · O que tem · Layout · M/C
+      <div className="bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl space-y-3">
+        {/* Linha 1: Arquitetura, Tabelas, Fluxos, Bits & Validador */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1.5">
+              Arquitetura & Lote:
             </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('tables')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'tables'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <span>📋 1. Tabelas Separadas</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('flows')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'flows'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-950/50'
-                : 'text-slate-300 hover:bg-slate-800/70'
-            }`}
-          >
-            <span>🔀 2. Desenho de Cada Fluxo (8 Cenários)</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              Sequência de Lote + De-Para
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('flows')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'flows'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <span>🔀 2. Fluxos (8 Cenários)</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('matrix')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'matrix'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-950/50'
-                : 'text-slate-300 hover:bg-slate-800/70'
-            }`}
-          >
-            <span>📐 3. Matriz Tabelas × Fluxos (M / C / N/A)</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('matrix')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'matrix'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <span>📐 3. Matriz M/C</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('sandbox')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'sandbox'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
-                : 'text-emerald-300 hover:bg-slate-800/70 border border-emerald-500/30'
-            }`}
-          >
-            <span>⚡ 4. Sandbox Gatilhos [C ➔ M]</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              Playground
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('sandbox')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'sandbox'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-emerald-300 bg-slate-950 border border-emerald-500/30 hover:border-emerald-400'
+              }`}
+            >
+              <span>⚡ 4. Sandbox [C ➔ M]</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('bitmap')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'bitmap'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-950/50'
-                : 'text-purple-300 hover:bg-slate-800/70 border border-purple-500/30'
-            }`}
-          >
-            <span>🧮 5. Mapa de Bits (Autorização × Clearing)</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              128 Bits · Hex
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('bitmap')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'bitmap'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-purple-300 bg-slate-950 border border-purple-500/30 hover:border-purple-400'
+              }`}
+            >
+              <span>🧮 5. Mapa de Bits (128b)</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('validator')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'validator'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-blue-300 bg-slate-950 border border-blue-500/30 hover:border-blue-400'
+              }`}
+            >
+              <span>🔍 6. Validador de Lote (168B / TLV)</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 pr-1">
+            <Link
+              href="/compliance/arquivos"
+              className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors"
+            >
+              Ver Simulador Geral →
+            </Link>
+          </div>
+        </div>
+
+        {/* Linha 2: Operação Diária, Setores, Disputas, Programas, Waivers & Academia */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-800/80">
+          <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1.5">
+            Operação, Compliance & Estudo:
+          </span>
 
           <button
             onClick={() => setActiveTab('reports')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'reports'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-950/50'
-                : 'text-amber-300 hover:bg-slate-800/70 border border-amber-500/30'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                : 'text-amber-300 bg-slate-950 border border-amber-500/30 hover:border-amber-400'
             }`}
           >
-            <span>📊 6. Relatórios do Dia a Dia (Reports)</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              T+0 · D+1 · M/C
-            </span>
+            <span>📊 7. Reports do Dia a Dia</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('disputes')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'disputes'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
+            }`}
+          >
+            <span>⚖️ 8. Disputas & Chargebacks (CE 3.0)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('industry')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'industry'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
+            }`}
+          >
+            <span>✈️ 9. Setores (IATA · Hotel · Locadora · Frota)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('programs')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'programs'
-                ? 'bg-rose-600 text-white shadow-md shadow-rose-950/50'
-                : 'text-rose-300 hover:bg-slate-800/70 border border-rose-500/30'
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'text-rose-300 bg-slate-950 border border-rose-500/30 hover:border-rose-400'
             }`}
           >
-            <span>🛡️ 7. Lista de Programas das Bandeiras</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              GDIP · CPS/IRD · VAMP · ECP
-            </span>
+            <span>🛡️ 10. Programas das Bandeiras (18)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('waivers')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'waivers'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-emerald-300 bg-slate-950 border border-emerald-500/30 hover:border-emerald-400'
+            }`}
+          >
+            <span>📝 11. Gerador de Waiver & RCA</span>
           </button>
 
           <button
             onClick={() => setActiveTab('education')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'education'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-950/50'
-                : 'text-cyan-300 hover:bg-slate-800/70 border border-cyan-500/30'
+                ? 'bg-cyan-600 text-white shadow-sm'
+                : 'text-cyan-300 bg-slate-950 border border-cyan-500/30 hover:border-cyan-400'
             }`}
           >
-            <span>🎓 8. Trilha Educativa Passo a Passo</span>
-            <span className="px-2 py-0.5 rounded bg-black/25 text-[11px] font-mono">
-              5 Módulos + Quiz
-            </span>
+            <span>🎓 12. Trilha Educativa (5 Módulos)</span>
           </button>
-        </div>
-
-        <div className="flex items-center gap-3 pr-2">
-          <button
-            onClick={() => setShowBlueprint((prev) => !prev)}
-            className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 hover:border-blue-400 text-xs font-bold text-blue-300 transition-all"
-          >
-            {showBlueprint ? '▾ Ocultar Blueprint Arquitetural' : '▸ Ver Blueprint Arquitetural (MC/Visa Dev)'}
-          </button>
-          <Link
-            href="/compliance/arquivos"
-            className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors"
-          >
-            Ver Simulador de Mensagens →
-          </Link>
         </div>
       </div>
 
@@ -1571,14 +1609,41 @@ export default function OutgoingClient() {
       )}
 
       {/* =====================================================================
-          ABA 6 — RELATÓRIOS & CONCILIAÇÃO DO OUTGOING NO DIA A DIA (REPORTS)
+          ABA 6 — VALIDADOR E DECODIFICADOR DE LOTE OUTGOING (168B / TLV)
+         ===================================================================== */}
+      {activeTab === 'validator' && (
+        <OutgoingBatchValidator
+          selectedBrand={selectedBrand}
+          onSelectBrand={(b) => setSelectedBrand(b)}
+        />
+      )}
+
+      {/* =====================================================================
+          ABA 7 — RELATÓRIOS & CONCILIAÇÃO DO OUTGOING NO DIA A DIA (REPORTS)
          ===================================================================== */}
       {activeTab === 'reports' && (
         <OutgoingReportsExplorer selectedBrand={selectedBrand} />
       )}
 
       {/* =====================================================================
-          ABA 7 — LISTA COMPLETA DE PROGRAMAS DAS BANDEIRAS (DATA INTEGRITY, CPS/IRD, VAMP, ECP...)
+          ABA 8 — ÁRVORE DE DECISÃO DE DISPUTAS, CHARGEBACKS & REPRESENTMENT
+         ===================================================================== */}
+      {activeTab === 'disputes' && (
+        <OutgoingDisputesExplorer selectedBrand={selectedBrand} />
+      )}
+
+      {/* =====================================================================
+          ABA 9 — RAMOS SETORIAIS ESPECIAIS & ADENDOS (IATA, HOTEL, LOCADORA, FROTA)
+         ===================================================================== */}
+      {activeTab === 'industry' && (
+        <OutgoingIndustryAddendaExplorer
+          selectedBrand={selectedBrand}
+          onSelectBrand={(b) => setSelectedBrand(b)}
+        />
+      )}
+
+      {/* =====================================================================
+          ABA 10 — LISTA COMPLETA DE PROGRAMAS DAS BANDEIRAS (DATA INTEGRITY, CPS/IRD, VAMP, ECP...)
          ===================================================================== */}
       {activeTab === 'programs' && (
         <OutgoingProgramsExplorer
@@ -1588,7 +1653,12 @@ export default function OutgoingClient() {
       )}
 
       {/* =====================================================================
-          ABA 8 — TRILHA EDUCATIVA PASSO A PASSO (5 MÓDULOS + QUIZ INTERATIVO)
+          ABA 11 — GERADOR AUTOMÁTICO DE DOSSIÊ TÉCNICO DE WAIVER & RCA
+         ===================================================================== */}
+      {activeTab === 'waivers' && <OutgoingWaiverGenerator />}
+
+      {/* =====================================================================
+          ABA 12 — TRILHA EDUCATIVA PASSO A PASSO (5 MÓDULOS + QUIZ INTERATIVO)
          ===================================================================== */}
       {activeTab === 'education' && (
         <OutgoingEducationTrack
