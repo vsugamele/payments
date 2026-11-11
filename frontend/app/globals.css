@@ -408,9 +408,12 @@ html:not(.dark) {
 html:not(.dark) main.bg-\[\#020617\],
 html:not(.dark) main.bg-\[\#030711\],
 html:not(.dark) main.bg-\[\#060911\],
+html:not(.dark) main.bg-\[\#02050b\],
 html:not(.dark) main.bg-slate-950,
 html:not(.dark) div.min-h-screen.bg-\[\#020617\],
 html:not(.dark) div.min-h-screen.bg-\[\#030711\],
+html:not(.dark) div.min-h-screen.bg-\[\#02050b\],
+html:not(.dark) div.min-h-screen.bg-\[\#060911\],
 html:not(.dark) div.min-h-screen.bg-slate-950 {
   background-color: #f6f7f9 !important;
   color: #0f172a !important;
@@ -421,6 +424,8 @@ html:not(.dark) .bg-slate-900\/70,
 html:not(.dark) .bg-slate-900\/80,
 html:not(.dark) .bg-slate-900\/90,
 html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-\[\#050b16\]\/90,
+html:not(.dark) .bg-\[\#080f1e\],
 html:not(.dark) .bg-\[\#080d16\]\/95,
 html:not(.dark) .bg-\[\#0a101d\] {
   background-color: #ffffff !important;
@@ -435,6 +440,7 @@ html:not(.dark) .bg-slate-950\/50,
 html:not(.dark) .bg-slate-950,
 html:not(.dark) .bg-slate-900\/50,
 html:not(.dark) .bg-\[\#030711\],
+html:not(.dark) .bg-\[\#040914\],
 html:not(.dark) .bg-black\/70,
 html:not(.dark) .bg-black\/40,
 html:not(.dark) .bg-black\/30,
@@ -575,5 +581,17 @@ html:not(.dark) .text-rose-100,
 html:not(.dark) .text-red-300 {
   color: #be123c !important;
 }
+
+html:not(.dark) .text-cyan-400,
+html:not(.dark) .text-cyan-300,
+html:not(.dark) .text-cyan-200 {
+  color: #0e7490 !important;
+}
+
+html:not(.dark) .bg-cyan-950\/50,
+html:not(.dark) .bg-cyan-950\/30 {
+  background-color: #ecfeff !important;
+}
+
 
 

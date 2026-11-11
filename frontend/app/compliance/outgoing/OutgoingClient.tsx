@@ -28,6 +28,7 @@ import { OutgoingWaiverGenerator } from './OutgoingWaiverGenerator';
 import { OutgoingDisputesExplorer } from './OutgoingDisputesExplorer';
 import { OutgoingIndustryAddendaExplorer } from './OutgoingIndustryAddendaExplorer';
 import OutgoingAcervoConnector from './OutgoingAcervoConnector';
+import { OutgoingDowngradeAndAmex } from './OutgoingDowngradeAndAmex';
 
 type MainTab =
   | 'tables'
@@ -42,7 +43,8 @@ type MainTab =
   | 'programs'
   | 'waivers'
   | 'education'
-  | 'acervo';
+  | 'acervo'
+  | 'downgrade_amex';
 type TablePresenceFilter = 'ALL' | 'Obrigatório' | 'Condicional';
 type FieldStatusFilter = 'ALL' | 'M' | 'C';
 
@@ -302,6 +304,12 @@ export default function OutgoingClient() {
             >
               🗄️ Acervo Plugado & 6 Filas Executadas (40.129 Ativos · 17.106 Campos)
             </button>
+            <button
+              onClick={() => setActiveTab('downgrade_amex')}
+              className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 border border-amber-400 hover:bg-amber-400 text-xs font-black transition-all"
+            >
+              💰 Calculadora Downgrade (R$) & Amex (4ª Bandeira)
+            </button>
           </div>
         </div>
 
@@ -517,6 +525,17 @@ export default function OutgoingClient() {
             }`}
           >
             <span>🗄️ 13. Acervo Plugado & Filas (40.129 Ativos · 17.106 Campos)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('downgrade_amex')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'downgrade_amex'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                : 'text-amber-300 bg-slate-950 border border-amber-500/30 hover:border-amber-400'
+            }`}
+          >
+            <span>💰 14. Calculadora Downgrade (R$) & Amex</span>
           </button>
         </div>
       </div>
@@ -1694,6 +1713,11 @@ export default function OutgoingClient() {
           onNavigateTab={(t) => setActiveTab(t)}
         />
       )}
+
+      {/* =====================================================================
+          ABA 14 — CALCULADORA FINANCEIRA DE DOWNGRADE (R$) & 4ª BANDEIRA AMEX
+         ===================================================================== */}
+      {activeTab === 'downgrade_amex' && <OutgoingDowngradeAndAmex />}
     </div>
   );
 }

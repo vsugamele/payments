@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RagChat from "@/components/RagChat";
 import { OwnerBar } from "@/components/OwnerBar";
+import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,6 +59,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
+          <GlobalCommandPalette />
           <div className="flex-1 print:pt-0">{children}</div>
           <Footer />
           <RagChat />

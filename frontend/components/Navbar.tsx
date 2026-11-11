@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
   Menu, X, Sun, Moon, Briefcase, FileDown, Mail,
-  ExternalLink, MessageCircle
+  ExternalLink, MessageCircle, Search
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -61,6 +61,18 @@ export function Navbar() {
 
         {/* Action Buttons & Theme */}
         <div className="hidden sm:flex items-center gap-3">
+          <button
+            onClick={() => window.dispatchEvent(new Event("open-global-command-palette"))}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground border border-border transition-all"
+            title="Busca Global Instantânea (Ctrl+K)"
+          >
+            <Search size={13} className="text-blue-500" />
+            <span>Buscar</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono text-[10px] text-muted-foreground">
+              Ctrl+K
+            </kbd>
+          </button>
+
           <a
             href="/Curriculo_Vinicius_Sugamele.pdf"
             target="_blank"

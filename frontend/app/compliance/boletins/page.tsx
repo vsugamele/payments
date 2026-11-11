@@ -20,8 +20,19 @@ export default function CentralBoletinsComportamentoPage() {
   const [releaseCycles, setReleaseCycles] = useState<string[]>([]);
 
   // Simulador de Perfil state
-  const [selPapeis, setSelPapeis] = useState<string[]>(["emissor"]);
-  const [selProdutos, setSelProdutos] = useState<string[]>(["token", "mdes", "ecommerce", "moneysend"]);
+  const [selPapeis, setSelPapeis] = useState<string[]>(["emissor", "adquirente"]);
+  const [selProdutos, setSelProdutos] = useState<string[]>([
+    "token",
+    "mdes",
+    "ecommerce",
+    "moneysend",
+    "transfer",
+    "subcredenciador",
+    "cartao_credito",
+    "cartao_debito",
+    "prepago",
+    "refund",
+  ]);
   const [selBandeira, setSelBandeira] = useState("ALL");
   const [projecoes, setProjecoes] = useState<any[]>([]);
   const [loadingProj, setLoadingProj] = useState(false);
@@ -141,6 +152,123 @@ export default function CentralBoletinsComportamentoPage() {
 
   const activeCampo = camposComportamento.find((c) => c.id === selectedCampoId) || camposComportamento[0];
 
+  const handleExportPlanilhaRelease = (aba: "adquirente" | "emissor" | "consolidado") => {
+    const qCsv = (val: any) => `"${String(val ?? "").replace(/"/g, '""').replace(/\r?\n/g, " ")}"`;
+    const rows: string[] = [];
+
+    if (aba === "adquirente" || aba === "emissor") {
+      const papelAlvo = aba;
+      rows.push(
+        [
+          "Bandeira",
+          "ID / Documento",
+          "Título Oficial",
+          "Release",
+          "Vigência",
+          "Classificação",
+          "Impacta Brasil?",
+          "Criticidade",
+          "Regulatório",
+          "Papel",
+          "Impacta o Papel?",
+          "Campos Técnicos (DE / PDS / TCR / Reg)",
+          "O que Desenvolver / Ações Técnicas",
+          "Exposição Financeira & Negócio",
+          "Fonte Normativa",
+        ]
+          .map(qCsv)
+          .join(";")
+      );
+
+      for (const b of boletins3Lentes) {
+        const acoesPapel: string[] = b.acoes?.[papelAlvo] || [];
+        const gatPapeis: string[] = b.gatilhos?.papeis || [];
+        const impactaPapel = gatPapeis.includes(papelAlvo) ? "Sim" : "Sem Impacto.";
+        const vigStr = (b.vigencia || []).map((v: any) => `${v.data} (${v.detalhe})`).join(" | ");
+        const camposStr = (b.lentes?.tecnica?.campos || []).join(", ");
+        const acoesStr = acoesPapel.length ? acoesPapel.join(" | ") : "Sem Impacto.";
+
+        rows.push(
+          [
+            b.bandeira,
+            b.id,
+            b.titulo,
+            b.release,
+            vigStr,
+            b.classificacao,
+            b.impacta_brasil,
+            b.criticidade_base,
+            b.regulatorio ? "Sim" : "Não",
+            papelAlvo === "adquirente" ? "Adquirente" : "Emissor",
+            impactaPapel,
+            camposStr || "Regra / Compliance",
+            acoesStr,
+            b.lentes?.negocio?.exposicao_financeira || "",
+            b.fonte || "",
+          ]
+            .map(qCsv)
+            .join(";")
+        );
+      }
+    } else {
+      rows.push(
+        [
+          "ID",
+          "Bandeira",
+          "Identificação",
+          "Título",
+          "Release",
+          "Publicação",
+          "Vigência",
+          "Classificação",
+          "Impacta Brasil",
+          "Criticidade",
+          "Impacto Financeiro",
+          "Regulatório",
+          "Área Impactada",
+          "Resumo Executivo",
+          "Parecer Técnico",
+        ]
+          .map(qCsv)
+          .join(";")
+      );
+
+      const sourceList = relResults.length > 0 ? relResults : boletins3Lentes;
+      for (const r of sourceList) {
+        rows.push(
+          [
+            r.id,
+            r.bandeira,
+            r.identificacao || r.id,
+            r.titulo,
+            r.release,
+            r.data_publicacao || r.publicado || "",
+            Array.isArray(r.vigencia) ? r.vigencia.map((v: any) => v.data).join(", ") : r.vigencia || "",
+            r.classificacao,
+            r.impacta_brasil,
+            r.criticidade || r.criticidade_base || "",
+            r.impacto_financeiro || "",
+            r.regulatorio,
+            r.area_impactada || (r.subdominios || []).join(", "),
+            r.resumo || r.o_que_a_bandeira_esta_fazendo || "",
+            r.parecer_tecnico || "",
+          ]
+            .map(qCsv)
+            .join(";")
+        );
+      }
+    }
+
+    const csvContent = "\uFEFF" + rows.join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Planilha_Controle_Release_${aba.toUpperCase()}_2026_2027.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
       {/* Header */}
@@ -171,16 +299,34 @@ export default function CentralBoletinsComportamentoPage() {
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
               <span className="text-slate-400">Releases Mapeados: </span>
-              <strong className="font-mono text-white">{stats?.totalReleasesTracker || 381}</strong>
+              <strong className="font-mono text-white">{stats?.totalReleasesTracker || 385}</strong>
             </div>
             <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
               <span className="text-slate-400">Fichas 3 Lentes: </span>
-              <strong className="font-mono text-amber-300">{stats?.totalBoletins3Lentes || 3}</strong>
+              <strong className="font-mono text-amber-300">{stats?.totalBoletins3Lentes || 8}</strong>
             </div>
             <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
               <span className="text-slate-400">Campos Catalogados: </span>
-              <strong className="font-mono text-blue-300">{stats?.totalCamposComportamento || 4}</strong>
+              <strong className="font-mono text-blue-300">{stats?.totalCamposComportamento || 7}</strong>
             </div>
+            <button
+              onClick={() => handleExportPlanilhaRelease("adquirente")}
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-sm"
+            >
+              📥 Planilha Aba Adquirente (.csv)
+            </button>
+            <button
+              onClick={() => handleExportPlanilhaRelease("emissor")}
+              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-sm"
+            >
+              📥 Planilha Aba Emissor (.csv)
+            </button>
+            <button
+              onClick={() => handleExportPlanilhaRelease("consolidado")}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-all shadow-sm"
+            >
+              📥 Consolidado MÃE (.csv)
+            </button>
           </div>
         </div>
 
@@ -269,12 +415,15 @@ export default function CentralBoletinsComportamentoPage() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      { id: "token", label: "Tokenização / MDES" },
-                      { id: "ecommerce", label: "E-Commerce / CNP" },
+                      { id: "token", label: "Tokenização / VTS / MDES" },
+                      { id: "ecommerce", label: "E-Commerce / CNP / 3DS" },
+                      { id: "subcredenciador", label: "Subcredenciador / PayFac" },
+                      { id: "cartao_credito", label: "Crédito Vista & Parcelado" },
+                      { id: "cartao_debito", label: "Débito & Pré-Pago" },
+                      { id: "moneysend", label: "MoneySend / Visa Direct OCT" },
+                      { id: "transfer", label: "Funding AFT / P2P" },
+                      { id: "refund", label: "Refund / Estorno (Edit 30)" },
                       { id: "contactless", label: "Contactless / NFC" },
-                      { id: "moneysend", label: "MoneySend / OCT / P2P" },
-                      { id: "transfer", label: "Funding / Transfer" },
-                      { id: "visa_gateway", label: "Visa Gateway Processing" }
                     ].map((prod) => (
                       <button
                         key={prod.id}
