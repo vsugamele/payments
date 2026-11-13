@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   OUTGOING_BRANDS,
@@ -115,6 +115,51 @@ export default function OutgoingClient() {
   const [fieldStatusFilter, setFieldStatusFilter] = useState<FieldStatusFilter>('ALL');
   const [fieldSearch, setFieldSearch] = useState('');
   const [highlightedFieldNo, setHighlightedFieldNo] = useState<string | null>(null);
+  const [cleanTableMode, setCleanTableMode] = useState<boolean>(true);
+  const [drawerField, setDrawerField] = useState<OutgoingFieldSpec | null>(null);
+
+  // Sincronização com ?tab=... e com a Barra/Sidebar Global do PaymentsWorkbenchShell
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get('tab') as MainTab | null;
+    if (t) {
+      setActiveTab(t);
+    }
+
+    const onNavigateTab = (ev: Event) => {
+      const custom = ev as CustomEvent<{ tab?: MainTab }>;
+      if (custom.detail?.tab) {
+        setActiveTab(custom.detail.tab);
+      }
+    };
+
+    const onContextChange = (ev: Event) => {
+      const custom = ev as CustomEvent<{ brand?: string; role?: string }>;
+      const b = custom.detail?.brand;
+      if (b === 'visa' || b === 'elo' || b === 'mastercard') {
+        setSelectedBrand(b);
+      } else if (b === 'amex') {
+        setActiveTab('downgrade_amex');
+      }
+    };
+
+    window.addEventListener('workbench-navigate-outgoing-tab', onNavigateTab as EventListener);
+    window.addEventListener('workbench-context-change', onContextChange as EventListener);
+    return () => {
+      window.removeEventListener('workbench-navigate-outgoing-tab', onNavigateTab as EventListener);
+      window.removeEventListener('workbench-context-change', onContextChange as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(
+      new CustomEvent('outgoing-tab-changed', {
+        detail: { tab: activeTab, brand: selectedBrand },
+      })
+    );
+  }, [activeTab, selectedBrand]);
 
   // State for Tab 2 (Separated Flows)
   const [selectedFlowId, setSelectedFlowId] = useState<string>('flow-1-pos-chip');
@@ -358,187 +403,133 @@ export default function OutgoingClient() {
       </div>
 
       {/* =====================================================================
-          2. NAVEGAÇÃO ORGANIZADA EM 2 GRUPOS LIMPOS (SEM POLUIÇÃO VISUAL)
+          2. NAVEGAÇÃO WORKBENCH 2.0: 4 ESTAÇÕES LIMPAS + SUB-ABAS CONTEXTUAIS
          ===================================================================== */}
-      <div className="bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl space-y-3">
-        {/* Linha 1: Arquitetura, Tabelas, Fluxos, Bits & Validador */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1.5">
-              Arquitetura & Lote:
-            </span>
-            <button
-              onClick={() => setActiveTab('tables')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'tables'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
-              }`}
-            >
-              <span>📋 1. Tabelas Separadas</span>
-            </button>
+      {(() => {
+        const stations = [
+          {
+            id: 'st-spec',
+            label: '📐 1. Especificação & Fluxos',
+            desc: 'Tabelas separadas, 8 fluxos e regras [C ➔ M]',
+            tabs: ['tables', 'flows', 'matrix', 'sandbox'] as MainTab[],
+            items: [
+              { id: 'tables' as MainTab, label: 'Tabelas Separadas (168B / TLV)', badge: '28' },
+              { id: 'flows' as MainTab, label: '8 Fluxos Operacionais', badge: '8' },
+              { id: 'matrix' as MainTab, label: 'Matriz Tabelas × Fluxos', badge: 'M/C' },
+              { id: 'sandbox' as MainTab, label: 'Sandbox de Gatilhos [C ➔ M]', badge: 'LIVE' },
+            ],
+          },
+          {
+            id: 'st-wire',
+            label: '🔬 2. Bits & Validador Forense',
+            desc: 'Mapa de 128 bits ISO 8583 e parser de arquivo real',
+            tabs: ['bitmap', 'validator'] as MainTab[],
+            items: [
+              { id: 'bitmap' as MainTab, label: 'Mapa de Bits (128b Auth × Clearing)', badge: 'HEX' },
+              { id: 'validator' as MainTab, label: 'Parser Forense de Lote Real (PCI & Trailer)', badge: '.CTF/.TXT' },
+            ],
+          },
+          {
+            id: 'st-ops',
+            label: '📊 3. Operação D+0/D+1 & Setores',
+            desc: 'Relatórios diários, disputas CE 3.0 e adendos setoriais',
+            tabs: ['reports', 'disputes', 'industry'] as MainTab[],
+            items: [
+              { id: 'reports' as MainTab, label: 'Reports do Dia a Dia (VSS / VCX / T112)', badge: '21' },
+              { id: 'disputes' as MainTab, label: 'Disputas & Chargebacks (CE 3.0)', badge: 'CBK' },
+              { id: 'industry' as MainTab, label: 'Setores (IATA · Hotel · Locadora · Frota)', badge: 'ADD' },
+            ],
+          },
+          {
+            id: 'st-gov',
+            label: '🛡️ 4. Financeiro R$, Programas & Acervo',
+            desc: 'Calculadora Downgrade, Amex, 18 Programas, Waiver & 40k Docs',
+            tabs: ['downgrade_amex', 'programs', 'waivers', 'acervo', 'education'] as MainTab[],
+            items: [
+              { id: 'downgrade_amex' as MainTab, label: 'Calculadora Downgrade (R$) & Amex (4ª Bandeira)', badge: 'R$ + AX' },
+              { id: 'acervo' as MainTab, label: 'Acervo Plugado & 6 Filas (40.129 Docs · 17k Campos)', badge: 'MCP' },
+              { id: 'programs' as MainTab, label: 'Programas das Bandeiras (BRAM / VAMP / GDIP)', badge: '18' },
+              { id: 'waivers' as MainTab, label: 'Gerador de Dossiê de Waiver & RCA', badge: 'DOC' },
+              { id: 'education' as MainTab, label: 'Academy & Trilha Educativa (5 Módulos)', badge: 'QUIZ' },
+            ],
+          },
+        ];
 
-            <button
-              onClick={() => setActiveTab('flows')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'flows'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
-              }`}
-            >
-              <span>🔀 2. Fluxos (8 Cenários)</span>
-            </button>
+        const activeStation =
+          stations.find((st) => st.tabs.includes(activeTab)) || stations[0];
 
-            <button
-              onClick={() => setActiveTab('matrix')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'matrix'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
-              }`}
-            >
-              <span>📐 3. Matriz M/C</span>
-            </button>
+        return (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 space-y-3 shadow-xs">
+            {/* Linha Superior: 4 Grandes Estações (Substitui a parede de 14 botões) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {stations.map((st) => {
+                const isStActive = st.id === activeStation.id;
+                return (
+                  <button
+                    key={st.id}
+                    onClick={() => setActiveTab(st.items[0].id)}
+                    className={`rounded-xl p-3 text-left border transition-all ${
+                      isStActive
+                        ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
+                        : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-blue-400'
+                    }`}
+                  >
+                    <div className="text-xs sm:text-sm font-black leading-snug">{st.label}</div>
+                    <div
+                      className={`text-[11px] mt-0.5 leading-tight ${
+                        isStActive ? 'text-blue-100' : 'text-slate-400'
+                      }`}
+                    >
+                      {st.desc}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
 
-            <button
-              onClick={() => setActiveTab('sandbox')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'sandbox'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-emerald-300 bg-slate-950 border border-emerald-500/30 hover:border-emerald-400'
-              }`}
-            >
-              <span>⚡ 4. Sandbox [C ➔ M]</span>
-            </button>
+            {/* Linha Inferior Contextual: Apenas as ferramentas da Estação Ativa */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-800/80">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1">
+                  Ferramentas da Estação:
+                </span>
+                {activeStation.items.map((item) => {
+                  const isItemActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 ${
+                        isItemActive
+                          ? 'bg-slate-900 dark:bg-blue-600 text-white border-blue-500 shadow-xs font-black'
+                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-blue-400'
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      <span
+                        className={`px-1.5 py-0.5 rounded font-mono text-[10px] ${
+                          isItemActive
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
 
-            <button
-              onClick={() => setActiveTab('bitmap')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'bitmap'
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-purple-300 bg-slate-950 border border-purple-500/30 hover:border-purple-400'
-              }`}
-            >
-              <span>🧮 5. Mapa de Bits (128b)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('validator')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'validator'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-blue-300 bg-slate-950 border border-blue-500/30 hover:border-blue-400'
-              }`}
-            >
-              <span>🔍 6. Validador de Lote (168B / TLV)</span>
-            </button>
+              <Link
+                href="/compliance/arquivos"
+                className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors pr-1"
+              >
+                Simulador Geral →
+              </Link>
+            </div>
           </div>
-
-          <div className="flex items-center gap-3 pr-1">
-            <Link
-              href="/compliance/arquivos"
-              className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors"
-            >
-              Ver Simulador Geral →
-            </Link>
-          </div>
-        </div>
-
-        {/* Linha 2: Operação Diária, Setores, Disputas, Programas, Waivers & Academia */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-800/80">
-          <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1.5">
-            Operação, Compliance & Estudo:
-          </span>
-
-          <button
-            onClick={() => setActiveTab('reports')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'reports'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
-                : 'text-amber-300 bg-slate-950 border border-amber-500/30 hover:border-amber-400'
-            }`}
-          >
-            <span>📊 7. Reports do Dia a Dia</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('disputes')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'disputes'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
-            }`}
-          >
-            <span>⚖️ 8. Disputas & Chargebacks (CE 3.0)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('industry')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'industry'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-600'
-            }`}
-          >
-            <span>✈️ 9. Setores (IATA · Hotel · Locadora · Frota)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('programs')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'programs'
-                ? 'bg-rose-600 text-white shadow-sm'
-                : 'text-rose-300 bg-slate-950 border border-rose-500/30 hover:border-rose-400'
-            }`}
-          >
-            <span>🛡️ 10. Programas das Bandeiras (18)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('waivers')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'waivers'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-emerald-300 bg-slate-950 border border-emerald-500/30 hover:border-emerald-400'
-            }`}
-          >
-            <span>📝 11. Gerador de Waiver & RCA</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('education')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'education'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-cyan-300 bg-slate-950 border border-cyan-500/30 hover:border-cyan-400'
-            }`}
-          >
-            <span>🎓 12. Trilha Educativa (5 Módulos)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('acervo')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'acervo'
-                ? 'bg-blue-700 text-white shadow-sm'
-                : 'text-blue-300 bg-slate-950 border border-blue-500/30 hover:border-blue-400'
-            }`}
-          >
-            <span>🗄️ 13. Acervo Plugado & Filas (40.129 Ativos · 17.106 Campos)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('downgrade_amex')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'downgrade_amex'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
-                : 'text-amber-300 bg-slate-950 border border-amber-500/30 hover:border-amber-400'
-            }`}
-          >
-            <span>💰 14. Calculadora Downgrade (R$) & Amex</span>
-          </button>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* BLUEPRINT VISUAL DA ARQUITETURA FÍSICA (INSPIRADO NO MASTERCARD & VISA DEVELOPERS) */}
       {showBlueprint && (
@@ -909,13 +900,14 @@ export default function OutgoingClient() {
                       return (
                         <button
                           key={`${f.fieldNo}-${f.pos}`}
-                          onClick={() =>
-                            setHighlightedFieldNo(isHighlighted ? null : f.fieldNo)
-                          }
+                          onClick={() => {
+                            setHighlightedFieldNo(f.fieldNo);
+                            setDrawerField(f);
+                          }}
                           style={{ flexGrow: weight }}
                           className={`min-w-[110px] rounded-lg p-2 text-left border transition-all ${
                             isHighlighted
-                              ? 'ring-2 ring-white bg-blue-900/60 border-white'
+                              ? 'ring-2 ring-blue-500 bg-blue-900/60 border-blue-400'
                               : isM
                               ? 'bg-emerald-950/35 border-emerald-500/40 hover:border-emerald-400'
                               : 'bg-amber-950/35 border-amber-500/40 hover:border-amber-400'
@@ -980,6 +972,19 @@ export default function OutgoingClient() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setCleanTableMode((prev) => !prev)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                      cleanTableMode
+                        ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                        : 'bg-slate-950 text-slate-300 border-slate-700 hover:border-blue-400'
+                    }`}
+                    title="Alterna entre a tabela enxuta de 5 colunas com Inspector Drawer lateral (Padrão Stripe Docs) e a tabela expandida de 6 colunas inline"
+                  >
+                    {cleanTableMode
+                      ? '✨ Visão Limpa (5 Colunas + Drawer Lateral)'
+                      : '📋 Expandido Inline (6 Colunas)'}
+                  </button>
                   {(['ALL', 'M', 'C'] as FieldStatusFilter[]).map((st) => (
                     <button
                       key={st}
@@ -1010,47 +1015,62 @@ export default function OutgoingClient() {
                 />
                 {highlightedFieldNo && (
                   <button
-                    onClick={() => setHighlightedFieldNo(null)}
+                    onClick={() => {
+                      setHighlightedFieldNo(null);
+                      setDrawerField(null);
+                    }}
                     className="px-3 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white shrink-0"
                   >
-                    Limpar Destaque ({highlightedFieldNo})
+                    Limpar Seleção ({highlightedFieldNo})
                   </button>
                 )}
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-800">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse tabular-nums">
                   <thead>
                     <tr className="bg-slate-950 border-b border-slate-800 text-[11px] font-black uppercase tracking-wider text-slate-400">
-                      <th className="py-3 px-3">Campo / Tag</th>
-                      <th className="py-3 px-3">Posição & Tam.</th>
+                      <th className="py-3 px-3">Campo / Pos.</th>
+                      <th className="py-3 px-3">Tam. & Formato</th>
                       <th className="py-3 px-3">Status</th>
-                      <th className="py-3 px-3">Nome do Campo & Descrição</th>
-                      <th className="py-3 px-3">Regra Obrigatório vs Condicional</th>
-                      <th className="py-3 px-3">Impacto se Ausente / Inválido</th>
+                      <th className="py-3 px-3">Nome do Campo & Resumo</th>
+                      {!cleanTableMode && (
+                        <>
+                          <th className="py-3 px-3">Regra Obrigatório vs Condicional</th>
+                          <th className="py-3 px-3">Impacto se Ausente / Inválido</th>
+                        </>
+                      )}
+                      <th className="py-3 px-3 text-right">Inspector</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/70 text-xs">
                     {filteredFields.map((f) => {
                       const isM = f.status === 'M';
-                      const isHighlighted = highlightedFieldNo === f.fieldNo;
+                      const isHighlighted =
+                        highlightedFieldNo === f.fieldNo ||
+                        drawerField?.fieldNo === f.fieldNo;
                       return (
                         <tr
                           key={`${f.fieldNo}-${f.pos}`}
-                          className={`transition-colors ${
+                          onClick={() => {
+                            setHighlightedFieldNo(f.fieldNo);
+                            setDrawerField(f);
+                          }}
+                          className={`cursor-pointer transition-colors ${
                             isHighlighted
                               ? 'bg-blue-950/60'
                               : 'bg-slate-900/40 hover:bg-slate-900/90'
                           }`}
                         >
-                          <td className="py-3.5 px-3 font-mono font-bold text-blue-300 whitespace-nowrap align-top">
-                            #{f.fieldNo}
+                          <td className="py-3.5 px-3 font-mono whitespace-nowrap align-top">
+                            <div className="font-black text-blue-400">#{f.fieldNo}</div>
+                            <div className="text-[11px] font-bold text-slate-300">
+                              Pos: {f.pos}
+                            </div>
                           </td>
                           <td className="py-3.5 px-3 font-mono whitespace-nowrap align-top">
-                            <div className="font-bold text-white">{f.pos}</div>
-                            <div className="text-[11px] text-slate-400">
-                              Tam: {f.size} · {f.format}
-                            </div>
+                            <div className="font-bold text-white">{f.size}</div>
+                            <div className="text-[11px] text-slate-400">{f.format}</div>
                           </td>
                           <td className="py-3.5 px-3 align-top whitespace-nowrap">
                             <span
@@ -1063,20 +1083,44 @@ export default function OutgoingClient() {
                               {isM ? 'M · Obrigatório' : 'C · Condicional'}
                             </span>
                           </td>
-                          <td className="py-3.5 px-3 align-top min-w-[220px]">
-                            <div className="font-bold text-white mb-1">{f.name}</div>
-                            <div className="text-slate-300 leading-relaxed mb-1.5">
+                          <td className="py-3.5 px-3 align-top min-w-[240px]">
+                            <div className="font-bold text-white mb-0.5">{f.name}</div>
+                            <div className="text-slate-300 leading-relaxed line-clamp-2">
                               {f.description}
                             </div>
-                            <div className="inline-block px-2 py-0.5 rounded bg-slate-950 border border-slate-800 font-mono text-[11px] text-cyan-300">
-                              Ex: {f.example}
-                            </div>
+                            {cleanTableMode && (
+                              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                                <span className="inline-block px-2 py-0.5 rounded bg-slate-950 border border-slate-800 font-mono text-[11px] text-cyan-300">
+                                  Ex: {f.example}
+                                </span>
+                                <span className="text-[11px] text-slate-400 truncate max-w-[340px]">
+                                  • {f.conditionRule}
+                                </span>
+                              </div>
+                            )}
                           </td>
-                          <td className="py-3.5 px-3 align-top text-slate-200 leading-relaxed min-w-[220px]">
-                            {f.conditionRule}
-                          </td>
-                          <td className="py-3.5 px-3 align-top text-rose-300/90 leading-relaxed min-w-[200px]">
-                            {f.failureImpact}
+                          {!cleanTableMode && (
+                            <>
+                              <td className="py-3.5 px-3 align-top text-slate-200 leading-relaxed min-w-[220px]">
+                                {f.conditionRule}
+                              </td>
+                              <td className="py-3.5 px-3 align-top text-rose-300/90 leading-relaxed min-w-[200px]">
+                                {f.failureImpact}
+                              </td>
+                            </>
+                          )}
+                          <td className="py-3.5 px-3 align-top text-right whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setHighlightedFieldNo(f.fieldNo);
+                                setDrawerField(f);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-blue-600/15 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 text-[11px] font-bold transition-all"
+                            >
+                              Inspecionar ➔
+                            </button>
                           </td>
                         </tr>
                       );
@@ -1718,6 +1762,184 @@ export default function OutgoingClient() {
           ABA 14 — CALCULADORA FINANCEIRA DE DOWNGRADE (R$) & 4ª BANDEIRA AMEX
          ===================================================================== */}
       {activeTab === 'downgrade_amex' && <OutgoingDowngradeAndAmex />}
+
+      {/* =====================================================================
+          SLIDE-OVER INSPECTOR DRAWER (PADRÃO STRIPE DOCS / VISA DEVELOPER)
+         ===================================================================== */}
+      {drawerField && activeTable && (
+        <div
+          className="fixed inset-0 z-[95] flex justify-end bg-slate-900/40 backdrop-blur-[2px]"
+          onClick={() => setDrawerField(null)}
+        >
+          <div
+            className="w-full max-w-[460px] h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Inspector Drawer */}
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-start justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded bg-blue-100 border border-blue-200 text-[10px] font-mono font-black text-blue-700">
+                    {OUTGOING_BRANDS[selectedBrand].name} · {activeTable.code}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-slate-200 text-[10px] font-mono font-bold text-slate-700">
+                    Campo #{drawerField.fieldNo} · Pos {drawerField.pos}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${
+                      drawerField.status === 'M'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                    }`}
+                  >
+                    {drawerField.status === 'M' ? 'Obrigatório [M]' : 'Condicional [C]'}
+                  </span>
+                </div>
+                <h3 className="text-base font-black text-slate-900 leading-snug">
+                  {drawerField.name}
+                </h3>
+                <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+                  Tamanho: {drawerField.size} · Formato: {drawerField.format}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setDrawerField(null)}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-600 shrink-0"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+
+            {/* Corpo do Inspector Drawer */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Terminal Escuro Isolado (Paper & Precision Pattern) */}
+              <div className="rounded-xl bg-[#0f172a] border border-slate-800 p-4 space-y-2 shadow-inner">
+                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  <span>Wire / Byte Inspector · {activeTable.code}</span>
+                  <span className="text-cyan-400">Pos {drawerField.pos} ({drawerField.size})</span>
+                </div>
+                <pre className="dark-terminal font-mono text-xs text-cyan-300 whitespace-pre-wrap break-all leading-relaxed">
+{`OFFSET / TAG : ${drawerField.pos} (${drawerField.size} · ${drawerField.format})
+FIELD        : #${drawerField.fieldNo} — ${drawerField.name}
+WIRE SAMPLE  : ${drawerField.example}`}
+                </pre>
+              </div>
+
+              {/* Definição Técnica */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  1. Definição Técnica & Papel no Registro
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  {drawerField.description}
+                </p>
+              </div>
+
+              {/* Regra Obrigatório vs Condicional */}
+              <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 space-y-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-blue-700">
+                  2. Regra de Preenchimento (Obrigatório [M] vs Condicional [C])
+                </div>
+                <p className="text-xs text-slate-800 font-medium leading-relaxed">
+                  {drawerField.conditionRule}
+                </p>
+              </div>
+
+              {/* Impacto Financeiro / Reject / Downgrade */}
+              <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-4 space-y-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-rose-700">
+                  3. Impacto Operacional, Reject Code & Downgrade de Intercâmbio
+                </div>
+                <p className="text-xs text-rose-900 font-medium leading-relaxed">
+                  {drawerField.failureImpact}
+                </p>
+              </div>
+
+              {/* Navegação entre Campos Anterior / Próximo */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                {(() => {
+                  const idx = activeTable.fields.findIndex(
+                    (item) => item.fieldNo === drawerField.fieldNo && item.pos === drawerField.pos
+                  );
+                  const prevField = idx > 0 ? activeTable.fields[idx - 1] : null;
+                  const nextField =
+                    idx >= 0 && idx < activeTable.fields.length - 1
+                      ? activeTable.fields[idx + 1]
+                      : null;
+                  return (
+                    <>
+                      <button
+                        disabled={!prevField}
+                        onClick={() => {
+                          if (prevField) {
+                            setHighlightedFieldNo(prevField.fieldNo);
+                            setDrawerField(prevField);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-bold text-slate-700"
+                      >
+                        ← Campo Anterior
+                      </button>
+                      <span className="text-[11px] font-mono text-slate-500">
+                        {idx + 1} de {activeTable.fields.length}
+                      </span>
+                      <button
+                        disabled={!nextField}
+                        onClick={() => {
+                          if (nextField) {
+                            setHighlightedFieldNo(nextField.fieldNo);
+                            setDrawerField(nextField);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-bold text-slate-700"
+                      >
+                        Próximo Campo →
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Footer de Ações 1-Click do Inspector */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Ações Diretas do Workbench
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setDrawerField(null);
+                    setActiveTab('downgrade_amex');
+                  }}
+                  className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all text-center"
+                >
+                  💸 Simular Downgrade R$
+                </button>
+                <button
+                  onClick={() => {
+                    setDrawerField(null);
+                    setActiveTab('sandbox');
+                  }}
+                  className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all text-center"
+                >
+                  🧪 Testar C ➔ M no Sandbox
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  setDrawerField(null);
+                  setActiveTab('acervo');
+                }}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all text-center"
+              >
+                🗄️ Consultar {activeTable.code} / #{drawerField.fieldNo} nos 17.106 Campos PDF do Acervo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

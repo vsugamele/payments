@@ -593,5 +593,24 @@ html:not(.dark) .bg-cyan-950\/30 {
   background-color: #ecfeff !important;
 }
 
+/* ============================================================================
+   WORKBENCH 2.0 — "PAPER & PRECISION" DESIGN TOKENS
+   - Números tabulares alinhados em tabelas financeiras e réguas de bytes
+   - Bloco de terminal escuro isolado (.dark-terminal) mesmo em páginas claras
+   ============================================================================ */
+table,
+.tabular-nums,
+code,
+pre {
+  font-variant-numeric: tabular-nums;
+}
+
+html:not(.dark) pre.dark-terminal {
+  background-color: #0f172a !important;
+  color: #38bdf8 !important;
+  border-color: #1e293b !important;
+}
+
+
 
 
