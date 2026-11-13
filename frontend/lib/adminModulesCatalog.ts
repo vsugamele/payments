@@ -27,6 +27,44 @@ export const ADMIN_MODULE_CATEGORIES: ModuleCategoryMeta[] = [
     iconName: "Calculator",
     tools: [
       {
+        id: "outgoing-downgrade-amex",
+        title: "Calculadora Financeira de Downgrade (R$) & 4ª Bandeira Amex (GNS / CAS)",
+        desc: "Simulador real em R$ para 8 cenários de falha de Outgoing + catálogo completo de 7 tabelas American Express.",
+        whatItIs:
+          "Calculadora executiva e operacional que quantifica o sangramento mensal e anual em R$ causado por erros de Outgoing (Late Presentment > D+3 EIRF, erro em TCR 2 BR parcelado, ausência de Trace ID PDS 0158, Subcredenciador Elo sem Reg 01+02, E-Commerce sem CAVV, Corporativo sem Nível 2/3) e mapeia as 7 tabelas da American Express (TFH, TAB, TDR, TAA, TLA/TRA, TPF, TBT/TFT).",
+        features: [
+          "Cálculo instantâneo em R$ de Perda por Downgrade de Intercâmbio + Multas por Transação + Exposição a Chargeback",
+          "Catálogo completo das 7 tabelas de Outgoing da American Express (GNS / CAS) com layout posicional",
+          "Tabela de Equivalência Cruzada nas 4 Bandeiras (Amex × Visa Base II × Elo 27.1 × Mastercard IPM)"
+        ],
+        dataSources: ["tarifas_curadas.json", "fee_schedule.sqlite3 (454 Billing Lines)", "Amex Global Network Settlement Guide"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice"],
+        keywords: ["downgrade", "amex", "american express", "calculadora", "eirf", "sangramento", "tfh", "tdr", "taa"],
+        url: "/compliance/outgoing?tab=downgrade_amex",
+        badge: "Calc R$ + Amex",
+        iconName: "Calculator",
+        color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      },
+      {
+        id: "outgoing-batch-validator",
+        title: "Parser Forense de Arquivo Real de Outgoing (.CTF / .TXT / .IPM) & PCI",
+        desc: "Upload de lote real multi-linha com mascaramento automático PCI-DSS 4.0 e auditor matemático de Trailer.",
+        whatItIs:
+          "Inspetor forense 100% client-side para arquivos de Outgoing reais (Visa Base II 168B, Elo Liquidação 27.1 168B, Mastercard IPM MTI 1644/1240 e Amex CAS). Mascara automaticamente PANs em padrão PCI (6 BIN + ****** + 4 finais) e valida se o valor total e a contagem do Trailer batem com a soma das transações.",
+        features: [
+          "Upload de arquivo (.ctf, .txt, .ipm, .dat) ou 4 lotes multi-linha prontos para homologação",
+          "Mascaramento automático PCI-DSS 4.0 de PAN em todas as linhas antes da renderização",
+          "Auditor Matemático de Trailer (TC 91/92, BZ, MTI 1644-695, TBT) + download de lote saneado"
+        ],
+        dataSources: ["Visa Base II Edit Package", "Elo Liquidação 27.1", "Mastercard GCMS Reference", "Amex CAS"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice"],
+        keywords: ["parser", "validador", "lote", "ctf", "ipm", "pci", "trailer", "checksum", "168 bytes"],
+        url: "/compliance/outgoing?tab=validator",
+        badge: "Parser Real + PCI",
+        iconName: "Terminal",
+        color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+      },
+      {
         id: "provisionamento",
         title: "Motor Determinístico de Provisionamento & Trace de Cascata",
         desc: "Compilador booleano real, auditoria cláusula a cláusula da cascata, ajustes sobre IA e lookup de BIN.",

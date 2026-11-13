@@ -14,10 +14,10 @@ import {
 // ─── Dados ────────────────────────────────────────────────────────────────────
 
 const ALERT_BADGES = [
-  { label: "ECP Threshold 2025 atualizado", color: "#f59e0b", dot: true },
-  { label: "VAMP: nova janela de avaliação Q1", color: "#60a5fa", dot: true },
-  { label: "PCI DSS v4.0 em vigor", color: "#a78bfa", dot: false },
-  { label: "Res. BCB 150 — tetos vigentes", color: "#4ade80", dot: false },
+  { label: "Elo Release 27.1 (Maio/2027) · CNPJ Alfanumérico B0 v271", color: "#f59e0b", dot: true },
+  { label: "Visa AI-15915 · Agentic Commerce & CAVV v9 AES (Abr/2027)", color: "#60a5fa", dot: true },
+  { label: "Mastercard Preço Brasil Out/2026 · MCBS GLB 12332.5 (TN3A)", color: "#a78bfa", dot: true },
+  { label: "Sistema de Acervos Plugado: 40.129 Docs · 17.106 Campos PDF", color: "#4ade80", dot: false },
 ];
 
 const HEALTH_STATUS = [
@@ -42,25 +42,33 @@ const BAND_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 const PILLARS = [
-  { icon: BarChart2,   href: "/compliance/risco",        title: "Calculadora de Risco",        subtitle: "VAMP · ECP · EFM · PED",          color: "#f59e0b", alert: "Novo threshold Q1 2025", updated: true },
-  { icon: Scale,       href: "/compliance/disputas",     title: "Forense de Disputas",         subtitle: "VROL · Mastercom · Intel VCR/DMAS",color: "#8b5cf6", alert: "IA Normativa Ativa",      updated: true },
-  { icon: Landmark,    href: "/compliance/intercambio",  title: "Playbook de Intercâmbio",     subtitle: "IRDs · Manuais · Lab Downgrades",  color: "#3b82f6", alert: "Manuais Detalhados (v24.1)", updated: true },
-  { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: "Mapeamento TCR/PDS",        updated: true },
+  { icon: Server,      href: "/compliance/outgoing",                     title: "Workbench Outgoing 2.0 (35 Tabelas)", subtitle: "Visa Base II · Elo 27.1 · MC IPM · Amex CAS", color: "#2563eb", alert: "Inspector Drawer 2.0", updated: true },
+  { icon: Cpu,         href: "/compliance/outgoing?tab=validator",       title: "Parser Forense de Lote Real (PCI)",    subtitle: "Upload .CTF/.TXT · Masking PCI · Trailer",    color: "#10b981", alert: "4 Lotes Reais",        updated: true },
+  { icon: DollarSign,  href: "/compliance/outgoing?tab=downgrade_amex",  title: "Calculadora Downgrade (R$) & Amex",    subtitle: "8 Cenários · Sangramento Mensal · 7 Tabs AX",  color: "#f59e0b", alert: "R$ + 4ª Bandeira",     updated: true },
+  { icon: BookOpen,    href: "/compliance/boletins",                     title: "Hub de Boletins 2026/2027 & .CSV",    subtitle: "8 Fichas 3 Lentes · 385 Releases · Excel",    color: "#8b5cf6", alert: "Aba Adq × Emissor",    updated: true },
+  { icon: Database,    href: "/acervo",                                  title: "Hub do Acervo & 6 Filas (40k PDFs)",   subtitle: "17.106 Campos SQLite · 454 BLs · 94 Normas",  color: "#0ea5e9", alert: "SHA-256 + Pág. PDF",   updated: true },
+  { icon: Landmark,    href: "/compliance/tarifas-reais",                title: "Tarifas Reais & Tetos BCB (1.128)",   subtitle: "1.128 Alíquotas · MCC Incentivado · BCB 304", color: "#10b981", alert: "Base Real",            updated: true },
+  { icon: Cpu,         href: "/compliance/provisionamento",              title: "Motor de Provisionamento (141 Regras)",subtitle: "Trace Booleano · Qualificação vs Standard",  color: "#3b82f6", alert: "141 Regras",           updated: true },
+  { icon: Server,      href: "/compliance/mpe-forense",                  title: "Tabelas MPE / T068 Forense",           subtitle: "IP0040T1 (194B) · IP0075T1 · Roteamento BIN", color: "#a855f7", alert: "Parser Posicional",    updated: true },
+  { icon: BarChart2,   href: "/compliance/risco",        title: "Calculadora de Risco",        subtitle: "VAMP · ECP · EFM · PED",          color: "#f59e0b", alert: "Thresholds 2026",      updated: true },
+  { icon: Scale,       href: "/compliance/disputas",     title: "Forense de Disputas",         subtitle: "VROL · Mastercom · Intel VCR/DMAS",color: "#8b5cf6", alert: "CE 3.0 Ativo",         updated: true },
+  { icon: Landmark,    href: "/compliance/intercambio",  title: "Playbook de Intercâmbio",     subtitle: "IRDs · Manuais · Lab Downgrades",  color: "#3b82f6", alert: "Manuais 2026",         updated: true },
+  { icon: Search,      href: "/compliance/campos",       title: "Lookup de Campos",            subtitle: "ISO 8583 · DE / PDS / Tags",       color: "#6366f1", alert: "Mapeamento TCR/PDS",   updated: true },
   { icon: Send,        href: "/compliance/payouts",      title: "Push Payments Lab",           subtitle: "Visa Direct · MC Send · AFT",      color: "#ec4899", alert: "Real-time",            updated: false },
-  { icon: Landmark,    href: "/compliance/aft",          title: "Simulador AFT (Funding)",     subtitle: "Indicadores ISO · MCCs · BAIs",    color: "#eab308", alert: "Novo Módulo",          updated: true },
-  { icon: Shield,      href: "/comparativo/facilitadores", title: "Facilitadores & Regulação CP 522", subtitle: "Limites · CP 522 · Tarifas Elo", color: "#6366f1", alert: "Novo Módulo",          updated: true },
+  { icon: Landmark,    href: "/compliance/aft",          title: "Simulador AFT (Funding)",     subtitle: "Indicadores ISO · MCCs · BAIs",    color: "#eab308", alert: "TCR D Format OC",      updated: true },
+  { icon: Shield,      href: "/comparativo/facilitadores", title: "Facilitadores & Regulação CP 522", subtitle: "Limites · CP 522 · Tarifas Elo", color: "#6366f1", alert: "PayFac / Sub",         updated: true },
   { icon: Globe,       href: "/compliance/cross-border", title: "Cross-Border & DCC",          subtitle: "Markup · ISA · IAF",               color: "#0ea5e9", alert: null,                  updated: false },
   { icon: Smartphone,  href: "/compliance/softpos",      title: "Tap to Phone (SoftPOS)",      subtitle: "PCI CPoC · MPoC · Atestação",      color: "#10b981", alert: null,                  updated: false },
   { icon: Database,    href: "/compliance/gcms",         title: "Explorador GCMS",             subtitle: "Clearing · Tabelas T165/T168",     color: "#a855f7", alert: null,                  updated: true },
   { icon: Server,      href: "/compliance/visa-infra",   title: "Infraestrutura Core Visa",    subtitle: "VCX · VSS · Base II",              color: "#3b82f6", alert: null,                  updated: false },
   { icon: Tag,         href: "/compliance/mcc",          title: "Tabela de MCCs",              subtitle: "1.300+ códigos",                   color: "#2dd4bf", alert: null,                  updated: false },
   { icon: AlertOctagon,href: "/compliance/match",        title: "MATCH Pro Simulator",         subtitle: "Onboarding · Reason Codes",        color: "#ef4444", alert: null,                  updated: false },
-  { icon: Briefcase,   href: "/compliance/visa-business",title: "Visa Business & Intel",       subtitle: "B2B Connect · VBASS · DAF",        color: "#3b82f6", alert: "Novo Módulo",          updated: false },
+  { icon: Briefcase,   href: "/compliance/visa-business",title: "Visa Business & Intel",       subtitle: "B2B Connect · VBASS · DAF",        color: "#3b82f6", alert: "CEDP Nível 2/3",       updated: false },
   { icon: CreditCard,  href: "/compliance/credenciais",  title: "MIT & CIT Framework",         subtitle: "Stored Credentials · SCOF",        color: "#f59e0b", alert: null,                  updated: false },
   { icon: Cpu,         href: "/compliance/emv",          title: "Decodificador EMV",           subtitle: "TVR Tag 95 · 40 Bits",            color: "#22d3ee", alert: null,                  updated: true },
   { icon: DollarSign,  href: "/compliance/settlement",   title: "Settlement & Clearing",       subtitle: "D+0 · IPM · Base II · EFA",       color: "#4ade80", alert: null,                  updated: true },
   { icon: ShieldCheck, href: "/compliance/3ds",          title: "Matriz 3DS & ECI",            subtitle: "Liability Shift · E-commerce",    color: "#4ade80", alert: null,                  updated: false },
-  { icon: Shield,      href: "/compliance/daf",          title: "Visa DAF Simulator",          subtitle: "Digital Authentication · VTS",     color: "#60a5fa", alert: "Novo Módulo",          updated: true },
+  { icon: Shield,      href: "/compliance/daf",          title: "Visa DAF Simulator",          subtitle: "Digital Authentication · VTS",     color: "#60a5fa", alert: "Token Requestor",      updated: true },
   { icon: Shield,      href: "/compliance/pci",          title: "Calculadora de Escopo PCI",   subtitle: "SAQ A · SAQ D · v4.0",            color: "#ef4444", alert: "PCI v4.0 vigente",    updated: false },
   { icon: GitCompare,  href: "/compliance/retentativas", title: "Matriz de Retentativas",      subtitle: "Hard vs Soft Declines · MAC",     color: "#f59e0b", alert: null,                  updated: true },
   { icon: Crosshair,   href: "/compliance/bram",         title: "Auditor BRAM e QMAP",         subtitle: "Risco Legal · Multas",            color: "#ef4444", alert: null,                  updated: false },
@@ -70,10 +78,10 @@ const PILLARS = [
 ];
 
 const STATS = [
-  { value: "17", label: "Módulos ativos",      icon: Zap,        color: "#6366f1" },
-  { value: "9",  label: "Programas cobertos",  icon: ShieldCheck, color: "#10b981" },
-  { value: "6",  label: "Bandeiras mapeadas",  icon: Activity,   color: "#f59e0b" },
-  { value: "3",  label: "Regiões de IC",       icon: TrendingUp, color: "#0ea5e9" },
+  { value: "40.129", label: "Ativos PDF (SHA-256)", icon: Zap,         color: "#6366f1" },
+  { value: "17.106", label: "Campos Posicionais",   icon: ShieldCheck, color: "#10b981" },
+  { value: "385",    label: "Releases Mapeados",    icon: Activity,    color: "#f59e0b" },
+  { value: "35",     label: "Tabelas Outgoing (4B)",icon: TrendingUp,  color: "#0ea5e9" },
 ];
 
 // ─── Animações ────────────────────────────────────────────────────────────────

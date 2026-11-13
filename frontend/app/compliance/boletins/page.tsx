@@ -324,8 +324,8 @@ export default function CentralBoletinsComportamentoPage() {
 
   return (
     <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
-      {/* Header */}
-      <div className="border-b border-slate-800/80 bg-[#050b16]/90 backdrop-blur-md sticky top-0 z-30">
+      {/* Header (Sem sticky duplicado para integrar com a Barra Global do Workbench) */}
+      <div className="border-b border-slate-800/80 bg-[#050b16]/90">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link

@@ -72,9 +72,23 @@ export default function AdminPage() {
         const parsed = JSON.parse(savedPins);
         if (Array.isArray(parsed)) setPinnedIds(parsed);
       }
+      const savedRole = localStorage.getItem("vs_workbench_role");
+      if (savedRole === "adquirente") setSelectedRole("Adquirente");
+      else if (savedRole === "emissor") setSelectedRole("Emissor");
     } catch {
       // ignore
     }
+
+    const onContextChange = (ev: Event) => {
+      const custom = ev as CustomEvent<{ brand?: string; role?: string }>;
+      if (custom.detail?.role === "adquirente") setSelectedRole("Adquirente");
+      else if (custom.detail?.role === "emissor") setSelectedRole("Emissor");
+      else if (custom.detail?.role === "ambos") setSelectedRole("ALL");
+    };
+    window.addEventListener("workbench-context-change", onContextChange as EventListener);
+    return () => {
+      window.removeEventListener("workbench-context-change", onContextChange as EventListener);
+    };
   }, []);
 
   const togglePin = (e: React.MouseEvent, toolId: string) => {

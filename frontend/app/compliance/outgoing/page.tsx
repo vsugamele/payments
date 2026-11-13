@@ -11,43 +11,49 @@ export const metadata = {
 export default function OutgoingArchitecturePage() {
   return (
     <main className="min-h-screen bg-[#020617] text-slate-100 pb-20">
-      {/* Header Editorial Limpo e Legível */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+      {/* Header Editorial Paper & Precision (Sem colisão com a Barra Global do Workbench) */}
+      <header className="border-b border-slate-800 bg-slate-900/90">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link
               href="/admin"
               className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
-              ← Voltar ao Cockpit
+              ← Cockpit Geral
             </Link>
             <div>
               <div className="flex items-center gap-2.5 mb-0.5">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-blue-400">
-                  Clearing & Liquidação (Outgoing)
+                  Workbench Outgoing 2.0 (Visa · Elo · Mastercard · Amex)
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
-                  Manuais Oficiais 2026
+                  Manuais Oficiais 2026 / 2027 · 35 Tabelas · 17.106 Campos PDF
                 </span>
               </div>
               <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                Tabelas de Outgoing Separadas, Fluxos, Mapa de Bits & Relatórios
+                Tabelas de Outgoing Separadas, 8 Fluxos, Parser Forense PCI, Downgrade R$ &amp; Acervo
               </h1>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/compliance/arquivos"
-              className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
+              href="/compliance/boletins"
+              className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
-              Simulador de Mensagens
+              📋 Boletins &amp; Planilha .CSV
+            </Link>
+            <Link
+              href="/acervo"
+              className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
+            >
+              🗄️ Hub do Acervo (40k PDFs)
             </Link>
             <Link
               href="/comparativo"
-              className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:border-blue-500 transition-colors"
             >
-              Autorização × Clearing
+              ⇄ Autorização × Clearing
             </Link>
           </div>
         </div>

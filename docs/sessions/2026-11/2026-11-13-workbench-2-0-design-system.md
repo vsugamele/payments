@@ -35,12 +35,19 @@ Execução integral dos **5 Pilares** da arquitetura **Payments Intelligence Wor
 ## Arquivos Modificados
 - `frontend/components/Navbar.tsx`
 - `frontend/components/PaymentsWorkbenchShell.tsx`
+- `frontend/app/compliance/outgoing/page.tsx`
 - `frontend/app/compliance/outgoing/OutgoingClient.tsx`
 - `frontend/app/compliance/boletins/page.tsx`
 - `frontend/app/acervo/page.tsx`
 - `frontend/app/compliance/outgoing/OutgoingAcervoConnector.tsx`
 - `frontend/components/SimulatorPage.tsx`
+- `frontend/app/compliance/ComplianceClient.tsx`
+- `frontend/app/admin/page.tsx`
+- `frontend/lib/adminModulesCatalog.ts`
 - `docs/sessions/2026-11/2026-11-13-workbench-2-0-design-system.md`
 
 ## Validação
+- Todas as rotas da Sidebar de 5 Estações validadas contra os diretórios reais em `frontend/app/` (sem links quebrados).
+- Removida colisão de cabeçalhos `sticky top-0` duplicados em `/compliance/outgoing/page.tsx` e `/compliance/boletins/page.tsx`.
+- Sincronização de Contexto Global estendida para `/admin` e atualização dos pilares 2026/2027 em `/compliance`.
 - `npx tsc --noEmit` executado sem erros (`TSC_EXIT=0`).
