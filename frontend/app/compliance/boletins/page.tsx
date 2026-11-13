@@ -9,7 +9,9 @@ import {
 import { sendToDocStudio } from "@/lib/docStudioBridge";
 
 export default function CentralBoletinsComportamentoPage() {
-  const [activeTab, setActiveTab] = useState<"comportamento" | "radar" | "aes">("comportamento");
+  const [activeTab, setActiveTab] = useState<"comportamento" | "planilha" | "radar" | "aes">("comportamento");
+  const [planilhaAba, setPlanilhaAba] = useState<"adquirente" | "emissor" | "comparativo">("comparativo");
+  const [drawerBoletim, setDrawerBoletim] = useState<any | null>(null);
 
   // Overview state
   const [stats, setStats] = useState<any>(null);
@@ -136,6 +138,57 @@ export default function CentralBoletinsComportamentoPage() {
       runSearchReleases();
     }
   }, [activeTab, relResults.length, runSearchReleases]);
+
+  // Sincronização automática com a Barra de Contexto Global do Workbench 2.0
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mapGlobalBrand = (b?: string | null) => {
+      if (!b || b === "ALL") return "ALL";
+      if (b === "visa") return "Visa";
+      if (b === "mastercard") return "Mastercard";
+      if (b === "elo") return "Elo";
+      return "ALL";
+    };
+
+    const mapGlobalRole = (r?: string | null): string[] => {
+      if (r === "adquirente") return ["adquirente"];
+      if (r === "emissor") return ["emissor"];
+      return ["emissor", "adquirente"];
+    };
+
+    const savedBrand = mapGlobalBrand(localStorage.getItem("vs_workbench_brand"));
+    const savedRole = localStorage.getItem("vs_workbench_role");
+    const initPapeis = mapGlobalRole(savedRole);
+
+    setSelBandeira(savedBrand);
+    setRelBandeira(savedBrand);
+    setSelPapeis(initPapeis);
+    if (savedRole === "adquirente" || savedRole === "emissor") {
+      setPlanilhaAba(savedRole);
+    }
+
+    const onContextChange = (ev: Event) => {
+      const custom = ev as CustomEvent<{ brand?: string; role?: string }>;
+      const nextBrand = mapGlobalBrand(custom.detail?.brand);
+      const nextPapeis = mapGlobalRole(custom.detail?.role);
+      setSelBandeira(nextBrand);
+      setRelBandeira(nextBrand);
+      setSelPapeis(nextPapeis);
+      if (custom.detail?.role === "adquirente" || custom.detail?.role === "emissor") {
+        setPlanilhaAba(custom.detail.role);
+      } else {
+        setPlanilhaAba("comparativo");
+      }
+      runProjetar(nextPapeis, selProdutos, nextBrand);
+      runSearchReleases({ bandeira: nextBrand });
+    };
+
+    window.addEventListener("workbench-context-change", onContextChange as EventListener);
+    return () => {
+      window.removeEventListener("workbench-context-change", onContextChange as EventListener);
+    };
+  }, [runProjetar, runSearchReleases, selProdutos]);
 
   const togglePapel = (p: string) => {
     const next = selPapeis.includes(p) ? selPapeis.filter((x) => x !== p) : [...selPapeis, p];
@@ -341,7 +394,18 @@ export default function CentralBoletinsComportamentoPage() {
             }`}
           >
             <Cpu className="w-3.5 h-3.5" />
-            1. Simulador do Motor de Comportamento (3 Lentes + ▶Envia / ◀Recebe)
+            1. Motor de Comportamento (3 Lentes + ▶Envia / ◀Recebe)
+          </button>
+          <button
+            onClick={() => setActiveTab("planilha")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeTab === "planilha"
+                ? "bg-purple-600 text-white font-bold shadow-lg shadow-purple-600/25"
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            2. Planilha Ao Vivo de Controle de Release (Aba Adquirente × Aba Emissor)
           </button>
           <button
             onClick={() => setActiveTab("radar")}
@@ -352,7 +416,7 @@ export default function CentralBoletinsComportamentoPage() {
             }`}
           >
             <Search className="w-3.5 h-3.5" />
-            2. Radar de Releases & Mandates (381 Itens Visa / MC / Elo)
+            3. Radar de Releases & Mandates (385 Itens Visa / MC / Elo)
           </button>
           <button
             onClick={() => setActiveTab("aes")}
@@ -363,7 +427,7 @@ export default function CentralBoletinsComportamentoPage() {
             }`}
           >
             <Lock className="w-3.5 h-3.5" />
-            3. Dossiê Criptográfico Visa (TDES → AES 2026–2031) & Glossário ISO
+            4. Dossiê Criptográfico Visa (TDES → AES 2026–2031) & Glossário ISO
           </button>
         </div>
       </div>
@@ -480,6 +544,12 @@ export default function CentralBoletinsComportamentoPage() {
                           <span className="px-3 py-1 rounded-xl text-xs font-mono bg-slate-900 border border-slate-700 text-white">
                             Criticidade Ajustada: <strong>{proj.criticidade}</strong>
                           </span>
+                          <button
+                            onClick={() => setDrawerBoletim({ boletim: b, proj })}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-all"
+                          >
+                            🔍 Inspecionar no Drawer Lateral
+                          </button>
                           <button
                             onClick={() => {
                               const antesDepoisHtml = (b.antes_depois || [])
@@ -718,7 +788,151 @@ export default function CentralBoletinsComportamentoPage() {
         )}
 
         {/* =================================================================
-            TAB 2: RADAR DE RELEASES & MANDATES (381 ITENS REAIS)
+            TAB 2: PLANILHA AO VIVO DE CONTROLE DE RELEASE (ABA ADQUIRENTE × EMISSOR)
+           ================================================================= */}
+        {activeTab === "planilha" && (
+          <div className="space-y-6">
+            <div className="bg-[#080f1e] border border-slate-800/80 rounded-2xl p-6 space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400">
+                    Padrão Skill `analise-boletim-bandeira` · Visão em Tela + Exportação `.csv`
+                  </span>
+                  <h2 className="text-base font-bold text-white mt-0.5">
+                    Planilha de Controle de Release 2026 / 2027 — Aba Adquirente vs Aba Emissor
+                  </h2>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {[
+                    { id: "comparativo", label: "⚖️ Comparativo Lado a Lado (Adquirente × Emissor)" },
+                    { id: "adquirente", label: "🏪 Somente Aba Adquirente" },
+                    { id: "emissor", label: "🏦 Somente Aba Emissor" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setPlanilhaAba(tab.id as any)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+                        planilhaAba === tab.id
+                          ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                          : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-600"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-slate-800">
+                <table className="w-full text-left border-collapse text-xs tabular-nums">
+                  <thead>
+                    <tr className="bg-slate-950 border-b border-slate-800 text-[11px] font-black uppercase tracking-wider text-slate-400">
+                      <th className="py-3 px-3">Bandeira & Release</th>
+                      <th className="py-3 px-3">Boletim / Vigência</th>
+                      <th className="py-3 px-3">Campos (Auth & Outgoing)</th>
+                      {(planilhaAba === "comparativo" || planilhaAba === "adquirente") && (
+                        <th className="py-3 px-3">🏪 Aba Adquirente (Impacto & Ações)</th>
+                      )}
+                      {(planilhaAba === "comparativo" || planilhaAba === "emissor") && (
+                        <th className="py-3 px-3">🏦 Aba Emissor (Impacto & Ações)</th>
+                      )}
+                      <th className="py-3 px-3">Exposição Financeira</th>
+                      <th className="py-3 px-3 text-right">Inspector</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/70">
+                    {boletins3Lentes
+                      .filter((b) =>
+                        selBandeira === "ALL"
+                          ? true
+                          : (b.bandeira || "").toLowerCase().includes(selBandeira.toLowerCase())
+                      )
+                      .map((b) => {
+                        const acoesAdq: string[] = b.acoes?.adquirente || [];
+                        const acoesEmi: string[] = b.acoes?.emissor || [];
+                        const vigStr = (b.vigencia || [])
+                          .map((v: any) => `${v.data}`)
+                          .join(" · ");
+                        return (
+                          <tr
+                            key={b.id}
+                            onClick={() => setDrawerBoletim({ boletim: b, proj: null })}
+                            className="cursor-pointer bg-slate-900/40 hover:bg-slate-900/90 transition-colors"
+                          >
+                            <td className="py-3.5 px-3 align-top whitespace-nowrap">
+                              <div className="font-bold text-white">{b.bandeira}</div>
+                              <div className="text-[11px] font-mono text-blue-400">
+                                Release {b.release}
+                              </div>
+                              <span className="inline-block mt-1 px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono text-[10px] font-bold">
+                                {b.classificacao}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-3 align-top min-w-[200px]">
+                              <div className="font-mono font-bold text-amber-300">{b.id}</div>
+                              <div className="font-bold text-white leading-snug mt-0.5">
+                                {b.titulo}
+                              </div>
+                              <div className="text-[11px] font-mono text-emerald-400 mt-1">
+                                Vigência: {vigStr || "2026/2027"}
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-3 align-top font-mono text-[11px] text-slate-300 min-w-[170px]">
+                              {(b.lentes?.tecnica?.campos || []).join(", ") || "Governança / Tarifas"}
+                            </td>
+                            {(planilhaAba === "comparativo" || planilhaAba === "adquirente") && (
+                              <td className="py-3.5 px-3 align-top min-w-[230px]">
+                                {acoesAdq.length > 0 ? (
+                                  <ul className="space-y-1 text-slate-200">
+                                    {acoesAdq.map((ac, i) => (
+                                      <li key={i}>• {ac}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <span className="text-slate-400 italic">Sem Impacto.</span>
+                                )}
+                              </td>
+                            )}
+                            {(planilhaAba === "comparativo" || planilhaAba === "emissor") && (
+                              <td className="py-3.5 px-3 align-top min-w-[230px]">
+                                {acoesEmi.length > 0 ? (
+                                  <ul className="space-y-1 text-slate-200">
+                                    {acoesEmi.map((ac, i) => (
+                                      <li key={i}>• {ac}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <span className="text-slate-400 italic">Sem Impacto.</span>
+                                )}
+                              </td>
+                            )}
+                            <td className="py-3.5 px-3 align-top text-rose-300 min-w-[180px]">
+                              {b.lentes?.negocio?.exposicao_financeira}
+                            </td>
+                            <td className="py-3.5 px-3 align-top text-right whitespace-nowrap">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDrawerBoletim({ boletim: b, proj: null });
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-bold"
+                              >
+                                Inspecionar ➔
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =================================================================
+            TAB 3: RADAR DE RELEASES & MANDATES (385 ITENS REAIS)
            ================================================================= */}
         {activeTab === "radar" && (
           <div className="space-y-6">
@@ -983,6 +1197,184 @@ export default function CentralBoletinsComportamentoPage() {
           </div>
         )}
       </div>
+
+      {/* =====================================================================
+          SLIDE-OVER INSPECTOR DRAWER DE BOLETIM 3 LENTES (WORKBENCH 2.0)
+         ===================================================================== */}
+      {drawerBoletim && drawerBoletim.boletim && (
+        <div
+          className="fixed inset-0 z-[95] flex justify-end bg-slate-900/40 backdrop-blur-[2px]"
+          onClick={() => setDrawerBoletim(null)}
+        >
+          <div
+            className="w-full max-w-[480px] h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col overflow-hidden text-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-start justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded bg-blue-100 border border-blue-200 text-[10px] font-mono font-black text-blue-700">
+                    {drawerBoletim.boletim.bandeira} · Release {drawerBoletim.boletim.release}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-amber-100 border border-amber-200 text-[10px] font-mono font-bold text-amber-800">
+                    {drawerBoletim.boletim.id} · {drawerBoletim.boletim.classificacao}
+                  </span>
+                </div>
+                <h3 className="text-base font-black text-slate-900 leading-snug">
+                  {drawerBoletim.boletim.titulo}
+                </h3>
+              </div>
+              <button
+                onClick={() => setDrawerBoletim(null)}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-600 shrink-0"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Resumo Executivo da Mudança
+                </div>
+                <p className="text-slate-800 leading-relaxed">
+                  {drawerBoletim.boletim.o_que_a_bandeira_esta_fazendo}
+                </p>
+              </div>
+
+              {/* As 3 Lentes */}
+              {drawerBoletim.boletim.lentes && (
+                <>
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 space-y-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-blue-700">
+                      1. Lente Técnica (Mensageria ISO 8583 / Outgoing)
+                    </div>
+                    <div className="font-mono font-bold text-slate-900">
+                      Campos: {(drawerBoletim.boletim.lentes.tecnica?.campos || []).join(", ")}
+                    </div>
+                    <p className="text-slate-700 leading-relaxed">
+                      {drawerBoletim.boletim.lentes.tecnica?.nota}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/70 p-4 space-y-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-purple-700">
+                      2. Lente Normativa & Fonte Oficial
+                    </div>
+                    <p className="text-slate-800 leading-relaxed">
+                      {drawerBoletim.boletim.lentes.normativa?.resumo}
+                    </p>
+                    <div className="font-mono text-[11px] text-slate-600">
+                      Fonte: {drawerBoletim.boletim.lentes.normativa?.fonte_regra}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-4 space-y-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-rose-700">
+                      3. Lente de Negócio, Exposição Financeira & Vigência
+                    </div>
+                    <p className="text-rose-900 font-semibold leading-relaxed">
+                      {drawerBoletim.boletim.lentes.negocio?.exposicao_financeira}
+                    </p>
+                    <div className="font-mono text-[11px] text-slate-700">
+                      Prazo / Esforço: {drawerBoletim.boletim.lentes.negocio?.esforco_prazo}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Ações por Papel (Aba Adquirente vs Aba Emissor) */}
+              <div className="grid grid-cols-1 gap-3">
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-1.5">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                    🏪 O Que Desenvolver — Aba Adquirente / PayFac
+                  </div>
+                  {(drawerBoletim.boletim.acoes?.adquirente || []).length > 0 ? (
+                    <ul className="space-y-1 text-slate-700">
+                      {drawerBoletim.boletim.acoes.adquirente.map((ac: string, i: number) => (
+                        <li key={i}>• {ac}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-500 italic">Sem Impacto.</p>
+                  )}
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-1.5">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-blue-700">
+                    🏦 O Que Desenvolver — Aba Emissor
+                  </div>
+                  {(drawerBoletim.boletim.acoes?.emissor || []).length > 0 ? (
+                    <ul className="space-y-1 text-slate-700">
+                      {drawerBoletim.boletim.acoes.emissor.map((ac: string, i: number) => (
+                        <li key={i}>• {ac}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-500 italic">Sem Impacto.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleExportPlanilhaRelease("adquirente")}
+                  className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold text-center"
+                >
+                  📥 Aba Adquirente (.csv)
+                </button>
+                <button
+                  onClick={() => handleExportPlanilhaRelease("emissor")}
+                  className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold text-center"
+                >
+                  📥 Aba Emissor (.csv)
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  const b = drawerBoletim.boletim;
+                  sendToDocStudio({
+                    mode: "full_dossier",
+                    title: `Parecer Executivo — ${b.id}: ${b.titulo}`,
+                    sourceModule: "Hub de Releases & Boletins 2.0",
+                    html: `
+                      <h1>Parecer Técnico & Regulatório: ${b.id} — ${b.titulo}</h1>
+                      <p><strong>Bandeira:</strong> ${b.bandeira} · <strong>Release:</strong> ${b.release} · <strong>Classificação:</strong> ${b.classificacao}</p>
+                      <h2>1. O que a Bandeira está alterando</h2>
+                      <p>${b.o_que_a_bandeira_esta_fazendo}</p>
+                      <h2>2. Análise nas 3 Lentes</h2>
+                      <ul>
+                        <li><strong>Lente Técnica:</strong> Campos <code>${(b.lentes?.tecnica?.campos || []).join(", ")}</code> — ${b.lentes?.tecnica?.nota || ""}</li>
+                        <li><strong>Lente Normativa:</strong> ${b.lentes?.normativa?.resumo || ""}</li>
+                        <li><strong>Lente de Negócio:</strong> ${b.lentes?.negocio?.exposicao_financeira || ""}</li>
+                      </ul>
+                    `,
+                    metadata: {
+                      brand: b.bandeira?.toLowerCase().includes("visa")
+                        ? "visa"
+                        : b.bandeira?.toLowerCase().includes("master")
+                        ? "mastercard"
+                        : "elo",
+                      brandName: b.bandeira,
+                      referenceId: b.id,
+                      category: `${b.bandeira} Release ${b.release}`,
+                      effectiveDate: b.lentes?.negocio?.esforco_prazo || `Release ${b.release}`,
+                      riskLevel: "Alto",
+                      executiveSummary: b.o_que_a_bandeira_esta_fazendo,
+                      recommendedAction: (b.acoes?.adquirente || []).join(" "),
+                    },
+                  });
+                }}
+                className="w-full px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold text-center"
+              >
+                📝 Enviar Dossiê Completo deste Boletim para o Doc Studio (/editor)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

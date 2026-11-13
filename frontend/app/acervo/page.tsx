@@ -14,71 +14,54 @@ export const metadata = {
 
 export default function AcervoPage() {
   return (
-    <main className="bg-background min-h-screen pb-24 text-foreground">
-      {/* Header */}
-      <section
-        className="dot-grid"
-        style={{
-          background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)",
-          padding: "4.5rem 1.5rem 3.5rem",
-          textAlign: "center",
-          borderBottom: "1px solid #1e293b",
-        }}
-      >
-        <div className="mx-auto max-w-3xl">
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.3)",
-              borderRadius: "9999px",
-              padding: "0.35rem 1.1rem",
-              marginBottom: "1.25rem",
-            }}
-          >
-            <Database size={14} style={{ color: "#818cf8" }} />
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#818cf8", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              Motor RAG Local &bull; 40.129 Documentos &bull; 17.106 Campos &bull; 94 Normas BCB/CMN
-            </span>
+    <main className="bg-[#F8FAFC] dark:bg-background min-h-screen pb-24 text-foreground">
+      {/* Header Editorial Paper & Precision (Workbench 2.0) */}
+      <section className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90">
+        <div className="mx-auto max-w-6xl px-6 py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800">
+              <Database size={13} className="text-blue-600 dark:text-blue-400" />
+              <span className="text-[11px] font-black uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                Hub do Acervo &amp; Regulatório • 40.129 Ativos • 17.106 Campos PDF • 454 Billing Lines • 94 Normas BCB
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Acervo Normativo das Bandeiras &amp; BCB/CMN (4 Motores SQLite + FTS5)
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
+              Consulta auditável com página exata do PDF e hash <code className="font-mono">SHA-256</code> nos 4 bancos locais (<code className="font-mono">acervo.sqlite3</code>, <code className="font-mono">campos.sqlite3</code>, <code className="font-mono">fee_schedule.sqlite3</code> e <code className="font-mono">regulacao.sqlite3</code>). Sincronizado com o filtro global de Bandeira e Lente no topo.
+            </p>
           </div>
-          <h1 className="font-extrabold text-foreground mb-4" style={{ fontSize: "clamp(1.85rem, 4vw, 2.85rem)" }}>
-            Acervo Normativo das Bandeiras &amp; BCB/CMN
-          </h1>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "1rem", lineHeight: 1.8, maxWidth: 640, margin: "0 auto" }}>
-            Todas as tabelas de Outgoing, intercâmbio, tarifas, cascatas de risco e obrigações regulatórias são lastreadas diretamente no Sistema de Acervos (5,61 GB · 571.849 páginas indexadas · 6 filas executadas em 09/11/2026).
-          </p>
 
           {/* Quick Hub Links */}
-          <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
             <Link
               href="/mapa/liquidacao"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-xs font-bold transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-all"
             >
               <Network size={14} />
               <span>Atlas de Liquidação (VSS/SMS)</span>
             </Link>
             <Link
-              href="/mapa/mcbs"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-xs font-bold transition-all"
+              href="/mcbs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-all"
             >
               <DollarSign size={14} />
-              <span>MCBS Faturamento & Invoices</span>
+              <span>MCBS Faturamento &amp; Invoices</span>
             </Link>
             <Link
               href="/editor"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/25 text-xs font-bold transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-xs transition-all"
             >
               <Sparkles size={14} />
-              <span>Editor Executivo com RAG</span>
+              <span>Doc Studio com RAG</span>
             </Link>
           </div>
         </div>
       </section>
 
       {/* Conteúdo Central */}
-      <section className="mx-auto max-w-5xl px-6 py-12 space-y-12">
+      <section className="mx-auto max-w-6xl px-6 py-8 space-y-10">
         
         {/* Painel de Estatísticas Reais */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

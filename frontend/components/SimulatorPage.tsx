@@ -45,11 +45,30 @@ export function SimulatorPage() {
   const [error, setError] = useState("");
   const [health, setHealth] = useState<HealthResponse | null>(null);
 
-  // Carrega health ao montar
+  // Carrega health ao montar e sincroniza com a Barra de Contexto Global do Workbench
   useEffect(() => {
     fetchHealth()
       .then(setHealth)
       .catch(() => {});
+
+    if (typeof window === "undefined") return;
+    const savedBrand = localStorage.getItem("vs_workbench_brand");
+    if (savedBrand === "visa" || savedBrand === "mastercard" || savedBrand === "elo") {
+      setForm((prev) => ({ ...prev, bandeira: savedBrand }));
+    }
+
+    const onContextChange = (ev: Event) => {
+      const custom = ev as CustomEvent<{ brand?: string }>;
+      const b = custom.detail?.brand;
+      if (b === "visa" || b === "mastercard" || b === "elo") {
+        setForm((prev) => ({ ...prev, bandeira: b }));
+      }
+    };
+
+    window.addEventListener("workbench-context-change", onContextChange as EventListener);
+    return () => {
+      window.removeEventListener("workbench-context-change", onContextChange as EventListener);
+    };
   }, []);
 
   // Limpa resultado ao trocar bandeira para evitar confusão

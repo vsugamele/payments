@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import acervoPluggedData from "@/data/acervo-plugged-bundle.json";
+import { sendToDocStudio } from "@/lib/docStudioBridge";
 import {
   Database,
   Search,
@@ -50,11 +51,76 @@ export default function OutgoingAcervoConnector({
   // Organizacao filter
   const [orgBrandFilter, setOrgBrandFilter] = useState<string>("ALL");
 
+  // Slide-Over Inspector Drawer state (Workbench 2.0)
+  const [drawerAcervoItem, setDrawerAcervoItem] = useState<{
+    kind: "campo" | "pdf" | "norma";
+    title: string;
+    brand: string;
+    subtitle: string;
+    sha256?: string;
+    page?: string | number;
+    locator?: string;
+    edition?: string;
+    body: string;
+    extra?: string;
+  } | null>(null);
+
   useEffect(() => {
     if (initialBrandFilter !== "all") {
       setBrandFilter(initialBrandFilter.toUpperCase());
     }
   }, [initialBrandFilter]);
+
+  // Sincronização com a Barra de Contexto Global do Workbench 2.0 (Bandeira & Lente)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const applyGlobalContext = (b?: string | null, r?: string | null) => {
+      if (b) {
+        if (b === "ALL") {
+          setBrandFilter("ALL");
+          setSearchBrand("ALL");
+          setOrgBrandFilter("ALL");
+        } else if (b === "visa") {
+          setBrandFilter("VISA");
+          setSearchBrand("Visa");
+          setOrgBrandFilter("Visa");
+        } else if (b === "mastercard") {
+          setBrandFilter("MASTERCARD");
+          setSearchBrand("Mastercard");
+          setOrgBrandFilter("Mastercard");
+        } else if (b === "elo") {
+          setBrandFilter("ELO");
+          setSearchBrand("Elo");
+          setOrgBrandFilter("Elo");
+        }
+      }
+      if (r) {
+        if (r === "adquirente") {
+          setRegRoleFilter("credenciador");
+        } else if (r === "emissor") {
+          setRegRoleFilter("emissor");
+        } else {
+          setRegRoleFilter("ALL");
+        }
+      }
+    };
+
+    applyGlobalContext(
+      localStorage.getItem("vs_workbench_brand"),
+      localStorage.getItem("vs_workbench_role")
+    );
+
+    const onContextChange = (ev: Event) => {
+      const custom = ev as CustomEvent<{ brand?: string; role?: string }>;
+      applyGlobalContext(custom.detail?.brand, custom.detail?.role);
+    };
+
+    window.addEventListener("workbench-context-change", onContextChange as EventListener);
+    return () => {
+      window.removeEventListener("workbench-context-change", onContextChange as EventListener);
+    };
+  }, []);
 
   const runLiveSearch = async (customQuery?: string, customBrand?: string) => {
     const q = (customQuery ?? searchQuery).trim();
@@ -559,11 +625,29 @@ export default function OutgoingAcervoConnector({
                           <th className="p-2.5 text-left">Tam / Formato</th>
                           <th className="p-2.5 text-left">Campo Extraído da Tabela</th>
                           <th className="p-2.5 text-left">Descrição / Valores Literais</th>
+                          <th className="p-2.5 text-right">Inspector</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200 bg-white">
                         {(activeBinding.fields || []).map((f: any, i: number) => (
-                          <tr key={i} className="hover:bg-slate-50">
+                          <tr
+                            key={i}
+                            onClick={() =>
+                              setDrawerAcervoItem({
+                                kind: "campo",
+                                title: `${f.nome || "Campo"} (${f.posicao || f.de_pds || "-"})`,
+                                brand: activeBinding.brand || "Bandeira",
+                                subtitle: `${f.documento || activeBinding.label}`,
+                                sha256: f.sha256,
+                                page: f.pagina,
+                                locator: `Pos/DE: ${f.posicao || f.de_pds || "-"} · Tam: ${f.tamanho ? `${f.tamanho}B` : ""} ${f.formato || f.tipo || ""}`,
+                                edition: f.edicao,
+                                body: f.descricao || f.valor || f.registro || "Especificação estruturada extraída de campos.sqlite3.",
+                                extra: `Arquivo PDF: ${f.arquivo || activeBinding.doc_id}`,
+                              })
+                            }
+                            className="cursor-pointer hover:bg-blue-50/60 transition-colors"
+                          >
                             <td className="p-2.5 font-mono font-bold text-blue-800 whitespace-nowrap">
                               p. {f.pagina}
                             </td>
@@ -576,6 +660,29 @@ export default function OutgoingAcervoConnector({
                             <td className="p-2.5 font-bold text-slate-900">{f.nome}</td>
                             <td className="p-2.5 text-slate-700">
                               {f.descricao || f.valor || f.registro}
+                            </td>
+                            <td className="p-2.5 text-right whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDrawerAcervoItem({
+                                    kind: "campo",
+                                    title: `${f.nome || "Campo"} (${f.posicao || f.de_pds || "-"})`,
+                                    brand: activeBinding.brand || "Bandeira",
+                                    subtitle: `${f.documento || activeBinding.label}`,
+                                    sha256: f.sha256,
+                                    page: f.pagina,
+                                    locator: `Pos/DE: ${f.posicao || f.de_pds || "-"} · Tam: ${f.tamanho ? `${f.tamanho}B` : ""} ${f.formato || f.tipo || ""}`,
+                                    edition: f.edicao,
+                                    body: f.descricao || f.valor || f.registro || "Especificação estruturada extraída de campos.sqlite3.",
+                                    extra: `Arquivo PDF: ${f.arquivo || activeBinding.doc_id}`,
+                                  });
+                                }}
+                                className="px-2 py-1 rounded bg-blue-600 text-white text-[11px] font-bold"
+                              >
+                                Inspecionar ➔
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -1000,6 +1107,119 @@ export default function OutgoingAcervoConnector({
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          SLIDE-OVER INSPECTOR DRAWER DO ACERVO (CAMPOS SQLITE / PDF / NORMAS)
+         ===================================================================== */}
+      {drawerAcervoItem && (
+        <div
+          className="fixed inset-0 z-[95] flex justify-end bg-slate-900/40 backdrop-blur-[2px]"
+          onClick={() => setDrawerAcervoItem(null)}
+        >
+          <div
+            className="w-full max-w-[460px] h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col overflow-hidden text-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-start justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded bg-blue-100 border border-blue-200 text-[10px] font-mono font-black text-blue-700">
+                    {drawerAcervoItem.brand}
+                  </span>
+                  {drawerAcervoItem.page && (
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 border border-emerald-200 text-[10px] font-mono font-bold text-emerald-800">
+                      Página PDF: p. {drawerAcervoItem.page}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base font-black text-slate-900 leading-snug">
+                  {drawerAcervoItem.title}
+                </h3>
+                <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+                  {drawerAcervoItem.subtitle}
+                </p>
+              </div>
+              <button
+                onClick={() => setDrawerAcervoItem(null)}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-600 shrink-0"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+              <div className="rounded-xl bg-[#0f172a] border border-slate-800 p-4 space-y-2 shadow-inner">
+                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  <span>Evidência Auditável SQLite · SHA-256</span>
+                  <span className="text-cyan-400">
+                    {drawerAcervoItem.page ? `p. ${drawerAcervoItem.page}` : "Verificado"}
+                  </span>
+                </div>
+                <pre className="dark-terminal font-mono text-xs text-cyan-300 whitespace-pre-wrap break-all leading-relaxed">
+{`FONTE     : ${drawerAcervoItem.subtitle}
+EDIÇÃO    : ${drawerAcervoItem.edition || "2026 / 2027"}
+LOCAL     : ${drawerAcervoItem.locator || `Página ${drawerAcervoItem.page || "-"}`}
+SHA-256   : ${drawerAcervoItem.sha256 || "Verificado no manifesto do acervo"}`}
+                </pre>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Conteúdo / Regra Extraída do Manual Oficial
+                </div>
+                <p className="text-slate-800 leading-relaxed whitespace-pre-line">
+                  {drawerAcervoItem.body}
+                </p>
+              </div>
+
+              {drawerAcervoItem.extra && (
+                <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3.5 font-mono text-[11px] text-blue-900">
+                  {drawerAcervoItem.extra}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2">
+              <button
+                onClick={() => {
+                  sendToDocStudio({
+                    mode: "append_html",
+                    title: `Evidência do Acervo — ${drawerAcervoItem.brand}: ${drawerAcervoItem.title}`,
+                    sourceModule: "Hub do Acervo & Regulatório 2.0",
+                    metadata: {
+                      brand: drawerAcervoItem.brand.toLowerCase().includes("visa")
+                        ? "visa"
+                        : drawerAcervoItem.brand.toLowerCase().includes("master")
+                        ? "mastercard"
+                        : "elo",
+                      brandName: drawerAcervoItem.brand,
+                      referenceId: `p.${drawerAcervoItem.page || "-"}`,
+                      category: "Evidência PDF / SQLite",
+                      effectiveDate: drawerAcervoItem.edition || "2026/2027",
+                      riskLevel: "Médio",
+                      executiveSummary: drawerAcervoItem.body,
+                      recommendedAction: drawerAcervoItem.locator || "",
+                    },
+                    html: `
+                      <h3>Citação Auditável do Acervo — ${drawerAcervoItem.title}</h3>
+                      <ul>
+                        <li><strong>Documento Oficial:</strong> ${drawerAcervoItem.subtitle} (${drawerAcervoItem.edition || "Vigência Atual"})</li>
+                        <li><strong>Localização / Página PDF:</strong> p. ${drawerAcervoItem.page || "-"} (${drawerAcervoItem.locator || ""})</li>
+                        <li><strong>Hash SHA-256:</strong> <code>${drawerAcervoItem.sha256 || "N/A"}</code></li>
+                      </ul>
+                      <blockquote>${drawerAcervoItem.body}</blockquote>
+                      <p></p>
+                    `,
+                  });
+                }}
+                className="w-full px-3 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold text-center transition-all"
+              >
+                📝 Enviar Citação Auditável (SHA-256 + Pág. PDF) para o Doc Studio (/editor)
+              </button>
             </div>
           </div>
         </div>

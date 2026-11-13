@@ -1,12 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   Menu, X, Sun, Moon, Briefcase, FileDown, Mail,
   ExternalLink, MessageCircle, Search
 } from "lucide-react";
 import { useTheme } from "next-themes";
+
+const WORKBENCH_PREFIXES = [
+  "/compliance",
+  "/acervo",
+  "/simulador",
+  "/admin",
+  "/mapa",
+  "/mcbs",
+  "/mdr",
+  "/billing",
+  "/chargeback",
+  "/trilhas",
+  "/editor",
+  "/consultas",
+  "/glossario",
+  "/arquitetura",
+  "/comparativo",
+  "/jornada",
+  "/validador",
+  "/comparador",
+  "/inspecao-tecnica",
+  "/liquidacao",
+  "/parcelado",
+  "/mpe",
+  "/scheme-fees",
+];
 
 const NAV_LINKS = [
   { href: "/#sobre", label: "Sobre" },
@@ -18,14 +45,23 @@ const NAV_LINKS = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname() || "/";
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isWorkbenchRoute = WORKBENCH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.top && window.self !== window.top) {
       window.top.location.href = window.location.href;
     }
   }, []);
+
+  if (isWorkbenchRoute) {
+    return null;
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/85 backdrop-blur-md transition-colors">

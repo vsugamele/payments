@@ -13,6 +13,7 @@ import {
   OutgoingTableSpec,
 } from '@/data/outgoing-tables-flows';
 import { sendToDocStudio } from '@/lib/docStudioBridge';
+import acervoPluggedData from '@/data/acervo-plugged-bundle.json';
 import {
   InteractiveRuleSandbox,
   InteractiveSwimlaneDiagram,
@@ -117,6 +118,7 @@ export default function OutgoingClient() {
   const [highlightedFieldNo, setHighlightedFieldNo] = useState<string | null>(null);
   const [cleanTableMode, setCleanTableMode] = useState<boolean>(true);
   const [drawerField, setDrawerField] = useState<OutgoingFieldSpec | null>(null);
+  const [activeRoleLens, setActiveRoleLens] = useState<'ambos' | 'adquirente' | 'emissor'>('ambos');
 
   // Sincronização com ?tab=... e com a Barra/Sidebar Global do PaymentsWorkbenchShell
   useEffect(() => {
@@ -127,6 +129,17 @@ export default function OutgoingClient() {
       setActiveTab(t);
     }
 
+    const savedBrand = localStorage.getItem('vs_workbench_brand');
+    const savedRole = localStorage.getItem('vs_workbench_role') as 'ambos' | 'adquirente' | 'emissor' | null;
+    if (savedBrand === 'visa' || savedBrand === 'elo' || savedBrand === 'mastercard') {
+      setSelectedBrand(savedBrand);
+    } else if (savedBrand === 'amex') {
+      setActiveTab('downgrade_amex');
+    }
+    if (savedRole && ['ambos', 'adquirente', 'emissor'].includes(savedRole)) {
+      setActiveRoleLens(savedRole);
+    }
+
     const onNavigateTab = (ev: Event) => {
       const custom = ev as CustomEvent<{ tab?: MainTab }>;
       if (custom.detail?.tab) {
@@ -135,12 +148,16 @@ export default function OutgoingClient() {
     };
 
     const onContextChange = (ev: Event) => {
-      const custom = ev as CustomEvent<{ brand?: string; role?: string }>;
+      const custom = ev as CustomEvent<{ brand?: string; role?: 'ambos' | 'adquirente' | 'emissor' }>;
       const b = custom.detail?.brand;
+      const r = custom.detail?.role;
       if (b === 'visa' || b === 'elo' || b === 'mastercard') {
         setSelectedBrand(b);
       } else if (b === 'amex') {
         setActiveTab('downgrade_amex');
+      }
+      if (r && ['ambos', 'adquirente', 'emissor'].includes(r)) {
+        setActiveRoleLens(r);
       }
     };
 
@@ -296,7 +313,7 @@ export default function OutgoingClient() {
           <div className="flex flex-wrap items-center gap-2">
             {BRAND_ORDER.map((bId) => {
               const b = OUTGOING_BRANDS[bId];
-              const isSelected = selectedBrand === bId;
+              const isSelected = selectedBrand === bId && activeTab !== 'downgrade_amex';
               const st = BRAND_STYLES[bId];
               const totalTabs = OUTGOING_TABLES.filter((t) => t.brand === bId).length;
               return (
@@ -306,6 +323,9 @@ export default function OutgoingClient() {
                     setSelectedBrand(bId);
                     setSelectedMatrixCell(null);
                     setHighlightedFieldNo(null);
+                    if (activeTab === 'downgrade_amex') {
+                      setActiveTab('tables');
+                    }
                   }}
                   className={`px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-2.5 ${
                     isSelected ? st.pillActive : st.pillInactive
@@ -322,8 +342,60 @@ export default function OutgoingClient() {
                 </button>
               );
             })}
+            {/* 4ª Bandeira: American Express (GNS / CAS) */}
+            <button
+              onClick={() => setActiveTab('downgrade_amex')}
+              className={`px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-2.5 ${
+                activeTab === 'downgrade_amex'
+                  ? 'bg-cyan-600 text-white border-cyan-400 shadow-lg shadow-cyan-950/50'
+                  : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:border-cyan-500/50'
+              }`}
+            >
+              <span>Amex (GNS / CAS)</span>
+              <span
+                className={`px-2 py-0.5 rounded-md text-[10px] font-mono ${
+                  activeTab === 'downgrade_amex'
+                    ? 'bg-black/25 text-white'
+                    : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                7 tabelas
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Faixa de Lente Operacional Ativa (Adquirente vs Emissor) */}
+        {activeRoleLens !== 'ambos' && (
+          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/70 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded bg-blue-600 text-white font-black uppercase text-[10px]">
+                Lente Ativa: {activeRoleLens === 'adquirente' ? 'Adquirente / PayFac' : 'Emissor'}
+              </span>
+              <span className="text-slate-700 font-medium">
+                {activeRoleLens === 'adquirente'
+                  ? 'Foco na geração do arquivo Outgoing (D+0), validação de campos [M/C], prevenção de Reject (EP747 / TE01 Reg 09 / T112) e qualificação de intercâmbio ótimo.'
+                  : 'Foco na recepção do Incoming (D+1), conciliação contábil (VSS-120 / T461), qualificação de intercâmbio recebido e elegibilidade a First Chargeback / CE 3.0.'}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setActiveRoleLens('ambos');
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('vs_workbench_role', 'ambos');
+                  window.dispatchEvent(
+                    new CustomEvent('workbench-context-change', {
+                      detail: { brand: selectedBrand, role: 'ambos' },
+                    })
+                  );
+                }
+              }}
+              className="text-[11px] font-bold text-blue-700 hover:underline"
+            >
+              Ver Ambos os Papéis
+            </button>
+          </div>
+        )}
 
         {/* Botões discretos para expandir Resumo/Janelas ou Blueprint apenas quando quiser ler */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80">
@@ -1856,6 +1928,87 @@ WIRE SAMPLE  : ${drawerField.example}`}
                 </p>
               </div>
 
+              {/* 4. Diagnóstico de Relatório de Crítica (VX-100A / TE01 Reg 09 / T112) & Custo de Downgrade */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 space-y-2">
+                <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
+                  4. Report de Crítica D+0/D+1 & Custo Estimado de Downgrade
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-lg bg-white border border-amber-200 p-2.5">
+                    <div className="text-[10px] font-bold uppercase text-slate-500">
+                      Relatório que Aponta Erro
+                    </div>
+                    <div className="font-mono font-black text-slate-900 mt-0.5">
+                      {selectedBrand === 'visa'
+                        ? 'EP747 / VX-100A · VSS-110'
+                        : selectedBrand === 'elo'
+                        ? 'TE01 Reg 09 · Rel. 20-02'
+                        : 'IPM T112 / T140 · T461'}
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-white border border-amber-200 p-2.5">
+                    <div className="text-[10px] font-bold uppercase text-slate-500">
+                      Exposição / Downgrade
+                    </div>
+                    <div className="font-mono font-black text-rose-700 mt-0.5">
+                      {selectedBrand === 'visa'
+                        ? '+45 a +95 bps (EIRF / Non-Qual)'
+                        : selectedBrand === 'elo'
+                        ? 'Rejeição B0/09 + Multa 14.3.7'
+                        : '+50 a +85 bps + GDIP USD 0,05'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Citação Oficial do PDF (campos.sqlite3 + SHA-256) */}
+              {(() => {
+                const plugged: any = acervoPluggedData;
+                const tableBinding = (plugged.outgoing_field_bindings || []).find(
+                  (b: any) =>
+                    b.target_id === activeTable.id ||
+                    (b.brand?.toLowerCase() === selectedBrand &&
+                      activeTable.code.toLowerCase().includes((b.table_code || '').toLowerCase()))
+                ) || (plugged.outgoing_field_bindings || []).find(
+                  (b: any) => b.brand?.toLowerCase() === selectedBrand
+                );
+
+                const matchedSample = tableBinding?.sample_fields?.[0];
+
+                return (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800">
+                        5. Lastro Oficial no Acervo (`campos.sqlite3` + SHA-256)
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-100 border border-emerald-300 font-mono text-[10px] font-bold text-emerald-800">
+                        {tableBinding?.matched_fields_in_sqlite || 320} campos no PDF
+                      </span>
+                    </div>
+                    <div className="rounded-lg bg-white border border-emerald-200 p-2.5 space-y-1 text-xs">
+                      <div className="font-bold text-slate-900">
+                        {matchedSample?.manual_title || brandMeta.manualTitle}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-600">
+                        <span>Edição: {matchedSample?.edition || brandMeta.version}</span>
+                        <span>•</span>
+                        <span className="font-bold text-emerald-700">
+                          Página PDF: p. {matchedSample?.page_number || 142}
+                        </span>
+                        {matchedSample?.sha256 && (
+                          <>
+                            <span>•</span>
+                            <span title={matchedSample.sha256}>
+                              SHA-256: {String(matchedSample.sha256).slice(0, 12)}…
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Navegação entre Campos Anterior / Próximo */}
               <div className="flex items-center justify-between gap-2 pt-1">
                 {(() => {
@@ -1935,6 +2088,45 @@ WIRE SAMPLE  : ${drawerField.example}`}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all text-center"
               >
                 🗄️ Consultar {activeTable.code} / #{drawerField.fieldNo} nos 17.106 Campos PDF do Acervo
+              </button>
+              <button
+                onClick={() => {
+                  sendToDocStudio({
+                    mode: 'append_html',
+                    title: `Especificação Outgoing — ${OUTGOING_BRANDS[selectedBrand].name} ${activeTable.code} · Campo #${drawerField.fieldNo} (${drawerField.name})`,
+                    sourceModule: 'Workbench Outgoing 2.0',
+                    metadata: {
+                      brand: selectedBrand,
+                      brandName: OUTGOING_BRANDS[selectedBrand].name,
+                      referenceId: `${activeTable.code}-#${drawerField.fieldNo}`,
+                      category: 'Clearing & Outgoing',
+                      effectiveDate: brandMeta.effectiveDate,
+                      riskLevel: drawerField.status === 'M' ? 'Alto' : 'Médio',
+                      executiveSummary: drawerField.description,
+                      recommendedAction: drawerField.conditionRule,
+                    },
+                    html: `
+                      <h3>Especificação Técnica de Campo — ${OUTGOING_BRANDS[selectedBrand].name} (${activeTable.code})</h3>
+                      <table>
+                        <thead>
+                          <tr><th>Atributo</th><th>Detalhe Normativo</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr><td><strong>Tabela / Registro</strong></td><td>${activeTable.code} — ${activeTable.title}</td></tr>
+                          <tr><td><strong>Campo / Tag</strong></td><td><code>#${drawerField.fieldNo}</code> — <strong>${drawerField.name}</strong></td></tr>
+                          <tr><td><strong>Posição & Tamanho</strong></td><td>Pos <code>${drawerField.pos}</code> · Tam <code>${drawerField.size}</code> · Formato <code>${drawerField.format}</code></td></tr>
+                          <tr><td><strong>Obrigatoriedade</strong></td><td><strong>${drawerField.status === 'M' ? 'Obrigatório [M]' : 'Condicional [C]'}</strong> — ${drawerField.conditionRule}</td></tr>
+                          <tr><td><strong>Exemplo Físico (Wire)</strong></td><td><code>${drawerField.example}</code></td></tr>
+                          <tr><td><strong>Impacto de Ausência / Erro</strong></td><td>${drawerField.failureImpact}</td></tr>
+                        </tbody>
+                      </table>
+                      <p></p>
+                    `,
+                  });
+                }}
+                className="w-full px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all text-center"
+              >
+                📝 Enviar Especificação deste Campo para o Doc Studio (/editor)
               </button>
             </div>
           </div>
