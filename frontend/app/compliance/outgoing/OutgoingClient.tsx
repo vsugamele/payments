@@ -1320,6 +1320,7 @@ export default function OutgoingClient() {
           {(flowSectionView === 'servidores' || flowSectionView === 'all') && (
             <OutgoingServerTopologyBlueprint
               initialBrand={selectedBrand}
+              activeFlowId={activeFlow.id}
               onSelectTable={handleOpenTableFromAnywhere}
             />
           )}

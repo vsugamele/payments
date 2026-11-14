@@ -26,4 +26,8 @@ Evoluir os diagramas de fluxo do sistema (que antes mostravam apenas os 5 macro-
 
 ## Limites e Próximos Passos
 - Os dados de portas e topologia refletem a arquitetura padrão de mercado para adquirentes/processadoras e bandeiras no Brasil (Visa Base I/Base II, Mastercard Banknet/GCMS, Elo STI/Serviço 10, Amex GNS/CAS e RSFN/SLC).
-- Próximo passo opcional: permitir filtrar no próprio cabo um exemplo de pacote hexadecimal real (`0100/0110` vs registro de clearing) lado a lado.
+- **Refinamentos implementados na sequência**:
+  1. **Packet Tracer (Simulador Salto a Salto #01 a #10 com Wire Dump Real)**: Novo modo `PACKET TRACE` mostrando o frame físico de entrada no cabo (`Request Wire Dump`), a transformação interna executada pelo Servidor/HSM (`Inside the Box`) e o frame de saída (`Response Wire Dump`), desde o POS/3DS até o XML `ASLC026` no STR/Bacen.
+  2. **Expansão para 17 Servidores/Appliances**: Inclusão do **Motor de Subcredenciadora / PayFac & Split (`SRV-Z2-05`)**, **Servidor KMS, Key Loader (Sala-Cofre TR-34) & Rotação Dinâmica `0800` (`SRV-Z2-06`)** e **Motor Stand-In Processing (`STIP`) & Fila de Advice `0120/0121` (`SRV-Z3-06`)**.
+  3. **Lente de Rota Crítica por Cenário Operacional (`activeFlowId`)**: Sincronização automática com o fluxo selecionado na aba `Fluxos` de `/compliance/outgoing`, iluminando com o selo `🎯 ROTA ATIVA` os servidores e cabos exatos daquele cenário.
+  4. **Wire Dump Real no Slide-Over Inspector de Cabos**: Clicar em qualquer cabo (`CABO #01` a `CABO #13`) exibe os dumps reais de Request e Response no protocolo daquele link.
