@@ -30,6 +30,7 @@ import { OutgoingDisputesExplorer } from './OutgoingDisputesExplorer';
 import { OutgoingIndustryAddendaExplorer } from './OutgoingIndustryAddendaExplorer';
 import OutgoingAcervoConnector from './OutgoingAcervoConnector';
 import { OutgoingDowngradeAndAmex } from './OutgoingDowngradeAndAmex';
+import { OutgoingServerTopologyBlueprint } from './OutgoingServerTopologyBlueprint';
 
 type MainTab =
   | 'tables'
@@ -103,7 +104,7 @@ export default function OutgoingClient() {
 
   // Sub-views para evitar excesso de informação tudo junto na mesma tela
   const [tableSectionView, setTableSectionView] = useState<'resumo' | 'layout' | 'wire' | 'all'>('resumo');
-  const [flowSectionView, setFlowSectionView] = useState<'sequencia' | 'atores' | 'regras' | 'all'>('sequencia');
+  const [flowSectionView, setFlowSectionView] = useState<'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'>('servidores');
 
   // State for Tab 1 (Separated Tables)
   const [tablePresenceFilter, setTablePresenceFilter] = useState<TablePresenceFilter>('ALL');
@@ -125,14 +126,22 @@ export default function OutgoingClient() {
     if (typeof window === 'undefined') return;
     const sp = new URLSearchParams(window.location.search);
     const t = sp.get('tab') as MainTab | null;
+    const urlBrand = sp.get('brand') as OutgoingBrandId | null;
+    const urlTable = sp.get('table');
     if (t) {
       setActiveTab(t);
     }
 
-    const savedBrand = localStorage.getItem('vs_workbench_brand');
+    const savedBrand = urlBrand || localStorage.getItem('vs_workbench_brand');
     const savedRole = localStorage.getItem('vs_workbench_role') as 'ambos' | 'adquirente' | 'emissor' | null;
     if (savedBrand === 'visa' || savedBrand === 'elo' || savedBrand === 'mastercard') {
       setSelectedBrand(savedBrand);
+      if (urlTable) {
+        setSelectedTableIdByBrand((prev) => ({
+          ...prev,
+          [savedBrand]: urlTable,
+        }));
+      }
     } else if (savedBrand === 'amex') {
       setActiveTab('downgrade_amex');
     }
@@ -1276,9 +1285,10 @@ export default function OutgoingClient() {
           <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
             <div className="flex flex-wrap items-center gap-1.5">
               {[
-                { id: 'sequencia', label: '1️⃣ Sequência das Tabelas no Arquivo' },
-                { id: 'atores', label: '2️⃣ Diagrama dos 5 Atores (0100 ➔ Outgoing)' },
-                { id: 'regras', label: '3️⃣ O Que Vira Obrigatório [C ➔ M] & De-Para' },
+                { id: 'servidores', label: '1️⃣ Topologia de Servidores, HSM & Cabos (Modelo C4)' },
+                { id: 'sequencia', label: '2️⃣ Sequência das Tabelas no Arquivo' },
+                { id: 'atores', label: '3️⃣ Diagrama dos 5 Atores (0100 ➔ Outgoing)' },
+                { id: 'regras', label: '4️⃣ O Que Vira Obrigatório [C ➔ M] & De-Para' },
                 { id: 'all', label: '📑 Mostrar Tudo na Mesma Tela' },
               ].map((sec) => {
                 const isSecActive = flowSectionView === sec.id;
@@ -1287,7 +1297,7 @@ export default function OutgoingClient() {
                     key={sec.id}
                     onClick={() =>
                       setFlowSectionView(
-                        sec.id as 'sequencia' | 'atores' | 'regras' | 'all'
+                        sec.id as 'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'
                       )
                     }
                     className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
@@ -1302,9 +1312,17 @@ export default function OutgoingClient() {
               })}
             </div>
             <span className="text-[11px] text-slate-400 px-2">
-              Leitura por etapa para evitar excesso de informação junta
+              4 Níveis de Zoom: Atores ➔ Servidores ➔ Cabos/HSM ➔ Simulador de Queda
             </span>
           </div>
+
+          {/* TOPOLOGIA DE SERVIDORES, HSM, APPLIANCES DE BORDA & CABOS (MODELO C4) */}
+          {(flowSectionView === 'servidores' || flowSectionView === 'all') && (
+            <OutgoingServerTopologyBlueprint
+              initialBrand={selectedBrand}
+              onSelectTable={handleOpenTableFromAnywhere}
+            />
+          )}
 
           {/* Renderização do Fluxo Selecionado (1 Bandeira ou Comparativo das 3) */}
           {(compareAllBrandsInFlow ? BRAND_ORDER : [selectedBrand]).map((bId) => {
