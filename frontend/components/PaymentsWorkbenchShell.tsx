@@ -130,6 +130,13 @@ const WORKBENCH_GROUPS: NavGroup[] = [
         matchTab: 'validator',
       },
       {
+        id: 'nav-eng-lab',
+        label: 'Suíte Engenharia & QA (Massa · Rejects · 4-Way · Diff)',
+        badge: '5 LABS',
+        href: '/compliance/outgoing?tab=eng_lab',
+        matchTab: 'eng_lab',
+      },
+      {
         id: 'nav-industry',
         label: 'Setores (IATA · Hotel · Locadora)',
         badge: 'ADD',

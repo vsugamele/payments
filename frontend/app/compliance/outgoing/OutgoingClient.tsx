@@ -31,6 +31,7 @@ import { OutgoingIndustryAddendaExplorer } from './OutgoingIndustryAddendaExplor
 import OutgoingAcervoConnector from './OutgoingAcervoConnector';
 import { OutgoingDowngradeAndAmex } from './OutgoingDowngradeAndAmex';
 import { OutgoingServerTopologyBlueprint } from './OutgoingServerTopologyBlueprint';
+import { OutgoingEngineeringLabSuite } from './OutgoingEngineeringLabSuite';
 
 type MainTab =
   | 'tables'
@@ -39,6 +40,7 @@ type MainTab =
   | 'sandbox'
   | 'bitmap'
   | 'validator'
+  | 'eng_lab'
   | 'reports'
   | 'disputes'
   | 'industry'
@@ -425,6 +427,12 @@ export default function OutgoingClient() {
               {showBlueprint ? '▾ Ocultar Blueprint Físico' : '🗺️ Ver Blueprint Físico (4 Camadas)'}
             </button>
             <button
+              onClick={() => setActiveTab('eng_lab')}
+              className="px-3 py-1.5 rounded-lg bg-cyan-600 text-white border border-cyan-400 hover:bg-cyan-500 text-xs font-black transition-all"
+            >
+              🧪 Suíte Engenharia & QA (Massa .CTF/.IPM · Doutor Rejects · 4-Way · 10 CTs · Diff)
+            </button>
+            <button
               onClick={() => setActiveTab('acervo')}
               className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-700 text-xs font-bold transition-all"
             >
@@ -502,12 +510,13 @@ export default function OutgoingClient() {
           },
           {
             id: 'st-wire',
-            label: '🔬 2. Bits & Validador Forense',
-            desc: 'Mapa de 128 bits ISO 8583 e parser de arquivo real',
-            tabs: ['bitmap', 'validator'] as MainTab[],
+            label: '🔬 2. Bits, Validador & Lab QA',
+            desc: '128b ISO, parser de lote real, gerador .CTF/.IPM, rejects e 4-Way',
+            tabs: ['bitmap', 'validator', 'eng_lab'] as MainTab[],
             items: [
               { id: 'bitmap' as MainTab, label: 'Mapa de Bits (128b Auth × Clearing)', badge: 'HEX' },
               { id: 'validator' as MainTab, label: 'Parser Forense de Lote Real (PCI & Trailer)', badge: '.CTF/.TXT' },
+              { id: 'eng_lab' as MainTab, label: 'Suíte Engenharia & QA (Massa Sintética · Rejects · 4-Way · CTs · Diff)', badge: '5 LABS' },
             ],
           },
           {
@@ -1785,10 +1794,20 @@ export default function OutgoingClient() {
           ABA 6 — VALIDADOR E DECODIFICADOR DE LOTE OUTGOING (168B / TLV)
          ===================================================================== */}
       {activeTab === 'validator' && (
-        <OutgoingBatchValidator
-          selectedBrand={selectedBrand}
-          onSelectBrand={(b) => setSelectedBrand(b)}
-        />
+        <div className="space-y-8">
+          <OutgoingBatchValidator
+            selectedBrand={selectedBrand}
+            onSelectBrand={(b) => setSelectedBrand(b)}
+          />
+          <OutgoingEngineeringLabSuite initialBrand={selectedBrand} />
+        </div>
+      )}
+
+      {/* =====================================================================
+          ABA 6B — SUÍTE DE ENGENHARIA, GERADOR DE MASSA (.CTF/.IPM/.TXT/.CAS), REJECTS, 4-WAY, HOMOLOGAÇÃO & DIFF
+         ===================================================================== */}
+      {activeTab === 'eng_lab' && (
+        <OutgoingEngineeringLabSuite initialBrand={selectedBrand} />
       )}
 
       {/* =====================================================================
