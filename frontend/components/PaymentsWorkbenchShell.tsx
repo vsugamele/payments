@@ -202,6 +202,12 @@ const WORKBENCH_GROUPS: NavGroup[] = [
     subtitle: 'Simulador MDR · Downgrade R$ · Amex',
     items: [
       {
+        id: 'nav-mapa-produtos',
+        label: 'Mapa de Produtos (PID / MC / Elo / Amex)',
+        badge: '4 BND',
+        href: '/mapa/produtos',
+      },
+      {
         id: 'nav-downgrade-amex',
         label: 'Calculadora Downgrade (R$) & Amex',
         badge: 'R$ + AX',

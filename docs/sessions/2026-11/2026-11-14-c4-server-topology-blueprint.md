@@ -31,3 +31,8 @@ Evoluir os diagramas de fluxo do sistema (que antes mostravam apenas os 5 macro-
   2. **Expansão para 17 Servidores/Appliances**: Inclusão do **Motor de Subcredenciadora / PayFac & Split (`SRV-Z2-05`)**, **Servidor KMS, Key Loader (Sala-Cofre TR-34) & Rotação Dinâmica `0800` (`SRV-Z2-06`)** e **Motor Stand-In Processing (`STIP`) & Fila de Advice `0120/0121` (`SRV-Z3-06`)**.
   3. **Lente de Rota Crítica por Cenário Operacional (`activeFlowId`)**: Sincronização automática com o fluxo selecionado na aba `Fluxos` de `/compliance/outgoing`, iluminando com o selo `🎯 ROTA ATIVA` os servidores e cabos exatos daquele cenário.
   4. **Wire Dump Real no Slide-Over Inspector de Cabos**: Clicar em qualquer cabo (`CABO #01` a `CABO #13`) exibe os dumps reais de Request e Response no protocolo daquele link.
+  5. **Catálogo & Mapa Unificado de Produtos das 4 Bandeiras (`/mapa/produtos` — `ProductMapAtlasClient.tsx`)**:
+     - **Mapa 1**: Matriz de Equivalência de Plásticos & Tiers (`Visa PID` × `Mastercard Brand Product` × `Elo Cód. Produto` × `Amex`) com enquadramento no teto regulatório Bacen (Resolução BCB 304: Débito `0,50% / 0,80%` e Pré-Pago `0,70%`) vs Livre Mercado e Slide-Over Inspector Drawer.
+     - **Mapa 2**: Onde o código de produto nasce (`ARDEF`, `MPE T068`, `GCMS IP0040T1/IP0091T1`, `Tabela BINs Elo`) e trafega (`DE 62.23`, `PDS 0002/0158`, `Reg 00/02`, `CAS TDR`).
+     - **Mapa 3**: Mapa de Modalidades Transacionais Brasileiras (`Débito à Vista`, `Crédito 1x`, `Parcelado Loja TCR 2 BR / PDS 0195 / 992`, `Parcelado Emissor 993`, `Crediário 994`).
+     - **Mapa 4**: Mapa Setorial por MCC & Addenda (`Companhias Aéreas IATA`, `Hotelaria`, `Locadoras`, `Supermercados 5411`, `Postos/Trânsito`).

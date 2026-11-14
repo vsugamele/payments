@@ -54,6 +54,12 @@ export default function IrdsAtlasPage() {
             Conceitos Gerais
           </Link>
           <Link
+            href="/mapa/produtos"
+            className="text-xs font-semibold px-3 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all"
+          >
+            Mapa de Produtos (4 Bandeiras)
+          </Link>
+          <Link
             href="/mapa/irds"
             className="text-xs font-bold px-3 py-1 rounded-lg bg-amber-600 text-white shadow-xs transition-all"
           >
