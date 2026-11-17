@@ -39,6 +39,12 @@ export default function CentralBoletinsComportamentoPage() {
   const [projecoes, setProjecoes] = useState<any[]>([]);
   const [loadingProj, setLoadingProj] = useState(false);
   const [selectedCampoId, setSelectedCampoId] = useState<string>("MC-DE023");
+  const [filtroIntegridade, setFiltroIntegridade] = useState<"todos" | "conflito" | "fonte_unica" | "travado">("todos");
+  const [unlockedBoletimIds, setUnlockedBoletimIds] = useState<Record<string, boolean>>({});
+
+  const toggleUnlockStage = (id: string) => {
+    setUnlockedBoletimIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // Radar de Releases (381 itens) state
   const [relQuery, setRelQuery] = useState("");
@@ -505,10 +511,73 @@ export default function CentralBoletinsComportamentoPage() {
                 </div>
               </div>
 
+              {/* Painel de Governança Normativa (Padrão Visa Brain: "Nada é Escolhido em Silêncio") */}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/35 via-[#040914] to-rose-950/25 border border-amber-500/30 space-y-3">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-amber-400" />
+                      <span className="text-[11px] font-black uppercase tracking-wider text-amber-300">
+                        Governança de Fontes · Regra “Nada é Escolhido em Silêncio”
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      Divergência entre cabeçalho oficial e triagem abre conflito explícito; fonte única avisa antes da homologação; vigência vencida com lacuna aberta trava a emissão de parecer até revalidação.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {[
+                      {
+                        id: "todos",
+                        label: `Todos (${projecoes.length})`,
+                        cls: "border-slate-700 bg-slate-900 text-slate-200",
+                      },
+                      {
+                        id: "conflito",
+                        label: `⚡ Conflitos Abertos (${projecoes.filter((p) => p.integridade_fontes?.tem_conflito).length})`,
+                        cls: "border-amber-500/40 bg-amber-500/15 text-amber-200",
+                      },
+                      {
+                        id: "fonte_unica",
+                        label: `⚠️ Fonte Única / Verificar (${projecoes.filter((p) => p.integridade_fontes?.requer_aviso_fonte).length})`,
+                        cls: "border-blue-500/40 bg-blue-500/15 text-blue-200",
+                      },
+                      {
+                        id: "travado",
+                        label: `🔒 Etapa Travada (${projecoes.filter((p) => p.integridade_fontes?.etapa_travada).length})`,
+                        cls: "border-rose-500/40 bg-rose-500/15 text-rose-200",
+                      },
+                    ].map((f) => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setFiltroIntegridade(f.id as any)}
+                        className={`px-3 py-1.5 rounded-xl font-bold border transition-all ${
+                          filtroIntegridade === f.id ? "ring-2 ring-white/40 " + f.cls : "opacity-75 hover:opacity-100 " + f.cls
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Resultado das Projeções */}
               <div className="space-y-4 pt-3">
-                {projecoes.map((proj, idx) => {
+                {projecoes
+                  .filter((proj) => {
+                    const ig = proj.integridade_fontes;
+                    if (filtroIntegridade === "conflito") return Boolean(ig?.tem_conflito);
+                    if (filtroIntegridade === "fonte_unica") return Boolean(ig?.requer_aviso_fonte);
+                    if (filtroIntegridade === "travado") return Boolean(ig?.etapa_travada);
+                    return true;
+                  })
+                  .map((proj, idx) => {
                   const b = proj.boletim_dados || {};
+                  const ig = proj.integridade_fontes || b.integridade_fontes || {};
+                  const isStageLocked = Boolean(ig.etapa_travada) && !unlockedBoletimIds[b.id];
                   const impactaColor =
                     proj.impacta === "Sim"
                       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
@@ -519,7 +588,13 @@ export default function CentralBoletinsComportamentoPage() {
                   return (
                     <div
                       key={b.id || idx}
-                      className="rounded-2xl border border-slate-800 bg-[#040914] p-5 space-y-4"
+                      className={`rounded-2xl border bg-[#040914] p-5 space-y-4 ${
+                        isStageLocked
+                          ? "border-rose-500/50"
+                          : ig.tem_conflito
+                          ? "border-amber-500/45"
+                          : "border-slate-800"
+                      }`}
                     >
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
                         <div>
@@ -533,6 +608,21 @@ export default function CentralBoletinsComportamentoPage() {
                             <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-blue-500/10 text-blue-300">
                               Classificação: {b.classificacao} ({b.action_indicator})
                             </span>
+                            {ig.tem_conflito && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-200 border border-amber-500/40">
+                                ⚡ Conflito de Fontes ({ig.conflitos_abertos?.length || 1})
+                              </span>
+                            )}
+                            {ig.requer_aviso_fonte && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-200 border border-blue-500/40">
+                                ⚠️ {ig.fonte_unica ? "Fonte Única" : "Verificar Manual"}
+                              </span>
+                            )}
+                            {ig.etapa_travada && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-200 border border-rose-500/40">
+                                {isStageLocked ? "🔒 Dado Vencido · Etapa Travada" : "🔓 Revalidação Assumida"}
+                              </span>
+                            )}
                           </div>
                           <h3 className="text-base font-bold text-white">{b.titulo}</h3>
                         </div>
@@ -551,7 +641,34 @@ export default function CentralBoletinsComportamentoPage() {
                             🔍 Inspecionar no Drawer Lateral
                           </button>
                           <button
+                            disabled={isStageLocked}
+                            title={
+                              isStageLocked
+                                ? "Etapa travada por vigência vencida com pendência normativa aberta. Confirme a revalidação abaixo antes de emitir parecer."
+                                : "Gerar Parecer no Doc Studio"
+                            }
                             onClick={() => {
+                              if (isStageLocked) return;
+                              const conflitosHtml = (ig.conflitos_abertos || [])
+                                .map(
+                                  (cf: any) =>
+                                    `<li><strong>${cf.campo_ou_escopo}:</strong> ${cf.fonte_a} <em>vs.</em> ${cf.fonte_b} (${cf.regra})</li>`
+                                )
+                                .join("");
+                              const governancaHtml = `
+                                <h2>0. Governança de Fontes ("Nada é Escolhido em Silêncio")</h2>
+                                <ul>
+                                  <li><strong>Fonte Primária:</strong> ${b.fonte || "N/D"}</li>
+                                  <li><strong>Aviso de Fonte / Lacunas:</strong> ${ig.aviso_fonte_unica || "Fontes corroboradas."}</li>
+                                  <li><strong>Status de Vigência:</strong> ${
+                                    ig.etapa_travada
+                                      ? `⚠️ Rascunho destravado manualmente sob ressalva (${ig.motivo_trava})`
+                                      : `Vigente / Dentro da janela (${ig.ultima_vigencia || "Contínuo"})`
+                                  }</li>
+                                  ${conflitosHtml ? `<li><strong>Conflitos Abertos entre Fontes:</strong><ul>${conflitosHtml}</ul></li>` : ""}
+                                </ul>
+                              `;
+
                               const antesDepoisHtml = (b.antes_depois || [])
                                 .map(
                                   (ad: any) => `
@@ -574,6 +691,7 @@ export default function CentralBoletinsComportamentoPage() {
                               const dossierHtml = `
                                 <h1>Parecer Técnico & Regulatório: ${b.id} — ${b.titulo}</h1>
                                 <p><strong>Bandeira:</strong> ${b.bandeira} · <strong>Release:</strong> ${b.release} · <strong>Classificação:</strong> ${b.classificacao} (${b.action_indicator}) · <strong>Criticidade Ajustada:</strong> ${proj.criticidade}</p>
+                                ${governancaHtml}
                                 <h2>1. O que a Bandeira está alterando</h2>
                                 <p>${b.o_que_a_bandeira_esta_fazendo}</p>
                                 ${
@@ -622,13 +740,80 @@ export default function CentralBoletinsComportamentoPage() {
                                 },
                               });
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all"
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold shadow-sm transition-all ${
+                              isStageLocked
+                                ? "bg-rose-950/60 border border-rose-500/50 text-rose-300 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-500 text-white"
+                            }`}
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                            Gerar Parecer no Doc Studio (/editor)
+                            {isStageLocked ? <Lock className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                            {isStageLocked ? "Etapa Travada (Dado Vencido)" : "Gerar Parecer no Doc Studio (/editor)"}
                           </button>
                         </div>
                       </div>
+
+                      {/* Alertas Explícitos de Governança de Fontes ("Nada é Escolhido em Silêncio") */}
+                      {(ig.tem_conflito || ig.requer_aviso_fonte || ig.etapa_travada) && (
+                        <div className="space-y-2 text-xs">
+                          {ig.conflitos_abertos?.map((cf: any, cfIdx: number) => (
+                            <div
+                              key={cfIdx}
+                              className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-100 space-y-1"
+                            >
+                              <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                <span>CONFLITO ABERTO ({cf.campo_ou_escopo}) — Nada é escolhido em silêncio:</span>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+                                <div className="p-2 rounded bg-black/40 border border-amber-500/20">
+                                  <strong className="text-amber-300">Fonte A:</strong> {cf.fonte_a}
+                                </div>
+                                <div className="p-2 rounded bg-black/40 border border-amber-500/20">
+                                  <strong className="text-blue-300">Fonte B:</strong> {cf.fonte_b}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {ig.aviso_fonte_unica && (
+                            <div className="px-3 py-2 rounded-xl bg-blue-950/25 border border-blue-500/30 text-blue-200 flex items-center justify-between gap-2 flex-wrap">
+                              <span>
+                                <strong>⚠️ Aviso Prévio de Fonte:</strong> {ig.aviso_fonte_unica}
+                              </span>
+                              {b.verificar?.length > 0 && (
+                                <span className="font-mono text-[11px] text-blue-300">
+                                  {b.verificar.length} verificação(ões) manual(is) listada(s)
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {ig.etapa_travada && (
+                            <div className="p-3 rounded-xl bg-rose-950/35 border border-rose-500/45 text-rose-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                              <div className="space-y-0.5">
+                                <div className="font-bold text-rose-300 flex items-center gap-1.5">
+                                  <Lock className="w-3.5 h-3.5 shrink-0" />
+                                  <span>TRAVA AUTOMÁTICA DE DADO / VIGÊNCIA VENCIDA</span>
+                                </div>
+                                <p className="text-rose-200/90">{ig.motivo_trava}</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => toggleUnlockStage(b.id)}
+                                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border shrink-0 transition-all ${
+                                  unlockedBoletimIds[b.id]
+                                    ? "bg-emerald-600/20 border-emerald-400 text-emerald-200"
+                                    : "bg-rose-900/60 border-rose-400/60 text-white hover:bg-rose-800/70"
+                                }`}
+                              >
+                                {unlockedBoletimIds[b.id]
+                                  ? "✓ Ressalva Auditável Confirmada (Clique p/ retravar)"
+                                  : "Destravar Rascunho com Ressalva Auditável"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Motivos do Match + O que a bandeira está fazendo */}
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
@@ -1233,6 +1418,46 @@ export default function CentralBoletinsComportamentoPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+              {(() => {
+                const ig =
+                  drawerBoletim.proj?.integridade_fontes ||
+                  drawerBoletim.boletim?.integridade_fontes ||
+                  {};
+                if (!ig.tem_conflito && !ig.requer_aviso_fonte && !ig.etapa_travada) return null;
+                return (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50/90 p-3.5 space-y-2">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-amber-900">
+                      Governança de Fontes · “Nada é Escolhido em Silêncio”
+                    </div>
+                    {ig.conflitos_abertos?.map((cf: any, i: number) => (
+                      <div key={i} className="rounded-lg border border-amber-300 bg-white p-2.5 space-y-1">
+                        <div className="font-bold text-amber-900">⚡ {cf.campo_ou_escopo}</div>
+                        <div className="text-slate-700"><strong>Fonte A:</strong> {cf.fonte_a}</div>
+                        <div className="text-slate-700"><strong>Fonte B:</strong> {cf.fonte_b}</div>
+                      </div>
+                    ))}
+                    {ig.aviso_fonte_unica && (
+                      <div className="text-blue-900 font-medium">⚠️ {ig.aviso_fonte_unica}</div>
+                    )}
+                    {ig.etapa_travada && (
+                      <div className="rounded-lg border border-rose-300 bg-rose-50 p-2.5 space-y-1.5 text-rose-900">
+                        <div className="font-bold">🔒 Trava Automática de Vigência Vencida</div>
+                        <p>{ig.motivo_trava}</p>
+                        <button
+                          type="button"
+                          onClick={() => toggleUnlockStage(drawerBoletim.boletim.id)}
+                          className="px-2.5 py-1 rounded bg-rose-700 hover:bg-rose-800 text-white text-[11px] font-bold"
+                        >
+                          {unlockedBoletimIds[drawerBoletim.boletim.id]
+                            ? "✓ Ressalva Confirmada (Retravar)"
+                            : "Confirmar Revalidação e Destravar Rascunho"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-1.5">
                 <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
                   Resumo Executivo da Mudança
@@ -1332,45 +1557,64 @@ export default function CentralBoletinsComportamentoPage() {
                   📥 Aba Emissor (.csv)
                 </button>
               </div>
-              <button
-                onClick={() => {
-                  const b = drawerBoletim.boletim;
-                  sendToDocStudio({
-                    mode: "full_dossier",
-                    title: `Parecer Executivo — ${b.id}: ${b.titulo}`,
-                    sourceModule: "Hub de Releases & Boletins 2.0",
-                    html: `
-                      <h1>Parecer Técnico & Regulatório: ${b.id} — ${b.titulo}</h1>
-                      <p><strong>Bandeira:</strong> ${b.bandeira} · <strong>Release:</strong> ${b.release} · <strong>Classificação:</strong> ${b.classificacao}</p>
-                      <h2>1. O que a Bandeira está alterando</h2>
-                      <p>${b.o_que_a_bandeira_esta_fazendo}</p>
-                      <h2>2. Análise nas 3 Lentes</h2>
-                      <ul>
-                        <li><strong>Lente Técnica:</strong> Campos <code>${(b.lentes?.tecnica?.campos || []).join(", ")}</code> — ${b.lentes?.tecnica?.nota || ""}</li>
-                        <li><strong>Lente Normativa:</strong> ${b.lentes?.normativa?.resumo || ""}</li>
-                        <li><strong>Lente de Negócio:</strong> ${b.lentes?.negocio?.exposicao_financeira || ""}</li>
-                      </ul>
-                    `,
-                    metadata: {
-                      brand: b.bandeira?.toLowerCase().includes("visa")
-                        ? "visa"
-                        : b.bandeira?.toLowerCase().includes("master")
-                        ? "mastercard"
-                        : "elo",
-                      brandName: b.bandeira,
-                      referenceId: b.id,
-                      category: `${b.bandeira} Release ${b.release}`,
-                      effectiveDate: b.lentes?.negocio?.esforco_prazo || `Release ${b.release}`,
-                      riskLevel: "Alto",
-                      executiveSummary: b.o_que_a_bandeira_esta_fazendo,
-                      recommendedAction: (b.acoes?.adquirente || []).join(" "),
-                    },
-                  });
-                }}
-                className="w-full px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold text-center"
-              >
-                📝 Enviar Dossiê Completo deste Boletim para o Doc Studio (/editor)
-              </button>
+              {(() => {
+                const b = drawerBoletim.boletim;
+                const ig =
+                  drawerBoletim.proj?.integridade_fontes || b?.integridade_fontes || {};
+                const locked = Boolean(ig.etapa_travada) && !unlockedBoletimIds[b.id];
+                return (
+                  <button
+                    disabled={locked}
+                    onClick={() => {
+                      if (locked) return;
+                      sendToDocStudio({
+                        mode: "full_dossier",
+                        title: `Parecer Executivo — ${b.id}: ${b.titulo}`,
+                        sourceModule: "Hub de Releases & Boletins 2.0",
+                        html: `
+                          <h1>Parecer Técnico & Regulatório: ${b.id} — ${b.titulo}</h1>
+                          <p><strong>Bandeira:</strong> ${b.bandeira} · <strong>Release:</strong> ${b.release} · <strong>Classificação:</strong> ${b.classificacao}</p>
+                          <h2>0. Governança de Fontes ("Nada é Escolhido em Silêncio")</h2>
+                          <p>${ig.aviso_fonte_unica || "Fontes corroboradas."} ${
+                          ig.etapa_travada ? `<strong>Ressalva de Vigência:</strong> ${ig.motivo_trava}` : ""
+                        }</p>
+                          <h2>1. O que a Bandeira está alterando</h2>
+                          <p>${b.o_que_a_bandeira_esta_fazendo}</p>
+                          <h2>2. Análise nas 3 Lentes</h2>
+                          <ul>
+                            <li><strong>Lente Técnica:</strong> Campos <code>${(b.lentes?.tecnica?.campos || []).join(", ")}</code> — ${b.lentes?.tecnica?.nota || ""}</li>
+                            <li><strong>Lente Normativa:</strong> ${b.lentes?.normativa?.resumo || ""}</li>
+                            <li><strong>Lente de Negócio:</strong> ${b.lentes?.negocio?.exposicao_financeira || ""}</li>
+                          </ul>
+                        `,
+                        metadata: {
+                          brand: b.bandeira?.toLowerCase().includes("visa")
+                            ? "visa"
+                            : b.bandeira?.toLowerCase().includes("master")
+                            ? "mastercard"
+                            : "elo",
+                          brandName: b.bandeira,
+                          referenceId: b.id,
+                          category: `${b.bandeira} Release ${b.release}`,
+                          effectiveDate: b.lentes?.negocio?.esforco_prazo || `Release ${b.release}`,
+                          riskLevel: "Alto",
+                          executiveSummary: b.o_que_a_bandeira_esta_fazendo,
+                          recommendedAction: (b.acoes?.adquirente || []).join(" "),
+                        },
+                      });
+                    }}
+                    className={`w-full px-3 py-2 rounded-lg text-xs font-bold text-center ${
+                      locked
+                        ? "bg-rose-100 text-rose-700 border border-rose-300 cursor-not-allowed"
+                        : "bg-slate-900 hover:bg-slate-800 text-white"
+                    }`}
+                  >
+                    {locked
+                      ? "🔒 Etapa Travada por Vigência Vencida (Confirme Revalidação Acima)"
+                      : "📝 Enviar Dossiê Completo deste Boletim para o Doc Studio (/editor)"}
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>

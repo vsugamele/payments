@@ -117,8 +117,143 @@ class ComportamentoEngine:
             return self.glossario.get("cross_bandeira", "")
         return None
 
+    # --------------------------------------------------- integridade (Visa Brain)
+    def auditar_integridade_fontes(
+        self, boletim: dict, ref_date: Optional[date] = None
+    ) -> dict:
+        """
+        Regra 'Nada e escolhido em silencio':
+          1. Se duas fontes discordam (ex.: action_indicator oficial vs classificacao
+             operacional, ou outro boletim mexendo no mesmo campo/codigo com obrigacao
+             distinta), abre o conflito explicitamente.
+          2. Se houver fonte unica sem corroboracao cruzada ou itens em `verificar`,
+             sinaliza aviso previo antes de homologar.
+          3. Se a ultima data de vigencia/comply-by ja venceu e ainda restam lacunas em
+             `verificar` (ou sem revisao pos-vigencia), trava a etapa ate revalidacao.
+        """
+        hoje = ref_date or date.today()
+        conflitos: list[dict] = []
+
+        cls = str(boletim.get("classificacao", "")).strip()
+        act = str(boletim.get("action_indicator", "")).strip()
+        cls_low = cls.lower()
+        act_low = act.lower()
+
+        if "mandat" in act_low and ("condicional" in cls_low or "opcional" in cls_low):
+            conflitos.append({
+                "tipo": "CLASSIFICACAO_VS_HEADER",
+                "campo_ou_escopo": "Classificacao x Action Indicator",
+                "fonte_a": f"Cabecalho oficial ({boletim.get('fonte', 'boletim')}): '{act}'",
+                "fonte_b": f"Triagem operacional ({boletim['id']}): '{cls}' ({boletim.get('gatilhos', {}).get('condicao', 'condicionado ao perfil')})",
+                "regra": "Nada escolhido em silencio: exibir ambas as leituras antes de classificar o escopo.",
+            })
+        elif ("opcional" in act_low or "optional" in act_low) and "mandat" in cls_low:
+            conflitos.append({
+                "tipo": "CLASSIFICACAO_VS_HEADER",
+                "campo_ou_escopo": "Classificacao x Action Indicator",
+                "fonte_a": f"Cabecalho oficial: '{act}'",
+                "fonte_b": f"Triagem operacional: '{cls}'",
+                "regra": "Conflito entre cabecalho e classificacao interna — revisar escopo.",
+            })
+
+        campos_atuais = {
+            _norm(c): c
+            for c in boletim.get("lentes", {}).get("tecnica", {}).get("campos", [])
+            if c
+        }
+        for outro_id, outro in self.boletins.items():
+            if outro_id == boletim.get("id"):
+                continue
+            outros_campos = {
+                _norm(c): c
+                for c in outro.get("lentes", {}).get("tecnica", {}).get("campos", [])
+                if c
+            }
+            inter = set(campos_atuais.keys()) & set(outros_campos.keys())
+            if inter:
+                outro_cls = str(outro.get("classificacao", "")).strip()
+                outro_papeis = sorted(outro.get("gatilhos", {}).get("papeis", []))
+                meus_papeis = sorted(boletim.get("gatilhos", {}).get("papeis", []))
+                if outro_cls != cls or outro_papeis != meus_papeis:
+                    nomes_campos = ", ".join(campos_atuais[k] for k in sorted(inter))
+                    conflitos.append({
+                        "tipo": "CRUZAMENTO_BOLETINS_MESMO_CAMPO",
+                        "campo_ou_escopo": nomes_campos,
+                        "fonte_a": f"{boletim['id']} ({cls} · papeis={','.join(meus_papeis) or 'n/d'})",
+                        "fonte_b": f"{outro_id} ({outro_cls} · papeis={','.join(outro_papeis) or 'n/d'})",
+                        "regra": "Dois normativos tocam o mesmo elemento tecnico com escopo/papel distinto.",
+                    })
+
+        fonte_doc = str(boletim.get("fonte", "")).strip()
+        fonte_regra = str(
+            boletim.get("lentes", {}).get("normativa", {}).get("fonte_regra", "")
+        ).strip()
+        fontes_distintas = [f for f in {fonte_doc, fonte_regra} if f]
+        tem_multiplas_fontes = (
+            "+" in fonte_doc
+            or ";" in fonte_regra
+            or len(fontes_distintas) >= 2 and fonte_doc.lower() != fonte_regra.lower()
+        )
+        verificar_lista = list(boletim.get("verificar", []))
+        fonte_unica = not tem_multiplas_fontes
+        aviso_fonte_unica = None
+        if fonte_unica:
+            aviso_fonte_unica = (
+                f"Fonte documental unica ({fonte_doc or 'sem PDF secundário'}) — "
+                "avisar analista antes de homologar em producao."
+            )
+        elif verificar_lista:
+            aviso_fonte_unica = (
+                f"{len(verificar_lista)} ponto(s) pendente(s) de confirmacao no manual base (`verificar`)."
+            )
+
+        vigencias = boletim.get("vigencia", [])
+        datas_validas: list[tuple[date, str]] = []
+        for v in vigencias:
+            raw = str(v.get("data", "")).strip()
+            try:
+                datas_validas.append((date.fromisoformat(raw[:10]), str(v.get("detalhe", ""))))
+            except Exception:
+                continue
+
+        dado_vencido = False
+        etapa_travada = False
+        motivo_trava: Optional[str] = None
+        ultima_vigencia: Optional[str] = None
+        dias_ate_ultima_vigencia: Optional[int] = None
+
+        if datas_validas:
+            datas_validas.sort(key=lambda x: x[0])
+            dt_final, det_final = datas_validas[-1]
+            ultima_vigencia = dt_final.isoformat()
+            dias_ate_ultima_vigencia = (dt_final - hoje).days
+            if dias_ate_ultima_vigencia < 0:
+                dado_vencido = True
+                if verificar_lista:
+                    etapa_travada = True
+                    motivo_trava = (
+                        f"Vigencia {ultima_vigencia} ultrapassada ha {abs(dias_ate_ultima_vigencia)} dia(s) "
+                        f"com {len(verificar_lista)} pendencia(s) aberta(s) em `verificar` ({det_final}). "
+                        "Etapa travada ate revalidacao normativa."
+                    )
+
+        return {
+            "conflitos_abertos": conflitos,
+            "tem_conflito": len(conflitos) > 0,
+            "fonte_unica": fonte_unica,
+            "requer_aviso_fonte": bool(fonte_unica or verificar_lista),
+            "aviso_fonte_unica": aviso_fonte_unica,
+            "dado_vencido": dado_vencido,
+            "etapa_travada": etapa_travada,
+            "motivo_trava": motivo_trava,
+            "ultima_vigencia": ultima_vigencia,
+            "dias_ate_ultima_vigencia": dias_ate_ultima_vigencia,
+        }
+
     # -------------------------------------------------------------- projecao
-    def projetar_perfil(self, boletim: dict, perfil: dict) -> dict:
+    def projetar_perfil(
+        self, boletim: dict, perfil: dict, ref_date: Optional[date] = None
+    ) -> dict:
         """Cruza um boletim com um PERFIL generico (sem cliente nomeado)."""
         g = boletim.get("gatilhos", {})
         motivos: list[str] = []
@@ -169,11 +304,14 @@ class ComportamentoEngine:
             acoes = dict(boletim.get("acoes", {}))
         acoes = {p: a for p, a in acoes.items() if a}
 
+        integridade = self.auditar_integridade_fontes(boletim, ref_date=ref_date)
+
         return {
             "boletim": boletim["id"], "perfil": perfil, "impacta": impacta,
             "motivos": motivos, "criticidade": _CRIT_NOME[crit], "acoes": acoes,
             "vigencia": boletim.get("vigencia", []),
             "verificar": boletim.get("verificar", []),
+            "integridade_fontes": integridade,
         }
 
     # ------------------------------------------------------------- glossario
@@ -315,4 +453,13 @@ class ComportamentoEngine:
             L.append(f"Prazo: vigencia {efetiva['data']} ({prazo}) — {efetiva['detalhe']}")
         for v in p["verificar"]:
             L.append(f"  ! verificar: {v}")
+        integ = p.get("integridade_fontes") or {}
+        if integ.get("tem_conflito") or integ.get("requer_aviso_fonte") or integ.get("etapa_travada"):
+            L.append("GOVERNANCA DE FONTES (NADA ESCOLHIDO EM SILENCIO):")
+            for c in integ.get("conflitos_abertos", []):
+                L.append(f"  [CONFLITO] {c['campo_ou_escopo']}: {c['fonte_a']} <> {c['fonte_b']}")
+            if integ.get("aviso_fonte_unica"):
+                L.append(f"  [AVISO FONTE] {integ['aviso_fonte_unica']}")
+            if integ.get("etapa_travada"):
+                L.append(f"  [ETAPA TRAVADA] {integ['motivo_trava']}")
         return "\n".join(L)
