@@ -1,103 +1,130 @@
 import ThreeDSMatrixClient from "./ThreeDSMatrixClient";
-import RuleReference from "@/components/RuleReference";
-import TermTooltip from "@/components/TermTooltip";
 import Link from "next/link";
-import { ChevronLeft, ShieldCheck, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export const metadata = {
   title: "Matriz 3DS Liability Shift & ECI | VS Payments",
-  description: "Descubra qual o valor ECI retornado pelo fluxo 3-D Secure (Frictionless, Challenge, Attempts) e entenda quando o Liability Shift é ativado a favor do Lojista.",
+  description:
+    "Descubra qual o valor ECI retornado pelo fluxo 3-D Secure (1. Ensinar) e simule quando o Liability Shift é ativado a favor do lojista (2. Demonstrar).",
 };
 
 export default function ThreeDSPage() {
   return (
     <div className="bg-background min-h-screen pb-24">
-      {/* Header */}
-      <div style={{ borderBottom: "1px solid var(--border)", background: "var(--code-bg)" }} className="py-6 px-6">
-        <div className="mx-auto max-w-5xl">
-          <Link href="/compliance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ChevronLeft size={16} /> Voltar ao Hub de Compliance
-          </Link>
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center justify-center shrink-0">
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-3 flex-wrap mb-1">
-                <h1 className="text-2xl font-bold text-foreground">Matriz 3DS & Liability Shift</h1>
-                <RuleReference
-                  manual="EMVCo 3DS"
-                  ruleId="Liability Shift Matrix"
-                  description="Regras de inversão do ônus de fraude de CNP da Bandeira. O lojista passa a não ser mais responsável pela contestação."
-                />
-              </div>
-              <p className="text-muted-foreground text-sm max-w-3xl leading-relaxed">
-                O protocolo <strong>3-D Secure (3DS)</strong> não serve apenas para pedir um OTP ao cliente. Ele é um acordo de proteção legal contido na ISO 8583. 
-                Sempre que uma transação passar por ele, a rede devolve um <TermTooltip term="ECI" definition="Electronic Commerce Indicator. Informação traficada no DE 48 (Master) ou DE 60 (Visa)." /> e um <code>CAVV</code> / <code>AAV</code> provando que ocorreu uma tentativa. Use a matriz abaixo para descobrir quando o risco de Fraude <strong>sai</strong> das suas costas e vai para o banco (Liability Shift).
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Autenticação & E-Commerce"
+        normativeBadge="EMV 3-D Secure 2.2 · Visa DE 60.8 · Mastercard DE 48.42 (UCAF)"
+        title="Matriz 3DS 2.2, ECI & Liability Shift"
+        subtitle="Simule cenários Frictionless, Challenge e Attempts no 3-D Secure 2.2 e descubra exatamente quando o risco de fraude CNP sai do lojista e passa ao banco emissor."
+        teachConcept="O protocolo EMV 3-D Secure 2.2 autentica o portador perante o banco emissor durante o checkout online. Ao concluir a autenticação, o Directory Server devolve o indicador ECI (05/06 na Visa; 02/01 na Mastercard) e o criptograma CAVV/AAV."
+        teachRule="Visa Core Rules & Mastercard Transaction Processing Rules (Liability Shift Matrix): transações com ECI 05/02 (Autenticado) ou ECI 06/01 elegível (Attempt / Emissor não participante) transferem o ônus de chargeback de fraude (RC 10.4 / 4837) para o emissor."
+        teachPitfall="Autenticar o cliente no 3DS Server mas esquecer de repassar o ECI e o CAVV/AAV na mensagem ISO 8583 de autorização (0100) e no arquivo de clearing (TC05 / IPM) anula o Liability Shift e gera downgrade de intercâmbio."
+        demoSteps={[
+          "1. No Simulador logo abaixo, escolha a Bandeira (Visa ou Mastercard) e o resultado da jornada 3DS (Frictionless, Challenge, Attempt, Failed ou Bypassed).",
+          "2. Verifique o código ECI gerado, quem assume o prejuízo em caso de fraude (Lojista vs Emissor) e o impacto na tarifa de intercâmbio.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para auditar onde o ECI e o CAVV/AAV entram na ISO 8583 e no clearing.",
+        ]}
+        acervoQuery="3DS 2.2 Liability Shift ECI 05 06 02 01 CAVV AAV DE 60.8 DE 48.42 UCAF"
+        lab3dHref="/jornada?track=contestacao_ce3"
+        lab3dLabel="Ver 3DS & CE 3.0 no Lab 3D"
+      />
 
-      <div className="mx-auto max-w-5xl px-6 pt-8 space-y-12">
-        <ExecutiveBusinessTriad
-          topic="3-D Secure & Inversão do Ônus de Fraude (Liability Shift)"
-          subtitle="A blindagem jurídica que transfere o prejuízo de chargebacks não reconhecidos diretamente para o banco emissor."
-          whatIsIt={{
-            lead: "3DS é o padrão tecnológico que autentica o portador perante o seu próprio banco durante o checkout no e-commerce.",
-            explanation: "Quando a autenticação é concluída com sucesso (ou até mesmo quando o emissor não suporta 3DS mas a adquirente tentou), o protocolo gera um criptograma (CAVV/AAV) e um código ECI (05 ou 06). Esse carimbo transfere o risco de contestação por fraude para o banco.",
-            analogy: "É o equivalente a pedir a assinatura presencial com documento oficial na entrega: se o portador alegar que não comprou, o emissor tem que arcar com a perda porque foi ele quem validou a identidade."
-          }}
-          painOwner={{
-            primaryRole: "Head de E-Commerce, Diretor de Riscos / Fraude & Product Manager de Checkout",
-            affectedEntities: ["Lojistas Virtuais", "Marketplaces", "Subadquirentes", "Gateways de Pagamento"],
-            operationalImpact: "Times desinformados desligam o 3DS alegando 'fricção', sem perceber que estão voluntariamente assumindo 100% dos chargebacks e pagando tarifas de intercâmbio mais caras em todas as vendas."
-          }}
-          financialPrice={{
-            directPenalty: "+45 a +60 bps no Intercâmbio se o 3DS estiver desligado",
-            schemeFeesFine: "Exposição total a perdas sob Reason Code 4837 / 10.4",
-            annualBleedingEstimate: "0,70% a 2,00% do GMV total estornado em chargebacks irrecuperáveis",
-            consequence: "Risco iminente de entrada nos programas de monitoria punitiva (Visa VAMP / Mastercard ECP), com multas que começam em USD 5.000 e escalam até o cancelamento do MID."
-          }}
-        />
-
+      <div className="mx-auto max-w-5xl px-6 pt-10 space-y-12">
+        {/* 1. DEMONSTRAR IMEDIATO: Simulador de ECI e Risco */}
         <section>
-          <h2 className="text-lg font-bold text-foreground mb-6">Simulador de ECI e Risco</h2>
           <ThreeDSMatrixClient />
         </section>
 
-        {/* Informações Extras de Integração */}
+        {/* 2. ENSINAR LADO A LADO: ISO 8583 Visa vs Mastercard ⇄ Tokenização Cloud */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-code-bg border border-border p-6 rounded-2xl">
-            <h3 className="font-bold text-foreground text-sm mb-3">Na ISO 8583: Como Trafegar o ECI</h3>
-            <div className="space-y-4">
-               <div>
-                  <span className="text-xs font-bold text-blue-400">VISA (DE 60.8)</span>
-                  <p className="text-xs text-muted-foreground mt-1">O ECI deve ser enviado na posição 8 do DE 60, junto ao CAVV que é trafegado independente em tag própria (Tag 0X).</p>
-               </div>
-               <div>
-                  <span className="text-xs font-bold text-red-400">MASTERCARD (DE 48.42 - UCAF)</span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Mastercard exige os dados dentro do UCAF (Universal Cardholder Authentication Field). 
-                    O ECI (02, 01, ou 00) vai no início ou no fim dependendo da versão do UCAF, mas o DE 48 <em>deve</em> carregar a string Base64 do AAV.
-                  </p>
-               </div>
+          <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-primary font-bold">
+              Caixinha 01 · Mapeamento ISO 8583
+            </span>
+            <h3 className="font-semibold text-foreground text-base">
+              Como Trafegar o ECI e o Criptograma na Autorização
+            </h3>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-border bg-background p-3.5">
+                <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
+                  VISA (DE 60.8 + DE 126.9 / Tag CAVV)
+                </span>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  O ECI (05, 06 ou 07) trafega no subcampo <code>DE 60.8</code> (MOTO/ECI Indicator),
+                  acompanhado do valor de 20 bytes do <code>CAVV</code> e do <code>3DS Server Trans ID</code>.
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-background p-3.5">
+                <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
+                  MASTERCARD (DE 48 SE 42/43 — UCAF & AAV)
+                </span>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  A Mastercard trafega o indicador UCAF/ECI (02, 01 ou 00), o criptograma{" "}
+                  <code>AAV</code> e o <code>Directory Server Transaction ID (PDS 0212)</code> no
+                  clearing IPM.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-code-bg border border-border p-6 rounded-2xl flex flex-col justify-center gap-4">
-             <h3 className="font-bold text-foreground text-sm">Onde entra a Tokenização Cloud?</h3>
-             <p className="text-xs text-muted-foreground leading-relaxed">
-               Com o <strong>Apple Pay</strong> e Carteiras Digitais via Network Tokens, o 3-D Secure não é sequer invocado. 
-               A Bandeira automaticamente aplica o Liability Shift (como se fosse ECI 05) devido à prova de <em>Device Biometrics</em> (FaceID).
-             </p>
-             <Link href="/compliance/tokenizacao" className="text-xs text-emerald-400 flex items-center gap-1.5 hover:text-emerald-300 transition-colors w-fit">
-               Ver Playbook de DAF & Tokenização <ArrowRight size={13} />
-             </Link>
+          <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between gap-4">
+            <div className="space-y-3">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">
+                Caixinha 02 · Tokenização & DAF
+              </span>
+              <h3 className="font-semibold text-foreground text-base">
+                Quando a Carteira Digital Dispensa o Desafio 3DS
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Em pagamentos via <strong>Apple Pay</strong> e <strong>Google Pay</strong> com
+                Network Tokens (VTS / MDES), a biometria nativa do dispositivo gera um criptograma
+                EMV/TAVV que concede Liability Shift automático sem abrir tela de desafio OTP.
+              </p>
+            </div>
+            <Link
+              href="/compliance/tokenizacao"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline w-fit"
+            >
+              Ver Bancada de DAF & Tokenização <ArrowRight size={13} />
+            </Link>
           </div>
         </div>
+
+        {/* 3. Tríade Executiva */}
+        <ExecutiveBusinessTriad
+          topic="3-D Secure & Inversão do Ônus de Fraude (Liability Shift)"
+          subtitle="A blindagem normativa que transfere o prejuízo de chargebacks de fraude CNP para o banco emissor."
+          whatIsIt={{
+            lead: "3DS 2.2 é o protocolo EMVCo que autentica o portador perante o seu banco durante o checkout digital.",
+            explanation:
+              "Quando a autenticação é concluída com sucesso (ou quando o emissor não suporta desafio mas responde Attempt elegível), o protocolo gera o criptograma CAVV/AAV e o ECI (05/06 ou 02/01), transferindo o risco de fraude para o emissor.",
+            analogy:
+              "É o equivalente digital à validação do chip com senha presencial: se o emissor atestou a identidade, o lojista fica protegido contra alegação de compra não reconhecida.",
+          }}
+          painOwner={{
+            primaryRole:
+              "Head de E-Commerce, Diretor de Riscos / Fraude & Product Manager de Checkout",
+            affectedEntities: [
+              "Lojistas Virtuais",
+              "Marketplaces",
+              "Subadquirentes",
+              "Gateways de Pagamento",
+            ],
+            operationalImpact:
+              "Desligar 3DS de forma indiscriminada expõe a operação a 100% dos chargebacks de fraude e a tarifas de intercâmbio CNP não autenticadas mais altas.",
+          }}
+          financialPrice={{
+            directPenalty: "+45 a +60 bps no Intercâmbio e scheme fees de CNP não autenticado",
+            schemeFeesFine: "Exposição direta a perdas sob Reason Code 10.4 (Visa) e 4837 (Mastercard)",
+            annualBleedingEstimate: "0,70% a 2,00% do GMV comprometido em disputas e custos de fraude",
+            consequence:
+              "Risco de enquadramento nos programas Visa VAMP e Mastercard ECP/EFM.",
+          }}
+        />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   ArrowLeft, DollarSign, Search, Scale, Layers, Database,
   Download, FileSpreadsheet, Filter, Tag, Building2, Info, CheckCircle2
 } from "lucide-react";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 type TabType = "intercambio" | "mcc_segmentos" | "elo_mcc" | "planilhas" | "artigos" | "downloads";
 
@@ -240,6 +241,25 @@ export default function TarifasReaisPage() {
 
   return (
     <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Tabelas Reais, MCCs & Scheme Fees"
+        normativeBadge="2.103 Regras Intercâmbio · 454 Linhas SQLite · 381 MCCs Elo"
+        title="Motor Real de Tabelas de Intercâmbio, Redução MCC & Scheme Fees"
+        subtitle="Consulte e baixe as tabelas extraídas de Visa, Mastercard e Elo: 2.103 regras de intercâmbio, 451 mapeamentos de MCC/PID, redutor de Fee Elo (311k CNPJs) e 20 planilhas .xlsx."
+        teachConcept="As tarifas oficiais de intercâmbio e de serviço das bandeiras (Scheme Fees) variam por segmento de MCC, modalidade (Crédito, Débito, Pré-pago), parcelamento e programa setorial (ex: Redução de Fee Elo por MCC/CNPJ)."
+        teachRule="Resolução BCB nº 304/2023 (teto 0,50% Débito / 0,70% Pré-pago) + Tabelas Oficiais Publicadas Visa Brasil (BRL desde 01/05/2026), Mastercard e Elo."
+        teachPitfall="Usar tabelas desatualizadas ou ignorar a lista de 381 MCCs e 311 mil raízes de CNPJ elegíveis a incentivo na Elo gera perda direta de competitividade comercial ou erro de repasse."
+        demoSteps={[
+          "1. Navegue pelas 6 abas abaixo: 1. Intercâmbio Completo (2.103 regras), 2. MCCs & PIDs, 3. Redução Fee Elo, 4. Scheme Fees, 5. SQLite Tarifas e 6. Central de Downloads.",
+          "2. Filtre por Bandeira, Modalidade ou código MCC para comparar alíquotas percentuais e tetos em reais.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para cruzar qualquer tarifa com os boletins e manuais de faturamento.",
+        ]}
+        acervoQuery="Tabelas de intercâmbio Visa Mastercard Elo redução fee MCC e tarifas.sqlite3"
+        lab3dHref="/simulador"
+        lab3dLabel="Testar no Simulador de Intercâmbio"
+      />
       {/* Header */}
       <div className="border-b border-slate-800/80 bg-[#050b16]/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -19,6 +19,7 @@ import {
   Code2,
   Sliders,
 } from "lucide-react";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export default function ProvisionamentoCascataPage() {
   const [data, setData] = useState<any>(null);
@@ -179,8 +180,27 @@ export default function ProvisionamentoCascataPage() {
     : cascataList.filter((c: any) => c.result);
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 p-6 md:p-10">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#070b14] text-slate-100">
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Compilador Booleano & Provisionamento D+0"
+        normativeBadge="engine/calculator.py · IP0040T1 · PDS 0158 IRD · Visa FPI"
+        title="Motor Determinístico de Provisionamento & Trace de Cascata"
+        subtitle="Inspecione passo a passo qual expressão booleana aprovou ou reprovou cada regra da cascata de intercâmbio (Visa, Mastercard e Maestro) para provisionamento exato em D+0."
+        teachConcept="Para que a adquirente provisione o custo real de intercâmbio em D+0 (antes de receber o relatório VSS-110 ou T140 da bandeira), seu motor de pré-clearing precisa executar a mesma árvore booleana do GCMS/Base II."
+        teachRule="Mastercard GCMS Clearing Rules (avaliação sequencial de IRDs base e IRDs de ajuste por MCC/Canal/Parcelas) & Visa Base II Fee Program Indicator Rules."
+        teachPitfall="Calcular o spread do lojista pela média histórica do BIN em vez de avaliar a expressão completa (incluindo Timeliness, ECI, POS Entry Mode e MCC) distorce o P&L diário da tesouraria."
+        demoSteps={[
+          "1. Na aba '1. Simulador & Trace da Cascata', preencha os parâmetros técnicos da transação (PAN/BIN, MCC, ECI, POS Entry Mode, Parcelas) e clique em Executar.",
+          "2. Inspecione o Trace passo a passo de cada regra avaliada (Match vs Falha) até o IRD/FPI vencedor.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para cruzar a regra com os manuais oficiais e tabelas SQLite.",
+        ]}
+        acervoQuery="Motor de cascata intercâmbio IRD PDS 0158 IP0040T1 FPI provisionamento D+0"
+        lab3dHref="/simulador"
+        lab3dLabel="Abrir Simulador Visual de Intercâmbio"
+      />
+      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div>

@@ -49,6 +49,7 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/guia/") ||
     pathname === "/leituras" ||
     pathname === "/jornada" ||
+    pathname === "/trilhas" ||
     pathname === "/feed.xml" ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||

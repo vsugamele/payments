@@ -1,205 +1,193 @@
-import Link from "next/link";
-import { BarChart2, ArrowLeft, AlertCircle, ShieldAlert, FileWarning, Zap } from "lucide-react";
+import { AlertCircle, ShieldAlert, FileWarning, Zap, CheckCircle2 } from "lucide-react";
 import RiscoClient from "./RiscoClient";
 import TermTooltip from "@/components/TermTooltip";
 import RuleReference from "@/components/RuleReference";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export const metadata = {
-  title: "Monitoramento de Risco — Compliance VS Payments",
-  description: "Playbook de programas de monitoramento de fraude e disputas (VAMP, ECP, EFM). Aprenda as mecânicas, calcule a exposição do seu portfólio e evite penalidades.",
+  title: "Monitoramento de Risco (VAMP, ECP & EFM) — VS Payments",
+  description:
+    "Playbook de programas de monitoramento de fraude e disputas (1. Ensinar) e calculadora tática de BPS do portfólio (2. Demonstrar).",
 };
 
 export default function RiscoPage() {
   return (
     <main className="bg-background pb-24">
-      {/* Header Playbook */}
-      <section
-        className="dot-grid"
-        style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(234,179,8,0.08) 0%, transparent 70%)",
-          padding: "4rem 1.5rem 3.5rem",
-          borderBottom: "1px solid #0f172a",
-        }}
-      >
-        <div className="mx-auto max-w-5xl">
-          <Link
-            href="/compliance"
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--muted-foreground)", marginBottom: "1.5rem" }}
-            className="hover:text-white transition-colors"
-          >
-            <ArrowLeft size={13} /> Voltar para Compliance
-          </Link>
-          <div className="flex flex-col md:flex-row items-start gap-6">
-            <div
-              style={{
-                width: 52, height: 52,
-                borderRadius: "1rem",
-                background: "rgba(234,179,8,0.1)",
-                border: "1px solid rgba(234,179,8,0.2)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <BarChart2 size={24} style={{ color: "#f59e0b" }} />
-            </div>
-            <div>
-              <p className="section-eyebrow mb-2">Playbook de Monitoramento</p>
-              <h1 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", lineHeight: 1.1 }}>
-                Risco e <br className="hidden md:block"/> Programas de Bandeira
-              </h1>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
-                O desconhecimento dos limites de Fraude e Disputas custa milhões em multas
-                para os adquirentes e lojistas. Entenda como funcionam o{" "}
-                <TermTooltip term="VAMP" definition="Visa Acquirer Monitoring Program. Avalia fraudes puras reportadas na rede Visa, não importando se houve chargeback ou não." />
-                <RuleReference manual="Visa Core Rules" chapter="Chapter 11: VAMP" />
-                , o{" "}
-                <TermTooltip term="ECP" definition="Excessive Chargeback Program. Foca na quantidade massiva de estornos (Mastercard)." />
-                <RuleReference manual="Mastercard Rules" chapter="Chapter 8: ECP" />
-                {" "}e calcule o enquadramento do seu portfólio no painel tático abaixo.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Risco, Fraude & Programas de Rede"
+        normativeBadge="Visa VAMP (TC40 + TC15) · Mastercard ECP / EFM (SAFE)"
+        title="Monitoramento de Risco & Programas de Bandeira (VAMP / ECP)"
+        subtitle="Calcule o índice em Basis Points (bps) do seu portfólio e entenda como relatórios de fraude (TC40/SAFE) e disputas disparam penalidades nas bandeiras."
+        teachConcept="Os programas de monitoramento das bandeiras (Visa Acquirer Monitoring Program — VAMP e Mastercard Excessive Chargeback / Fraud Program — ECP/EFM) medem a proporção mensal de fraudes reportadas (TC40/SAFE) e disputas (TC15/48xx) sobre o volume de vendas."
+        teachRule="Visa Core Rules Cap. 11 (VAMP unifica fraude TC40 + disputas não-fraude TC15 em um único ratio em bps) & Mastercard Security Rules Cap. 8 (ECP e EFM com isenção por adoção de 3DS 2.2)."
+        teachPitfall="Acreditar que reembolsar o cliente após a autorização evita o VAMP: uma vez que o banco emissor transmite o aviso de fraude TC40 ou SAFE, o evento já entra no numerador do índice da bandeira mesmo sem chargeback financeiro."
+        demoSteps={[
+          "1. Na Calculadora Tática logo abaixo, informe o volume mensal de transações e a quantidade de fraudes (TC40/SAFE) e chargebacks.",
+          "2. Verifique o score em Basis Points (bps) e se o portfólio cai em faixa Normal, Early Warning ou Enquadramento com multa.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para auditar os limiares atualizados do Visa VAMP e Mastercard ECP.",
+        ]}
+        acervoQuery="Visa VAMP TC40 TC15 basis points limiares e Mastercard ECP EFM SAFE"
+        lab3dHref="/jornada?track=contestacao_ce3"
+        lab3dLabel="Ver Fluxo de Disputa e VAMP no Lab 3D"
+      />
 
-      {/* Conteúdo Teórico */}
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          
-          {/* Lado Esquerdo: A Mecânica */}
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <ShieldAlert size={20} className="text-amber-500"/> A Assimetria do Risco
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Diferente do senso comum, as bandeiras não te multam apenas por estornos financeiros concluídos.
-                Programas como o VAMP da Visa monitoram o temido{" "}
-                <TermTooltip term="TC40" definition="Relatório de fraude TC40 enviado pelo emissor à bandeira assim que o titular avisa que não reconhece a compra, antes mesmo do trânsito de dinheiro do Chargeback." />
-                . Isso significa que mesmo se você não perder dinheiro na disputa (por agir rápido), 
-                se a transação foi originada como fraude, ela vai sujar sua métrica da bandeira.
-              </p>
-            </div>
-
-            {/* Diagrama Visual (CSS) */}
-            <div className="bg-code-bg border border-border rounded-xl p-5 mt-6">
-              <h3 className="text-xs font-bold text-white mb-4 uppercase tracking-wider">A Cascata do Enquadramento</h3>
-              <div className="space-y-3 relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-                
-                {/* Step 1 */}
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                    <Zap size={14} />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded bg-black/40 border border-border">
-                    <div className="font-bold text-orange-400 text-xs mb-1">Transação Fraudulenta</div>
-                    <div className="text-muted-foreground text-[11px] leading-tight">O fraudador aprova a compra passando pelos filtros básicos.</div>
-                  </div>
-                </div>
-
-                {/* Step 2 */}
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                    <FileWarning size={14} />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded bg-black/40 border border-border">
-                    <div className="font-bold text-red-400 text-xs mb-1">Emissão de TC40 / SAFE</div>
-                    <div className="text-muted-foreground text-[11px] leading-tight">Titular liga pro banco. Banco envia código indicando Fraude (D+1). <b>O VAMP já rastreia aqui.</b></div>
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                    <AlertCircle size={14} />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded bg-black/40 border border-border">
-                    <div className="font-bold text-purple-400 text-xs mb-1">Chargeback Efetivado</div>
-                    <div className="text-muted-foreground text-[11px] leading-tight">Dinheiro debita da conta. A Mastercard apanha isso no seu programa ECP após o mês fechar.</div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-          {/* Lado Direito: Checklist */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-              <CheckCircle size={20} className="text-green-500"/> Checklist de Evitação
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Seu indicador principal não é só reais, é o <TermTooltip term="BPS" definition="Basis Points. É a forma que a bandeira lê a porcentagem: 100 bps significa 1% (ou 0.01). 50 bps é 0.5%." />.
-              Se a calculadora abaixo apontar <b>nível vermelho</b> nestes programas, os C-Levels serão escalados na bandeira e multas começam a rolar trimestralmente. O que fazer?
-            </p>
-            
-            <div className="bg-black/20 border border-border rounded-xl">
-              <div className="p-4 border-b border-border">
-                <span className="text-xs font-bold text-orange-400 uppercase">Estratégias de Remediação Imediata</span>
-              </div>
-              <ul className="text-sm p-4 space-y-4">
-                <li className="flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 mt-0.5"><span className="text-xs font-bold">1</span></div>
-                  <div>
-                    <span className="text-white font-medium block flex items-center gap-2">Ativação forçada de 3DS <RuleReference manual="Mastercard Rules" chapter="Chapter 8: EFM Exemptions" /></span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">No EFM (Mastercard), se seu volume de 3DS for superior a 10%, você obtém isenção da multa do programa, mesmo com a taxa de fraude estourada.</span>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 mt-0.5"><span className="text-xs font-bold">2</span></div>
-                  <div>
-                    <span className="text-white font-medium block">Drenagem Criminosa em MCC Específico</span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">Avalie o portfólio para ver se um único <TermTooltip term="MCC" definition="Merchant Category Code. O código Cnae dos pagamentos."/> é responsável por 90% dos seus chargebacks. Pause a aprovação daquele nicho.</span>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 mt-0.5"><span className="text-xs font-bold">3</span></div>
-                  <div>
-                    <span className="text-white font-medium block">Pre-Auth Risk Check</span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">Integrações de Anti-Fraude na "perna de autorização", que barram a transação antes do banco emissor criar o TC40, blindam totalmente o VAMP.</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Simulador Interativo */}
-      <section className="border-t border-border bg-black/40">
-        <div className="mx-auto max-w-5xl px-6 pt-12">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl font-bold text-white mb-3">Calculadora Tática de Portfólio</h2>
-            <p className="text-sm text-muted-foreground">
-              Alimente com as métricas que você extrai da sua adquirente (ou do seu sub-credenciador) no final do mês. Descubra sua pontuação de BPS e sua exposição legal.
-            </p>
-          </div>
-        </div>
+      {/* 1. DEMONSTRAR IMEDIATO: Calculadora Tática de Portfólio */}
+      <section className="mx-auto max-w-6xl px-6 pt-10">
         <RiscoClient />
       </section>
 
-    </main>
-  );
-}
+      {/* 2. ENSINAR LADO A LADO: Assimetria do Risco (TC40) ⇄ Checklist de Evitação */}
+      <section className="mx-auto max-w-6xl px-6 pt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Lado Esquerdo: A Mecânica */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold">
+                Caixinha 01 · Como a Bandeira Conta
+              </span>
+              <h2 className="text-lg font-semibold text-foreground mt-1 flex items-center gap-2">
+                <ShieldAlert size={18} className="text-amber-500" /> A Assimetria do Risco (TC40 & SAFE)
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                As bandeiras não monitoram apenas estornos financeiros concluídos. O VAMP da Visa e
+                o EFM da Mastercard contabilizam o{" "}
+                <TermTooltip
+                  term="TC40 / SAFE"
+                  definition="Notificação de fraude enviada pelo banco emissor à bandeira quando o titular reporta compra não reconhecida, independentemente do chargeback."
+                />
+                {" "}assim que o emissor registra a ocorrência.
+              </p>
+            </div>
 
-// Extracted from original context for self-contained use
-function CheckCircle(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
+            <div className="rounded-xl border border-border bg-background p-4 space-y-3">
+              <h3 className="text-xs font-mono font-bold text-foreground uppercase tracking-wider">
+                A Linha do Tempo do Enquadramento
+              </h3>
+
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card">
+                  <div className="w-7 h-7 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <Zap size={13} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-xs">
+                      1. Transação Aprovada sem 3DS
+                    </div>
+                    <div className="text-muted-foreground text-xs leading-relaxed">
+                      Compra CNP passa sem autenticação 3DS 2.2 (sem Liability Shift).
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card">
+                  <div className="w-7 h-7 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <FileWarning size={13} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-xs">
+                      2. Emissão de TC40 (Visa) / SAFE (Mastercard)
+                    </div>
+                    <div className="text-muted-foreground text-xs leading-relaxed">
+                      Titular contesta no banco. Emissor envia registro de fraude em D+1.{" "}
+                      <strong className="text-foreground">O VAMP já contabiliza aqui.</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card">
+                  <div className="w-7 h-7 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertCircle size={13} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-xs">
+                      3. Chargeback Financeiro (TC15 / MTI 1442)
+                    </div>
+                    <div className="text-muted-foreground text-xs leading-relaxed">
+                      Débito financeiro no clearing. Contabilizado nos limiares mensais de ECP e
+                      VAMP.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lado Direito: Checklist de Evitação */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">
+                Caixinha 02 · Plano de Contenção
+              </span>
+              <h2 className="text-lg font-semibold text-foreground mt-1 flex items-center gap-2">
+                <CheckCircle2 size={18} className="text-emerald-500" /> Alavancas de Mitigação Imediata
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                O indicador oficial é medido em{" "}
+                <TermTooltip
+                  term="BPS"
+                  definition="Basis Points: 100 bps equivalem a 1,00% (0,01). 90 bps equivalem a 0,90%."
+                />
+                . Para reduzir a razão antes do fechamento mensal:
+              </p>
+            </div>
+
+            <ul className="text-sm space-y-3">
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-mono text-xs font-bold">
+                  1
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm flex items-center gap-2 flex-wrap">
+                    Roteamento seletivo para 3DS 2.2{" "}
+                    <RuleReference
+                      manual="Mastercard Rules"
+                      chapter="Chapter 8: EFM Exemptions"
+                    />
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Transações autenticadas com sucesso no 3DS 2.2 (ECI 05 / 02) transferem o
+                    Liability Shift ao emissor e protegem os indicadores de fraude CNP.
+                  </span>
+                </div>
+              </li>
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-mono text-xs font-bold">
+                  2
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm">
+                    Isolamento por Sub-Merchant / MCC Crítico
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Em PayFacs e adquirentes, frequentemente poucos MIDs ou{" "}
+                    <TermTooltip
+                      term="MCCs"
+                      definition="Merchant Category Code: código ISO 18245 do ramo de atividade."
+                    />{" "}
+                    concentram mais de 70% dos TC40. Audite o ranking semanalmente.
+                  </span>
+                </div>
+              </li>
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-mono text-xs font-bold">
+                  3
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm">
+                    Pre-Dispute Alerts (Verifi RDR / Ethoca) & CE 3.0
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Resolver contestações no pré-disputa evita a geração do TC15/chargeback formal,
+                    enquanto o Compelling Evidence 3.0 reverte fraude amigável elegível.
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

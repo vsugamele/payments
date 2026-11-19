@@ -1,81 +1,91 @@
 import RetriesClient from "./RetriesClient";
 import RetrySimulator from "@/components/retries/RetrySimulator";
-import RuleReference from "@/components/RuleReference";
-import Link from "next/link";
-import { ChevronLeft, GitCompare, RefreshCw } from "lucide-react";
+import { GitCompare, RefreshCw } from "lucide-react";
 import { ExecutiveBusinessTriad } from "@/components/ExecutiveBusinessTriad";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export const metadata = {
-  title: "Matriz de Retentativas e Response Codes | VS Payments",
-  description: "Entenda os motivos de recusa de transações (Soft vs Hard Declines) e as regras rígidas da Visa e Mastercard para retentativas de autorização.",
+  title: "Matriz de Retentativas e Response Codes (DE 39) | VS Payments",
+  description:
+    "Entenda as regras Visa e Mastercard MAC para Soft vs Hard Declines (1. Ensinar) e simule políticas de retentativa sem multas (2. Demonstrar).",
 };
 
 export default function RetriesPage() {
   return (
     <div className="bg-background min-h-screen pb-24">
-      <div style={{ borderBottom: "1px solid var(--border)", background: "var(--code-bg)" }} className="py-6 px-6">
-        <div className="mx-auto max-w-6xl">
-          <Link href="/compliance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ChevronLeft size={16} /> Voltar ao Hub de Compliance
-          </Link>
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-500 flex items-center justify-center shrink-0">
-              <GitCompare size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-3 flex-wrap mb-1">
-                <h1 className="text-2xl font-bold text-foreground">Matriz de Retentativas (Declines)</h1>
-                <RuleReference
-                  manual="Visa Core Rules & Mastercard MAC"
-                  ruleId="Issuer Decline Guidelines"
-                  description="A disciplina exigida das credenciadoras em cessar transações negadas (Hard Declines) ou aplicar backoff temporal (Soft Declines)."
-                />
-              </div>
-              <p className="text-muted-foreground text-sm max-w-4xl leading-relaxed mt-2">
-                O envio contínuo de dados de cartões bloqueados ou sem saldo (Excessive Retries) quebra as regras operacionais das Bandeiras, gerando <strong>multas pesadas em dólares</strong> e degradação da sua Taxa de Aprovação (Approval Rate). Esta ferramenta mapeia os Response Codes (DE 39) de recusa e prescreve o protocolo correto de atuação.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Autorização, DE 39 & Scheme Fees"
+        normativeBadge="Visa Retry Rules · Mastercard MAC (Cat 1 / Cat 2 / Cat 3)"
+        title="Matriz de Retentativas & Response Codes (DE 39)"
+        subtitle="Classifique recusas de autorização em Hard Declines vs Soft Declines e evite multas de retentativa excessiva nas faturas Visa VSS e Mastercard MCBS."
+        teachConcept="As bandeiras dividem os códigos de retorno da autorização (DE 39) e os Merchant Advice Codes (MAC — DE 48.84 na Mastercard) em recusas definitivas (Hard Declines / Cat 1, onde nova tentativa é proibida) e recusas temporárias (Soft Declines, sujeitas a limite máximo de tentativas e janela de dias)."
+        teachRule="Visa Core Rules (Transaction Retry Limits: teto de 15 retentativas em 30 dias corridos para Soft Declines; zero para Hard Declines) & Mastercard Merchant Advice Code (MAC 01/03/21)."
+        teachPitfall="Loops automáticos de cobrança recorrente que retentam códigos Hard (ex: 04, 14, 41, 43, 57 ou MAC 01/21) disparam multas por transação em dólar na fatura de rede e derrubam o score de aprovação do MID no emissor."
+        demoSteps={[
+          "1. No Simulador de Inteligência de Retentativa abaixo, teste uma sequência de tentativas para códigos DE 39 e veja quando a multa é acionada.",
+          "2. No Dicionário de Response Codes, pesquise qualquer código (ex: 05, 14, 51, 54, 59, 91) para ver a categoria oficial e a ação recomendada.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para auditar os códigos de cobrança de Excessive Retry no VSS e MCBS.",
+        ]}
+        acervoQuery="Regras de retentativa Visa 15 tentativas 30 dias Mastercard MAC DE 48.84 DE 39 Hard Soft Decline"
+        lab3dHref="/jornada?track=cartao"
+        lab3dLabel="Ver Fluxo 0100/0110 no Lab 3D"
+      />
 
-      <div className="mx-auto max-w-6xl px-6 pt-8 space-y-12">
-        <ExecutiveBusinessTriad
-          topic="Governança de Retentativas & Multas de Rede"
-          subtitle="Como evitar que robôs de retry automáticos transformem centavos de faturamento recuperado em dezenas de milhares de dólares de multas."
-          whatIsIt={{
-            lead: "A regulação de retentativa estabelece que autorizações negadas só podem ser reenviadas se houver chance real de aprovação e com intervalo mínimo.",
-            explanation: "As bandeiras categorizam recusas em Soft (ex: 51 - Saldo Insuficiente, onde um retry após dias faz sentido) e Hard (ex: 05 - Não Autorizar, 14 - Cartão Inválido, 41/43 - Cartão Furtado). Retentar transações Hard gera punição imediata na fatura de rede.",
-            analogy: "Se você ligar para um cliente e der ocupado (Soft), você tenta mais tarde. Se você ligar e o número constar como cancelado ou bloqueado pela polícia (Hard), discar 50 vezes seguidas no mesmo dia é considerado assédio e gera bloqueio da sua linha."
-          }}
-          painOwner={{
-            primaryRole: "Squad de Checkout / Engenharia de Pagamentos & Gerente de Risco",
-            affectedEntities: ["Gateways", "Adquirentes", "Plataformas de Assinatura (SaaS)", "Grandes E-Commerces"],
-            operationalImpact: "Os desenvolvedores ajustam loops cegos de retry no backend para não perder vendas de churn, sem saber que a cada clique além do teto a bandeira debita centavos em dólar na fatura da empresa."
-          }}
-          financialPrice={{
-            directPenalty: "USD 0,25 a USD 0,50 (~R$ 1,40 a R$ 2,80) por retentativa abusiva",
-            schemeFeesFine: "Tarifas TPE de Excelência Operacional (Cat 3 Declines)",
-            annualBleedingEstimate: "R$ 150.000 a R$ 600.000 / ano faturados silenciosamente em Scheme Fees",
-            consequence: "Queda generalizada na taxa de aprovação emissores (Approval Rate) de 85% para <60%, pois os bancos passam a bloquear o MID por suspeita de teste de cartão (card testing)."
-          }}
-        />
-
-        <section>
-          <div className="flex items-center gap-3 mb-8">
-            <RefreshCw className="text-amber-500" size={20} />
-            <h2 className="text-lg font-bold text-white uppercase tracking-widest">Inteligência de Retentativa (MAC)</h2>
+      <div className="mx-auto max-w-6xl px-6 pt-10 space-y-12">
+        {/* 1. DEMONSTRAR IMEDIATO: Simulador + Dicionário DE 39 */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <RefreshCw className="text-amber-500" size={18} />
+            <h2 className="text-base font-mono font-bold text-foreground uppercase tracking-wider">
+              1. Simulador de Inteligência de Retentativa (Visa & Mastercard MAC)
+            </h2>
           </div>
           <RetrySimulator />
         </section>
 
-        <section>
-          <div className="flex items-center gap-3 mb-8">
-            <GitCompare className="text-amber-500" size={20} />
-            <h2 className="text-lg font-bold text-white uppercase tracking-widest">Dicionário de Response Codes (DE 39)</h2>
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <GitCompare className="text-amber-500" size={18} />
+            <h2 className="text-base font-mono font-bold text-foreground uppercase tracking-wider">
+              2. Dicionário de Response Codes (DE 39) — Hard vs Soft Decline
+            </h2>
           </div>
           <RetriesClient />
         </section>
+
+        {/* 2. ENSINAR APROFUNDADO: Tríade Executiva */}
+        <ExecutiveBusinessTriad
+          topic="Governança de Retentativas & Multas de Rede"
+          subtitle="Como impedir que motores de recorrência transformem tentativas cegas de cobrança em multas silenciosas na fatura da bandeira."
+          whatIsIt={{
+            lead: "As regras de retentativa definem quais códigos DE 39 podem ser reenviados, com qual backoff mínimo e qual o teto de tentativas em 30 dias.",
+            explanation:
+              "Recusas Soft (ex: 51 Saldo Insuficiente) permitem nova tentativa em janela apropriada. Recusas Hard (ex: 14 Cartão Inválido, 41/43 Perdido/Roubado) exigem atualização de credencial (Account Updater / novo cartão) antes de qualquer novo envio.",
+            analogy:
+              "Se o telefone dá ocupado (Soft), ligar mais tarde faz sentido. Se a operadora informa que o número não existe (Hard), rediscar 50 vezes só gera bloqueio por abuso de rede.",
+          }}
+          painOwner={{
+            primaryRole: "Squad de Checkout / Recorrência, Engenharia de Pagamentos & Risco",
+            affectedEntities: [
+              "Gateways",
+              "Adquirentes",
+              "Plataformas de Assinatura (SaaS)",
+              "E-Commerces com Recorrência",
+            ],
+            operationalImpact:
+              "Crons de cobrança sem filtro por Response Code e MAC acumulam milhares de tentativas proibidas que são tarifadas mensalmente pelas bandeiras.",
+          }}
+          financialPrice={{
+            directPenalty: "Multas por transação excedente nas faturas VSS e MCBS",
+            schemeFeesFine: "Encargos de Data Integrity e Excessive Authorization Attempts",
+            annualBleedingEstimate:
+              "R$ 150.000 a R$ 600.000 / ano em tarifas evitáveis + queda de Approval Rate",
+            consequence:
+              "Degradação da reputação do MID nos motores antifraude dos bancos emissores.",
+          }}
+        />
       </div>
     </div>
   );

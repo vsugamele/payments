@@ -17,6 +17,7 @@ import {
   Globe,
   Terminal,
 } from "lucide-react";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export default function SubcredenciadoresPage() {
   const [data, setData] = useState<any>(null);
@@ -92,8 +93,27 @@ export default function SubcredenciadoresPage() {
   const exceedsMcThreshold = annualVolUsd > 1000000;
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 p-6 md:p-10">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#070b14] text-slate-100">
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="PayFac, Subcredenciamento & Patrocínio"
+        normativeBadge="Visa PF ID (Dataset 56) · Mastercard PF ID (DE 48 SE 37) · Res. BCB 264"
+        title="Arquitetura de Subcredenciadores (PayFac), Relatórios MCBS & Catálogo"
+        subtitle="Valide regras de patrocínio (Acquirer/Sponsor), formatação de Soft Descriptor (PF*LOJA), limites anuais de volume para registro de Sub-Merchant e homologação CIP/SLC."
+        teachConcept="No modelo PayFac (Subcredenciador), uma instituição patrocinada por um Adquirente Principal agrega lojistas menores (Sub-Merchants), mas precisa identificar cada sub-lojista individualmente nos campos obrigatórios da autorização e do clearing."
+        teachRule="Visa Core Rules (Payment Facilitator Model — Dataset ID 56, Bit 43 com asterisco e registro de High-Volume Sponsored Merchant > USD 1M/ano) & Mastercard Rules (DE 48 SE 37 PF ID + Sub-Merchant ID e AMMF)."
+        teachPitfall="Omitir o separador '*' no DE 43 (Card Acceptor Name/Location) ou deixar de reportar um Sub-Merchant que ultrapassou USD 1 milhão/ano como Sponsored Merchant individual gera multa mensal de conformidade na bandeira."
+        demoSteps={[
+          "1. No Validador Interativo de PayFac abaixo, teste o PF ID, Sub-Merchant ID, Soft Descriptor (PAYFAC*LOJA) e volume anual em USD.",
+          "2. Alterne entre as abas para inspecionar a Matriz Comparativa Visa/MC/Elo, o Dossiê de Páginas PDF e os Relatórios MCBS.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para auditar os subcampos DE 48 SE 37, PDS 0208 e Dataset 56.",
+        ]}
+        acervoQuery="Subcredenciador PayFac DE 48 SE 37 PDS 0208 Dataset 56 Soft Descriptor Bit 43 AMMF"
+        lab3dHref="/jornada?track=cartao"
+        lab3dLabel="Ver Fluxo PayFac no Lab 3D"
+      />
+      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div>

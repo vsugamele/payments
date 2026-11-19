@@ -5,6 +5,7 @@ import {
   Store, CreditCard, Building2, Activity, Landmark,
   TrendingDown, AlertCircle, Info,
 } from 'lucide-react';
+import { ModuleTeachDemoHeader } from '@/components/ModuleTeachDemoHeader';
 
 export const metadata: Metadata = {
   title: 'Fluxo de Dinheiro — MDR, Intercâmbio e Taxas | VS Payments',
@@ -50,31 +51,26 @@ function Callout({ color = '#f59e0b', icon: Icon, title, children }: {
 export default function MDRPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-6 py-12 pt-28 pb-24">
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-          <Link href="/" className="hover:text-foreground transition-colors">Início</Link>
-          <span>/</span>
-          <span className="text-foreground">Fluxo de Dinheiro</span>
-        </div>
-
-        {/* Hero */}
-        <div className="mb-14">
-          <div className="flex items-center gap-3 mb-4">
-            <Tag color="#10b981">Conceito Fundamental</Tag>
-            <Tag color="#6366f1">Visão Integrada</Tag>
-          </div>
-          <h1 className="text-4xl font-bold text-foreground mb-4 leading-tight">
-            Para onde vai o dinheiro<br />
-            <span style={{ color: '#10b981' }}>de uma venda com cartão?</span>
-          </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
-            Em cada transação, o lojista não recebe o valor cheio. A diferença entre o que
-            o portador paga e o que o lojista recebe é o <strong className="text-foreground">MDR</strong> —
-            e ele se divide entre três partes. Entender esse fluxo é entender o ecossistema inteiro.
-          </p>
-        </div>
+      <ModuleTeachDemoHeader
+        backHref="/trilhas"
+        backLabel="Voltar para Jornada por Produto"
+        categoryPill="Economia de Pagamentos"
+        normativeBadge="Res. BCB nº 304/2023 · LC 214/2025 (Split 2027+)"
+        title="Para Onde Vai o Dinheiro de uma Venda com Cartão (MDR & Intercâmbio)"
+        subtitle="Entenda como R$ 100 de uma transação se dividem entre Lojista, Adquirente, Bandeira e Banco Emissor — e como a antecipação D+1 e o Split Tributário alteram o repasse."
+        teachConcept="A identidade fundamental do mercado de cartões é: MDR = Intercâmbio (receita do Emissor) + Scheme Fee (receita da Bandeira) + Spread Líquido (receita do Adquirente/PayFac)."
+        teachRule="Resolução BCB nº 304/2023 (teto de 0,50% no Débito e 0,70% no Pré-pago) + Lei Complementar nº 214/2025 Arts. 31-35 (Split Payment de CBS/IBS na liquidação a partir de 2027)."
+        teachPitfall="Negociar MDR fixo agressivo com grandes varejistas sem travar mix de cartões Premium (Infinite/Black) ou sem validar 3DS/EMV faz o Intercâmbio superar o MDR cobrado (margem negativa por transação)."
+        demoSteps={[
+          "1. Percorra o diagrama visual abaixo para ver a decomposição centavo a centavo de uma venda de R$ 100.",
+          "2. Compare os exemplos reais de Débito (teto 0,50%), Crédito à Vista e Crédito Parcelado.",
+          "3. Clique em 'Ver Split do Dinheiro no Lab 3D' para testar antecipação D+1 e Split Tributário LC 214/2025 interativamente.",
+        ]}
+        acervoQuery="Decomposição MDR Intercâmbio Scheme Fee Resolução BCB 304/2023 e Split Payment LC 214/2025"
+        lab3dHref="/jornada?track=cartao"
+        lab3dLabel="Ver Split do Dinheiro no Lab 3D"
+      />
+      <div className="mx-auto max-w-5xl px-6 py-10 pb-24">
 
         {/* ── 1. O FLUXO VISUAL ─────────────────────────────────────────────── */}
         <section className="mb-16">

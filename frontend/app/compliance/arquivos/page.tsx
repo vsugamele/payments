@@ -14,6 +14,7 @@ import {
   buildCampoHtmlBlock,
 } from "@/lib/docStudioBridge";
 import VisaFeeScheduleBrPanel from "@/components/compliance/VisaFeeScheduleBrPanel";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 interface DocumentoMeta {
   doc_id: string;
@@ -357,6 +358,25 @@ export default function CentralArquivosPage() {
 
   return (
     <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Parser Posicional, 17.106 Campos & Faturamento"
+        normativeBadge="campos.sqlite3 (17.106) · MCBS (2.267) · Visa VSS (10.914) · Fee Schedule BR"
+        title="Bancada de Engenharia de Arquivos, Campos SQLite & Faturamento de Rede"
+        subtitle="Decodifique linhas posicionais byte a byte (Visa Base II, Mastercard IPM/MPE, Elo Serviço 10), pesquise nos 17.106 campos indexados em SQLite e audite eventos MCBS e Visa VSS."
+        teachConcept="Todo arquivo de clearing e tabela de parâmetros (Base II .CTF de 168 bytes, Mastercard IPM/MPE T068/IP0040T1 e Elo .TXT) segue posições fixas ou estruturas TLV/PDS documentadas nos manuais técnicos das bandeiras."
+        teachRule="Visa Base II Clearing Technical Specifications, Mastercard GCMS / MPE Parameter Tables & Elo Release 26.2 Liquidação."
+        teachPitfall="Deslocar 1 byte em um registro posicional de 168 caracteres ou interpretar incorretamente o indicador de sinal/casas decimais corrompe o lote inteiro na crítica T+0."
+        demoSteps={[
+          "1. Na Aba 1 (Parser Studio), selecione um layout oficial (Visa TC05 TCR0, Elo Reg 01, Mastercard IP0040T1) e clique em qualquer fatia da linha raw para ver byte inicial, tamanho e regra.",
+          "2. Na Aba 2, pesquise entre os 17.106 campos extraídos dos manuais em campos.sqlite3.",
+          "3. Nas Abas 3 e 4, audite os 2.267 eventos MCBS, 10.914 linhas Visa VSS e o Visa Fee Schedule Brasil em BRL.",
+        ]}
+        acervoQuery="Layouts posicionais Base II TC05 168 bytes Mastercard IP0040T1 MPE T068 Elo Serviço 10 campos.sqlite3"
+        lab3dHref="/compliance/outgoing"
+        lab3dLabel="Abrir Outgoing & QA Lab Suite"
+      />
       {/* Top Header */}
       <div className="border-b border-slate-800/80 bg-[#050b16]/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -6,6 +6,7 @@ import {
   ArrowRight, Info,
 } from 'lucide-react';
 import McbsTabs from './McbsTabs';
+import { ModuleTeachDemoHeader } from '@/components/ModuleTeachDemoHeader';
 
 export const metadata: Metadata = {
   title: 'MCBS — Tarifas Mastercard Brasil | VS Payments',
@@ -183,44 +184,43 @@ export default async function MCBSPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-12 pt-28">
-
-        {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <Link href="/" className="hover:text-foreground transition-colors">Início</Link>
-            <span>/</span>
-            <span className="text-foreground">MCBS</span>
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-3">
-            MCBS —{' '}
-            <span className="text-red-400">Tarifas Mastercard</span>
-            {' '}Brasil
-          </h1>
-          <p className="text-muted-foreground max-w-2xl leading-relaxed">
-            O Mastercard Consolidated Billing System centraliza <strong className="text-foreground">todas</strong> as tarifas
-            que a MC cobra de emissores e adquirentes — autorização, conectividade,
-            tokenização, AVS, chargebacks e mais. Tarifas extraídas do Pricing Guide BR (Nov/2024).
-          </p>
-
-          {/* Callout strip */}
-          <div className="mt-5 flex flex-wrap gap-3">
-            {[
-              { label: 'Service IDs cobertos',    value: '8+',          sub: 'categorias no BR' },
-              { label: 'Método principal',         value: 'IPM 1740',    sub: 'via GCMS clearing' },
-              { label: 'Fee auth doméstico (max)', value: 'BRL 0.117',   sub: 'txn > BRL 90' },
-              { label: 'Sem 3DS — cap',            value: 'BRL 12,00',   sub: 'por txn e-comm' },
-            ].map(({ label, value, sub }) => (
-              <div key={label}
-                className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-2.5">
-                <div>
-                  <div className="text-sm font-bold text-foreground leading-none">{value}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{label}</div>
-                  <div className="text-[9px] text-muted-foreground/60">{sub}</div>
-                </div>
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Faturamento de Rede & Scheme Fees"
+        normativeBadge="Mastercard Consolidated Billing System (MCBS) · MTI 1740"
+        title="MCBS — Faturamento & Tarifas Mastercard Brasil"
+        subtitle="Audite os Service IDs, eventos de cobrança (2AB, 2AV, 2CF), regras de câmbio e coleta automática via IPM MTI 1740 no GCMS."
+        teachConcept="O Mastercard Consolidated Billing System (MCBS) agrupa todas as tarifas de rede cobradas de emissores e adquirentes (por número de ICA) — incluindo switch de autorização, conectividade por byte, 3DS (2AB1790), tokenização (2AB1706/2600) e penalidades."
+        teachRule="Mastercard Consolidated Billing System Manual & Brazil Pricing Guide: os eventos iniciados por '2' ou 'T' são liquidados via mensagem IPM MTI 1740 (Fee Collection) no ciclo diário, semanal ou mensal."
+        teachPitfall="Não conciliar os eventos 2AB3006M (CNP sem autenticação 3DS) e penalidades de Data Integrity permite que cobranças evitáveis drenem a margem operacional por até 12 meses (prazo máximo de contestação MCBS)."
+        demoSteps={[
+          "1. Na seção 'Catálogo & Calculadora de Fatura MCBS' abaixo, explore os grupos de Service IDs e simule o custo mensal por volume.",
+          "2. Consulte a tabela comparativa Mastercard MCBS × Visa VSS para mapear equivalências entre as duas bandeiras.",
+          "3. Clique em 'Consultar nos 4 Bancos SQLite do Acervo' para pesquisar qualquer código de evento (ex: 2AB1706, 2AB1790, 2CF1001) nas 454 linhas de tarifas.sqlite3.",
+        ]}
+        acervoQuery="Mastercard MCBS Service IDs 2AB1706 2AB1790 2AB3006M MTI 1740 Fee Collection"
+        lab3dHref="/mapa/mcbs"
+        lab3dLabel="Abrir Atlas Visual MCBS"
+      />
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        {/* Callout strip */}
+        <div className="mb-8 flex flex-wrap gap-3">
+          {[
+            { label: 'Service IDs cobertos',    value: '8+',          sub: 'categorias no BR' },
+            { label: 'Método principal',         value: 'IPM 1740',    sub: 'via GCMS clearing' },
+            { label: 'Fee auth doméstico (max)', value: 'BRL 0.117',   sub: 'txn > BRL 90' },
+            { label: 'Sem 3DS — cap',            value: 'BRL 12,00',   sub: 'por txn e-comm' },
+          ].map(({ label, value, sub }) => (
+            <div key={label}
+              className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5">
+              <div>
+                <div className="text-sm font-bold text-foreground leading-none">{value}</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{label}</div>
+                <div className="text-[9px] text-muted-foreground/60">{sub}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         <div className="flex gap-10 items-start">

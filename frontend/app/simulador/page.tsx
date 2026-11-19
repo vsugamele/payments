@@ -1,197 +1,287 @@
-import Link from "next/link";
-import { ArrowLeft, Calculator, Coins, TrendingUp, CreditCard } from "lucide-react";
+import { Coins, TrendingUp, CreditCard, ArrowRight } from "lucide-react";
 import { SimulatorPage } from "@/components/SimulatorPage";
 import { DowngradeMarginSimulator } from "@/components/DowngradeMarginSimulator";
 import TermTooltip from "@/components/TermTooltip";
+import { ModuleTeachDemoHeader } from "@/components/ModuleTeachDemoHeader";
 
 export const metadata = {
-  title: "Simulador e Anatomia de Intercâmbio — Compliance VS Payments",
-  description: "Aprenda a mecânica da precificação de Bandeiras e simule taxas reais.",
+  title: "Simulador e Anatomia de Intercâmbio — VS Payments",
+  description:
+    "Aprenda a mecânica da precificação de Bandeiras (1. Ensinar) e simule taxas reais e downgrades (2. Demonstrar).",
 };
 
 export default function SimuladorRoute() {
   return (
     <main className="bg-background pb-24">
-      {/* Header Playbook */}
-      <section
-        className="dot-grid"
-        style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(37,99,235,0.08) 0%, transparent 70%)",
-          padding: "4rem 1.5rem 3.5rem",
-          borderBottom: "1px solid #0f172a",
-        }}
-      >
-        <div className="mx-auto max-w-5xl">
-          <Link
-            href="/"
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--muted-foreground)", marginBottom: "1.5rem" }}
-            className="hover:text-white transition-colors"
-          >
-            <ArrowLeft size={13} /> Voltar para o Início
-          </Link>
-          <div className="flex flex-col md:flex-row items-start gap-6">
-            <div
-              style={{
-                width: 52, height: 52,
-                borderRadius: "1rem",
-                background: "rgba(37,99,235,0.1)",
-                border: "1px solid rgba(37,99,235,0.2)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Calculator size={24} style={{ color: "#3b82f6" }} />
-            </div>
-            <div>
-              <p className="section-eyebrow mb-2">Motor de Rateio e Custos</p>
-              <h1 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", lineHeight: 1.1 }}>
-                Arquitetura do <br className="hidden md:block"/> Intercâmbio & Pricing
-              </h1>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
-                O desconhecimento do ecossistema destrói a margem do Lojista e da Adquirente. Entenda como uma subadquirente absorve custos altíssimos de um <TermTooltip term="PID" definition="Product ID. Identificador na norma ISO que acusa se o plástico é um Black/Infinite ou um Standard. Cartões de alta renda custam mais caro para o Lojista."/> sofisticado e utilize nosso Motor de Regras Real abaixo para simular cascatas que definem os pedágios da rede.
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Cabeçalho Padronizado Lado a Lado: 1. Ensinar ⇄ 2. Demonstrar */}
+      <ModuleTeachDemoHeader
+        backHref="/compliance"
+        backLabel="Voltar para Operação & Simulação"
+        categoryPill="Motor de Rateio & Pricing"
+        normativeBadge="Res. BCB nº 304/2023 · Visa Fee Schedule · MC GCMS"
+        title="Arquitetura do Intercâmbio, Cascata & Downgrade"
+        subtitle="Entenda como o MDR se divide entre Intercâmbio (Emissor), Scheme Fee (Bandeira) e Spread (Adquirente), e simule em tempo real as 2.103 regras oficiais de banco de dados."
+        teachConcept="A cada compra, o sistema de clearing da bandeira (Visa Base II ou Mastercard GCMS) avalia Produto (BIN/PID), Canal de Captura (CP vs CNP + 3DS), MCC e Prazo de Envio para determinar qual IRD/FPI de intercâmbio remunera o banco emissor."
+        teachRule="Resolução BCB nº 304/2023 (vigência 01/04/2023): teto de 0,50% no Débito e 0,70% no Pré-pago. Crédito opera em livre mercado por cascata de qualificação."
+        teachPitfall="Se faltar o criptograma 3DS (ECI 05/02), o identificador de token ou o envio ocorrer fora da janela de Timeliness, a venda sofre Downgrade silencioso para uma tarifa Standard/Key-Entered até +65 bps mais cara."
+        demoSteps={[
+          "1. Na calculadora abaixo, escolha Bandeira (Visa, Mastercard ou Elo), Modalidade, Produto (Infinite/Black vs Standard) e MCC (ex: 5411 Supermercado).",
+          "2. Compare o IRD/FPI qualificado com o teto regulatório da Res. BCB 304/2023 no débito/pré-pago.",
+          "3. Role até o Simulador de Downgrade para medir o impacto em reais na margem líquida quando campos obrigatórios falham no clearing.",
+        ]}
+        acervoQuery="Regras de qualificação de intercâmbio IRD PDS 0158 FPI downgrade e Resolução BCB 304/2023"
+        lab3dHref="/jornada?track=cartao"
+        lab3dLabel="Ver Split do Dinheiro no Lab 3D"
+      />
+
+      {/* 1. DEMONSTRAR IMEDIATO: Motor de Cascata de Intercâmbio & Downgrade */}
+      <section className="mx-auto max-w-7xl px-6 pt-10 space-y-10">
+        <SimulatorPage />
+        <DowngradeMarginSimulator />
       </section>
 
-      {/* Conteúdo Teórico */}
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          
-          {/* Lado Esquerdo: A Mecânica */}
-          <div className="space-y-6">
+      {/* 2. ENSINAR LADO A LADO: Anatomia do MDR ⇄ Tripé de Precificação */}
+      <section className="mx-auto max-w-6xl px-6 pt-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Caixinha Esquerda: A Mecânica do MDR */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <Coins size={20} className="text-blue-500"/> Anatomia de Custos (MDR)
+              <span className="font-mono text-[10px] uppercase tracking-wider text-primary font-bold">
+                Caixinha 01 · O Rateio de R$ 100
+              </span>
+              <h2 className="text-lg font-semibold text-foreground mt-1 flex items-center gap-2">
+                <Coins size={18} className="text-primary" /> Anatomia de Custos (MDR)
               </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Quando seu lojista paga 2.50% de <TermTooltip term="MDR" definition="Merchant Discount Rate: O pedágio final que a maquininha cobra da loja." />, essa taxa é imediatamente fatiada. A maior mordida **não vai** para a Bandeira, e sim para o Banco Emissor, a título de  <TermTooltip term="Intercâmbio" definition="A taxa base paga pela Adquirente ao Banco Emissor (Itaú, Nubank) pelo risco de crédito e financiamento dos Programas de Milhas/Benefícios." />.
+              <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                Quando o estabelecimento comercial paga 2,50% de{" "}
+                <TermTooltip
+                  term="MDR"
+                  definition="Merchant Discount Rate: taxa final descontada do lojista pelo adquirente ou subcredenciador."
+                />
+                , essa taxa é fatiada em três partes. A maior parcela vai para o Banco Emissor a
+                título de{" "}
+                <TermTooltip
+                  term="Intercâmbio"
+                  definition="Tarifa regulada pela bandeira (e pelo BCB no débito/pré-pago) paga pela Adquirente ao Banco Emissor pelo risco de crédito, funding e benefícios."
+                />
+                .
               </p>
             </div>
 
-            {/* Diagrama Visual (CSS) */}
-            <div className="bg-code-bg border border-border rounded-xl p-5 mt-6">
-              <h3 className="text-xs font-bold text-white mb-4 uppercase tracking-wider">A Fatura (R$ 100)</h3>
-              
-              <div className="flex w-full h-8 rounded-full overflow-hidden mb-3 font-bold text-[10px] text-white">
-                <div className="bg-blue-600 flex items-center justify-start pl-3 w-[65%]" title="Banco Emissor (Risco e Milhas)">Intercâmbio (Ex: 1.50%)</div>
-                <div className="bg-purple-600 flex items-center justify-start pl-3 w-[15%]" title="Bandeira (Tráfego da Rede)">Fee (0.25%)</div>
-                <div className="bg-green-600 flex items-center justify-start pl-3 w-[20%]" title="Adquirente (Lucro da Maquininha)">Markup (0.75%)</div>
+            <div className="rounded-xl border border-border bg-background p-4">
+              <h3 className="text-xs font-mono font-bold text-foreground mb-3 uppercase tracking-wider">
+                Exemplo de Divisão do MDR (2,50% sobre R$ 100)
+              </h3>
+
+              <div className="flex w-full h-8 rounded-full overflow-hidden mb-3 font-mono font-bold text-[10px] text-white">
+                <div
+                  className="bg-blue-600 flex items-center justify-start pl-3 w-[60%]"
+                  title="Banco Emissor (Intercâmbio)"
+                >
+                  Intercâmbio (1,50%)
+                </div>
+                <div
+                  className="bg-purple-600 flex items-center justify-start pl-2.5 w-[15%]"
+                  title="Bandeira (Scheme Fee)"
+                >
+                  Fee (0,25%)
+                </div>
+                <div
+                  className="bg-emerald-600 flex items-center justify-start pl-2.5 w-[25%]"
+                  title="Adquirente (Spread Líquido)"
+                >
+                  Spread (0,75%)
+                </div>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-muted-foreground mt-4">
-                <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div> Banco Emissor</span>
-                <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-purple-600"></div> Bandeira</span>
-                <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-green-600"></div> Adquirente</span>
+              <div className="flex flex-wrap justify-between items-center text-xs text-muted-foreground mt-3 gap-2">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block" /> Emissor (R$ 1,50)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-600 inline-block" /> Bandeira (R$ 0,25)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block" /> Adquirente (R$ 0,75)
+                </span>
               </div>
-
             </div>
           </div>
 
-          {/* Lado Direito: Os Eixos */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-              <TrendingUp size={20} className="text-purple-500"/> Tripé de Precificação (As Variáveis)
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Ao testar o Dicionário de Intercâmbio, você verá a cascata de precificação decidir qual <TermTooltip term="IRD" definition="Interchange Rate Designator. O 'Tier' da tabela onde a transação caiu. (Ex: 'CREDIT PRIME')." /> será executado. Para qual a taxa cai? O sistema mede 3 eixos cruciais na hora em que o JSON trafega:
-            </p>
-            
-            <div className="bg-black/20 border border-border rounded-xl">
-              <div className="p-4 border-b border-border">
-                <span className="text-xs font-bold text-white uppercase tracking-widest">Variáveis Críticas da Cascata</span>
-              </div>
-              <ul className="text-sm p-4 space-y-4">
-                <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 mt-0.5"><CreditCard size={12}/></div>
-                  <div>
-                    <span className="text-white font-medium block">1. O Produto (BIN / PID)</span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">Cartões Black/Infinite pagam altas milhas. Como o Banco financia isso? Puxando a taxa de Intercâmbio lá pra cima. O Standard/Classic é mais barato.</span>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0 mt-0.5"><span className="text-xs font-bold">CNL</span></div>
-                  <div>
-                    <span className="text-white font-medium block">2. O Canal (Captura)</span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">E-commerce tem alto risco de chargeback, então custa mais caro. Porém, se você usar <TermTooltip term="3D-Secure / Frictionless" definition="Protocolo de Proteção por Biometria/App. Remove a responsabilidade de fraude do lojista (Liability Shift)." />, a bandeira premia sua conexão com taxas de intercâmbio incrivelmente mais baixas.</span>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 mt-0.5"><span className="text-xs font-bold">MCC</span></div>
-                  <div>
-                    <span className="text-white font-medium block">3. O Ramo Subvencionado (MCC)</span>
-                    <span className="text-muted-foreground text-xs leading-relaxed">Postos de Combustível (5541) e Supermercados (5411) operam com margens de centavos. Para aceitarem cartão, a bandeira possui tabelas subsidiadas por Lei. Preencher o MCC errado arruína sua margem.</span>
-                  </div>
-                </li>
-              </ul>
+          {/* Caixinha Direita: Os 3 Eixos da Cascata */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">
+                Caixinha 02 · Árvore de Decisão
+              </span>
+              <h2 className="text-lg font-semibold text-foreground mt-1 flex items-center gap-2">
+                <TrendingUp size={18} className="text-emerald-600 dark:text-emerald-400" /> Tripé de Precificação (As Variáveis)
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                Para definir qual{" "}
+                <TermTooltip
+                  term="IRD"
+                  definition="Interchange Rate Designator (Mastercard PDS 0158) ou Fee Program Indicator (Visa Base II): o código exato da faixa tarifária aplicada no clearing."
+                />{" "}
+                será aplicado no clearing, o motor avalia três eixos principais:
+              </p>
             </div>
-          </div>
 
+            <ul className="text-sm space-y-3">
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <CreditCard size={12} />
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm">
+                    1. O Produto (BIN / PID / Funding Source)
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Cartões Black/Infinite remuneram programas de pontos e têm intercâmbio mais alto
+                    no crédito; Débito (0,50%) e Pré-pago (0,70%) respeitam o teto do BCB.
+                  </span>
+                </div>
+              </li>
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[10px] font-mono font-bold">CNL</span>
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm">
+                    2. O Canal & Autenticação (CP EMV/NFC vs CNP 3DS 2.2)
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Transações presenciais com chip/NFC (EMV) ou e-commerce autenticado via{" "}
+                    <TermTooltip
+                      term="3DS 2.2 (ECI 05/02)"
+                      definition="Autenticação EMV 3-D Secure que ativa Liability Shift e qualifica a venda para tarifas incentivadas."
+                    />{" "}
+                    qualificam para tiers mais baratos.
+                  </span>
+                </div>
+              </li>
+              <li className="flex gap-3 rounded-xl border border-border bg-background p-3.5">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[10px] font-mono font-bold">MCC</span>
+                </div>
+                <div>
+                  <span className="text-foreground font-semibold block text-xs sm:text-sm">
+                    3. O Segmento do Lojista (MCC & Número de Parcelas)
+                  </span>
+                  <span className="text-muted-foreground text-xs leading-relaxed">
+                    Supermercados (5411), Postos (5541), Educação (8299) e Saúde contam com tabelas
+                    setoriais específicas; parcelado (2-6x vs 7-12x) altera o degrau da tarifa.
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
-      {/* Guia Técnico de Provisionamento */}
-      <section className="border-t border-border bg-[#0a0f18]">
-        <div className="mx-auto max-w-5xl px-6 py-12">
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <CreditCard size={20} className="text-emerald-500"/> Guia de Provisionamento e Clearing Técnico
+      {/* 3. Guia Técnico de Provisionamento D+0 Lado a Lado: Visa vs Mastercard */}
+      <section className="mx-auto max-w-6xl px-6 pt-10">
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-primary font-bold">
+              Provisionamento & Reconciliação D+0
+            </span>
+            <h2 className="text-lg font-semibold text-foreground mt-1">
+              Onde o Intercâmbio Real vem Carimbado nos Arquivos de Clearing
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              O momento da autorização (0100/0200) apenas reserva o saldo. A verdadeira "conta" para a Adquirente chega no **Clearing**. Para provisionar as margens corretamente (calcular o *Spread* antes da liquidação), o motor de reconciliação precisa ler campos específicos dos arquivos de clearing.
+            <p className="text-sm text-muted-foreground leading-relaxed mt-1">
+              A autorização (0100/0110) apenas reserva o limite. O custo real de intercâmbio é
+              apurado no arquivo de clearing e conciliado nos relatórios financeiros de liquidação.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Visa VSS */}
-            <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold font-mono">V</div>
-                <h3 className="font-bold text-slate-200">Visa (Base II / VSS)</h3>
+            <div className="rounded-xl border border-border bg-background p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold font-mono">
+                  V
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm">Visa (Base II / VSS)</h3>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    TC05 Outgoing · Relatórios VSS-110 / VSS-120
+                  </span>
+                </div>
               </div>
-              <ul className="space-y-3 text-sm text-slate-400">
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Arquivo de Clearing:</strong> Edit Package (TC33) ou raw Base II.</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Motor de Cálculo:</strong> VisaNet Settlement Service (VSS). A Visa calcula e devolve o fee aplicado através do report <TermTooltip term="VSS-110 / VSS-120" definition="Reports oficiais de settlement da Visa contendo a sumarização de fundos líquidos, incluindo Interchange e Scheme Fees por BIN/região." />.</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Campos Críticos de Reconciliação:</strong> `Fee Program Indicator (FPI)`, `Product ID (PID)`, `Business Application Identifier (BAI)` e `Reimbursement Attribute`.</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-blue-400 shrink-0"/> <span><strong>Margem:</strong> A Adquirente estima o custo lendo a Tabela VSS em D+0. A reconciliação real ocorre quando a Visa envia os relatórios finais do Draft Data.</span></li>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-blue-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Arquivo de Clearing:</strong> Edit Package /
+                    Base II (.CTF de 168 bytes por TCR).
+                  </span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-blue-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Motor de Liquidação:</strong> VisaNet
+                    Settlement Service (VSS), detalhado nos relatórios{" "}
+                    <TermTooltip
+                      term="VSS-110 / VSS-120"
+                      definition="Relatórios oficiais de settlement da Visa com sumarização de Interchange e Scheme Fees."
+                    />
+                    .
+                  </span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-blue-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Campos Críticos:</strong>{" "}
+                    <code>Fee Program Indicator (FPI)</code>, <code>Product ID (PID)</code>,{" "}
+                    <code>Account Funding Source (AFS)</code> e{" "}
+                    <code>Reimbursement Attribute</code>.
+                  </span>
+                </li>
               </ul>
             </div>
 
             {/* Mastercard GCMS */}
-            <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold font-mono">M</div>
-                <h3 className="font-bold text-slate-200">Mastercard (GCMS / IPM)</h3>
+            <div className="rounded-xl border border-border bg-background p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold font-mono">
+                  M
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm">Mastercard (GCMS / IPM)</h3>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    MTI 1240 Outgoing · T112/T114 & MCBS
+                  </span>
+                </div>
               </div>
-              <ul className="space-y-3 text-sm text-slate-400">
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Arquivo de Clearing:</strong> IPM (Integrated Product Messages).</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Motor de Cálculo:</strong> Global Clearing Management System (GCMS). Ele roda as regras de MCC, IRD e CVM em tempo real.</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Campos Críticos de Reconciliação:</strong> O sub-elemento de clearing `DE048` e o `PDS 0158` (Interchange Rate Designator - IRD). Aqui a Mastercard literalmente 'carimba' qual a taxa exata na mensagem T112/T114.</span></li>
-                <li className="flex gap-2 items-start"><ArrowLeft size={14} className="mt-1 text-amber-500 shrink-0"/> <span><strong>Margem:</strong> O provisionamento da MC é mais 'garantido' em D+0 se a adquirente souber derivar o IRD, pois as tabelas de MCBS (Mastercard Consolidated Billing System) são mapeáveis no pré-clearing.</span></li>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-amber-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Arquivo de Clearing:</strong> Integrated
+                    Product Messages (.IPM codificado em TLV / PDS).
+                  </span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-amber-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Motor de Cálculo:</strong> Global Clearing
+                    Management System (GCMS), que valida MCC, CVM, 3DS e Timeliness.
+                  </span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <ArrowRight size={14} className="mt-1 text-amber-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Campos Críticos:</strong>{" "}
+                    <code>DE 048</code> e <code>PDS 0158 (Interchange Rate Designator - IRD)</code>{" "}
+                    retornado nos arquivos de incoming/acknowledge T112/T114.
+                  </span>
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Formulário & Motor */}
-      <section className="border-t border-border bg-black/40">
-        <div className="mx-auto max-w-7xl px-6 pt-12">
-           <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl font-bold text-white mb-3">Motor de Cascata de Intercâmbio</h2>
-            <p className="text-sm text-muted-foreground">
-               Compreendida a arquitetura de Pricing, utilize a calculadora oficial para decifrar, em tempo real, todas as centenas de Tiers (cascatas) da Visa, Mastercard e Maestro com regras oficiais de banco de dados.
-            </p>
-           </div>
-           
-           <SimulatorPage />
-
-           {/* Simulador de Downgrade & Perda de Margem */}
-           <DowngradeMarginSimulator />
-        </div>
-      </section>
-
     </main>
   );
 }
