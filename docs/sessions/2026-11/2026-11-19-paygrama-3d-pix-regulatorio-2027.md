@@ -65,6 +65,9 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
      3. `🖥️ 3. Topologia C4 (17 Servidores, HSM & Cabos)`: Roda o `OutgoingServerTopologyBlueprint` (com 10-Hop Packet Tracer) diretamente dentro do `/admin`;
      4. `🗺️ 4. Mapa de Produtos (4 Bandeiras & BCB 304)`: Roda o `ProductMapAtlasClient` diretamente dentro do `/admin`;
      5. `🧰 5. Catálogo Geral de Ferramentas (Lado a Lado)`: Reorganiza os 55+ módulos com **Menu Vertical de Categorias à Esquerda (4 colunas)** e **Ficha Raio-X Lado a Lado (`📘 1. O que ensina e resolve` ⇄ `🔬 2. O que demonstra e fontes SQLite`) + Grade da Categoria à Direita (8 colunas)**, integrado ao botão **`🧠 Abrir IA + Acervo (4 SQLites)`**.
+7. **Reorganização do Hub `/compliance` (`frontend/app/compliance/ComplianceClient.tsx`) e Ponte Prática em `/noticias/[slug]` (`frontend/app/noticias/[slug]/page.tsx`)**:
+   - Em `/compliance`, substituída a grade única de 34 cards por **4 Caixinhas Superiores** (`🎓 1. Jornada por Produto Lado a Lado`, `🛡️ 2. Programas de Risco VAMP/ECP/BRAM Lado a Lado`, `📦 3. Autorização Online ⇄ Clearing Outgoing`, `💰 4. Intercâmbio/Faturas ⇄ Releases 2027/Acervo`).
+   - Em `/noticias/[slug]`, adicionado ao final de cada matéria o bloco duplo lado a lado (`1. Ensinar · Regra em foco` ⇄ `2. Demonstrar · Ver por dentro em 3D`), conectando cada notícia diretamente à trilha correspondente no Simulador 3D (`/jornada?track=...`).
 
 ## Validação
 - `npx next typegen` e `npx tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0`.

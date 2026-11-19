@@ -165,23 +165,45 @@ export default async function NoticiaDetalhePage({
           </div>
         )}
 
-        {/* Link para o Laboratório ou Consulta relacionada */}
-        {post.relatedLabHref && post.relatedLabLabel && (
-          <div className="mt-6">
-            <Link
-              href={post.relatedLabHref}
-              className="editorial-card group p-5 flex items-center justify-between gap-4"
-            >
-              <div>
-                <p className="section-eyebrow">Aprofundar na prática</p>
-                <p className="text-sm font-semibold text-foreground mt-1 group-hover:underline underline-offset-4">
-                  {post.relatedLabLabel}
-                </p>
-              </div>
-              <ArrowRight size={16} className="text-muted-foreground group-hover:text-foreground shrink-0" />
-            </Link>
+        {/* Caixinha Lado a Lado: 1. Ensinar (Resumo Normativo) ⇄ 2. Demonstrar (Simulador 3D) */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="editorial-card p-5 space-y-2">
+            <p className="section-eyebrow">1. Ensinar · Regra em foco</p>
+            <p className="text-sm font-semibold text-foreground">
+              {post.category} ({post.effectiveWindow || post.dateFull})
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {post.keyTakeaways?.[0] || post.summary}
+            </p>
           </div>
-        )}
+
+          <Link
+            href={
+              post.slug.includes("split-payment")
+                ? "/jornada?track=regras_2027_tempo&split2027=1"
+                : post.slug.includes("med-2-0")
+                ? "/jornada?track=med_seguranca"
+                : post.slug.includes("pix-automatico")
+                ? "/jornada?track=pix_auto_nfc"
+                : post.relatedLabHref || "/jornada"
+            }
+            className="editorial-card group p-5 flex flex-col justify-between gap-3 hover:border-foreground/40 transition-all"
+          >
+            <div className="space-y-1.5">
+              <p className="section-eyebrow">2. Demonstrar · Ver por dentro em 3D</p>
+              <p className="text-sm font-semibold text-foreground group-hover:underline underline-offset-4">
+                {post.relatedLabLabel || "Simular este fluxo passo a passo no Laboratório 3D"}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Veja as mensagens trocadas entre os participantes, injete falhas e confira a divisão financeira da operação.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-foreground">
+              <span>Abrir Simulador Interativo</span>
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </Link>
+        </div>
 
         {/* Mini rodapé do autor com atalho pro CV */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-5">
