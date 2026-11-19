@@ -10,8 +10,10 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  FileText,
   Sparkles,
 } from 'lucide-react';
+import { AcervoAiGlobalDrawer } from './AcervoAiGlobalDrawer';
 
 export type GlobalBrandFilter = 'ALL' | 'visa' | 'mastercard' | 'elo' | 'amex';
 export type GlobalRoleFilter = 'ambos' | 'adquirente' | 'emissor';
@@ -342,7 +344,7 @@ const WORKBENCH_GROUPS: NavGroup[] = [
   },
 ];
 
-const WORKBENCH_PATH_PREFIXES = [
+const PRIVATE_WORKBENCH_PREFIXES = [
   '/compliance',
   '/acervo',
   '/simulador',
@@ -354,11 +356,9 @@ const WORKBENCH_PATH_PREFIXES = [
   '/chargeback',
   '/trilhas',
   '/editor',
-  '/consultas',
   '/glossario',
   '/arquitetura',
   '/comparativo',
-  '/jornada',
   '/validador',
   '/comparador',
   '/inspecao-tecnica',
@@ -368,6 +368,8 @@ const WORKBENCH_PATH_PREFIXES = [
   '/scheme-fees',
 ];
 
+const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas'];
+
 export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';
   const router = useRouter();
@@ -376,14 +378,22 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
   const [globalBrand, setGlobalBrand] = useState<GlobalBrandFilter>('ALL');
   const [globalRole, setGlobalRole] = useState<GlobalRoleFilter>('ambos');
   const [currentTabParam, setCurrentTabParam] = useState<string>('tables');
+  const [isOwner, setIsOwner] = useState(false);
 
-  const isWorkbenchRoute = WORKBENCH_PATH_PREFIXES.some(
+  const isPrivateWorkbench = PRIVATE_WORKBENCH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
+  const isHybridRoute = HYBRID_PUBLIC_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+  const isWorkbenchRoute = isPrivateWorkbench || (isHybridRoute && isOwner);
 
-  // Carrega Bandeira e Papel persistidos do localStorage ao montar
+  // Carrega Bandeira, Papel e cookie de proprietário ao montar
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    setIsOwner(
+      document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+    );
     const savedBrand = localStorage.getItem('vs_workbench_brand') as GlobalBrandFilter | null;
     const savedRole = localStorage.getItem('vs_workbench_role') as GlobalRoleFilter | null;
     if (savedBrand && ['ALL', 'visa', 'mastercard', 'elo', 'amex'].includes(savedBrand)) {
@@ -392,7 +402,7 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
     if (savedRole && ['ambos', 'adquirente', 'emissor'].includes(savedRole)) {
       setGlobalRole(savedRole);
     }
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -485,13 +495,13 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
             <Link
               href="/"
               className="flex items-center gap-2 pr-2.5 border-r border-slate-200 dark:border-slate-800 group"
-              title="Voltar ao Portfólio Executivo Principal"
+              title="Voltar ao Site Editorial Principal"
             >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xs shadow-xs group-hover:scale-105 transition-transform">
+              <div className="w-7 h-7 rounded-lg bg-[#222225] dark:bg-zinc-100 flex items-center justify-center text-white dark:text-zinc-900 font-semibold text-xs transition-opacity group-hover:opacity-85">
                 VS
               </div>
-              <span className="hidden md:inline text-xs font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600">
-                Portfólio
+              <span className="hidden md:inline text-xs font-semibold text-slate-700 dark:text-slate-200 group-hover:text-foreground">
+                Início
               </span>
             </Link>
 
@@ -580,14 +590,34 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
             </div>
           </div>
 
-          {/* Direita: Doc Studio + Busca Ctrl+K + Tema */}
+          {/* Direita: IA + Acervo + Doc Studio + Busca Ctrl+K + Tema */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/editor"
-              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/80 dark:bg-blue-950/50 hover:bg-blue-100 text-xs font-bold text-blue-700 dark:text-blue-300 transition-all"
-              title="Abrir Doc Studio & Editor Executivo com RAG"
+            <button
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent('open-acervo-ai-drawer', {
+                    detail: {
+                      bandeira: globalBrand === 'ALL' ? undefined : globalBrand,
+                    },
+                  })
+                )
+              }
+              className="px-3 py-1.5 rounded-xl bg-[#1F3FE0] hover:bg-blue-700 text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition-all"
+              title="Abrir IA Conectada ao Sistema de Acervo (Alt+A)"
             >
               <Sparkles size={13} />
+              <span>IA + Acervo</span>
+              <kbd className="hidden md:inline-block px-1 py-0.5 rounded bg-white/15 font-mono text-[10px]">
+                Alt+A
+              </kbd>
+            </button>
+
+            <Link
+              href="/editor"
+              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-slate-400 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all"
+              title="Abrir Doc Studio & Editor Executivo"
+            >
+              <FileText size={13} />
               <span>Doc Studio</span>
             </Link>
 
@@ -680,6 +710,9 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
         {/* Palco Central */}
         <div className="flex-1 min-w-0">{children}</div>
       </div>
+
+      {/* Drawer Global da IA Conectada ao Sistema de Acervo (acervo.sqlite3 + campos.sqlite3 + tarifas.sqlite3) */}
+      <AcervoAiGlobalDrawer />
     </div>
   );
 }

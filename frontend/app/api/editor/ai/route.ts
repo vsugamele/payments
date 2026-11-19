@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
+import { queryUnifiedAcervo } from "@/lib/acervoAiBridge";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, text, fullDocument, prompt, apiKey, provider = "openai", model, tone } = body;
+    const { action, text, fullDocument, prompt, apiKey, provider = "openai", model, tone, bandeira } = body;
+
+    // 1. Consulta automática ao Sistema de Acervo (acervo.sqlite3 + campos.sqlite3 + tarifas.sqlite3 + boletins)
+    const searchQuery = String(prompt || text || fullDocument || "TCR 0 Outgoing").replace(/<[^>]*>?/gm, " ").trim().slice(0, 220);
+    const acervoContext = queryUnifiedAcervo({
+      pergunta: searchQuery || "TCR 0",
+      bandeira: bandeira || undefined,
+      limite: 5,
+    });
+    const acervoContextSummary = [
+      ...acervoContext.evidence.slice(0, 3).map((ev: any) => `[PDF: ${ev.file} · ${ev.unitLabel} · SHA256:${String(ev.sha256 || "").slice(0, 10)}] "${String(ev.excerpt || "").slice(0, 260)}"`),
+      ...acervoContext.camposMatched.slice(0, 4).map((c: any) => `[CAMPO SQLITE: ${c.bandeira} · ${c.registro} · Pos ${c.posicao} (${c.tamanho}, ${c.formato}) · ${c.nome}] ${String(c.descricao || "").slice(0, 180)}`),
+      ...acervoContext.tarifasMatched.slice(0, 2).map((t: any) => `[TARIFA SQLITE: ${t.bandeira || ""} · ${t.billing_line || t.codigo || ""}] ${t.nome_tarifa || t.titulo || ""}: ${t.valor || t.taxa || ""}`),
+    ].join("\n");
 
     // Build the system and user instructions based on action
     let systemPrompt = `Você é um Consultor Principal e Arquiteto Especialista em Meios de Pagamento, Mensageria Bancária e Regulamentação (especializado nas regras globais da Visa, Mastercard, Elo, credenciamento, subcredenciamento/Payment Facilitators e diretrizes do Banco Central do Brasil / Núclea-CIP), escrevendo com voz autoral conversacional, didática e sem clichês de IA.
@@ -104,7 +118,7 @@ Sempre que explicar qualquer campo, código de recusa (ex.: Bit 39 = 40) ou regr
           body: JSON.stringify({
             model: model || "gpt-4o-mini",
             messages: [
-              { role: "system", content: systemPrompt },
+              { role: "system", content: `${systemPrompt}\n\nEVIDÊNCIAS REAIS DO SISTEMA DE ACERVO (USE E CITE OBRIGATORIAMENTE):\n${acervoContextSummary}` },
               { role: "user", content: userInstruction },
             ],
             temperature: 0.5,
@@ -121,17 +135,38 @@ Sempre que explicar qualquer campo, código de recusa (ex.: Bit 39 = 40) ou regr
       }
     }
 
-    // Smart Built-in Fallback Generator (Instant response when no external key is connected)
-    const simulatedResult = generateSmartFallback(action, text, prompt, tone, fullDocument);
-    return NextResponse.json({ success: true, result: simulatedResult, isFallback: true });
+    // Smart Built-in Fallback Generator grounded in the real Acervo evidence
+    const simulatedResult = generateSmartFallback(action, text, prompt, tone, fullDocument, acervoContext);
+    return NextResponse.json({
+      success: true,
+      result: simulatedResult,
+      isFallback: true,
+      acervoEvidenceCount: acervoContext.evidence.length,
+      acervoCamposCount: acervoContext.camposMatched.length,
+      liveEngineConnected: acervoContext.liveEngineConnected,
+    });
 
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message || "Erro ao processar solicitação de IA" }, { status: 500 });
   }
 }
 
-function generateSmartFallback(action: string, text: string = "", prompt: string = "", tone: string = "", fullDocument: string = ""): string {
+function generateSmartFallback(action: string, text: string = "", prompt: string = "", tone: string = "", fullDocument: string = "", acervoContext?: any): string {
   const cleanText = (text || prompt || "Bit 39 = 40 (Function Not Supported)").replace(/<[^>]*>?/gm, "").trim();
+  const evList: any[] = acervoContext?.evidence || [];
+  const camposList: any[] = acervoContext?.camposMatched || [];
+  const tarifasList: any[] = acervoContext?.tarifasMatched || [];
+
+  const acervoHtmlBlock = (evList.length > 0 || camposList.length > 0)
+    ? `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:4px solid #1F3FE0; border-radius:10px; padding:12px 16px; margin:12px 0; font-size:12px;">
+        <div style="font-weight:800; color:#1e3a8a; margin-bottom:6px;">🗄️ Lastro no Sistema de Acervo (${acervoContext?.liveEngineConnected ? "SQLite FTS5 Ao Vivo" : "Acervo Canônico Plugado"})</div>
+        <ul style="margin:0 0 0 16px; padding:0; color:#334155;">
+          ${evList.slice(0, 3).map((ev) => `<li><strong>${ev.file}</strong> (${ev.unitLabel}): <em>"${String(ev.excerpt || "").slice(0, 220)}..."</em></li>`).join("")}
+          ${camposList.slice(0, 3).map((c) => `<li><strong>Campo <code>${c.bandeira} · ${c.registro} · ${c.nome}</code></strong>: Pos <code>${c.posicao || "-"}</code> (${c.tamanho || "-"}, ${c.formato || "-"}) — ${String(c.descricao || "").slice(0, 160)}</li>`).join("")}
+          ${tarifasList.slice(0, 2).map((t) => `<li><strong>Tarifa <code>${t.billing_line || t.codigo || "Fee"}</code></strong>: ${t.nome_tarifa || t.titulo || ""} — ${t.valor || t.taxa || ""}</li>`).join("")}
+        </ul>
+      </div>`
+    : "";
 
   switch (action) {
     case "unravel_thread":
@@ -157,6 +192,7 @@ function generateSmartFallback(action: string, text: string = "", prompt: string
       </ul>
     </li>
   </ol>
+  ${acervoHtmlBlock}
 </div>`;
 
     case "improve":
@@ -209,12 +245,9 @@ function generateSmartFallback(action: string, text: string = "", prompt: string
 <p>Após a entrada em produção, a equipe de engenharia e conciliação deve monitorar diariamente os arquivos de retorno de clearing (<code>TC 04 / TCR 9</code> na Visa, <code>IP714010-AA</code> na Mastercard e <code>Registro "45" IRQ</code> na Elo) para garantir que nenhuma alteração de catálogo ou cadastro de seller quebre a paridade da mensageria.</p>`;
 
     case "copilot_chat":
-      return `Analisei o seu documento aplicando a <strong>Regra do Novelo (5 Elos de Causa e Efeito)</strong> e o padrão de <strong>Consultor Sênior em Pagamentos</strong>. Posso:
-1. <strong>🧶 Desenrolar o Novelo</strong> de qualquer Bit, Tag TLV ou código <code>DE 39</code> (explicando O que é, Onde trafega, Gatilhos reais, Risco/Multa e Ação no Backend + UX).
-2. <strong>⚖️ Auditar a paridade</strong> entre Autorização (<code>0100</code>) e Clearing (<code>TC 05 / IPM 1240</code>).
-3. <strong>📋 Gerar minutas técnicas ou payloads JSON</strong> prontos para o seu time.`;
+      return `${acervoHtmlBlock}<div>${acervoContext?.answer ? String(acervoContext.answer).replace(/\n/g, "<br/>") : `Analisei o seu documento aplicando a <strong>Regra do Novelo (5 Elos de Causa e Efeito)</strong> e o padrão de <strong>Consultor Sênior em Pagamentos</strong>.`}</div>`;
 
     default:
-      return `<p>Processado com sucesso: ${cleanText}</p>`;
+      return `${acervoHtmlBlock}<p><strong>Parecer Técnico sobre "${cleanText}":</strong></p><p>${acervoContext?.answer ? String(acervoContext.answer).replace(/\n/g, "<br/>") : cleanText}</p>`;
   }
 }

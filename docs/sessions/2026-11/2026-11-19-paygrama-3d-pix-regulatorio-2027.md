@@ -37,6 +37,14 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
    - Integração do `PaygramaInteractiveLab` em `/jornada` e na sub-aba `0️⃣ Laboratório 3D Isométrico, Pix, Regulatório & 2027+` de `/compliance/outgoing?tab=flows`.
 3. `frontend/app/sobre/page.tsx` e `frontend/components/PaymentsWorkbenchShell.tsx`:
    - Upgrade editorial do perfil executivo (`/sobre`) com as seções **"O que guia meu trabalho"**, **"3 Princípios Inegociáveis"**, **"Como organizo os domínios de Meios de Pagamento (3 Linhas: Core & Liquidação, Canais & Conversão, Plataforma & Governança)"** e **"O que construo no VS Payments Workbench"** (cards com métricas em fonte monoespaçada).
+4. **Unificação do Sistema de Acervo Dentro da IA (`frontend/lib/acervoAiBridge.ts`, `frontend/components/AcervoAiGlobalDrawer.tsx`, `frontend/app/api/acervo/search/route.ts`, `frontend/app/api/rag/ask_manuals/route.ts`, `frontend/app/api/editor/ai/route.ts`, `frontend/app/compliance/boletins/page.tsx`)**:
+   - **Ponte Unificada de 4 Motores (`acervoAiBridge.ts`)**: Conecta simultaneamente:
+     1. `acervo.sqlite3` FTS5 ao vivo via `retrieval.py` (`40.129` ativos com `SHA-256`, página física, `EVD-...` e validação de versão/OCR);
+     2. `campos.sqlite3` ao vivo via `indice_campos/consultar_campos.py` (`17.106` campos extraídos de tabelas PDF) + as `35` tabelas de Outgoing (`OUTGOING_TABLES`);
+     3. `tarifas.sqlite3` & `fee_schedule.sqlite3` ao vivo via `indice_tarifas/consultar_tarifas.py` (`454` billing lines VSS/MCBS e intercâmbio);
+     4. `boletins-bundle.json` (`385` boletins) + `governanca-bundle.json` + auditoria de conflitos explícitos entre fontes (`scopeConflicts` — regra *"Nada é escolhido em silêncio"*).
+   - **Drawer Global Onipresente (`AcervoAiGlobalDrawer.tsx`)**: Acessível de qualquer página do sistema pelo botão no topo da barra (`✨ IA + Acervo Alt+A`), pelo botão flutuante inferior esquerdo ou direto de cada card em `/compliance/boletins` (`🧠 Cruzar na IA do Acervo (SQLite)`), com 4 abas (`🧠 Parecer IA`, `📄 PDFs & Boletins`, `🧬 Campos SQLite`, `💲 Tarifas & BCB`) e exportação 1-clique para o Doc Studio (`/editor`).
+   - **Copilot do Doc Studio (`/api/editor/ai`)**: Passa a injetar automaticamente as evidências reais do `acervo.sqlite3`, `campos.sqlite3` e `tarifas.sqlite3` tanto no prompt de IA quanto no gerador determinístico (*Regra do Novelo*).
 
 ## Validação
 - `npx next typegen` e `npx tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0`.

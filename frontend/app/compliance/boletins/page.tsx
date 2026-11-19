@@ -641,6 +641,21 @@ export default function CentralBoletinsComportamentoPage() {
                             🔍 Inspecionar no Drawer Lateral
                           </button>
                           <button
+                            onClick={() =>
+                              window.dispatchEvent(
+                                new CustomEvent("open-acervo-ai-drawer", {
+                                  detail: {
+                                    query: `${b.id || ""} ${b.titulo || ""}`.trim(),
+                                    bandeira: String(b.bandeira || "ALL").toLowerCase(),
+                                  },
+                                })
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-600/25 hover:bg-blue-600/40 text-blue-200 text-xs font-bold border border-blue-500/40 transition-all"
+                          >
+                            🧠 Cruzar na IA do Acervo (SQLite)
+                          </button>
+                          <button
                             disabled={isStageLocked}
                             title={
                               isStageLocked
