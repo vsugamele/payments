@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { EDITORIAL_POSTS } from "@/data/editorial-posts";
+import { GUIA_CHAPTERS } from "@/data/guia-pagamentos";
 import consultas from "@/data/consultas-publicas.json";
 
 const SITE_URL = "https://vinicius-sugamele.com";
@@ -18,6 +19,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/jornada`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
   ];
 
+  const guiaRoutes: MetadataRoute.Sitemap = GUIA_CHAPTERS.map((ch) => ({
+    url: `${SITE_URL}/guia/${ch.id}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
   const postRoutes: MetadataRoute.Sitemap = EDITORIAL_POSTS.map((post) => ({
     url: `${SITE_URL}${post.href}`,
     lastModified: new Date(`${post.dateISO}T12:00:00Z`),
@@ -32,5 +40,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...consultaRoutes];
+  return [...staticRoutes, ...guiaRoutes, ...postRoutes, ...consultaRoutes];
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   // 1. Desconectar / Bloquear Acesso se logout=1
@@ -29,7 +29,6 @@ export function middleware(request: NextRequest) {
   // 3. Verificação do Cookie de Autenticação do Proprietário
   const hasAuthCookie = request.cookies.get("vs_internal_pass")?.value === "1";
 
-  // Se o proprietário estiver autenticado, libera o acesso a qualquer rota técnica
   if (hasAuthCookie) {
     return NextResponse.next();
   }
@@ -47,12 +46,15 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/consultas/") ||
     pathname === "/glossario" ||
     pathname === "/guia" ||
+    pathname.startsWith("/guia/") ||
     pathname === "/leituras" ||
     pathname === "/jornada" ||
     pathname === "/feed.xml" ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
-    pathname === "/admin" || // Permite abrir a tela de login do proprietário
+    pathname.startsWith("/opengraph-image") ||
+    pathname.startsWith("/twitter-image") ||
+    pathname === "/admin" ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/mapas/") ||
@@ -75,9 +77,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except static files
-     */
     "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

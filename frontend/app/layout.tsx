@@ -41,19 +41,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
     description:
-      "Notícias comentadas, mudanças de regra e análises práticas de meios de pagamento. Trajetória de 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express.",
+      "Notícias comentadas, guia prático e bastidores de meios de pagamento. Trajetória de 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express.",
     url: "https://vinicius-sugamele.com",
     siteName: "Vinícius Sugamele",
-    images: [
-      {
-        url: "/vinicius_sugamele.jpg",
-        width: 800,
-        height: 1000,
-        alt: "Vinícius Sugamele",
-      },
-    ],
     locale: "pt_BR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+    description:
+      "Notícias comentadas, guia prático em 9 capítulos e bastidores de Visa, Mastercard, Elo, Amex, Pix e Banco Central.",
   },
 };
 

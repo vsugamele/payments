@@ -658,7 +658,7 @@ export function HomeEditorialClient({
                     Guia Geral de Pagamentos
                   </Link>
                   <span className="text-muted-foreground">
-                    {" "}— seis capítulos curtos sobre cartão, liquidação, intercâmbio, disputas, Pix e Reforma 2027.
+                    {" "}— nove capítulos curtos sobre cartão, liquidação, intercâmbio, disputas, Pix, boleto, Open Finance, KYC e Reforma 2027.
                   </span>
                 </li>
                 <li>

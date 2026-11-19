@@ -2,6 +2,7 @@ export interface GuiaChapter {
   id: string;
   number: string;
   title: string;
+  shortTitle: string;
   subtitle: string;
   summary: string;
   actors: string;
@@ -18,6 +19,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
   {
     id: "cartao",
     number: "01",
+    shortTitle: "Cartão",
     title: "Cartão: quem participa e como a compra é aprovada",
     subtitle: "Do toque na maquininha ou checkout online até o código de retorno 00.",
     summary:
@@ -44,6 +46,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
   {
     id: "clearing",
     number: "02",
+    shortTitle: "Clearing e Liquidação",
     title: "Clearing, Outgoing e liquidação (SLC / B3)",
     subtitle: "Como a venda autorizada vira dinheiro na conta do estabelecimento.",
     summary:
@@ -54,7 +57,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
       "Cada bandeira usa um formato próprio: Base II (.CTF de 168 bytes) na Visa, GCMS IPM (.IPM em TLV) na Mastercard, Serviço 10 (.TXT) na Elo e CAS na American Express. Com o lote aceito, a agenda de recebíveis do lojista é registrada como Unidade de Recebível (UR) em registradora autorizada (B3, CERC ou TAG), permitindo que o lojista negocie antecipação ou garantia onde escolher antes da liquidação multilateral no SLC.",
     ],
     keyPoints: [
-      "Critica T+0: erros de sintaxe ou campo ausente no Outgoing geram rejeições (EP747, VCX, T112, Reg 09) e atrasam o repasse.",
+      "Crítica T+0: erros de sintaxe ou campo ausente no Outgoing geram rejeições (EP747, VCX, T112, Reg 09) e atrasam o repasse.",
       "Registro obrigatório de recebíveis (Res. BCB 264): quebrou a trava bancária exclusiva e exige consulta de ônus antes da liquidação.",
       "Prazos típicos no Brasil: débito liquida em D+1; crédito à vista e parcelas em ciclos de ~30 dias, salvo antecipação.",
     ],
@@ -68,6 +71,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
   {
     id: "intercambio",
     number: "03",
+    shortTitle: "Intercâmbio e MDR",
     title: "Intercâmbio, MDR e tarifas de bandeira",
     subtitle: "Para onde vai cada centavo da taxa descontada do lojista.",
     summary:
@@ -94,6 +98,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
   {
     id: "disputas",
     number: "04",
+    shortTitle: "Contestação e CE 3.0",
     title: "Contestação, chargeback e Compelling Evidence 3.0",
     subtitle: "Quando o portador não reconhece a compra e o jogo vira disputa de evidência.",
     summary:
@@ -120,6 +125,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
   {
     id: "pix",
     number: "05",
+    shortTitle: "Pix e MED 2.0",
     title: "Pix, Pix Automático, JSR e MED 2.0",
     subtitle: "Liquidação bruta em tempo real no Banco Central e a evolução de recorrência e segurança.",
     summary:
@@ -144,8 +150,86 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
     relatedArticleLabel: "Ler: MED 2.0 e rastreio multinível",
   },
   {
-    id: "reforma-2027",
+    id: "boleto",
     number: "06",
+    shortTitle: "Boleto NPC e BolePix",
+    title: "Boleto registrado, BolePix, SILOC e STR",
+    subtitle: "Do registro obrigatório na base centralizada até a compensação em D+1 ou tempo real.",
+    summary:
+      "O boleto deixou de ser um título solto em papel: hoje precisa nascer registrado na base centralizada da CIP/Núclea (ADDA101), aceita pagamento híbrido via Pix e muda de câmara conforme o valor.",
+    actors: "Beneficiário → Banco Emissor → Base Centralizada (Núclea/NPC) → Banco Pagador → SILOC / STR",
+    paragraphs: [
+      "Todo boleto emitido no Brasil precisa ser registrado na Nova Plataforma de Cobrança (CIP/Núclea) com dados completos do pagador, do beneficiário, valor, vencimento e regras de juros e desconto. É essa base única que permite pagar o boleto em qualquer banco e alimenta o DDA (Débito Direto Autorizado).",
+      "Na liquidação, o valor define a trilha: boletos abaixo de R$ 250 mil compensam de forma multilateral no SILOC em D+1; já boletos de valor igual ou superior a R$ 250 mil (VLB-Cobrança) liquidam individualmente em tempo real no STR (D+0, mensagem STR0039) para reduzir risco sistêmico entre bancos.",
+    ],
+    keyPoints: [
+      "Fator de vencimento Febraban: reiniciou em 22/02/2025 voltando para 1000 — sistemas legados que não trataram a virada erram a data de vencimento.",
+      "SILOC vs STR: abaixo de R$ 250 mil vai na grade multilateral (D+1); a partir de R$ 250 mil vai bruto em tempo real no STR (D+0).",
+      "Resolução BCB nº 443/2024 e nº 587/2026: consolidam o boleto dinâmico e a cobrança híbrida (Pix Cobrança que também pode ser paga como boleto, com vigência em 01/02/2027).",
+    ],
+    officialSources: [
+      "Resolução BCB nº 443/2024 (Arranjo do boleto e base centralizada)",
+      "Resolução BCB nº 587/2026 (Cobrança híbrida a partir de 01/02/2027) · Regulamento SILOC/STR",
+    ],
+    labHref: "/jornada?track=boleto_npc",
+    labLabel: "Ver Boleto NPC e BolePix no Laboratório",
+  },
+  {
+    id: "open-finance",
+    number: "07",
+    shortTitle: "Open Finance e JSR",
+    title: "Open Finance, consentimento e Jornada Sem Redirecionamento",
+    subtitle: "Como APIs padronizadas movem dados bancários e iniciam pagamentos fora do app do banco.",
+    summary:
+      "No Open Finance, o cliente autoriza que outra instituição leia seus dados ou inicie um Pix em seu nome. Com a JSR e o consentimento desacoplado, a experiência perde o atrito de pular entre aplicativos.",
+    actors: "Cliente → Instituição Receptora / Iniciadora (ITP) → Diretório → Instituição Transmissora / Detentora",
+    paragraphs: [
+      "A primeira fase do Open Finance focou em compartilhamento de cadastro, saldos e extrato mediante consentimento explícito com escopo e prazo definidos pelo cliente. Na camada de pagamentos, entrou a figura do Iniciador de Transação de Pagamento (ITP), que dispara um Pix a partir da conta mantida em outro banco.",
+      "Durante os primeiros anos, o gargalo foi o redirecionamento: o usuário precisava sair do checkout, abrir o app do banco, fazer login e voltar. A Resolução BCB nº 406/2024 resolveu isso com a Jornada Sem Redirecionamento (JSR), vinculando o dispositivo com biometria FIDO2/WebAuthn para aprovar pagamentos no próprio checkout ou por aproximação NFC.",
+    ],
+    keyPoints: [
+      "Consentimento auditável: toda chamada passa por certificados do Diretório do Open Finance, com finalidade e prazo controlados pelo titular.",
+      "JSR (Res. BCB 406/2024): dispensa o redirecionamento ao app do banco após o vínculo inicial com Passkey / FIDO2.",
+      "Horizonte 2027 (Res. BCB 603/2026): iniciadoras passam a poder ofertar crédito integrado na hora do Pix a partir de 01/07/2027.",
+    ],
+    officialSources: [
+      "Resolução Conjunta nº 1/2020 (Estrutura do Open Finance)",
+      "Resolução BCB nº 406/2024 (JSR) e Resolução Conjunta nº 21/2026",
+    ],
+    labHref: "/jornada?track=open_finance_drex",
+    labLabel: "Ver Open Finance e JSR no Laboratório",
+    relatedArticleHref: "/noticias/pix-automatico-e-aproximacao-jsr",
+    relatedArticleLabel: "Ler: Pix Automático e Aproximação (JSR)",
+  },
+  {
+    id: "abertura-de-conta",
+    number: "08",
+    shortTitle: "Abertura de Conta e KYC",
+    title: "Abertura de conta, PLD/FT, BaaS e BC Protege+",
+    subtitle: "O que acontece nos bastidores antes de uma conta digital ou cartão virtual nascer.",
+    summary:
+      "Abrir uma conta pelo celular parece instantâneo, mas exige checagem biométrica, consulta à Receita Federal, trava preventiva no BC Protege+ e triagem contra lavagem de dinheiro antes de emitir a primeira chave Pix.",
+    actors: "Cliente → App da IP / Banco → Validação Biométrica / CPF → BC Protege+ / PLD → Conta PI / Cartão",
+    paragraphs: [
+      "Antes de liberar uma conta de pagamento pré-paga (regida pela Resolução BCB nº 96/2021) ou conta de depósitos bancária (Resolução CMN nº 4.753/2019), a instituição precisa confirmar a identidade do titular, validar prova de vida (liveness 3D), checar a situação cadastral na Receita Federal e rodar filtros de prevenção à lavagem de dinheiro (PEP e listas restritivas — Circular 3.978/2020).",
+      "Outro controle que entrou na rotina de onboarding é o BC Protege+, sistema do Banco Central em que qualquer pessoa ou empresa pode ativar um bloqueio gratuito contra abertura de contas em seu CPF ou CNPJ. Sem consultar essa trava, a instituição assume risco direto de conta fraudulenta.",
+    ],
+    keyPoints: [
+      "IP vs Banco: em conta de pagamento pré-paga (Res. BCB 96), o saldo fica separado do patrimônio da instituição (no BC ou em títulos públicos) e não pode ser emprestado.",
+      "BC Protege+: consulta preventiva obrigatória para impedir abertura de contas laranja com documentos vazados.",
+      "BaaS regulado (Res. Conjunta nº 16/2025): define responsabilidades formais entre a instituição regulada prestadora de BaaS e o parceiro tomador do serviço.",
+    ],
+    officialSources: [
+      "Resolução BCB nº 96/2021 (Contas de pagamento) e Circular nº 3.978/2020 (PLD/FT)",
+      "Resolução Conjunta nº 16/2025 (Banking as a Service) · Sistema BC Protege+",
+    ],
+    labHref: "/jornada?track=abertura_conta_kyc",
+    labLabel: "Ver Abertura de Conta e BC Protege+ no Laboratório",
+  },
+  {
+    id: "reforma-2027",
+    number: "09",
+    shortTitle: "Reforma 2027 e Split",
     title: "Reforma Tributária 2027+ e o Split Payment",
     subtitle: "A maior mudança estrutural de liquidação da década no Brasil.",
     summary:
@@ -170,3 +254,7 @@ export const GUIA_CHAPTERS: GuiaChapter[] = [
     relatedArticleLabel: "Ler: Split Payment na Reforma Tributária",
   },
 ];
+
+export function getGuiaChapterBySlug(slug: string): GuiaChapter | undefined {
+  return GUIA_CHAPTERS.find((c) => c.id === slug);
+}

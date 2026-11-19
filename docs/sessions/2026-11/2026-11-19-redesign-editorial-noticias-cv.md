@@ -33,5 +33,12 @@ Resolver o sistema de cores (eliminando gradientes neon, glows e fundos escuros 
 - `frontend/components/ArticleToc.tsx`, `frontend/components/ArticleLayout.tsx`, `frontend/app/artigos/vdcap-taf-scof/page.tsx` e `frontend/app/artigos/passo-a-passo-transacao/page.tsx`: sumário lateral automático (`Neste texto`) nos artigos longos + remoção das últimas bordas `#0f172a` e fontes legadas.
 - `frontend/app/layout.tsx`, `frontend/app/sitemap.ts`, `frontend/app/robots.ts` e `frontend/middleware.ts`: `metadataBase` configurado (`https://vinicius-sugamele.com`), `sitemap.xml` e `robots.txt` expondo apenas rotas públicas (mantendo `/admin` e `/compliance/*` bloqueados para indexação).
 
+## Rodada 6 (19/11/2026 — `/guia/[slug]` em 9 Capítulos, `proxy.ts` Next 16, Capa OG 1200×630 e Posts Prontos para LinkedIn)
+- `frontend/data/guia-pagamentos.ts`, `frontend/app/guia/page.tsx` e `frontend/app/guia/[slug]/page.tsx`: Guia expandido para 9 capítulos (adicionados Boleto NPC/SILOC/STR, Open Finance JSR e Abertura de Conta/KYC/BC Protege+) com URL própria por capítulo (`/guia/cartao`, `/guia/intercambio`, `/guia/pix`, `/guia/boleto`, `/guia/reforma-2027` etc.), navegação Anterior/Próximo, botão de compartilhamento e sitemap atualizado.
+- `frontend/proxy.ts` (removendo `frontend/middleware.ts`): migração para a convenção oficial `proxy.ts` do Next.js 16, liberando `/guia/*` e `/opengraph-image`.
+- `frontend/app/opengraph-image.tsx` e `frontend/app/layout.tsx`: capa editorial Open Graph 1200×630 gerada estaticamente em papel/grafite para compartilhamentos limpos no LinkedIn e WhatsApp.
+- Conferido `Curriculo_Vinicius_Sugamele.pdf` em `frontend/public/` (05/11/2026, mais recente que `Curriculo_Vinicius_Sugamele_26.pdf` de 28/08/2026 na raiz — mantido o mais novo).
+- `docs/editorial/posts-linkedin-prontos.md`: 3 posts prontos para publicação no LinkedIn a partir das notas e do Guia.
+
 ## Limites e Próximo Passo
 - As notícias editoriais são estáticas em `frontend/data/editorial-posts.ts`, baseadas exclusivamente nas normas e consultas públicas já presentes no repositório. Para alimentação contínua de notícias externas no futuro, pode-se plugar um feed curado ou painel editorial no `/admin`.
