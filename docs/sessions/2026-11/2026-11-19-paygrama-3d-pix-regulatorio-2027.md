@@ -45,6 +45,19 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
      4. `boletins-bundle.json` (`385` boletins) + `governanca-bundle.json` + auditoria de conflitos explícitos entre fontes (`scopeConflicts` — regra *"Nada é escolhido em silêncio"*).
    - **Drawer Global Onipresente (`AcervoAiGlobalDrawer.tsx`)**: Acessível de qualquer página do sistema pelo botão no topo da barra (`✨ IA + Acervo Alt+A`), pelo botão flutuante inferior esquerdo ou direto de cada card em `/compliance/boletins` (`🧠 Cruzar na IA do Acervo (SQLite)`), com 4 abas (`🧠 Parecer IA`, `📄 PDFs & Boletins`, `🧬 Campos SQLite`, `💲 Tarifas & BCB`) e exportação 1-clique para o Doc Studio (`/editor`).
    - **Copilot do Doc Studio (`/api/editor/ai`)**: Passa a injetar automaticamente as evidências reais do `acervo.sqlite3`, `campos.sqlite3` e `tarifas.sqlite3` tanto no prompt de IA quanto no gerador determinístico (*Regra do Novelo*).
+5. **Organização por Produto em Caixinhas & Jornada Lado a Lado "1. Ensinar ⇄ 2. Demonstrar" (`frontend/components/TeachAndDemonstrateHub.tsx`, `frontend/app/acervo/AcervoOrganizedClient.tsx`, `frontend/app/acervo/page.tsx`, `frontend/app/trilhas/page.tsx`, `frontend/components/PaymentsWorkbenchShell.tsx`)**:
+   - **6 Caixinhas de Produtos/Domínios (`TeachAndDemonstrateHub.tsx`)**:
+     1. `💳 01. Cartão Presencial (Chip EMV, NFC & Tap on Phone)`
+     2. `🔐 02. Cartão Online (3DS 2.2 CAVV v9, Tokens VTS/MDES, Passkeys & MIT)`
+     3. `📦 03. Clearing, Outgoing & Liquidação (Base II, IPM, Serviço 10, B3 & CIP/SLC)`
+     4. `💰 04. Produtos, Intercâmbio, MDR & Faturas (PID, Teto BCB 304, Downgrade & MCBS/VSS)`
+     5. `⚡ 05. Pix (SPI/DICT), Pix Automático, NFC, MED 2.0 & Boleto NPC`
+     6. `📜 06. Disputas (CE 3.0), Releases Semestrais & Reforma 2027 (Split LC 214)`
+   - **Palco Lado a Lado (`50% Esquerda: 📘 1. ENSINAR` ⇄ `50% Direita: 🔬 2. DEMONSTRAR`)**:
+     - À esquerda: explicação sem jargão, fluxo passo a passo (`1 ➔ 2 ➔ 3 ➔ 4`), erro mais comum em produção, fonte normativa oficial e botão `🧠 Ver nos PDFs do Acervo`.
+     - À direita: comparador interativo 1-clique entre `✅ Caso Certo (Normal)` vs `❌ Caso com Erro / Falha`, inspeção de campos linha a linha, resultado financeiro e links diretos para os simuladores.
+   - **Reorganização do `/acervo` em 4 Caixinhas Superiores (`AcervoOrganizedClient.tsx`)**: Elimina o empilhamento longo e exibe um modo por vez (`🎓 1. Guia por Produto Ensinar+Demonstrar`, `🔎 2. Busca nos 4 Bancos SQLite`, `🧠 3. Perguntar ao Cérebro RAG`, `📚 4. Biblioteca de Manuais em Caixinhas Lado a Lado`).
+   - **Menu Lateral Global com Modo `🎓 Por Produto` vs `🛠️ 5 Estações` (`PaymentsWorkbenchShell.tsx`)**: O menu esquerdo agora abre por padrão organizado nas **6 Caixinhas de Produto**, cada uma com botões lado a lado `📘 1. Ensinar` e `🔬 2. Demonstrar`.
 
 ## Validação
 - `npx next typegen` e `npx tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0`.

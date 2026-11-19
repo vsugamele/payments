@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, GraduationCap, Compass } from "lucide-react";
 import trilhasData from "@/data/trilhas.json";
 import { TrilhaCard } from "@/components/TrilhasClient";
+import { TeachAndDemonstrateHub } from "@/components/TeachAndDemonstrateHub";
 
 export const metadata = {
   title: "Trilhas de Aprendizado — VS Payments",
@@ -127,9 +128,22 @@ export default function TrilhasPage() {
         </div>
       </section>
 
-      {/* Grid de trilhas */}
+      {/* ── Novo: Jornada por Produto (1. Ensinar Esquerda ⇄ 2. Demonstrar Direita) ── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <TeachAndDemonstrateHub />
+      </section>
+
+      {/* Grid de trilhas de leitura */}
       <section style={{ padding: "3rem 1.5rem 0" }}>
         <div className="mx-auto max-w-5xl">
+          <div className="mb-5">
+            <div className="font-mono text-xs font-bold uppercase tracking-wider text-indigo-400">
+              Currículo Complementar de Leitura
+            </div>
+            <h2 className="text-xl font-black text-white">
+              Módulos Teóricos Progressivos (Iniciante ➔ Avançado)
+            </h2>
+          </div>
           <div
             style={{
               display: "grid",

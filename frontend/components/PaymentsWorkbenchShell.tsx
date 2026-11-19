@@ -375,6 +375,7 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarViewMode, setSidebarViewMode] = useState<'product_boxes' | 'technical_stations'>('product_boxes');
   const [globalBrand, setGlobalBrand] = useState<GlobalBrandFilter>('ALL');
   const [globalRole, setGlobalRole] = useState<GlobalRoleFilter>('ambos');
   const [currentTabParam, setCurrentTabParam] = useState<string>('tables');
@@ -649,10 +650,165 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
           CORPO DO WORKBENCH: SIDEBAR ESQUERDA (5 ESTAÇÕES) + PALCO CENTRAL
          ===================================================================== */}
       <div className="flex-1 flex max-w-[1680px] w-full mx-auto">
-        {/* Sidebar Esquerda das 5 Estações do Ciclo da Transação */}
+        {/* Sidebar Esquerda: Modo Por Produto (Caixinhas Ensinar + Demonstrar) vs 5 Estações Técnicas */}
         {!sidebarCollapsed && (
-          <aside className="hidden lg:block w-[272px] shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 space-y-5 sticky top-[53px] self-start max-h-[calc(100vh-55px)] overflow-y-auto">
-            {WORKBENCH_GROUPS.map((group) => (
+          <aside className="hidden lg:block w-[286px] shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-3.5 space-y-4 sticky top-[53px] self-start max-h-[calc(100vh-55px)] overflow-y-auto">
+            {/* Toggle de Organização do Menu: Por Produto (Caixinhas) vs 5 Estações (Engenharia) */}
+            <div className="rounded-2xl bg-slate-100 dark:bg-slate-950 p-1 border border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-1">
+              <button
+                onClick={() => setSidebarViewMode('product_boxes')}
+                className={`py-1.5 px-2 rounded-xl text-[11px] font-black transition-all ${
+                  sidebarViewMode === 'product_boxes'
+                    ? 'bg-[#1F3FE0] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🎓 Por Produto
+              </button>
+              <button
+                onClick={() => setSidebarViewMode('technical_stations')}
+                className={`py-1.5 px-2 rounded-xl text-[11px] font-black transition-all ${
+                  sidebarViewMode === 'technical_stations'
+                    ? 'bg-[#1F3FE0] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🛠️ 5 Estações
+              </button>
+            </div>
+
+            {sidebarViewMode === 'product_boxes' ? (
+              <div className="space-y-2.5">
+                <div className="px-1">
+                  <div className="font-mono text-[10px] font-black uppercase tracking-wider text-[#1F3FE0] dark:text-blue-400">
+                    Jornada Ensinar + Demonstrar
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                    Escolha o produto para aprender o conceito ou testar ao vivo:
+                  </p>
+                </div>
+
+                {[
+                  {
+                    icon: '💳',
+                    num: '01',
+                    title: 'Cartão Presencial (Chip & NFC)',
+                    desc: 'EMV ARQC/ARPC, PIN HSM (:1500) & SoftPOS Tap on Phone',
+                    teachHref: '/acervo',
+                    demoHref: '/jornada?track=cartao',
+                    tools: [
+                      { label: 'Decodificador EMV (40b)', href: '/compliance/emv' },
+                      { label: 'Tap to Phone (SoftPOS)', href: '/compliance/softpos' },
+                    ],
+                  },
+                  {
+                    icon: '🔐',
+                    num: '02',
+                    title: 'Cartão Online (3DS & Tokens)',
+                    desc: '3DS 2.2 CAVV v9, VTS/MDES, Passkeys & Recorrência MIT',
+                    teachHref: '/trilhas',
+                    demoHref: '/compliance/3ds',
+                    tools: [
+                      { label: 'Network Tokens (VTS/MDES)', href: '/compliance/tokenizacao' },
+                      { label: 'Retentativas & MIT/CIT', href: '/compliance/retentativas' },
+                    ],
+                  },
+                  {
+                    icon: '📦',
+                    num: '03',
+                    title: 'Clearing, Outgoing & CIP/SLC',
+                    desc: '35 Tabelas (.CTF/.IPM/.TXT), Registradora B3 & ASLC026',
+                    teachHref: '/compliance/outgoing?tab=education',
+                    demoHref: '/compliance/outgoing?tab=tables',
+                    tools: [
+                      { label: 'Suíte QA & Gerador .CTF/.IPM', href: '/compliance/outgoing?tab=eng_lab' },
+                      { label: 'Topologia C4 (17 Servidores)', href: '/arquitetura' },
+                    ],
+                  },
+                  {
+                    icon: '💰',
+                    num: '04',
+                    title: 'Produtos, Preço MDR & Faturas',
+                    desc: 'Visa PID, MC Brand Product, Teto BCB 304, Downgrade & MCBS',
+                    teachHref: '/mapa/produtos',
+                    demoHref: '/compliance/outgoing?tab=downgrade_amex',
+                    tools: [
+                      { label: 'Simulador MDR & Intercâmbio', href: '/simulador' },
+                      { label: 'Faturas MCBS & Scheme Fees', href: '/mcbs' },
+                    ],
+                  },
+                  {
+                    icon: '⚡',
+                    num: '05',
+                    title: 'Pix (SPI), NFC, MED 2.0 & Boleto',
+                    desc: 'pacs.008, DICT, Pix Automático, Grafo MED 2.0 & SILOC/STR',
+                    teachHref: '/jornada?track=pix_spi',
+                    demoHref: '/jornada?track=med_seguranca',
+                    tools: [
+                      { label: 'Pix Automático & NFC (JSR)', href: '/jornada?track=pix_auto_nfc' },
+                      { label: 'Boleto NPC (SILOC vs STR)', href: '/jornada?track=boleto_npc' },
+                    ],
+                  },
+                  {
+                    icon: '📜',
+                    num: '06',
+                    title: 'Disputas CE 3.0 & Reforma 2027',
+                    desc: 'Chargebacks, VAMP/ECP, Boletins & Split Tributário LC 214',
+                    teachHref: '/compliance/boletins',
+                    demoHref: '/jornada?track=regras_2027_tempo&split2027=1',
+                    tools: [
+                      { label: 'Árvore Disputas & CE 3.0', href: '/compliance/outgoing?tab=disputes' },
+                      { label: 'Doc Studio & Editor IA', href: '/editor' },
+                    ],
+                  },
+                ].map((box) => (
+                  <div
+                    key={box.num}
+                    className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 p-3 space-y-2 hover:border-[#1F3FE0] transition-all"
+                  >
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-xs font-black text-slate-900 dark:text-white">
+                        {box.icon} {box.num}. {box.title}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                      {box.desc}
+                    </p>
+
+                    {/* Dupla Ação Lado a Lado: 1. Ensinar | 2. Demonstrar */}
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      <Link
+                        href={box.teachHref}
+                        className="px-2 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 border border-blue-200 dark:border-blue-800 text-[10px] font-black text-[#1F3FE0] dark:text-blue-300 text-center"
+                      >
+                        📘 1. Ensinar
+                      </Link>
+                      <Link
+                        href={box.demoHref}
+                        className="px-2 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 text-[10px] font-black text-emerald-700 dark:text-emerald-300 text-center"
+                      >
+                        🔬 2. Demonstrar
+                      </Link>
+                    </div>
+
+                    {/* Atalhos Rápidos do Produto */}
+                    <div className="flex flex-col gap-1 pt-1 border-t border-slate-200/60 dark:border-slate-800/80">
+                      {box.tools.map((tl) => (
+                        <Link
+                          key={tl.href}
+                          href={tl.href}
+                          className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-[#1F3FE0] dark:hover:text-blue-400 flex items-center justify-between"
+                        >
+                          <span className="truncate">• {tl.label}</span>
+                          <span className="font-mono text-[10px]">→</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              WORKBENCH_GROUPS.map((group) => (
               <div key={group.id} className="space-y-1.5">
                 <div className="px-2 pb-1 border-b border-slate-100 dark:border-slate-800/80">
                   <div className="flex items-center gap-1.5">
@@ -703,7 +859,8 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
                   })}
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </aside>
         )}
 
