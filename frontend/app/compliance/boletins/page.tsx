@@ -145,7 +145,7 @@ export default function CentralBoletinsComportamentoPage() {
     }
   }, [activeTab, relResults.length, runSearchReleases]);
 
-  // Sincronização automática com a Barra de Contexto Global do Workbench 2.0
+  // Sincronização automática com a Barra de Contexto Global do Workbench 2.0 (Executa 1x no mount)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -186,15 +186,13 @@ export default function CentralBoletinsComportamentoPage() {
       } else {
         setPlanilhaAba("comparativo");
       }
-      runProjetar(nextPapeis, selProdutos, nextBrand);
-      runSearchReleases({ bandeira: nextBrand });
     };
 
     window.addEventListener("workbench-context-change", onContextChange as EventListener);
     return () => {
       window.removeEventListener("workbench-context-change", onContextChange as EventListener);
     };
-  }, [runProjetar, runSearchReleases, selProdutos]);
+  }, []);
 
   const togglePapel = (p: string) => {
     const next = selPapeis.includes(p) ? selPapeis.filter((x) => x !== p) : [...selPapeis, p];
