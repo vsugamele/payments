@@ -22,6 +22,108 @@ export interface ModuleCategoryMeta {
 
 export const ADMIN_MODULE_CATEGORIES: ModuleCategoryMeta[] = [
   {
+    category: "0. Laboratórios 3D, Jornada Ensinar+Demonstrar & Suíte QA (Destaques 2026/2027)",
+    subtitle: "O pagamento desenhado por dentro em 3D isométrico, sequência em ms, aprendizado lado a lado por produto, Pix/MED 2.0, Reforma 2027 e Suíte de Engenharia.",
+    iconName: "Layers",
+    tools: [
+      {
+        id: "paygrama-3d-lab",
+        title: "O Pagamento por Dentro — Simulador 3D Isométrico, Sequência (ms), Pix & Reforma 2027+",
+        desc: "10 trilhas interativas (Cartão, Outgoing, CE 3.0, Pix SPI, Pix Automático/NFC, MED 2.0, Open Finance JSR, Boleto NPC, BC Protege+ e Split LC 214).",
+        whatItIs:
+          "Laboratório visual guiado em 3 etapas (1. Escolha o cenário e injete falhas ➔ 2. Siga as mensagens em Arquitetura 3D Isométrica ou Sequência em milissegundos ➔ 3. Veja para onde vai o dinheiro, agenda D+1 e Split Tributário 2027) cobrindo Cartão, Pix, Boleto, Open Finance e Regulatório Bacen.",
+        features: [
+          "Alternância 1-clique entre Projeção Isométrica 3D em SVG e Diagrama de Sequência cronometrado em ms",
+          "Injeção de falhas reais (STIP, Auto-Reversal 0400, Downgrade TID, Bloqueio Cautelar 72h, Grafo MED 2.0, BC Protege+)",
+          "Simulador de Antecipação D+1, Split Payment Tributário 2027 (LC 214/2025 — CBS/IBS) e Decompositor de ARN / EndToEndId / Código de Barras"
+        ],
+        dataSources: ["ISO 8583 / Base II / IPM / Serviço 10", "Catálogo SPI ISO 20022 (pacs.008/002/004)", "Res. BCB 264/304/396/406/429 & LC 214/2025"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice", "Regulatório"],
+        keywords: ["3d", "isometrico", "paygrama", "pix", "med 2.0", "pix automatico", "nfc", "jsr", "split tributario", "2027", "boleto", "siloc", "bc protege"],
+        url: "/jornada",
+        badge: "10 Trilhas · 3D + Pix",
+        iconName: "Globe",
+        color: "text-blue-400 bg-blue-500/10 border-blue-500/20"
+      },
+      {
+        id: "teach-demonstrate-hub",
+        title: "Jornada por Produto: 1. Ensinar (Esquerda) ⇄ 2. Demonstrar (Direita) + IA Acervo",
+        desc: "6 caixinhas de produtos organizadas lado a lado: explicação sem jargão à esquerda e comparativo Certo (✅) vs Errado (❌) à direita.",
+        whatItIs:
+          "Central didática e executiva dividida em 6 caixinhas de produto (Cartão Presencial, Cartão Online/Tokens, Clearing/Outgoing, Produtos/MDR/Faturas, Pix/MED 2.0/Boleto e Disputas/Reforma 2027) conectada diretamente aos 4 bancos SQLite do Acervo.",
+        features: [
+          "Coluna Esquerda (1. Ensinar): O que é sem jargão, passo a passo (1 ➔ 4), erro comum em produção e fonte oficial",
+          "Coluna Direita (2. Demonstrar): Alternância 1-clique entre Caso Normal (✅) e Caso com Falha (❌) nos campos técnicos",
+          "Integração direta com o Drawer Global da IA do Acervo (acervo.sqlite3 FTS5 + campos.sqlite3 + tarifas.sqlite3)"
+        ],
+        dataSources: ["acervo.sqlite3 (40.129 ativos)", "campos.sqlite3 (17.106 campos)", "tarifas.sqlite3 (454 linhas)"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice", "Regulatório"],
+        keywords: ["ensinar", "demonstrar", "caixinhas", "produtos", "aprendizado", "trilhas", "acervo", "ia"],
+        url: "/acervo",
+        badge: "Ensinar ⇄ Demonstrar",
+        iconName: "BookOpen",
+        color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+      },
+      {
+        id: "outgoing-eng-lab-suite",
+        title: "Suíte de Engenharia & QA (5 Labs: Gerador .CTF/.IPM/.TXT/.CAS, Doutor Rejects, 4-Way, 10 CTs & Diff)",
+        desc: "Construtor sintético de massa de testes com Luhn, diagnóstico EP747/T112/Reg 09, conciliação 4-Way e homologação.",
+        whatItIs:
+          "Bancada completa de engenharia de produção com 5 laboratórios integrados: (1) Gerador Sintético de arquivos .CTF, .IPM, .TXT e .CAS; (2) Doutor de Rejeições com Antes × Depois da linha física; (3) Mesa de Conciliação 4-Way; (4) Checklist dos 10 CTs de Certificação; e (5) Motor de Diff de Releases 25.2 ➔ 27.1.",
+        features: [
+          "Geração e download de lotes .ctf (168B), .ipm (TLV), .txt (Serviço 10) e .cas (600B) com ARN Luhn e Trailer exatos",
+          "Catálogo interativo de códigos de rejeição (EP747, T112, TE01 Reg 09, ASLC026E) com playbook de reapresentação",
+          "Simulador de Conciliação 4-Way (Auth 0110 × Outgoing D+0 × Retorno VSS/T140 × Grade SLC ASLC026)"
+        ],
+        dataSources: ["Visa Base II TC 05–92", "Mastercard GCMS IPM", "Elo Serviço 10 v26.2", "Amex CAS"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice"],
+        keywords: ["gerador", "massa", "ctf", "ipm", "reject", "ep747", "t112", "conciliacao 4-way", "homologacao", "diff"],
+        url: "/compliance/outgoing?tab=eng_lab",
+        badge: "5 Labs Engenharia",
+        iconName: "Terminal",
+        color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20"
+      },
+      {
+        id: "c4-server-topology",
+        title: "Topologia C4 de 17 Servidores, HSM PayShield (:1500), Cabos das Bandeiras & Packet Tracer",
+        desc: "Onde cada servidor passa, se conecta e traduz chaves nas 5 zonas PCI-DSS & RSFN, com Wire Dump real salto a salto (#01 a #10).",
+        whatItIs:
+          "Blueprint interativo em 5 níveis de visão (Cronologia Dual-Message, Topologia de 17 Servidores em 5 Zonas PCI/RSFN, Mapa de 13 Cabos Físicos e Portas TCP/MPLS, Packet Tracer Salto a Salto com Request/Response Wire Dump e Simulador de 5 Incidentes de Produção).",
+        features: [
+          "17 servidores mapeados (POS, SoftPOS MPoC, 3DSS, Switch ISO 8583, HSM PayShield :1500, PayFac Split, KMS 0800, EAS/MIP/STI/GNS, STIP, B3 e CIP/STR)",
+          "Packet Tracer de 10 saltos mostrando o frame binário de entrada, a transformação interna e o frame de saída",
+          "Slide-Over Inspector com protocolos, portas, chaves criptográficas (DUKPT, ZPK, MDK-AC, AES TR-31) e atalhos para as tabelas"
+        ],
+        dataSources: ["PCI-DSS 4.0 & PCI PIN Security", "Visa EAS/DEX · MC MIP/MFE · Elo STI", "Catálogo RSFN / SPB"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice"],
+        keywords: ["topologia", "servidores", "c4", "hsm", "payshield", "cabos", "packet tracer", "mpls", "dex", "mfe"],
+        url: "/arquitetura",
+        badge: "17 Servidores · C4",
+        iconName: "Cpu",
+        color: "text-purple-400 bg-purple-500/10 border-purple-500/20"
+      },
+      {
+        id: "unified-product-map",
+        title: "Catálogo & Mapa Unificado de Produtos das 4 Bandeiras (PID × Brand Product × Elo × Amex)",
+        desc: "Matriz de 26 produtos, tetos regulatórios BCB 304 (0,50% / 0,70%), tabelas de BIN (ARDEF / MPE T068) e modalidades brasileiras.",
+        whatItIs:
+          "Atlas completo em 4 mapas: (1) Matriz de Equivalência de Plásticos e Tiers das 4 bandeiras com enquadramento no teto BCB 304 vs Livre Mercado; (2) Onde o código nasce (ARDEF, MPE T068, GCMS IP0040T1) e em qual campo trafega; (3) Modalidades brasileiras (Parcelado Loja, Emissor, Crediário); e (4) Mapa Setorial por MCC.",
+        features: [
+          "Equivalência direta Visa PID (DE 62.23) × Mastercard Brand Product (PDS 0002) × Elo Cód. Produto (Reg 00) × Amex",
+          "Slide-Over Inspector detalhando público-alvo, faixa de intercâmbio e regras de qualificação de cada plástico",
+          "Mapeamento das tabelas de parâmetros de BIN (Visa ARDEF, Mastercard MPE T068 / IP0040T1 e Tabela BINs Elo)"
+        ],
+        dataSources: ["Resolução BCB nº 304/2023", "Visa ARDEF & IRF Guide", "Mastercard MPE T068 / GCMS", "Tabela Produtos Elo"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice", "Regulatório"],
+        keywords: ["mapa de produtos", "pid", "brand product", "ardef", "mpe", "t068", "bcb 304", "infinite", "black", "nanquim"],
+        url: "/mapa/produtos",
+        badge: "4 Mapas · 26 Produtos",
+        iconName: "Layers",
+        color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      }
+    ]
+  },
+  {
     category: "1. Simuladores & Motores Financeiros (Intercâmbio, MDR & Fee Schedule)",
     subtitle: "Cálculo determinístico de intercâmbio, cascata de downgrade, Scheme Fees MCBS/VSS e margem líquida de MDR.",
     iconName: "Calculator",

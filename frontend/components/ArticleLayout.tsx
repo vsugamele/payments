@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ExternalLink, FileDown } from "lucide-react";
+import { ShareArticleBar } from "@/components/ShareArticleBar";
 
 interface ArticleLayoutProps {
   title: string;
@@ -80,6 +81,10 @@ export function ArticleLayout({
               <ExternalLink size={12} />
               <span>LinkedIn</span>
             </a>
+          </div>
+
+          <div className="pt-1">
+            <ShareArticleBar title={title} />
           </div>
         </header>
 

@@ -58,6 +58,13 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
      - À direita: comparador interativo 1-clique entre `✅ Caso Certo (Normal)` vs `❌ Caso com Erro / Falha`, inspeção de campos linha a linha, resultado financeiro e links diretos para os simuladores.
    - **Reorganização do `/acervo` em 4 Caixinhas Superiores (`AcervoOrganizedClient.tsx`)**: Elimina o empilhamento longo e exibe um modo por vez (`🎓 1. Guia por Produto Ensinar+Demonstrar`, `🔎 2. Busca nos 4 Bancos SQLite`, `🧠 3. Perguntar ao Cérebro RAG`, `📚 4. Biblioteca de Manuais em Caixinhas Lado a Lado`).
    - **Menu Lateral Global com Modo `🎓 Por Produto` vs `🛠️ 5 Estações` (`PaymentsWorkbenchShell.tsx`)**: O menu esquerdo agora abre por padrão organizado nas **6 Caixinhas de Produto**, cada uma com botões lado a lado `📘 1. Ensinar` e `🔬 2. Demonstrar`.
+6. **Reformulação Completa do Cockpit `/admin` (`frontend/app/admin/page.tsx` e `frontend/lib/adminModulesCatalog.ts`)**:
+   - **5 Caixinhas Principais no Topo do `/admin`**:
+     1. `🎓 1. Jornada por Produto (Lado a Lado)`: Roda o `TeachAndDemonstrateHub` (`1. Ensinar` à esquerda ⇄ `2. Demonstrar` à direita) diretamente dentro do `/admin`;
+     2. `🌐 2. O Pagamento por Dentro (3D, Pix & 2027)`: Roda o Simulador 3D Isométrico + Sequência (ms) (`PaygramaInteractiveLab` com 10 trilhas) diretamente dentro do `/admin`;
+     3. `🖥️ 3. Topologia C4 (17 Servidores, HSM & Cabos)`: Roda o `OutgoingServerTopologyBlueprint` (com 10-Hop Packet Tracer) diretamente dentro do `/admin`;
+     4. `🗺️ 4. Mapa de Produtos (4 Bandeiras & BCB 304)`: Roda o `ProductMapAtlasClient` diretamente dentro do `/admin`;
+     5. `🧰 5. Catálogo Geral de Ferramentas (Lado a Lado)`: Reorganiza os 55+ módulos com **Menu Vertical de Categorias à Esquerda (4 colunas)** e **Ficha Raio-X Lado a Lado (`📘 1. O que ensina e resolve` ⇄ `🔬 2. O que demonstra e fontes SQLite`) + Grade da Categoria à Direita (8 colunas)**, integrado ao botão **`🧠 Abrir IA + Acervo (4 SQLites)`**.
 
 ## Validação
 - `npx next typegen` e `npx tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0`.

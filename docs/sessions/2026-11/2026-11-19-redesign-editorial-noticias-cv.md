@@ -17,5 +17,13 @@ Resolver o sistema de cores (eliminando gradientes neon, glows e fundos escuros 
 - `next typegen` e `tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0` (19/11/2026).
 - `next build` (produção Turbopack) executado em `frontend/` com `BUILD_EXIT=0` (`122/122` rotas estáticas/SSG geradas sem erros, incluindo `/`, `/curriculo`, `/sobre`, `/noticias`, `/noticias/[slug]`, `/artigos`, `/consultas` e `/jornada`).
 
+## Rodada 2 (19/11/2026 — Limpeza de Artigos, CV Bilíngue PT/EN, Glossário Público e Feed RSS)
+- `frontend/app/artigos/intercambio-guia-completo/page.tsx`: corrigido erro factual sobre teto BCB (teto de `0,50%` no débito e `0,70%` no pré-pago pelas Resoluções BCB 246/2022 e 304/2023 desde 01/04/2023; crédito em livre mercado), removidas cores azuis antigas e trocados links privados por rotas públicas.
+- `frontend/app/artigos/quando-a-ia-responde-quem-realmente-sabe/page.tsx`: removidos banners azul/roxo com `<Sparkles />` apontando para `/editor` (rota privada), alinhando o artigo ao visual editorial e redirecionando o convite ao debate para o LinkedIn.
+- `frontend/components/ShareArticleBar.tsx`, `frontend/components/ArticleLayout.tsx` e `frontend/app/noticias/[slug]/page.tsx`: adicionados botões limpos de `Copiar link` e `Compartilhar no LinkedIn`.
+- `frontend/components/CurriculoView.tsx`: adicionado seletor `PT | EN` completo para alternar todo o currículo entre Português e Inglês.
+- `frontend/app/glossario/page.tsx` e `frontend/app/glossario/GlossarioClient.tsx`: redesign completo no tema papel/grafite, liberado para público em `middleware.ts`, `Navbar.tsx`, `PaymentsWorkbenchShell.tsx`, `HomeEditorialClient.tsx` e `Footer.tsx`.
+- `frontend/app/feed.xml/route.ts`: criado feed RSS 2.0 público das notícias e artigos.
+
 ## Limites e Próximo Passo
 - As notícias editoriais são estáticas em `frontend/data/editorial-posts.ts`, baseadas exclusivamente nas normas e consultas públicas já presentes no repositório. Para alimentação contínua de notícias externas no futuro, pode-se plugar um feed curado ou painel editorial no `/admin`.

@@ -47,10 +47,11 @@ export default function ArtigoIntercambio() {
       </div>
 
       <p>
-        Quem define as tabelas de intercâmbio são as próprias Bandeiras (Visa e Mastercard). Elas publicam
-        os Interchange Rate Designators (IRDs) por país, produto, canal e autenticação. No Brasil, o BACEN
-        também regula emissores acima de determinado porte — aplicando um teto de <strong>0,50%</strong>{" "}
-        para cartões de crédito (Circular 3.887/2018).
+        Quem define as tabelas de intercâmbio são as próprias Bandeiras (Visa, Mastercard e Elo). Elas publicam
+        os códigos tarifários (IRDs / PIDs) por país, produto, canal e autenticação. No Brasil, o Banco Central
+        estabeleceu um teto regulatório de <strong>0,50% no débito</strong> e{" "}
+        <strong>0,70% no pré-pago</strong> (Resoluções BCB nº 246/2022 e nº 304/2023, em vigor desde 01/04/2023;
+        o crédito permanece em livre mercado).
       </p>
 
       {/* ── 2. Os 5 passos ── */}
@@ -62,41 +63,24 @@ export default function ArtigoIntercambio() {
         IRD — e portanto qual taxa — se aplica.
       </p>
 
-      <div
-        style={{
-          background: "rgba(59,130,246,0.05)",
-          border: "1px solid rgba(59,130,246,0.2)",
-          borderRadius: "0.875rem",
-          padding: "1.25rem 1.5rem",
-          marginTop: "1.5rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#60a5fa", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem" }}>
+      <div className="editorial-card p-5 sm:p-6 my-6 space-y-2">
+        <p className="section-eyebrow mb-3">
           Cascata de decisão (ordem de prioridade)
         </p>
         {[
-          ["1. Produto", "Qual é o cartão? Classic, Platinum, Infinite, Débito, Corporativo?", "F^, N^, I^, DV, K^ (Visa) | 101–104, MDM, MCO (MC)"],
+          ["1. Produto", "Qual é o cartão? Classic, Platinum, Infinite, Débito, Pré-pago, Corporativo?", "F^, N^, I^, DV, K^ (Visa) | 101–104, MDM, MCO (MC)"],
           ["2. Canal de captura", "Como foi capturado? Chip presencial, NFC, e-commerce, MOTO?", "DE 22 — POS Entry Mode"],
           ["3. Autenticação", "Houve 3DS? Apple Pay? Fallback? Qual é o ECI resultante?", "ECI + CAVV (Visa) / AAV (MC)"],
           ["4. MCC", "Em qual setor o lojista opera? Combustível, supermercado ou varejo geral?", "DE 18 — Merchant Category Code"],
-          ["5. Status regulatório", "O emissor é regulado pelo BACEN? O cap de 0,50% se aplica?", "SETTL_FLAG (Field 61 / DE 63 Tag 5)"],
+          ["5. Enquadramento regulatório", "A transação é débito (teto 0,50%) ou pré-pago (teto 0,70%) sujeita à Res. BCB 304?", "Product ID + SETTL_FLAG (Field 61 / DE 63)"],
         ].map(([passo, desc, campo]) => (
           <div
             key={passo}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "140px 1fr 1fr",
-              gap: "1rem",
-              padding: "0.625rem 0",
-              borderBottom: "1px solid rgba(59,130,246,0.08)",
-              alignItems: "start",
-            }}
-            className="text-sm"
+            className="grid grid-cols-1 sm:grid-cols-[150px_1fr_1fr] gap-2 sm:gap-4 py-2.5 border-b border-border last:border-b-0 items-start text-sm font-sans"
           >
-            <span style={{ fontWeight: 700, color: "#93c5fd" }}>{passo}</span>
-            <span style={{ color: "var(--muted-foreground)", lineHeight: 1.6 }}>{desc}</span>
-            <code style={{ fontSize: "0.7rem", color: "#475569", lineHeight: 1.6 }}>{campo}</code>
+            <span className="font-semibold text-foreground">{passo}</span>
+            <span className="text-muted-foreground leading-relaxed">{desc}</span>
+            <code className="text-xs leading-relaxed">{campo}</code>
           </div>
         ))}
       </div>
@@ -104,8 +88,8 @@ export default function ArtigoIntercambio() {
       <p>
         A Bandeira percorre essa lista de cima para baixo. A primeira regra que satisfizer{" "}
         <strong>todas</strong> as condições vence — esse é o IRD aplicado à transação. Você pode
-        visualizar isso interativamente na{" "}
-        <Link href="/matrix" style={{ color: "#60a5fa" }}>Matriz de Intercâmbio</Link>.
+        acompanhar o impacto dessa divisão na prática no{" "}
+        <Link href="/jornada">Laboratório de Pagamentos</Link>.
       </p>
 
       {/* ── 3. Produto ── */}
@@ -224,28 +208,31 @@ export default function ArtigoIntercambio() {
       <p>
         Cadastrar o MCC incorreto é um dos erros mais caros do onboarding. Um posto de combustível com
         MCC 5999 (Miscellaneous) paga até 1,5% em vez de 0,50% — <strong>+R$ 100 por R$ 10 mil transacionados</strong>.
-        Use o lookup de MCCs em{" "}
-        <Link href="/compliance/mcc" style={{ color: "#60a5fa" }}>compliance/mcc</Link> para verificar.
+        Consulte também os termos técnicos no{" "}
+        <Link href="/glossario">Glossário de Pagamentos</Link>.
       </p>
 
       {/* ── 6. Regulatório ── */}
-      <h2>Passo 5 — Status regulatório: o cap de 0,50%</h2>
+      <h2>Passo 5 — Enquadramento regulatório: os tetos de 0,50% e 0,70%</h2>
 
       <p>
-        A <strong>BACEN Circular 3.887/2018</strong> impõe um teto médio de <strong>0,50%</strong>{" "}
-        de intercâmbio para emissores acima de determinado porte no crédito (e limites diferentes para
-        débito). O campo que sinaliza isso no clearing é o SETTL_FLAG:
+        A <strong>Resolução BCB nº 246/2022</strong> e a <strong>Resolução BCB nº 304/2023</strong>{" "}
+        (substituindo a antiga Circular 3.887/2018 a partir de 01/04/2023) limitam a tarifa de
+        intercâmbio a no máximo <strong>0,50% no débito</strong> e <strong>0,70% no pré-pago</strong>{" "}
+        por transação doméstica (com exceções corporativas/governo até 0,80%). O crédito segue em
+        livre mercado. A identificação correta do produto e do indicador no clearing é o que garante
+        a aplicação certa da regra:
       </p>
 
       <ul>
-        <li><strong>Visa BASE II:</strong> Field 61, posição do Settlement Indicator</li>
-        <li><strong>Mastercard IPM:</strong> DE 63 Tag 5</li>
+        <li><strong>Visa BASE II:</strong> Product ID (Field 62.23 / TCR 0) e Settlement Indicator</li>
+        <li><strong>Mastercard IPM:</strong> Brand Product Code (PDS 0002 / MPE T068)</li>
       </ul>
 
       <p>
-        Se o flag chegar incorreto, o cap não é aplicado e o adquirente paga mais do que deveria em
-        transações com emissores regulados. Conversamente, se o flag indicar "regulado" para um emissor
-        que não está sujeito ao cap, a taxa será truncada desnecessariamente.
+        Se a classificação do produto ou da modalidade chegar incorreta entre a autorização e o
+        clearing, a transação pode deixar de enquadrar no teto regulado e cair em faixa tarifária
+        mais cara para o adquirente.
       </p>
 
       {/* ── 7. Downgrade ── */}
@@ -257,7 +244,7 @@ export default function ArtigoIntercambio() {
         descobre que pagou 2,40% em vez de 1,64%.
       </p>
 
-      <div className="callout" style={{ borderColor: "rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.05)" }}>
+      <div className="callout-warning">
         <strong>Por que "silencioso"?</strong> Porque o downgrade acontece no clearing (BASE II / IPM),
         não na autorização. O lojista não vê, o portador não vê. Só aparece quando você compara o
         intercâmbio cobrado no statement da Bandeira com o que deveria ter sido cobrado.
@@ -282,8 +269,8 @@ export default function ArtigoIntercambio() {
       </ol>
 
       <p>
-        O guia completo dos 7 gatilhos, com exemplos de custo e checklist de prevenção, está em{" "}
-        <Link href="/compliance/downgrade" style={{ color: "#60a5fa" }}>compliance/downgrade</Link>.
+        Você pode simular cenários de downgrade e ver o efeito no MDR no{" "}
+        <Link href="/jornada">Laboratório O Pagamento por Dentro</Link>.
       </p>
 
       {/* ── 8. Reconciliação ── */}
@@ -296,10 +283,8 @@ export default function ArtigoIntercambio() {
 
       <ol>
         <li>
-          <strong>Gere o intercâmbio esperado</strong> para cada transação usando o simulador
-          (produto + canal + MCC + autenticação). O{" "}
-          <Link href="/simulador" style={{ color: "#60a5fa" }}>Simulador</Link> faz isso e mostra o
-          caminho de decisão em "Por que esta taxa?".
+          <strong>Gere o intercâmbio esperado</strong> para cada transação cruzando produto, canal,
+          MCC e autenticação com a tabela vigente da bandeira.
         </li>
         <li>
           <strong>Compare com o IRD cobrado</strong> no arquivo de clearing (TC46 do BASE II ou
@@ -339,52 +324,35 @@ export default function ArtigoIntercambio() {
       </ul>
 
       <p>
-        A Visa tem estrutura equivalente via <strong>VSS (Visa Settlement Service)</strong>, com fees
-        cobradas em TC10 no BASE II. O guia completo do MCBS com taxas reais em BRL está em{" "}
-        <Link href="/mcbs" style={{ color: "#60a5fa" }}>mcbs</Link>.
+        A Visa tem estrutura equivalente via <strong>VSS (Visa Settlement Service)</strong>, com
+        tarifas domésticas no Brasil migradas para Real (BRL) em maio de 2026 — veja a nota completa em{" "}
+        <Link href="/noticias/visa-tarifas-brl-cavv-v9">Visa no Brasil em Real (BRL) e CAVV v9</Link>.
       </p>
 
-      {/* ── 10. Conclusão / ferramentas ── */}
-      <h2>Ferramentas para aprofundar</h2>
+      {/* ── 10. Conclusão / leituras relacionadas ── */}
+      <h2>Para continuar explorando</h2>
 
       <p>
-        Este guia cobre a teoria. Para aplicar na prática, use as ferramentas da plataforma:
+        Este guia cobre a estrutura de formação de custo. Para ver cada etapa em movimento ou
+        consultar termos e regras relacionadas:
       </p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "1rem",
-          marginTop: "1.5rem",
-          marginBottom: "1.5rem",
-        }}
-        className="grid-cols-1 sm:grid-cols-2"
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6 font-sans">
         {[
-          { href: "/simulador",           label: "Simulador de Intercâmbio", desc: "Calcule Visa, MC e Maestro com debug panel" },
-          { href: "/matrix",              label: "Matriz de Intercâmbio",     desc: "Cascata visual Visa × Mastercard" },
-          { href: "/compliance/downgrade",label: "Guia de Downgrade",         desc: "7 gatilhos com custo e prevenção" },
-          { href: "/mcbs",                label: "MCBS — Tarifas Mastercard", desc: "Service IDs reais com taxas em BRL" },
-          { href: "/chargeback",          label: "Chargeback",                desc: "Ciclo de disputa e liability shift" },
-          { href: "/canais",              label: "Canais",                    desc: "CP, CNP, tokenizado — risco e ECI" },
+          { href: "/jornada", label: "O Pagamento por Dentro", desc: "Simule divisão de MDR, antecipação D+1 e Split 2027" },
+          { href: "/noticias/visa-tarifas-brl-cavv-v9", label: "Visa Brasil em BRL e CAVV v9", desc: "Impacto prático nas faturas VSS-110/120" },
+          { href: "/glossario", label: "Glossário de Pagamentos", desc: "Consulta rápida de IRD, PID, DE 22, Base II e MCBS" },
+          { href: "/artigos/passo-a-passo-transacao", label: "Passo a passo da transação", desc: "Da autorização ISO 8583 até o clearing noturno" },
+          { href: "/artigos/compelling-evidence-3-0", label: "Compelling Evidence 3.0", desc: "Defesa de fraude amigável e campos Base II" },
+          { href: "/consultas", label: "Consultas Públicas", desc: "Resumos executivos de Visa, Mastercard e Elo" },
         ].map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            style={{
-              display: "flex", flexDirection: "column", gap: "0.25rem",
-              background: "rgba(59,130,246,0.05)",
-              border: "1px solid rgba(59,130,246,0.18)",
-              borderRadius: "0.75rem",
-              padding: "0.875rem 1rem",
-              textDecoration: "none",
-              transition: "opacity 0.15s",
-            }}
-            className="hover:opacity-75"
+            className="editorial-card p-4 flex flex-col gap-1 no-underline!"
           >
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#93c5fd" }}>{item.label}</span>
-            <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)" }}>{item.desc}</span>
+            <span className="text-sm font-semibold text-foreground">{item.label}</span>
+            <span className="text-xs text-muted-foreground">{item.desc}</span>
           </Link>
         ))}
       </div>

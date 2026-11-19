@@ -300,7 +300,17 @@ export function HomeEditorialClient({
             {/* Esquerda (8 cols): Notícias & Últimas Análises */}
             <div className="lg:col-span-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <p className="section-eyebrow">Notícias e últimas análises</p>
+                <div className="flex items-center gap-3">
+                  <p className="section-eyebrow">Notícias e últimas análises</p>
+                  <a
+                    href="/feed.xml"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[10px] px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                  >
+                    RSS
+                  </a>
+                </div>
                 <span className="font-mono text-xs text-muted-foreground">
                   {filteredPosts.length} {filteredPosts.length === 1 ? "texto" : "textos"}
                 </span>
@@ -660,10 +670,21 @@ export function HomeEditorialClient({
                 </li>
                 <li>
                   <Link
+                    href="/glossario"
+                    className="font-semibold text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
+                  >
+                    Glossário de Meios de Pagamento
+                  </Link>
+                  <span className="text-muted-foreground">
+                    {" "}— siglas de mensageria, tarifas, clearing e programas das bandeiras explicados direto ao ponto.
+                  </span>
+                </li>
+                <li>
+                  <Link
                     href="/curriculo"
                     className="font-semibold text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
                   >
-                    Currículo &amp; Trajetória
+                    Currículo &amp; Trajetória (PT / EN)
                   </Link>
                   <span className="text-muted-foreground">
                     {" "}— 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express, com versão em PDF.

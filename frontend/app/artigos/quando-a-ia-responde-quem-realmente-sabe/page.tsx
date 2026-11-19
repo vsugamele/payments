@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArticleLayout } from "@/components/ArticleLayout";
 import { LinkedInCarouselViewer } from "@/components/LinkedInCarouselViewer";
-import { Edit3, Sparkles, AlertTriangle, ShieldAlert, CheckCircle2, ArrowRight, Download } from "lucide-react";
+import { AlertTriangle, ShieldAlert, CheckCircle2, ExternalLink } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Quando a IA responde, quem realmente sabe? | VS Payments",
+  title: "Quando a IA responde, quem realmente sabe? | Vinícius Sugamele",
   description:
     "A perda do atrito cognitivo, a ilusão de competência técnica e a urgência de governança de conhecimento em meios de pagamento.",
 };
@@ -14,44 +13,19 @@ export default function ArtigoQuandoAIARespondePage() {
   return (
     <ArticleLayout
       title="Quando a IA responde, quem realmente sabe?"
-      tag="Estratégico"
-      tagColor="rgba(99,102,241,0.15)"
-      tagText="#818cf8"
+      tag="Análise"
       date="24 Set 2026"
       readTime="6 min"
     >
-      {/* Editor Banner Shortcut */}
-      <div className="mb-8 p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-bold text-blue-500 flex items-center gap-1.5 uppercase tracking-wider">
-            <Sparkles size={14} /> Documento Interativo Disponível
-          </span>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Este ensaio foi diagramado no nosso <strong>Editor Executivo</strong> com tabelas, cartões e exportação Word/PDF.
-          </p>
-        </div>
-        <Link
-          href="/editor?doc=artigo-ia"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md transition-all shrink-0"
-        >
-          <Edit3 size={14} />
-          <span>Abrir e Editar no Editor</span>
-        </Link>
-      </div>
-
       {/* Provocação Central */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 mb-8 border-l-4 border-l-blue-600">
-        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-extrabold text-sm mb-2 uppercase tracking-wide">
-          <span>💡</span> A Provocação Central
-        </div>
-        <p className="text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-          A Inteligência Artificial já mudou a forma como trabalhamos — e, na indústria de pagamentos, não é diferente.
-          Hoje, uma IA consegue ler um boletim de bandeira, resumir uma alteração, interpretar uma regra, comparar documentos e até sugerir quais áreas podem ser impactadas.
-          Isso é extraordinário. Mas existe um risco sobre o qual talvez estejamos falando pouco:{" "}
-          <strong className="text-blue-600 dark:text-blue-300">
-            o que acontece quando a IA começa a substituir não apenas o trabalho operacional, mas também parte do processo de aprendizado e construção de conhecimento das pessoas?
-          </strong>
-        </p>
+      <div className="callout">
+        <strong>A provocação central: </strong>
+        A Inteligência Artificial já mudou a forma como trabalhamos — e, na indústria de pagamentos, não é diferente.
+        Hoje, uma ferramenta de IA consegue ler um boletim de bandeira, resumir uma alteração, interpretar uma regra, comparar documentos e até sugerir quais áreas podem ser impactadas.
+        Mas existe um risco sobre o qual ainda falamos pouco:{" "}
+        <strong>
+          o que acontece quando a IA começa a substituir não apenas o trabalho operacional, mas também parte do processo de aprendizado e construção de conhecimento das pessoas?
+        </strong>
       </div>
 
       {/* Visual LinkedIn Carousel Component */}
@@ -330,21 +304,23 @@ export default function ArtigoQuandoAIARespondePage() {
         </p>
 
         {/* Convite ao Debate */}
-        <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/30 text-center">
-          <h3 className="text-base sm:text-lg font-extrabold text-blue-600 dark:text-blue-300 mb-2">
-            💬 Como você está enxergando isso no dia a dia?
+        <div className="mt-8 editorial-card p-6 sm:p-8 text-center space-y-3 font-sans">
+          <h3 className="text-base sm:text-lg font-semibold text-foreground mt-0!">
+            Como você está enxergando isso no dia a dia?
           </h3>
-          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 max-w-xl mx-auto leading-relaxed mb-4">
-            A IA está acelerando a formação dos profissionais ou criando uma dependência antes que eles desenvolvam conhecimento suficiente para caminhar sozinhos? E dentro das empresas: quem está fazendo a curadoria técnica da IA?
+          <p className="font-serif text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            A IA está acelerando a formação dos profissionais ou criando uma dependência antes que eles desenvolvam conhecimento suficiente para caminhar sozinhos?
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/editor?doc=artigo-ia"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md transition-all"
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+            <a
+              href="https://www.linkedin.com/in/vinicius-sugamele-41136617/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary inline-flex items-center gap-2 text-xs no-underline!"
             >
-              <span>Abrir no Editor e Baixar (.DOCX / PDF)</span>
-              <ArrowRight size={14} />
-            </Link>
+              <span>Continuar a conversa no LinkedIn</span>
+              <ExternalLink size={13} />
+            </a>
           </div>
         </div>
       </section>

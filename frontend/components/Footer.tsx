@@ -81,6 +81,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/glossario" className="hover:text-foreground transition-colors">
+                  Glossário técnico
+                </Link>
+              </li>
+              <li>
                 <Link href="/consultas" className="hover:text-foreground transition-colors">
                   Consultas públicas
                 </Link>
@@ -89,6 +94,16 @@ export function Footer() {
                 <Link href="/jornada" className="hover:text-foreground transition-colors">
                   Laboratório (O Pagamento por Dentro)
                 </Link>
+              </li>
+              <li>
+                <a
+                  href="/feed.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Feed RSS
+                </a>
               </li>
             </ul>
           </div>

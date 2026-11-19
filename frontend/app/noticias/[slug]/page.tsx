@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, FileDown } from "lucide-react";
+import { ShareArticleBar } from "@/components/ShareArticleBar";
 import {
   EDITORIAL_POSTS,
   getAllNewsPosts,
@@ -102,6 +103,10 @@ export default async function NoticiaDetalhePage({
                 {post.effectiveWindow}
               </span>
             )}
+          </div>
+
+          <div className="pt-1">
+            <ShareArticleBar title={post.title} path={post.href} />
           </div>
         </header>
 

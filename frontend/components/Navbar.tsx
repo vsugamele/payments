@@ -18,7 +18,6 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   "/chargeback",
   "/trilhas",
   "/editor",
-  "/glossario",
   "/arquitetura",
   "/comparativo",
   "/validador",
@@ -30,12 +29,13 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   "/scheme-fees",
 ];
 
-const HYBRID_PUBLIC_PREFIXES = ["/jornada", "/consultas"];
+const HYBRID_PUBLIC_PREFIXES = ["/jornada", "/consultas", "/glossario"];
 
 const NAV_TABS = [
   { href: "/", label: "Notícias", match: (p: string) => p === "/" || p.startsWith("/noticias") },
   { href: "/curriculo", label: "Currículo", match: (p: string) => p === "/curriculo" || p === "/sobre" },
   { href: "/artigos", label: "Artigos", match: (p: string) => p === "/artigos" || p.startsWith("/artigos/") },
+  { href: "/glossario", label: "Glossário", match: (p: string) => p === "/glossario" },
   { href: "/consultas", label: "Consultas", match: (p: string) => p === "/consultas" || p.startsWith("/consultas/") },
   { href: "/jornada", label: "Laboratório", match: (p: string) => p === "/jornada" },
 ];
