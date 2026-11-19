@@ -12,6 +12,8 @@ export type LabTrackId =
   | 'pix_auto_nfc'
   | 'med_seguranca'
   | 'open_finance_drex'
+  | 'boleto_npc'
+  | 'abertura_conta_kyc'
   | 'regras_2027_tempo';
 
 export type IsometricNodeId =
@@ -474,8 +476,84 @@ const TRACK_META: Record<
       },
     ],
   },
+  boleto_npc: {
+    shortLabel: '8. Boleto NPC & BolePix',
+    badge: 'SILOC / STR',
+    title: 'Boleto Bancário: Nova Plataforma de Cobrança (NPC CIP), DDA, BolePix & Liquidação SILOC vs STR',
+    subtitle:
+      'Como o boleto moderno é registrado em tempo real na CIP/Núclea (NPC), entregue automaticamente no DDA do sacado e liquidado via SILOC (abaixo de R$ 250 mil em D+1) ou STR (a partir de R$ 250 mil em D+0).',
+    defaultAmount: 850.0,
+    actorLabels: {
+      pos_client: { name: 'Pagador (Sacado)', role: 'lê barras / DDA' },
+      sub_payfac: { name: 'Beneficiário (Empresa)', role: 'emite & registra' },
+      acquirer_psp: { name: 'Banco Emissor Boleto', role: 'registra na NPC' },
+      network_spi: { name: 'CIP / Núclea (NPC)', role: 'base central & DDA' },
+      issuer_receiver: { name: 'Banco Recebedor', role: 'valida na CIP & acolhe' },
+      slc_b3_str: { name: 'SILOC (D+1) / STR (D+0)', role: 'câmara de liquidação' },
+    },
+    failures: [
+      {
+        id: 'none',
+        label: '✓ Nenhuma falha (SILOC D+1)',
+        impactSummary: 'Boleto validado online na NPC/CIP, acolhido pelo banco pagador e liquidado na grade matinal do SILOC em D+1.',
+      },
+      {
+        id: 'boleto_str_250k',
+        label: 'Acima de R$ 250 mil (Migra p/ STR D+0)',
+        impactSummary: 'Boletos de valor igual ou superior a R$ 250.000,00 não podem liquidar no SILOC: são liquidados em tempo real (LBTR) no STR (Msg STR0039) em D+0.',
+      },
+      {
+        id: 'boleto_vencido',
+        label: 'Boleto vencido (Multa + Mora na NPC)',
+        impactSummary: 'NPC calcula automaticamente juros de mora e multa padronizados no momento da consulta do código de barras em qualquer banco.',
+      },
+      {
+        id: 'boleto_ja_pago',
+        label: 'Boleto já pago (Baixa Operacional CIP)',
+        impactSummary: 'Como a baixa operacional na NPC é em tempo real, o 2º banco bloqueia o pagamento duplicado imediatamente.',
+      },
+    ],
+  },
+  abertura_conta_kyc: {
+    shortLabel: '9. Abertura de Conta & BC Protege+',
+    badge: 'KYC / PLD',
+    title: 'Onboarding Digital, Biometria Liveness, Consulta BC Protege+ (Bacen), PLD/FT & Provisionamento DICT',
+    subtitle:
+      'A jornada crítica onde nascem as contas e cartões: captura biométrica 3D, consulta ao sistema BC Protege+ do Banco Central (trava contra contas falsas), screening PEP/Sanções e criação da Conta PI.',
+    defaultAmount: 100.0,
+    actorLabels: {
+      pos_client: { name: 'Candidato (App)', role: 'selfie 3D + CNH/RG' },
+      sub_payfac: { name: 'Motor Liveness & OCR', role: 'anti-deepfake & doc' },
+      acquirer_psp: { name: 'Core Onboarding / BaaS', role: 'orquestrador KYC' },
+      network_spi: { name: 'Receita + BC Protege+', role: 'travas & situação CPF' },
+      issuer_receiver: { name: 'Motor PLD/FT (PEP/OFAC)', role: 'listas & risco AML' },
+      slc_b3_str: { name: 'Core Ledger + DICT/VTS', role: 'abre conta & cartão' },
+    },
+    failures: [
+      {
+        id: 'none',
+        label: '✓ Conta aprovada e provisionada',
+        impactSummary: 'Liveness 3D aprovado, CPF sem restrição no BC Protege+, zero alerta PLD/FT: conta e cartão virtual tokenizado emitidos em 95 segundos.',
+      },
+      {
+        id: 'bc_protege_ativo',
+        label: 'Restrição ativa no BC Protege+ (Bacen)',
+        impactSummary: 'Cidadão ativou bloqueio preventivo no Meu BC (BC Protege+): instituição é impedida de abrir conta em nome desse CPF, barrando fraude de identidade!',
+      },
+      {
+        id: 'deepfake_liveness',
+        label: 'Selfie não confere / Replay Deepfake',
+        impactSummary: 'Prova de vida 3D detectou injeção de vídeo virtual ou divergência facial (< 85% match com base oficial Denatran/TSE).',
+      },
+      {
+        id: 'cliente_pep',
+        label: 'Cliente PEP (Diligência Reforçada)',
+        impactSummary: 'Pessoa Exposta Politicamente (Circular Bacen 3.978): abertura exige alçada de Compliance PLD/FT e monitoramento especial.',
+      },
+    ],
+  },
   regras_2027_tempo: {
-    shortLabel: '8. Regras no Tempo & 2027+',
+    shortLabel: '10. Regras no Tempo & 2027+',
     badge: '2021 ➔ 2030',
     title: 'Regras no Tempo & Radar 2027–2030: Split Tributário (LC 214), MED 2.0, Passkeys & Agentic AI',
     subtitle:
@@ -530,9 +608,51 @@ export function PaygramaInteractiveLab() {
   const [expandAboutStep, setExpandAboutStep] = useState<boolean>(true);
   const [expandTechFields, setExpandTechFields] = useState<boolean>(true);
 
-  // Step 3: Money & D+1 Anticipation
+  // Step 3: Money & D+1 Anticipation + Split Payment Tributário 2027 (LC 214/2025)
   const [anticipateToD1, setAnticipateToD1] = useState<boolean>(false);
   const [monthlyAnticipationRate, setMonthlyAnticipationRate] = useState<number>(1.89);
+  const [enableSplitTributario2027, setEnableSplitTributario2027] = useState<boolean>(false);
+  const [splitTaxPct, setSplitTaxPct] = useState<number>(12.5); // Alíquota líquida efetiva CBS+IBS após créditos na cadeia
+
+  // Deep-link share toast & Floating Assistant Drawer ("Pergunte ao Workbench")
+  const [copiedLinkToast, setCopiedLinkToast] = useState<boolean>(false);
+  const [showAssistantDrawer, setShowAssistantDrawer] = useState<boolean>(false);
+  const [selectedQaIdx, setSelectedQaIdx] = useState<number>(0);
+  const [customQuestion, setCustomQuestion] = useState<string>('');
+  const [customAnswer, setCustomAnswer] = useState<string | null>(null);
+  const [askingRag, setAskingRag] = useState<boolean>(false);
+
+  // Read URL query params on mount for deep-linked scenarios
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get('track') as LabTrackId | null;
+    const f = sp.get('fail');
+    const b = sp.get('brand') as 'visa' | 'mastercard' | 'elo' | 'amex' | null;
+    const m = sp.get('mod') as 'debito' | 'credito_1x' | 'parcelado' | null;
+    const st = sp.get('step');
+    const split = sp.get('split2027');
+    if (t && TRACK_META[t]) setActiveTrack(t);
+    if (f) setInjectedFailure(f);
+    if (b && ['visa', 'mastercard', 'elo', 'amex'].includes(b)) setBrand(b);
+    if (m && ['debito', 'credito_1x', 'parcelado'].includes(m)) setModality(m);
+    if (st && !Number.isNaN(Number(st))) setCurrentStepIdx(Math.max(0, Number(st) - 1));
+    if (split === '1') setEnableSplitTributario2027(true);
+  }, []);
+
+  const handleCopyScenarioLink = () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('track', activeTrack);
+    url.searchParams.set('fail', injectedFailure);
+    url.searchParams.set('brand', brand);
+    url.searchParams.set('mod', modality);
+    url.searchParams.set('step', String(currentStepIdx + 1));
+    if (enableSplitTributario2027) url.searchParams.set('split2027', '1');
+    navigator.clipboard.writeText(url.toString());
+    setCopiedLinkToast(true);
+    setTimeout(() => setCopiedLinkToast(false), 2500);
+  };
 
   // Switch track defaults cleanly
   const handleSelectTrack = (t: LabTrackId) => {
@@ -541,6 +661,8 @@ export function PaygramaInteractiveLab() {
     setInjectedFailure('none');
     setCurrentStepIdx(0);
     setIsPlaying(false);
+    setSelectedQaIdx(0);
+    setCustomAnswer(null);
   };
 
   // Build dynamic message steps for the active track & scenario
@@ -1413,7 +1535,228 @@ export function PaygramaInteractiveLab() {
       ];
     }
 
-    // Track 8: Regras no Tempo & 2027+ (Split Tributário LC 214, Passkeys, Agentic AI)
+    if (activeTrack === 'boleto_npc') {
+      const isStr250k = injectedFailure === 'boleto_str_250k' || amount >= 250000;
+      return [
+        {
+          stepNo: 1,
+          stageTitle: 'ETAPA 1 · EMISSÃO & REGISTRO ONLINE NA NOVA PLATAFORMA DE COBRANÇA (NPC CIP/NÚCLEA)',
+          elapsedLabel: 'Emissão T+0s',
+          codeBadge: 'ADDA101 · Registro NPC',
+          title: 'Banco emissor registra o boleto em tempo real na CIP/Núclea (NPC) e publica no DDA do pagador',
+          fromNode: 'sub_payfac',
+          toNode: 'network_spi',
+          fromLabel: 'Beneficiário ➔ Banco Emissor',
+          toLabel: 'CIP / Núclea (NPC)',
+          status: 'normal',
+          systemHops: `ERP Beneficiário ➔ API Cobrança / CNAB 240/400 ➔ Mensagem SPB ADDA101 (RSFN) ➔ Base Centralizada NPC (CIP/Núclea)`,
+          plainExplanation:
+            'Desde a implantação da Nova Plataforma de Cobrança (NPC), nenhum boleto existe sem registro prévio na base centralizada da CIP/Núclea. Assim que registrado, qualquer banco onde o CPF/CNPJ do sacado tenha DDA ativo já exibe o título pronto para pagamento.',
+          deepDiveTitle: 'A Reinicialização do Fator de Vencimento Febraban (22/02/2025 = Fator 1000)',
+          deepDiveNormative:
+            'Nas posições 06 a 09 do código de barras de 44 dígitos fica o Fator de Vencimento (4 dígitos). Em 21/02/2025 ele atingiu o limite máximo 9999 e, em 22/02/2025, voltou para 1000 conforme Comunicado Febraban FB-009/2023.',
+          normativeSource: 'Manual de Padrões Técnicos da NPC (Febraban / CIP-Núclea) + FB-009/2023',
+          fields: [
+            { code: 'Código de Barras (44d)', name: 'Padrão Febraban Interbancário', value: '34198139400000850001090000123456780012345000', note: 'Pos 1-3=Banco · 4=Moeda · 5=DV · 6-9=Fator · 10-19=Valor' },
+            { code: 'Mensagem NPC', name: 'Catálogo SPB / DDA', value: 'ADDA101 (Inclusão de Título na Base Central)', note: 'Retorna NumIdentcTit único da CIP' },
+            { code: 'BolePix Híbrido', name: 'QR Code Pix no Boleto', value: 'EMV® BR Code dinâmico vinculado ao Nosso Número', note: 'Se pago via Pix, dá baixa automática na NPC' },
+          ],
+        },
+        {
+          stepNo: 2,
+          stageTitle: 'ETAPA 2 · LEITURA DO CÓDIGO DE BARRAS & CONSULTA DE VALIDAÇÃO NA CIP/NPC',
+          elapsedLabel: 'Pagamento +120ms',
+          codeBadge:
+            injectedFailure === 'boleto_ja_pago'
+              ? 'BLOQUEADO · Título Já Liquidado'
+              : injectedFailure === 'boleto_vencido'
+              ? 'NPC · Juros + Multa Calculados'
+              : 'ADDA110 · Consulta CIP OK',
+          title:
+            injectedFailure === 'boleto_ja_pago'
+              ? 'CIP/Núclea informa que o boleto já possui Baixa Operacional ativa e impede pagamento em duplicidade'
+              : injectedFailure === 'boleto_vencido'
+              ? 'Boleto vencido: NPC calcula multa de 2% e juros de mora pro-rata em tempo real para o banco recebedor'
+              : 'Banco onde o cliente está pagando consulta o título na CIP/NPC para validar beneficiário real e valor',
+          fromNode: 'pos_client',
+          toNode: 'issuer_receiver',
+          fromLabel: 'Pagador (App Banco)',
+          toLabel: 'Banco Recebedor ➔ CIP',
+          status: injectedFailure === 'boleto_ja_pago' ? 'error' : injectedFailure === 'boleto_vencido' ? 'warning' : 'normal',
+          systemHops: `Leitor Código de Barras (App) ➔ Banco Recebedor ➔ Consulta Online NPC (CIP) ➔ Validação CPF/CNPJ Beneficiário`,
+          plainExplanation:
+            injectedFailure === 'boleto_ja_pago'
+              ? 'Graças à Baixa Operacional em tempo real na CIP (ADDA108), mesmo que o cliente tente pagar o mesmo boleto em dois bancos diferentes no mesmo minuto, o segundo banco recebe bloqueio imediato.'
+              : injectedFailure === 'boleto_vencido'
+              ? 'O pagador não precisa mais emitir 2ª via no site da empresa: o banco recebedor consulta as regras de encargos registradas pelo emissor na NPC e já apresenta o valor exato atualizado com multa e juros!'
+              : 'Ao ler os 44 dígitos, o banco recebedor consulta a base da CIP e exibe na tela o CNPJ e a Razão Social real do beneficiário registrado na NPC — protegendo contra o golpe do boleto adulterado.',
+          deepDiveTitle: 'Como a NPC Eliminou a Inconsistência de Boletos Vencidos entre Bancos',
+          deepDiveNormative:
+            'Na arquitetura antiga pré-NPC, boletos vencidos só podiam ser pagos no próprio banco emissor. Hoje a base centralizada da CIP armazena as regras de desconto, abatimento, multa e mora, permitindo acolhimento multi-banco.',
+          normativeSource: 'Circular Bacen nº 3.461 / Manual Operacional Nova Plataforma de Cobrança',
+          fields: [
+            { code: 'NumIdentcTit', name: 'ID Único na CIP/Núclea', value: '2026111900099182734', note: 'Chave primária nacional do título' },
+            { code: 'Situação NPC', name: 'Status Retornado pela CIP', value: injectedFailure === 'boleto_ja_pago' ? 'BAIXA_OPERACIONAL_EFETIVADA' : 'ABERTO_APTO_PARA_PAGAMENTO', note: 'Consulta síncrona' },
+          ],
+        },
+        ...(injectedFailure === 'boleto_ja_pago'
+          ? []
+          : [
+              {
+                stepNo: 3,
+                stageTitle: isStr250k
+                  ? 'ETAPA 3 · LIQUIDAÇÃO EM TEMPO REAL NO STR (BOLETO >= R$ 250.000,00 — MSG STR0039)'
+                  : 'ETAPA 3 · BAIXA OPERACIONAL & LIQUIDAÇÃO INTERBANCÁRIA NO SILOC (CIP D+1)',
+                elapsedLabel: isStr250k ? 'D+0 · LBTR STR' : 'D+1 · 08h30 SILOC',
+                codeBadge: isStr250k ? 'STR0039 · Liquidação D+0' : 'SILOC · Compensação D+1',
+                title: isStr250k
+                  ? 'Boleto de Valor Igual ou Superior a R$ 250 mil: liquidado diretamente no STR do Banco Central em D+0'
+                  : 'Banco Recebedor registra Baixa Operacional na NPC e liquida na grade multilateral do SILOC em D+1',
+                fromNode: 'issuer_receiver',
+                toNode: 'slc_b3_str',
+                fromLabel: 'Banco Recebedor',
+                toLabel: isStr250k ? 'STR (Banco Central D+0)' : 'SILOC (CIP/Núclea D+1)',
+                status: 'normal',
+                systemHops: isStr250k
+                  ? `Baixa Operacional ADDA108 ➔ Mensagem STR0039 via RSFN ➔ Liquidação Bruta em Tempo Real no STR (Bacen) ➔ Banco Beneficiário`
+                  : `Baixa Operacional ADDA108 ➔ Arquivo Remessa SILOC (CIP) ➔ Netting Multilateral D+1 ➔ Crédito Banco Beneficiário`,
+                plainExplanation: isStr250k
+                  ? 'Por regra de contenção de risco sistêmico do Banco Central, boletos de valor igual ou superior a R$ 250.000,00 (VLB-Cobrança) não passam pela compensação diferida do SILOC: são liquidados individualmente em tempo real no STR (D+0) via mensagem STR0039!'
+                  : `Para boletos abaixo de R$ 250.000,00, o banco pagador envia imediatamente a Baixa Operacional (ADDA108) para travar o título na CIP e liquida financeiramente o saldo multilateral na câmara SILOC na manhã do dia útil seguinte (D+1).`,
+                deepDiveTitle: 'Teto Regulatório do SILOC vs VLB-Cobrança no STR (R$ 250.000,00)',
+                deepDiveNormative:
+                  'A separação em R$ 250.000,00 evita risco de crédito líquido entre bancos na câmara multilateral SILOC. Acima desse teto, a transferência ocorre direto em Reservas Bancárias no STR do Banco Central.',
+                normativeSource: 'Regulamento do SILOC (CIP/Núclea) & Catálogo de Mensagens do STR (STR0039)',
+                fields: [
+                  { code: 'Câmara SPB', name: 'Sistema de Liquidação', value: isStr250k ? 'STR — Sistema de Transferência de Reservas (LBTR D+0)' : 'SILOC — Sistema de Liquidação Diferida das Transferências Interbancárias de Ordens de Crédito (D+1)', note: isStr250k ? '>= R$ 250.000,00' : '< R$ 250.000,00' },
+                  { code: 'Baixa Definitiva', name: 'Mensagem de Quitação', value: 'ADDA118 (Baixa Efetiva por Liquidação Interbancária)', note: 'Gera retorno CNAB (Cód. 06) ao lojista' },
+                ],
+              } as LabMessageStep,
+            ]),
+      ];
+    }
+
+    if (activeTrack === 'abertura_conta_kyc') {
+      return [
+        {
+          stepNo: 1,
+          stageTitle: 'ETAPA 1 · CAPTURA DE DOCUMENTO (OCR) & PROVA DE VIDA BIOMÉTRICA 3D (LIVENESS)',
+          elapsedLabel: '12 s',
+          codeBadge: injectedFailure === 'deepfake_liveness' ? 'BLOQUEADO · Deepfake / Replay' : 'Liveness 3D · Score 99,4%',
+          title:
+            injectedFailure === 'deepfake_liveness'
+              ? 'Motor de Prova de Vida (Liveness 3D) detecta ataque de injeção de vídeo / deepfake e bloqueia a proposta'
+              : 'App captura CNH/CIN e valida Prova de Vida 3D passiva + batimento facial (1:1 e 1:N)',
+          fromNode: 'pos_client',
+          toNode: 'sub_payfac',
+          fromLabel: 'Candidato (App)',
+          toLabel: 'Motor Biometria & OCR',
+          status: injectedFailure === 'deepfake_liveness' ? 'error' : 'normal',
+          systemHops: `Câmera App (SDK Criptografado) ➔ Detecção de Injeção de Câmera Virtual ➔ Liveness 3D (ISO/IEC 30107-3) ➔ Serpro/Denatran`,
+          plainExplanation:
+            injectedFailure === 'deepfake_liveness'
+              ? 'Quadrilhas tentam usar emuladores Android e câmeras virtuais (OBS/Deepfake) para abrir contas laranja. O SDK biométrico detecta assinatura de driver virtual e falta de profundidade 3D, encerrando o onboarding.'
+              : 'O candidato tira uma selfie rápida e fotografa a CNH/RG. O motor valida a autenticidade do documento via QR Code do Vio (Serpro/Senatran) e confirma a prova de vida 3D contra a base biométrica oficial.',
+          deepDiveTitle: 'Prevenção a Contas Laranja na Origem (ISO/IEC 30107-3 PAD)',
+          deepDiveNormative:
+            'O uso de Presentation Attack Detection (PAD Nível 2) aliado à verificação da assinatura criptográfica do VIO (QR Code da CNH/Carteira de Identidade Nacional) impede a abertura de contas com documentos montados.',
+          normativeSource: 'Resolução BCB nº 96/2021 + Padrão ISO/IEC 30107-3 (Biometric Liveness)',
+          fields: [
+            { code: 'Liveness PAD', name: 'Prova de Vida Biométrica', value: injectedFailure === 'deepfake_liveness' ? 'FAIL_VIRTUAL_CAMERA_INJECTION' : 'PASS_3D_PASSIVE (99.4% Confidence)', note: 'Anti-spoofing & Anti-deepfake' },
+            { code: 'Match Oficial', name: 'Batimento Serpro / Denatran', value: '98.7% Similaridade Facial + QR Code VIO Autêntico', note: 'Validação na fonte governamental' },
+          ],
+        },
+        ...(injectedFailure === 'deepfake_liveness'
+          ? []
+          : [
+              {
+                stepNo: 2,
+                stageTitle: 'ETAPA 2 · CONSULTA RECEITA FEDERAL & TRAVA PREVENTIVA BC PROTEGE+ (BANCO CENTRAL)',
+                elapsedLabel: '14 s',
+                codeBadge: injectedFailure === 'bc_protege_ativo' ? 'BLOQUEADO · BC Protege+ Ativo' : 'Receita + BC Protege+ OK',
+                title:
+                  injectedFailure === 'bc_protege_ativo'
+                    ? 'CPF possui bloqueio voluntário ativo no BC Protege+ do Banco Central: abertura de conta negada!'
+                    : 'Orquestrador KYC verifica situação cadastral na Receita Federal e ausência de restrição no BC Protege+',
+                fromNode: 'acquirer_psp',
+                toNode: 'network_spi',
+                fromLabel: 'Core Onboarding / BaaS',
+                toLabel: 'Receita + BC Protege+ (Bacen)',
+                status: injectedFailure === 'bc_protege_ativo' ? 'error' : 'normal',
+                systemHops: `Orquestrador KYC ➔ Consulta CPF Receita Federal ➔ Consulta Sistema BC Protege+ (Banco Central do Brasil)`,
+                plainExplanation:
+                  injectedFailure === 'bc_protege_ativo'
+                    ? 'O titular real desse CPF ativou no portal Meu BC a ferramenta "BC Protege+", informando ao Sistema Financeiro Nacional que não deseja abrir novas contas. A instituição bloqueia a abertura na hora e registra a tentativa frustrada!'
+                    : 'O sistema confirma que o CPF está Regular na Receita Federal e consulta a base do Banco Central (BC Protege+) para garantir que o cidadão não ativou trava preventiva contra abertura de contas.',
+                deepDiveTitle: 'Como funciona o BC Protege+ do Banco Central',
+                deepDiveNormative:
+                  'Criado pelo Banco Central para combater fraudes de identidade ("contas laranja" abertas em nome de terceiros sem seu conhecimento), o BC Protege+ permite que qualquer pessoa física ou jurídica bloqueie com 1 clique no Meu BC (Gov.br) a abertura de novas contas em todo o SFN/SPB.',
+                normativeSource: 'Banco Central do Brasil — Sistema BC Protege+ & Resolução BCB sobre Abertura de Contas',
+                fields: [
+                  { code: 'Situação CPF', name: 'Cadastro Receita Federal', value: 'REGULAR (Titular Maior de Idade / Sem Óbito)', note: 'Validação cadastral' },
+                  { code: 'BC Protege+', name: 'Status de Bloqueio Voluntário no Bacen', value: injectedFailure === 'bc_protege_ativo' ? 'LOCKED_BY_CITIZEN (Abertura Proibida)' : 'UNLOCKED (Apto para abertura)', note: 'Consulta obrigatória pré-abertura' },
+                ],
+              } as LabMessageStep,
+              ...(injectedFailure === 'bc_protege_ativo'
+                ? []
+                : [
+                    {
+                      stepNo: 3,
+                      stageTitle: 'ETAPA 3 · SCREENING PLD/FT (PEP, LISTAS RESTRITIVAS OFAC/CSNU & CAPACIDADE FINANCEIRA)',
+                      elapsedLabel: '18 s',
+                      codeBadge: injectedFailure === 'cliente_pep' ? 'ALERTA · Cliente PEP (Compliance)' : 'PLD/FT · Risco Baixo',
+                      title:
+                        injectedFailure === 'cliente_pep'
+                          ? 'Candidato identificado como Pessoa Exposta Politicamente (PEP): enviado para alçada de Compliance PLD/FT'
+                          : 'Motor de Prevenção à Lavagem de Dinheiro (PLD/FT) valida listas restritivas e define rating de risco',
+                      fromNode: 'acquirer_psp',
+                      toNode: 'issuer_receiver',
+                      fromLabel: 'Orquestrador KYC',
+                      toLabel: 'Motor PLD/FT (AML)',
+                      status: injectedFailure === 'cliente_pep' ? 'warning' : 'normal',
+                      systemHops: `Motor AML ➔ Base PEP (CGU/COAF) ➔ Listas de Sanções (CSNU / OFAC) ➔ Renda Presumida & Limites Pix/Cartão`,
+                      plainExplanation:
+                        injectedFailure === 'cliente_pep'
+                          ? 'A Circular Bacen nº 3.978/2020 não proíbe que um PEP abra conta, mas exige aprovação por alçada superior de Compliance, identificação da origem dos recursos e monitoramento reforçado contínuo.'
+                          : 'O motor PLD/FT cruza o CPF contra listas de Pessoas Expostas Politicamente (PEP), listas de sanções internacionais (CSNU/OFAC) e calcula a renda presumida para calibrar os limites iniciais de Pix e cartão.',
+                      deepDiveTitle: 'Circular Bacen nº 3.978/2020 (Abordagem Baseada em Risco — ABR)',
+                      deepDiveNormative:
+                        'As instituições devem classificar todo cliente em categorias de risco de LD/FT no onboarding e monitorar se a movimentação financeira futura é compatível com a capacidade econômica declarada/presumida.',
+                      normativeSource: 'Circular Bacen nº 3.978/2020 & Lei nº 9.613/1998 (COAF)',
+                      fields: [
+                        { code: 'Status PEP', name: 'Pessoa Exposta Politicamente', value: injectedFailure === 'cliente_pep' ? 'PEP_TITULAR_OU_RELACIONADO (Alçada Compliance)' : 'NÃO_PEP', note: 'Circular 3.978 Art. 19' },
+                        { code: 'Sanções CSNU', name: 'Disponibilidade Internacional', value: 'CLEAR (0 matches em CSNU / OFAC / Interpol)', note: 'Lei 13.810/2019' },
+                      ],
+                    } as LabMessageStep,
+                    {
+                      stepNo: 4,
+                      stageTitle: 'ETAPA 4 · PROVISIONAMENTO DA CONTA PI NO SPI, CHAVE NO DICT & CARTÃO VIRTUAL TOKENIZADO',
+                      elapsedLabel: '45 s',
+                      codeBadge: 'Conta Ativa + DPAN Token',
+                      title: 'Core bancário abre a conta, vincula chave no DICT e emite cartão virtual pronto para Apple/Google Pay',
+                      fromNode: 'acquirer_psp',
+                      toNode: 'slc_b3_str',
+                      fromLabel: 'Core Banking / BaaS',
+                      toLabel: 'DICT + Vault VTS/MDES',
+                      status: 'normal',
+                      systemHops: `Core Ledger (Cria Agência/Conta) ➔ Registro Chave DICT (Bacen) ➔ Processadora Cartões + Push Provisioning (VTS/MDES)`,
+                      plainExplanation:
+                        'Aprovado o KYC, o core bancário cria o número da conta em segundos, registra a chave Pix no DICT do Banco Central e já gera o cartão virtual com Push Provisioning direto para a carteira digital do cliente!',
+                      deepDiveTitle: 'Emissão Instantânea e Push Provisioning (VTS / MDES)',
+                      deepDiveNormative:
+                        'O cliente não precisa esperar 7 dias pelo plástico físico nos Correios: o emissor gera o PAN no HSM (gerando CVV2/iCVV e PVV) e disponibiliza o botão "Adicionar à Apple Wallet / Google Pay" via API de Push Provisioning da bandeira.',
+                      normativeSource: 'Manual DICT Bacen + Visa VTS / Mastercard MDES Push Provisioning Guide',
+                      fields: [
+                        { code: 'Conta & ISPB', name: 'Domicílio Criado', value: 'ISPB 18236120 · Ag 0001 · Conta PI Ativa', note: 'Apta a enviar/receber pacs.008' },
+                        { code: 'Cartão Virtual', name: 'Provisionamento Token', value: 'DPAN 400000******9821 ativo via Push Provisioning', note: 'Uso imediato em NFC e E-Commerce' },
+                      ],
+                    } as LabMessageStep,
+                  ]),
+            ]),
+      ];
+    }
+
+    // Track 10: Regras no Tempo & 2027+ (Split Tributário LC 214, Passkeys, Agentic AI)
     const isPre2023Era = injectedFailure === 'era_2022_pre_cap' || selectedEraDate < '2023-04-01';
     return [
       {
@@ -1742,41 +2085,49 @@ export function PaygramaInteractiveLab() {
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              sendToDocStudio({
-                mode: 'append_html',
-                title: `Simulação Guiada — ${trackMeta.title}`,
-                sourceModule: 'Laboratório O Pagamento por Dentro (/jornada)',
-                metadata: {
-                  brand: brand === 'amex' ? 'geral' : brand,
-                  brandName: brand.toUpperCase(),
-                  referenceId: `LAB-${activeTrack.toUpperCase()}`,
-                  category: 'Jornada & Regulatório 2027',
-                  effectiveDate: '2026–2027',
-                  riskLevel: hasFailure ? 'Alto' : 'Baixo',
-                  executiveSummary: trackMeta.subtitle,
-                  recommendedAction: `Modelo: ${arrangementModelInfo.badge} · Cenário: ${injectedFailure}`,
-                },
-                html: `
-                  <h3>Simulação de Fluxo — ${trackMeta.title}</h3>
-                  <p><strong>Arranjo:</strong> ${arrangementModelInfo.badge} — ${arrangementModelInfo.desc}</p>
-                  <p><strong>Valor Simulado:</strong> R$ ${amount.toFixed(2)} · <strong>Status:</strong> ${injectedFailure}</p>
-                  <ol>
-                    ${steps
-                      .map(
-                        (s) =>
-                          `<li><strong>[${s.elapsedLabel}] ${s.codeBadge} — ${s.title}</strong> (${s.fromLabel} ➔ ${s.toLabel}): ${s.plainExplanation}</li>`
-                      )
-                      .join('')}
-                  </ol>
-                `,
-              });
-            }}
-            className="px-3.5 py-2 rounded-full bg-slate-900 dark:bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all self-start sm:self-auto"
-          >
-            📝 Exportar Cenário p/ Doc Studio
-          </button>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={handleCopyScenarioLink}
+              className="px-3.5 py-2 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 hover:border-[#1F3FE0] text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
+            >
+              {copiedLinkToast ? '✓ Link do cenário copiado!' : '🔗 Copiar link deste cenário'}
+            </button>
+            <button
+              onClick={() => {
+                sendToDocStudio({
+                  mode: 'append_html',
+                  title: `Simulação Guiada — ${trackMeta.title}`,
+                  sourceModule: 'Laboratório O Pagamento por Dentro (/jornada)',
+                  metadata: {
+                    brand: brand === 'amex' ? 'geral' : brand,
+                    brandName: brand.toUpperCase(),
+                    referenceId: `LAB-${activeTrack.toUpperCase()}`,
+                    category: 'Jornada & Regulatório 2027',
+                    effectiveDate: '2026–2027',
+                    riskLevel: hasFailure ? 'Alto' : 'Baixo',
+                    executiveSummary: trackMeta.subtitle,
+                    recommendedAction: `Modelo: ${arrangementModelInfo.badge} · Cenário: ${injectedFailure}`,
+                  },
+                  html: `
+                    <h3>Simulação de Fluxo — ${trackMeta.title}</h3>
+                    <p><strong>Arranjo:</strong> ${arrangementModelInfo.badge} — ${arrangementModelInfo.desc}</p>
+                    <p><strong>Valor Simulado:</strong> R$ ${amount.toFixed(2)} · <strong>Status:</strong> ${injectedFailure}</p>
+                    <ol>
+                      ${steps
+                        .map(
+                          (s) =>
+                            `<li><strong>[${s.elapsedLabel}] ${s.codeBadge} — ${s.title}</strong> (${s.fromLabel} ➔ ${s.toLabel}): ${s.plainExplanation}</li>`
+                        )
+                        .join('')}
+                    </ol>
+                  `,
+                });
+              }}
+              className="px-3.5 py-2 rounded-full bg-slate-900 dark:bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all"
+            >
+              📝 Exportar Cenário p/ Doc Studio
+            </button>
+          </div>
         </div>
 
         {/* 8 Abas Horizontais em Pílulas (Estilo Paygrama) */}
@@ -2868,6 +3219,79 @@ export function PaygramaInteractiveLab() {
                       ? 'Enquadrado no teto regulatório de 0,50% da Resolução BCB 304/2023.'
                       : ''}
                   </div>
+
+                  {/* Simulador 2027: Split Payment Tributário (LC 214/2025 — CBS & IBS na Liquidação) */}
+                  <div className="rounded-2xl border border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20 p-3.5 space-y-2.5 mt-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-black text-[#1F3FE0] dark:text-blue-300">
+                        <input
+                          type="checkbox"
+                          checked={enableSplitTributario2027}
+                          onChange={(e) => setEnableSplitTributario2027(e.target.checked)}
+                          className="rounded border-blue-300 text-[#1F3FE0] focus:ring-[#1F3FE0]"
+                        />
+                        <span>🚀 Simular Split Tributário 2027+ (LC 214/2025 — CBS/IBS)</span>
+                      </label>
+                      <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 font-mono text-[10px] font-bold text-[#1F3FE0] dark:text-blue-200">
+                        Art. 31–35 LC 214
+                      </span>
+                    </div>
+
+                    {enableSplitTributario2027 && (() => {
+                      const taxAmount = Number(((moneyBreakdown.gross * splitTaxPct) / 100).toFixed(2));
+                      const netBeforeTax = anticipateToD1 ? moneyBreakdown.merchantNetD1 : moneyBreakdown.merchantNetD30;
+                      const netAfterSplitTax = Number(Math.max(0, netBeforeTax - taxAmount).toFixed(2));
+                      const b3AssignableBase = Number(Math.max(0, moneyBreakdown.merchantNetD30 - taxAmount).toFixed(2));
+                      return (
+                        <div className="space-y-2 pt-1 text-xs">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-slate-600 dark:text-slate-300">
+                              Alíquota Líquida CBS+IBS (após créditos da cadeia):
+                            </span>
+                            <div className="flex gap-1">
+                              {[8.8, 12.5, 18.0, 26.5].map((pct) => (
+                                <button
+                                  key={pct}
+                                  onClick={() => setSplitTaxPct(pct)}
+                                  className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-bold border ${
+                                    splitTaxPct === pct
+                                      ? 'bg-[#1F3FE0] text-white border-[#1F3FE0]'
+                                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {pct}%
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                            <div className="rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-800 p-2">
+                              <div className="text-[10px] font-mono text-slate-500">Segregado p/ Fisco (CBS/IBS)</div>
+                              <div className="font-mono font-black text-rose-600 dark:text-rose-400">
+                                R$ {taxAmount.toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-800 p-2">
+                              <div className="text-[10px] font-mono text-slate-500">Base Livre UR B3/CERC (Art. 34)</div>
+                              <div className="font-mono font-black text-blue-600 dark:text-blue-400">
+                                R$ {b3AssignableBase.toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-800 p-2">
+                              <div className="text-[10px] font-mono text-slate-500">Líquido Final Lojista (c/ Split)</div>
+                              <div className="font-mono font-black text-emerald-700 dark:text-emerald-400">
+                                R$ {netAfterSplitTax.toFixed(2)}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                            Pelo Art. 34 da LC 214/2025, a parcela do tributo (R$ {taxAmount.toFixed(2)}) é segregada na liquidação para a Receita Federal / Comitê Gestor do IBS e não pode ser objeto de cessão ou antecipação nas registradoras B3/CERC.
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </>
               );
             })()}
@@ -2943,6 +3367,147 @@ export function PaygramaInteractiveLab() {
                     </td>
                   </tr>
                 </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Sub-bloco 3B: Anatomia Visual do Identificador Técnico + Comparativo Multi-Arranjo Lado a Lado */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+          {/* Anatomia Visual do Identificador (ARN 23d / EndToEndId 32c / Código de Barras 44d) */}
+          <div className="lg:col-span-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/70 p-4 space-y-3">
+            <div className="font-mono text-xs font-black uppercase tracking-wider text-slate-500">
+              {activeTrack === 'boleto_npc'
+                ? '🔍 Anatomia dos 44 Dígitos do Código de Barras (Febraban / NPC)'
+                : moneyBreakdown.isPix
+                ? '🔍 Anatomia do Identificador do Pix (EndToEndId — 32 Caracteres)'
+                : '🔍 Anatomia do ARN (Acquirer Reference Number — 23 Dígitos + Luhn)'}
+            </div>
+
+            {activeTrack === 'boleto_npc' ? (
+              <div className="space-y-2 text-xs">
+                <div className="rounded-xl bg-slate-900 text-white p-3 font-mono text-xs tracking-wider break-all">
+                  <span className="text-cyan-300" title="Banco">341</span>
+                  <span className="text-amber-300" title="Moeda (9=BRL)">9</span>
+                  <span className="text-rose-400 font-black" title="DV Geral">8</span>
+                  <span className="text-emerald-300 font-black" title="Fator Vencimento (Reiniciado 22/02/2025 = 1000)">1394</span>
+                  <span className="text-purple-300" title="Valor em centavos">
+                    {Math.round(amount * 100)
+                      .toString()
+                      .padStart(10, '0')}
+                  </span>
+                  <span className="text-slate-300" title="Campo Livre (25 dígitos)">1090000123456780012345000</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                  <div><strong className="text-cyan-600 dark:text-cyan-400">341:</strong> Cód. Banco (Itaú)</div>
+                  <div><strong className="text-amber-600 dark:text-amber-400">9:</strong> Moeda (9 = Real)</div>
+                  <div><strong className="text-rose-600 dark:text-rose-400">8:</strong> Dígito Verificador (Mód 11)</div>
+                  <div><strong className="text-emerald-600 dark:text-emerald-400">1394:</strong> Fator Venc. (pós 22/02/2025)</div>
+                </div>
+              </div>
+            ) : moneyBreakdown.isPix ? (
+              <div className="space-y-2 text-xs">
+                <div className="rounded-xl bg-slate-900 text-white p-3 font-mono text-xs tracking-wider break-all">
+                  <span className="text-emerald-400 font-black">E</span>
+                  <span className="text-cyan-300 font-bold">60701190</span>
+                  <span className="text-amber-300">202611191042</span>
+                  <span className="text-purple-300">a9f8c7d6e5b</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                  <div><strong className="text-emerald-600 dark:text-emerald-400">E (1c):</strong> Prefixo Fixo Pix SPI</div>
+                  <div><strong className="text-cyan-600 dark:text-cyan-400">60701190 (8d):</strong> ISPB do PSP Pagador</div>
+                  <div><strong className="text-amber-600 dark:text-amber-400">202611191042 (12d):</strong> Data/Hora UTC</div>
+                  <div><strong className="text-purple-600 dark:text-purple-400">a9f8...e5b (11c):</strong> Sequencial Único</div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 text-xs">
+                <div className="rounded-xl bg-slate-900 text-white p-3 font-mono text-xs tracking-wider break-all">
+                  <span className="text-emerald-400 font-black">7</span>
+                  <span className="text-cyan-300 font-bold">453211</span>
+                  <span className="text-amber-300">6323</span>
+                  <span className="text-purple-300">00001234567</span>
+                  <span className="text-rose-400 font-black">2</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                  <div><strong className="text-emerald-600 dark:text-emerald-400">7 (1d):</strong> Uso / Tipo Transação</div>
+                  <div><strong className="text-cyan-600 dark:text-cyan-400">453211 (6d):</strong> BIN Adquirente</div>
+                  <div><strong className="text-amber-600 dark:text-amber-400">6323 (4d):</strong> Data Juliano (YDDD)</div>
+                  <div><strong className="text-rose-600 dark:text-rose-400">2 (Pos 23):</strong> Dígito Verificador Luhn</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Quadro Comparativo Multi-Arranjo Lado a Lado para o Mesmo Valor (R$) */}
+          <div className="lg:col-span-7 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/70 p-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs font-black uppercase tracking-wider text-slate-500">
+                ⚖️ Comparativo Lado a Lado para R$ {amount.toFixed(2)} (Cartão × Pix × Boleto)
+              </span>
+              <span className="text-[11px] font-mono text-slate-500">Economia Real por Instrumento</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-[10px] text-slate-500 uppercase">
+                    <th className="py-1.5 pr-2">Instrumento</th>
+                    <th className="py-1.5 px-2">Prazo Normal</th>
+                    <th className="py-1.5 px-2 text-right">Intercâmbio</th>
+                    <th className="py-1.5 px-2 text-right">MDR / Taxa</th>
+                    <th className="py-1.5 pl-2 text-right">Lojista Recebe</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/70">
+                  {[
+                    {
+                      name: 'Crédito Parcelado 6x',
+                      prazo: 'D+30 a D+180',
+                      ic: '1,85%',
+                      mdr: '2,88%',
+                      net: Number((amount * (1 - 0.0288)).toFixed(2)),
+                    },
+                    {
+                      name: 'Crédito à Vista (1x)',
+                      prazo: 'D+30 (ASLC026)',
+                      ic: '1,55%',
+                      mdr: '2,45%',
+                      net: Number((amount * (1 - 0.0245)).toFixed(2)),
+                    },
+                    {
+                      name: 'Débito (Teto BCB 304)',
+                      prazo: 'D+1 (ASLC028)',
+                      ic: '0,50% (Cap)',
+                      mdr: '1,13%',
+                      net: Number((amount * (1 - 0.0113)).toFixed(2)),
+                    },
+                    {
+                      name: 'Pix Instantâneo / NFC',
+                      prazo: 'D+0 (< 1,5s SPI)',
+                      ic: '0,00%',
+                      mdr: '0,35%',
+                      net: Number((amount * (1 - 0.0035)).toFixed(2)),
+                    },
+                    {
+                      name: 'Pix Automático (Recorrência)',
+                      prazo: 'D+0 (Vencimento)',
+                      ic: '0,00%',
+                      mdr: '0,45%',
+                      net: Number((amount * (1 - 0.0045)).toFixed(2)),
+                    },
+                  ].map((item) => (
+                    <tr key={item.name} className="hover:bg-white/60 dark:hover:bg-slate-900/60">
+                      <td className="py-1.5 pr-2 font-bold text-slate-800 dark:text-slate-200">{item.name}</td>
+                      <td className="py-1.5 px-2 text-slate-500">{item.prazo}</td>
+                      <td className="py-1.5 px-2 text-right text-[#1F3FE0] dark:text-blue-400">{item.ic}</td>
+                      <td className="py-1.5 px-2 text-right text-rose-600">{item.mdr}</td>
+                      <td className="py-1.5 pl-2 text-right font-black text-emerald-700 dark:text-emerald-400">
+                        R$ {item.net.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
@@ -3058,6 +3623,231 @@ export function PaygramaInteractiveLab() {
           })}
         </div>
       </section>
+
+      {/* =====================================================================
+          ASSISTENTE CONTEXTUAL FLUTUANTE ("PERGUNTE AO WORKBENCH" — ESTILO PAYGRAMA)
+         ===================================================================== */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2">
+        {showAssistantDrawer && (() => {
+          const contextualQAs: Record<LabTrackId, { q: string; a: string; source: string }[]> = {
+            cartao: [
+              {
+                q: 'Qual a diferença prática entre DE 22 = 051, 071 e 810 na aprovação?',
+                a: 'DE 22 = 051 indica leitura física do Chip EMV com PIN; 071 indica aproximação NFC (Contactless/SoftPOS); e 810 indica credencial salva/tokenizada no E-Commerce. Enviar e-commerce tokenizado como 012 (manual) derruba a aprovação em até 6% no motor antifraude do emissor.',
+                source: 'ISO 8583 DE 22 POS Entry Mode + Visa DAF / Mastercard DAA',
+              },
+              {
+                q: 'O que acontece quando o emissor fica fora do ar na autorização 0100?',
+                a: 'Se o emissor não responder dentro do timeout da rede (~1.800ms), o switch da bandeira (VisaNet/Banknet/Elo STI) aciona o Stand-In Processing (STIP), decidindo pela aprovação ou recusa conforme parâmetros pré-acordados e enviando depois o Advice 0120.',
+                source: 'Visa STIP Guide / Mastercard Stand-In Parameters',
+              },
+              {
+                q: 'Por que a resposta perdida exige Desfazimento Automático MTI 0400?',
+                a: 'Se o emissor aprovou (0110 DE 39=00) mas o pacote caiu antes de chegar ao terminal, o limite do cliente ficou retido (Shadow Hold). O MTI 0400 libera o limite imediatamente e evita multa de Authorization Misuse.',
+                source: 'ISO 8583 Reversal Advice (0400/0420)',
+              },
+            ],
+            clearing_slc: [
+              {
+                q: 'Por que a perda do DE 62.2 (TID) ou DE 63 (Banknet) gera Downgrade?',
+                a: 'O Lifecycle ID vincula a captura noturna (Outgoing) à autorização online. Sem ele, a bandeira não comprova que a venda teve autorização eletrônica íntegra e rebaixa o intercâmbio para EIRF/Standard (+45 a +95 bps) além de cobrar tarifa GDIP.',
+                source: 'Visa Base II Data Integrity / Mastercard GCMS PDS 0158',
+              },
+              {
+                q: 'Onde vai parar o centavo de diferença no parcelado (ex: R$ 100 em 3x)?',
+                a: 'Em todas as bandeiras no Brasil, o resíduo de arredondamento (R$ 0,01) deve ser somado obrigatoriamente na 1ª parcela (R$ 33,34 + R$ 33,33 + R$ 33,33) no TCR 2 BR / PDS 0195 / Elo Reg 02. Divergência gera reject EP747 / T112 / Reg 09.',
+                source: 'Visa Base II Brazil National Net / Elo Serviço 10 Reg 02',
+              },
+            ],
+            contestacao_ce3: [
+              {
+                q: 'Como funciona a reversão obrigatória no Compelling Evidence 3.0 (CE 3.0)?',
+                a: 'Se o lojista apresentar 2 compras históricas do mesmo cartão (entre 120 e 365 dias antes da disputa e nunca contestadas) compartilhando pelo menos 2 dados com a compra contestada (sendo 1 obrigatoriamente IP ou Device ID), o chargeback de fraude 10.4/4837 é revertido a favor do lojista.',
+                source: 'Visa Compelling Evidence 3.0 / Mastercard First-Party Trust',
+              },
+              {
+                q: 'O 3DS 2.2 (ECI 05 / 02) impede a abertura do chargeback de fraude?',
+                a: 'Sim! Quando a compra foi autenticada com sucesso (ECI 05 na Visa/Elo ou ECI 02 na Mastercard) e o criptograma CAVV v9/AAV foi enviado no Outgoing, o próprio sistema VROL/MCOM bloqueia o chargeback de fraude CNP (Liability Shift para o emissor).',
+                source: 'EMV® 3DS 2.2 + Visa Dispute Management Guidelines',
+              },
+            ],
+            pix_spi: [
+              {
+                q: 'Qual a diferença entre a liquidação do Pix e a do Cartão de Débito?',
+                a: 'No Pix, cada transação é liquidada individualmente em tempo real (LBTR em < 1,2s) via mensagem ISO 20022 pacs.008 movimentando saldo nas Contas PI dentro do Banco Central. No Débito, a autorização é instantânea, mas o dinheiro só liquida em lote no dia seguinte (D+1) na grade ASLC028 da CIP.',
+                source: 'Regulamento do Pix (SPI) vs Catálogo SLC/Núclea',
+              },
+              {
+                q: 'Como funciona o Bloqueio Cautelar de 72 horas no Pix?',
+                a: 'Pela Resolução BCB nº 147, quando o motor antifraude do PSP Recebedor detecta suspeita de fraude em um Pix recebido por Pessoa Física, ele pode bloquear cautelarmente os recursos por até 72 horas para análise detalhada.',
+                source: 'Resolução BCB nº 147/2021',
+              },
+            ],
+            pix_auto_nfc: [
+              {
+                q: 'Como o Pix Automático funciona sem o cliente ler QR Code todo mês?',
+                a: 'O pagador concede uma autorização única (mandato pain.009) no app do seu banco. A cada ciclo, o PSP da empresa envia a cobrança (pain.013) entre D-10 e D-2, o banco notifica o cliente em D-1 e debita automaticamente no vencimento.',
+                source: 'Resolução BCB nº 429 — Regulamento do Pix Automático',
+              },
+            ],
+            med_seguranca: [
+              {
+                q: 'O que muda do MED 1.0 para o novo MED 2.0 (2026/2027)?',
+                a: 'O MED 1.0 só bloqueava a 1ª conta recebedora do Pix (que quadrilhas esvaziavam em segundos). O MED 2.0 rastreia automaticamente o grafo de transferências subsequentes no SPI e propaga o bloqueio cautelar para as contas seguintes (níveis 2 e 3).',
+                source: 'Agenda Evolutiva de Segurança do Pix — MED 2.0 (Banco Central)',
+              },
+            ],
+            open_finance_drex: [
+              {
+                q: 'Como a Jornada Sem Redirecionamento (JSR) permite Pix por Aproximação NFC?',
+                a: 'Com as Resoluções BCB 396 e 406, o usuário vincula sua conta à carteira digital (ITP) uma única vez gerando uma credencial criptográfica FIDO2 no chip de segurança do celular. Nas compras seguintes, basta aproximar na maquininha e autenticar com biometria sem abrir o app do banco.',
+                source: 'Resoluções BCB nº 396 e 406/2024 (JSR Open Finance)',
+              },
+            ],
+            boleto_npc: [
+              {
+                q: 'Por que boletos a partir de R$ 250 mil não liquidam no SILOC?',
+                a: 'Para eliminar risco sistêmico entre bancos na câmara multilateral diferida (SILOC D+1), boletos de valor igual ou superior a R$ 250.000,00 (VLB-Cobrança) são liquidados individualmente em tempo real no STR (D+0) via mensagem STR0039.',
+                source: 'Regulamento do SILOC (CIP) & Catálogo STR (STR0039)',
+              },
+            ],
+            abertura_conta_kyc: [
+              {
+                q: 'O que é o BC Protege+ na abertura de contas?',
+                a: 'É a ferramenta oficial do Banco Central no Meu BC onde qualquer cidadão ou empresa ativa gratuitamente um bloqueio preventivo contra abertura de novas contas em seu CPF/CNPJ. As instituições são obrigadas a consultar essa trava antes de concluir o onboarding.',
+                source: 'Banco Central do Brasil — Sistema BC Protege+',
+              },
+            ],
+            regras_2027_tempo: [
+              {
+                q: 'Como o Split Payment Tributário da Reforma (LC 214/2025) afeta adquirentes e bancos?',
+                a: 'Pelos Arts. 31 a 35 da LC 214/2025, os meios de pagamento deverão vincular a transação à chave da NF-e/NFC-e e segregar automaticamente, no momento da liquidação financeira, o valor da CBS (2027+) e do IBS para o Fisco antes de creditar o lojista ou liquidar cessões na B3/CERC.',
+                source: 'Lei Complementar nº 214/2025 (Arts. 31 a 35)',
+              },
+            ],
+          };
+
+          const currentQAs = contextualQAs[activeTrack] || contextualQAs.cartao;
+          const activeQa = currentQAs[Math.min(selectedQaIdx, currentQAs.length - 1)] || currentQAs[0];
+
+          return (
+            <div className="w-[340px] sm:w-[410px] rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col">
+              <div className="px-4 py-3 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-full bg-[#1F3FE0] text-white font-mono text-xs font-black flex items-center justify-center">
+                    VS
+                  </span>
+                  <div>
+                    <div className="text-xs font-black text-slate-900 dark:text-white">
+                      Workbench Guia &amp; Normas Oficiais
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                      Contexto ativo: {trackMeta.shortLabel}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAssistantDrawer(false)}
+                  className="px-2 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-4 space-y-3 max-h-[420px] overflow-y-auto text-xs">
+                <div className="text-[11px] font-bold text-slate-500">
+                  Perguntas frequentes sobre <span className="text-[#1F3FE0] dark:text-blue-400">{trackMeta.shortLabel}</span>:
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  {currentQAs.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setSelectedQaIdx(idx);
+                        setCustomAnswer(null);
+                      }}
+                      className={`text-left px-3 py-2 rounded-2xl border text-xs font-bold transition-all ${
+                        selectedQaIdx === idx && !customAnswer
+                          ? 'bg-blue-50 dark:bg-blue-950/60 border-[#1F3FE0] text-[#1F3FE0] dark:text-blue-300'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400'
+                      }`}
+                    >
+                      {item.q}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Resposta Normativa */}
+                <div className="rounded-2xl border border-blue-200 dark:border-blue-500/30 bg-blue-50/40 dark:bg-blue-950/30 p-3.5 space-y-2">
+                  <div className="font-bold text-slate-900 dark:text-white">
+                    {customAnswer ? 'Resposta do Acervo Normativo:' : activeQa.q}
+                  </div>
+                  <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">
+                    {customAnswer || activeQa.a}
+                  </p>
+                  {!customAnswer && (
+                    <div className="font-mono text-[10px] text-slate-500 pt-1 border-t border-blue-200/60 dark:border-slate-800">
+                      <strong>Norma citada:</strong> {activeQa.source}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pergunta Livre ao Motor RAG dos 40.129 Documentos */}
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!customQuestion.trim()) return;
+                    setAskingRag(true);
+                    try {
+                      const res = await fetch('/api/rag/ask_manuals', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: customQuestion }),
+                      });
+                      const data = await res.json();
+                      setCustomAnswer(
+                        data?.answer ||
+                          data?.response ||
+                          `Consulta registrada para "${customQuestion}". No contexto de ${trackMeta.title}, verifique os campos obrigatórios no Inspetor do Passo 2 e as Resoluções vigentes no Bloco §.`
+                      );
+                    } catch {
+                      setCustomAnswer(
+                        `No contexto de ${trackMeta.title}: ${activeQa.a} (Fonte: ${activeQa.source})`
+                      );
+                    } finally {
+                      setAskingRag(false);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 pt-1"
+                >
+                  <input
+                    type="text"
+                    value={customQuestion}
+                    onChange={(e) => setCustomQuestion(e.target.value)}
+                    placeholder="Pergunte sobre Pix, ISO 8583, Outgoing, 2027..."
+                    className="flex-1 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#1F3FE0]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={askingRag}
+                    className="w-8 h-8 rounded-full bg-[#1F3FE0] text-white font-bold flex items-center justify-center shrink-0"
+                  >
+                    {askingRag ? '…' : '↑'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          );
+        })()}
+
+        <button
+          onClick={() => setShowAssistantDrawer((p) => !p)}
+          className="px-4 py-2.5 rounded-full bg-[#1F3FE0] hover:bg-blue-700 text-white text-xs font-black shadow-xl shadow-blue-900/30 flex items-center gap-2 transition-all"
+        >
+          <span>{showAssistantDrawer ? '✕ Fechar Guia' : '💬 Pergunte ao Workbench'}</span>
+        </button>
+      </div>
     </div>
   );
 }

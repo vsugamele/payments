@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   MapPin,
   Mail,
@@ -445,6 +446,156 @@ export default function HomePage() {
       </section>
 
       <div className="mx-auto max-w-5xl px-6">
+        {/* ── Em Destaque: Laboratórios Interativos 3D, Outgoing & Regulatório 2027+ ── */}
+        <section className="pt-14 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+            <div>
+              <p className="font-mono text-xs font-bold uppercase tracking-widest text-blue-500">
+                EM DESTAQUE · LABORATÓRIOS INTERATIVOS ABERTOS
+              </p>
+              <h2 className="text-xl sm:text-2xl font-black text-foreground">
+                O pagamento desenhado por dentro (3D, Bits, Dinheiro &amp; Regulatório 2027+)
+              </h2>
+            </div>
+            <Link
+              href="/jornada"
+              className="text-xs font-bold text-blue-500 hover:underline"
+            >
+              Abrir Laboratório 3D Completo →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Card 1: O Pagamento por Dentro (com Mini-Gráfico Empilhado de Taxas Estilo Editorial) */}
+            <Link
+              href="/jornada"
+              className="group rounded-3xl border border-border bg-card p-5 flex flex-col justify-between gap-4 hover:border-blue-500 transition-all shadow-2xs"
+            >
+              <div className="space-y-3">
+                {/* Preview Visual: Comparativo 4 Partes vs PayFac vs Débito BCB 304 vs Pix SPI */}
+                <div className="rounded-2xl border border-border bg-muted/30 p-3.5 space-y-2">
+                  <div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground">
+                    <span>DIVISÃO DO DINHEIRO</span>
+                    <span className="text-blue-400 font-bold">10 TRILHAS · 3D</span>
+                  </div>
+                  {[
+                    { label: "4 Partes Créd.", net: 97.2, ic: 1.6, fee: 0.2, acq: 1.0 },
+                    { label: "Débito BCB 304", net: 98.9, ic: 0.5, fee: 0.15, acq: 0.45 },
+                    { label: "Pix SPI / NFC", net: 99.65, ic: 0, fee: 0.05, acq: 0.3 },
+                    { label: "Split 2027 CBS", net: 85.0, ic: 1.5, fee: 12.5, acq: 1.0 },
+                  ].map((bar) => (
+                    <div key={bar.label} className="space-y-0.5">
+                      <div className="flex justify-between font-mono text-[10px]">
+                        <span className="text-foreground font-bold">{bar.label}</span>
+                        <span className="text-emerald-400">{bar.net}% líq.</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full overflow-hidden flex bg-slate-800">
+                        <div style={{ width: `${bar.net}%` }} className="bg-emerald-500" />
+                        <div style={{ width: `${bar.ic}%` }} className="bg-blue-500" />
+                        <div style={{ width: `${bar.fee}%` }} className="bg-amber-500" />
+                        <div style={{ width: `${bar.acq}%` }} className="bg-slate-400" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <span className="font-mono text-[10px] font-bold uppercase text-blue-400">
+                    SIMULADOR 3D ISOMÉTRICO ⇄ SEQUÊNCIA (MS)
+                  </span>
+                  <h3 className="text-base font-black text-foreground group-hover:text-blue-400 transition-colors mt-0.5">
+                    O Pagamento por Dentro: Cartão, Pix, MED 2.0 &amp; Reforma 2027
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Escolha o cenário, injete uma falha (STIP, 0400, Downgrade, Bloqueio Cautelar, BC Protege+), siga cada mensagem e simule a antecipação D+1 e o Split Tributário LC 214/2025.
+                  </p>
+                </div>
+              </div>
+              <span className="font-mono text-xs font-bold text-blue-500">
+                Explorar as 10 trilhas interativas →
+              </span>
+            </Link>
+
+            {/* Card 2: Workbench Outgoing 2.0 & Suíte de Engenharia */}
+            <Link
+              href="/compliance/outgoing"
+              className="group rounded-3xl border border-border bg-card p-5 flex flex-col justify-between gap-4 hover:border-blue-500 transition-all shadow-2xs"
+            >
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-border bg-slate-950 p-3.5 font-mono text-[10px] text-cyan-300 space-y-1">
+                  <div className="text-slate-400 flex justify-between">
+                    <span>WIRE / BATCH ENGINE</span>
+                    <span className="text-emerald-400">168B / TLV / CAS</span>
+                  </div>
+                  <div className="truncate">0500453211******884274532116323...</div>
+                  <div className="truncate text-amber-300">TCR 0 + TCR 1 + TCR 2 BR + TCR 5/7</div>
+                  <div className="truncate text-emerald-300">MTI 1240 + PDS 0158/0195/0208</div>
+                  <div className="truncate text-blue-300">Elo Reg 00 + 01 + 02 + 07 + 08</div>
+                </div>
+
+                <div>
+                  <span className="font-mono text-[10px] font-bold uppercase text-emerald-400">
+                    35 TABELAS · 17.106 CAMPOS · 5 LABS QA
+                  </span>
+                  <h3 className="text-base font-black text-foreground group-hover:text-blue-400 transition-colors mt-0.5">
+                    Workbench Outgoing 2.0, Gerador de Massa &amp; Doutor Rejects
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Tabelas separadas de Visa Base II (.CTF), Mastercard GCMS (.IPM), Elo Serviço 10 (.TXT) e Amex (.CAS), Gerador Sintético com Luhn, Doutor EP747/T112 e Conciliação 4-Way.
+                  </p>
+                </div>
+              </div>
+              <span className="font-mono text-xs font-bold text-blue-500">
+                Abrir Workbench Outgoing 2.0 →
+              </span>
+            </Link>
+
+            {/* Card 3: Topologia C4 de 17 Servidores, HSM & Atlas de Produtos */}
+            <Link
+              href="/arquitetura"
+              className="group rounded-3xl border border-border bg-card p-5 flex flex-col justify-between gap-4 hover:border-blue-500 transition-all shadow-2xs"
+            >
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-border bg-muted/30 p-3.5 font-mono text-[10px] space-y-1.5">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>TOPOLOGIA C4 &amp; ATLAS</span>
+                    <span className="text-amber-400 font-bold">5 ZONAS PCI/RSFN</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                    <div className="rounded-lg bg-background/80 border border-border px-2 py-1 font-bold text-foreground">
+                      17 Servidores &amp; HSM
+                    </div>
+                    <div className="rounded-lg bg-background/80 border border-border px-2 py-1 font-bold text-foreground">
+                      13 Cabos &amp; Portas
+                    </div>
+                    <div className="rounded-lg bg-background/80 border border-border px-2 py-1 font-bold text-foreground">
+                      10-Hop Packet Trace
+                    </div>
+                    <div className="rounded-lg bg-background/80 border border-border px-2 py-1 font-bold text-foreground">
+                      26 Produtos (PID/MC)
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="font-mono text-[10px] font-bold uppercase text-amber-400">
+                    INFRAESTRUTURA FÍSICA &amp; MAPA DE PRODUTOS
+                  </span>
+                  <h3 className="text-base font-black text-foreground group-hover:text-blue-400 transition-colors mt-0.5">
+                    Blueprint C4 de Servidores, HSM PayShield &amp; Cabos das Bandeiras
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Onde cada servidor passa, se conecta e traduz chaves (POS ➔ Switch ➔ HSM :1500 ➔ EAS/MIP/STI ➔ Emissor ➔ B3/CIP/STR), com Wire Dump real salto a salto.
+                  </p>
+                </div>
+              </div>
+              <span className="font-mono text-xs font-bold text-blue-500">
+                Ver Topologia C4 &amp; Packet Tracer →
+              </span>
+            </Link>
+          </div>
+        </section>
+
         {/* ── Sobre (Estrutura Direta: Quem Sou + Hoje + Antes + Transversal) ── */}
         <section className="pt-16">
           <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-4">
