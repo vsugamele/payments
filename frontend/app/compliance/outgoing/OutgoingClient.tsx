@@ -32,6 +32,7 @@ import OutgoingAcervoConnector from './OutgoingAcervoConnector';
 import { OutgoingDowngradeAndAmex } from './OutgoingDowngradeAndAmex';
 import { OutgoingServerTopologyBlueprint } from './OutgoingServerTopologyBlueprint';
 import { OutgoingEngineeringLabSuite } from './OutgoingEngineeringLabSuite';
+import { PaygramaInteractiveLab } from '@/app/jornada/PaygramaInteractiveLab';
 
 type MainTab =
   | 'tables'
@@ -106,7 +107,7 @@ export default function OutgoingClient() {
 
   // Sub-views para evitar excesso de informação tudo junto na mesma tela
   const [tableSectionView, setTableSectionView] = useState<'resumo' | 'layout' | 'wire' | 'all'>('resumo');
-  const [flowSectionView, setFlowSectionView] = useState<'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'>('servidores');
+  const [flowSectionView, setFlowSectionView] = useState<'lab3d' | 'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'>('lab3d');
 
   // State for Tab 1 (Separated Tables)
   const [tablePresenceFilter, setTablePresenceFilter] = useState<TablePresenceFilter>('ALL');
@@ -1294,6 +1295,7 @@ export default function OutgoingClient() {
           <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
             <div className="flex flex-wrap items-center gap-1.5">
               {[
+                { id: 'lab3d', label: '✨ 0️⃣ Laboratório 3D Isométrico, Pix, Regulatório & 2027+' },
                 { id: 'servidores', label: '1️⃣ Topologia de Servidores, HSM & Cabos (Modelo C4)' },
                 { id: 'sequencia', label: '2️⃣ Sequência das Tabelas no Arquivo' },
                 { id: 'atores', label: '3️⃣ Diagrama dos 5 Atores (0100 ➔ Outgoing)' },
@@ -1306,7 +1308,7 @@ export default function OutgoingClient() {
                     key={sec.id}
                     onClick={() =>
                       setFlowSectionView(
-                        sec.id as 'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'
+                        sec.id as 'lab3d' | 'sequencia' | 'atores' | 'servidores' | 'regras' | 'all'
                       )
                     }
                     className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
@@ -1321,9 +1323,14 @@ export default function OutgoingClient() {
               })}
             </div>
             <span className="text-[11px] text-slate-400 px-2">
-              4 Níveis de Zoom: Atores ➔ Servidores ➔ Cabos/HSM ➔ Simulador de Queda
+              Isométrico 3D ⇄ Sequência (ms) ➔ Topologia C4 (17 Servidores)
             </span>
           </div>
+
+          {/* LABORATÓRIO 3D ISOMÉTRICO, SEQUÊNCIA (MS), PIX, REGULATÓRIO & 2027+ */}
+          {(flowSectionView === 'lab3d' || flowSectionView === 'all') && (
+            <PaygramaInteractiveLab />
+          )}
 
           {/* TOPOLOGIA DE SERVIDORES, HSM, APPLIANCES DE BORDA & CABOS (MODELO C4) */}
           {(flowSectionView === 'servidores' || flowSectionView === 'all') && (

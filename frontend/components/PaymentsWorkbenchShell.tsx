@@ -40,6 +40,12 @@ const WORKBENCH_GROUPS: NavGroup[] = [
     subtitle: 'ISO 8583 · EMV · 3DS · Tokens · AES',
     items: [
       {
+        id: 'nav-jornada-3d',
+        label: 'O Pagamento por Dentro (Lab 3D · Pix · 2027+)',
+        badge: '3D + PIX',
+        href: '/jornada',
+      },
+      {
         id: 'nav-bitmap',
         label: 'Mapa de Bits (128b Auth × Clearing)',
         badge: 'ISO',
@@ -315,6 +321,12 @@ const WORKBENCH_GROUPS: NavGroup[] = [
         label: 'Doc Studio & Editor Executivo RAG',
         badge: 'DOC',
         href: '/editor',
+      },
+      {
+        id: 'nav-perfil-sobre',
+        label: 'Perfil Executivo & Portfólio (/sobre)',
+        badge: 'BIO',
+        href: '/sobre',
       },
       {
         id: 'nav-compliance-hub',

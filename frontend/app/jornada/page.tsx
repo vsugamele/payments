@@ -1,18 +1,19 @@
 import Link from "next/link";
-import { ArrowLeft, Route, Layers, Clock, Shield, Zap } from "lucide-react";
+import { ArrowLeft, Route, Layers, Clock, Shield } from "lucide-react";
 import JornadaClient from "./JornadaClient";
+import { PaygramaInteractiveLab } from "./PaygramaInteractiveLab";
 
 export const metadata = {
-  title: "Jornada de uma Transação — VS Payments",
+  title: "O Pagamento por Dentro — Laboratório 3D, Pix, Regulatório & 2027+ | VS Payments",
   description:
-    "Visualize de forma interativa o ciclo completo de um pagamento com cartão: da apresentação ao portador até a liquidação financeira e o ciclo de disputa. Cada fase com atores, campos ISO 8583, tempos e impactos.",
+    "Simulador interativo em 3D isométrico e sequência em milissegundos: Cartão (4 Bandeiras), Clearing & Outgoing, Disputas CE 3.0, Pix (SPI/DICT), Pix Automático/NFC, MED 2.0, Open Finance JSR e Regras Regulatórias 2027+.",
 };
 
 const PILARES = [
-  { icon: Route, label: "8 Fases do Ciclo", desc: "Do POS ao Settlement" },
-  { icon: Layers, label: "Campos ISO 8583", desc: "DEs e MTIs documentados" },
-  { icon: Clock, label: "Tempos reais", desc: "< 1.5s Autorização total" },
-  { icon: Shield, label: "Alertas operacionais", desc: "O que evitar em cada etapa" },
+  { icon: Route, label: "8 Trilhas Interativas", desc: "Cartão, Outgoing, Pix, MED 2.0 e 2027+" },
+  { icon: Layers, label: "3D Isométrico ⇄ Sequência", desc: "ISO 8583, 168B/TLV e ISO 20022" },
+  { icon: Clock, label: "Injeção de Falhas & Tempo", desc: "STIP, 0400, Downgrade e BCB 304" },
+  { icon: Shield, label: "Dinheiro, D+1 & LC 214/2025", desc: "Split MDR, Antecipação e Reforma 2027" },
 ];
 
 export default function JornadaPage() {
@@ -125,8 +126,31 @@ export default function JornadaPage() {
         </div>
       </section>
 
-      {/* ── Client ── */}
-      <section style={{ paddingTop: "2.5rem" }}>
+      {/* ── Laboratório Interativo 3D Isométrico, Sequência (ms), Pix & Regulatório 2027+ ── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <PaygramaInteractiveLab />
+      </section>
+
+      {/* ── Enciclopédia Detalhada das 8 Fases do Ciclo do Cartão ── */}
+      <section style={{ paddingTop: "3.5rem" }}>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 mb-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                Guia Enciclopédico das 8 Fases
+              </div>
+              <h2 className="text-base font-black text-white">
+                Anatomia Detalhada por Fase (Apresentação ➔ Gateway ➔ Adquirente ➔ Bandeira ➔ Emissor ➔ Clearing ➔ Settlement ➔ Disputas)
+              </h2>
+            </div>
+            <Link
+              href="/glossario"
+              className="text-xs font-bold text-blue-400 hover:underline"
+            >
+              Abrir Glossário Técnico →
+            </Link>
+          </div>
+        </div>
         <JornadaClient />
       </section>
     </main>

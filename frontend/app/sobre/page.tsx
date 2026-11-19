@@ -290,6 +290,220 @@ export default function SobrePage() {
 
       <div className="mx-auto max-w-5xl px-6">
 
+        {/* ── 1. O Que Guia Meu Trabalho & Topologia de Domínios (Estilo Editorial) ── */}
+        <section className="pt-14 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-7 space-y-4">
+              <p className="font-mono text-xs font-bold uppercase tracking-widest text-blue-500">
+                FILOSOFIA DE TRABALHO & ENGENHARIA
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">
+                O que guia meu trabalho
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                No mercado de meios de pagamento, <strong>clareza técnica e velocidade de execução são a vantagem competitiva real</strong>. Um único bit formatado errado no <code>DE 22</code> ou um <code>Transaction ID (DE 62.2 / DE 63)</code> omitido no arquivo noturno de Outgoing custa milhões de reais por ano em recusas falsas, downgrades de intercâmbio e multas de integridade.
+              </p>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Minha atuação une as três pontas que quase sempre operam isoladas nas instituições: <strong>a engenharia do protocolo</strong> (ISO 8583, EMV, 3DS 2.2, Base II, GCMS IPM, Elo Serviço 10, Pix SPI), <strong>a governança normativa e regulatória</strong> (Releases semestrais das 4 bandeiras, Resoluções BCB 264/304 e Reforma Tributária LC 214/2025) e <strong>o P&amp;L financeiro da operação</strong> (Intercâmbio, MCBS/VSS, Approval Rate e Chargeback).
+              </p>
+            </div>
+
+            {/* Card de Princípios Operacionais */}
+            <div className="lg:col-span-5 rounded-3xl border border-border bg-card p-6 space-y-4 shadow-xs">
+              <div className="font-mono text-xs font-black uppercase tracking-wider text-blue-500">
+                3 Princípios Inegociáveis
+              </div>
+              <div className="space-y-3 text-xs sm:text-sm">
+                <div className="rounded-2xl bg-muted/40 border border-border p-3.5">
+                  <div className="font-bold text-foreground">1. Do Bit ao Balanço Financeiro</div>
+                  <p className="text-muted-foreground text-xs mt-1 leading-relaxed">
+                    Toda mudança técnica de mensagem precisa ser traduzida em impacto direto em aprovação (%), intercâmbio (bps) e custo de scheme fee (R$).
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-muted/40 border border-border p-3.5">
+                  <div className="font-bold text-foreground">2. Nada é Escolhido em Silêncio</div>
+                  <p className="text-muted-foreground text-xs mt-1 leading-relaxed">
+                    Toda regra cita manual, página, versão e vigência. Conflitos entre boletins ou lacunas documentais são expostos lado a lado antes da homologação.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-muted/40 border border-border p-3.5">
+                  <div className="font-bold text-foreground">3. Ferramentas Vivas em vez de PDFs Estáticos</div>
+                  <p className="text-muted-foreground text-xs mt-1 leading-relaxed">
+                    Transformar manuais de 1.200 páginas em simuladores interativos onde engenharia, produto, compliance e operações testam o pagamento por dentro.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Diagrama de Topologia de Domínios & Times de Pagamentos */}
+          <div className="rounded-3xl border border-border bg-card p-6 sm:p-7 space-y-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-blue-500">
+                  ARQUITETURA ORGANIZACIONAL & TÉCNICA
+                </p>
+                <h3 className="text-lg sm:text-xl font-black text-foreground">
+                  Como organizo os domínios de Meios de Pagamento
+                </h3>
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">
+                3 Linhas de Atuação Integrada
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] font-black uppercase text-blue-500">
+                    01 · LINHA CORE & LIQUIDAÇÃO
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-mono text-[10px] font-bold">
+                    Dual-Message &amp; SPI
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-foreground">
+                  Autorização, Clearing, SLC/CIP &amp; Regulatório
+                </div>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li>• Switch ISO 8583 (0100/0110/0400/0800) &amp; STIP</li>
+                  <li>• Motor Outgoing (.CTF 168B, .IPM TLV, Serviço 10 .TXT, .CAS)</li>
+                  <li>• Registradoras B3/CERC (Res. BCB 264) &amp; Grades ASLC026/028/031</li>
+                  <li>• Pix SPI (pacs.008/002/004), DICT, MED 2.0 &amp; Split Tributário LC 214</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] font-black uppercase text-emerald-500">
+                    02 · LINHA DE CANAIS &amp; CONVERSÃO
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono text-[10px] font-bold">
+                    CP &amp; CNP
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-foreground">
+                  Captura, 3DS 2.2, Tokens &amp; Recorrência
+                </div>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li>• Terminais POS EMV (ARQC/ARPC) &amp; Tap to Phone (SoftPOS MPoC)</li>
+                  <li>• E-Commerce 3DS 2.2 (CAVV v9 AES), Visa DAF &amp; Passkeys FIDO2</li>
+                  <li>• Network Tokens (VTS / MDES / Elo), VAU/ABU &amp; Click to Pay</li>
+                  <li>• Smart Retries, CIT/MIT (SCOF), Pix Automático &amp; Pix NFC (JSR)</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] font-black uppercase text-amber-500">
+                    03 · PLATAFORMA, CUSTOS &amp; GOVERNANÇA
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-mono text-[10px] font-bold">
+                    P&amp;L &amp; Compliance
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-foreground">
+                  Intercâmbio, MCBS/VSS, Disputas &amp; Releases
+                </div>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li>• Motor Waterfall de Intercâmbio (IRD/PID + Teto BCB 304)</li>
+                  <li>• Auditoria de Faturas de Bandeiras (MCBS TN3A &amp; Visa VSS-110/120)</li>
+                  <li>• Defesa de Chargebacks (CE 3.0) e Monitoria VAMP / ECP / BRAM</li>
+                  <li>• Governança de Boletins Semestrais (26.1 ➔ 26.2 ➔ 27.1) &amp; HSM</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 2. O Que Construí Neste Workbench (Vitrine com Métricas Vivas em Fonte Mono) ── */}
+        <section className="pt-14 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+            <div>
+              <p className="font-mono text-xs font-bold uppercase tracking-widest text-blue-500">
+                LABORATÓRIOS ABERTOS &amp; FERRAMENTAS INTERATIVAS
+              </p>
+              <h2 className="text-2xl font-black text-foreground">
+                O que construo no VS Payments Workbench
+              </h2>
+            </div>
+            <Link
+              href="/jornada"
+              className="text-xs font-bold text-blue-500 hover:underline"
+            >
+              Abrir Laboratório 3D O Pagamento por Dentro →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                title: "O Pagamento por Dentro (Lab 3D & Pix 2027+)",
+                metric: "8 trilhas · 3D Isométrico ⇄ Sequência ms",
+                desc: "Simulador guiado com injeção de falhas, split financeiro MDR, antecipação D+1, Pix SPI, Pix Automático/NFC, MED 2.0 e Reforma Tributária 2027.",
+                href: "/jornada",
+                cta: "Abrir simulador 3D →",
+              },
+              {
+                title: "Workbench Outgoing 2.0 & Suíte de Engenharia",
+                metric: "35 tabelas (168B/TLV/CAS) · 17.106 campos",
+                desc: "Gerador sintético de massa (.CTF/.IPM/.TXT/.CAS com Luhn), Doutor de Rejeições (EP747/T112/Reg 09), Conciliação 4-Way e 10 CTs de Homologação.",
+                href: "/compliance/outgoing?tab=eng_lab",
+                cta: "Abrir Suíte de Engenharia →",
+              },
+              {
+                title: "Topologia C4 de Servidores, HSM & Cabos",
+                metric: "17 servidores · 13 cabos · 10-Hop Packet Tracer",
+                desc: "Mapa interativo das 5 zonas PCI-DSS & RSFN com Wire Dump real salto a salto do POS e HSM Thales PayShield até o XML ASLC026 no STR/Bacen.",
+                href: "/arquitetura",
+                cta: "Explorar Topologia C4 →",
+              },
+              {
+                title: "Atlas Unificado de Produtos das 4 Bandeiras",
+                metric: "26 produtos · Tetos BCB 304 · 224k+ faixas BIN",
+                desc: "Equivalência Visa PID × Mastercard Brand Product × Elo Cód. Produto × Amex, onde o código nasce (ARDEF/MPE T068) e modalidades brasileiras.",
+                href: "/mapa/produtos",
+                cta: "Abrir Mapa de Produtos →",
+              },
+              {
+                title: "Auditor MCBS / VSS & Calculadora Downgrade",
+                metric: "Faturas TN3A / VSS-110 · Simulador R$",
+                desc: "Auditoria de billing lines das bandeiras (incluindo conversão Visa USD ➔ BRL de maio/2026) e cálculo financeiro de exposição a Downgrade EIRF/GDIP.",
+                href: "/compliance/outgoing?tab=downgrade_amex",
+                cta: "Simular Custos & Downgrade →",
+              },
+              {
+                title: "Governança de Boletins & Acervo Normativo",
+                metric: "40.129 ativos indexados · Diff 25.2 ➔ 27.1",
+                desc: "Motor de análise de boletins semestrais com detecção explícita de conflitos entre fontes, trava de vigência vencida e exportação para o Doc Studio.",
+                href: "/compliance/boletins",
+                cta: "Auditar Boletins & Releases →",
+              },
+            ].map((lab) => (
+              <Link
+                key={lab.title}
+                href={lab.href}
+                className="group rounded-3xl border border-border bg-card p-5 flex flex-col justify-between gap-4 hover:border-blue-500 transition-all shadow-2xs"
+              >
+                <div className="space-y-2">
+                  <div className="inline-block px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 font-mono text-[11px] font-bold text-blue-400">
+                    {lab.metric}
+                  </div>
+                  <h3 className="text-base font-black text-foreground group-hover:text-blue-400 transition-colors">
+                    {lab.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {lab.desc}
+                  </p>
+                </div>
+                <div className="font-mono text-xs font-bold text-blue-500 group-hover:translate-x-0.5 transition-transform">
+                  {lab.cta}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* ── Seção Especial: Como resolvo os desafios de Payments & Billing ──── */}
         <section className="pt-16">
           <div className="flex items-center gap-3 mb-4">
