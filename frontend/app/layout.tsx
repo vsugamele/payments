@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Literata, DM_Mono } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -9,23 +9,33 @@ import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import { PaymentsWorkbenchShell } from "@/components/PaymentsWorkbenchShell";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const literata = Literata({
+  variable: "--font-literata",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "Vinícius Sugamele — Head de Bandeiras & Payments Specialist",
+  title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
   description:
-    "Mais de 16 anos de experiência executiva em meios de pagamento, arquitetura de autorização, governança de bandeiras, billing recorrente e intercâmbio.",
+    "Notícias comentadas, análises práticas e bastidores sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele, Head de Bandeiras com mais de 16 anos no setor.",
   openGraph: {
-    title: "Vinícius Sugamele — Payments & Billing Specialist",
-    description: "16+ anos de experiência liderando iniciativas estratégicas em meios de pagamento: EcommIT, Bandeira Elo, Getnet e American Express.",
+    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+    description:
+      "Notícias comentadas, mudanças de regra e análises práticas de meios de pagamento. Trajetória de 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express.",
     url: "https://vinicius-sugamele.com",
     siteName: "Vinícius Sugamele",
     images: [
@@ -37,7 +47,7 @@ export const metadata: Metadata = {
       },
     ],
     locale: "pt_BR",
-    type: "profile",
+    type: "website",
   },
 };
 
@@ -49,7 +59,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${literata.variable} ${dmMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

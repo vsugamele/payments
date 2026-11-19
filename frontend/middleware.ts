@@ -37,11 +37,20 @@ export function middleware(request: NextRequest) {
   // 4. Rotas e Arquivos Públicos permitidos a todos
   if (
     pathname === "/" ||
+    pathname === "/curriculo" ||
     pathname === "/sobre" ||
+    pathname === "/noticias" ||
+    pathname.startsWith("/noticias/") ||
+    pathname === "/artigos" ||
+    pathname.startsWith("/artigos/") ||
+    pathname === "/consultas" ||
+    pathname.startsWith("/consultas/") ||
+    pathname === "/jornada" ||
     pathname === "/admin" || // Permite abrir a tela de login do proprietário
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/mapas/") ||
+    pathname.startsWith("/carousel/") ||
     pathname.startsWith("/favicon") ||
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".jpeg") ||

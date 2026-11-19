@@ -3843,9 +3843,9 @@ export function PaygramaInteractiveLab() {
 
         <button
           onClick={() => setShowAssistantDrawer((p) => !p)}
-          className="px-4 py-2.5 rounded-full bg-[#1F3FE0] hover:bg-blue-700 text-white text-xs font-black shadow-xl shadow-blue-900/30 flex items-center gap-2 transition-all"
+          className="px-4 py-2.5 rounded-full bg-[#222225] dark:bg-zinc-100 hover:opacity-90 text-white dark:text-zinc-900 text-xs font-semibold shadow-md flex items-center gap-2 transition-all"
         >
-          <span>{showAssistantDrawer ? '✕ Fechar Guia' : '💬 Pergunte ao Workbench'}</span>
+          <span>{showAssistantDrawer ? '✕ Fechar Guia' : 'Guia e normas'}</span>
         </button>
       </div>
     </div>

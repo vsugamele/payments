@@ -2,50 +2,75 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================================
+   DESIGN SYSTEM EDITORIAL — PAPEL, GRAFITE E COR SÓ ONDE IMPORTA
+   Inspirado em publicações técnicas limpas: fundo claro neutro (#fafafa),
+   cartões brancos com borda sutil, controles em pílula e cor restrita a
+   gráficos, diagramas e sinais de status.
+   ============================================================================ */
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #fafafa;
+  --foreground: #222225;
+  --body-text: #3a3a40;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --border: #e2e8f0;
+  --card-hover: #f5f5f5;
+  --card-foreground: #222225;
+  --border: #e4e4e7;
+  --border-strong: #d0d0d6;
   --input: #ffffff;
-  --input-border: #cbd5e1;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --card-hover-border: #3b82f6;
-  --scroll-thumb: #cbd5e1;
-  --scroll-thumb-hover: #94a3b8;
-  --dot-color: #e2e8f0;
-  --code-bg: #f1f5f9;
-  --code-border: #cbd5e1;
-  --code-text: #2563eb;
-  --th-bg: #f1f5f9;
-  --divider: #e2e8f0;
+  --input-border: #d4d4d8;
+  --primary: #1f3fe0;
+  --primary-hover: #1832b8;
+  --action-bg: #222225;
+  --action-bg-hover: #36363c;
+  --action-fg: #ffffff;
+  --muted: #f2f2f4;
+  --muted-foreground: #6b6b73;
+  --card-hover-border: #b8b8c2;
+  --scroll-thumb: #d4d4d8;
+  --scroll-thumb-hover: #a1a1aa;
+  --dot-color: #e4e4e7;
+  --code-bg: #f3f3f5;
+  --code-border: #e4e4e7;
+  --code-text: #222225;
+  --th-bg: #f4f4f6;
+  --divider: #e8e8ec;
+  --accent-crimson: #c81e1e;
+  --accent-amber: #b45309;
+  --accent-teal: #17636b;
 }
 
 .dark {
-  --background: #0f1117;
-  --foreground: #e2e8f0;
-  --card: #131927;
-  --card-foreground: #e2e8f0;
-  --border: #1e293b;
-  --input: #1e293b;
-  --input-border: #475569;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --card-hover-border: #2563eb;
-  --scroll-thumb: #334155;
-  --scroll-thumb-hover: #475569;
-  --dot-color: #1e293b;
-  --code-bg: #0a1120;
-  --code-border: #1e293b;
-  --code-text: #60a5fa;
-  --th-bg: #0a1120;
-  --divider: #0f172a;
+  --background: #121214;
+  --foreground: #f2f2f4;
+  --body-text: #d4d4d8;
+  --card: #19191d;
+  --card-hover: #212126;
+  --card-foreground: #f2f2f4;
+  --border: #29292f;
+  --border-strong: #3b3b44;
+  --input: #1d1d22;
+  --input-border: #3a3a44;
+  --primary: #5b7cfa;
+  --primary-hover: #4768f2;
+  --action-bg: #f2f2f4;
+  --action-bg-hover: #e2e2e6;
+  --action-fg: #121214;
+  --muted: #202026;
+  --muted-foreground: #9f9fa8;
+  --card-hover-border: #484854;
+  --scroll-thumb: #34343c;
+  --scroll-thumb-hover: #4b4b56;
+  --dot-color: #24242b;
+  --code-bg: #1c1c22;
+  --code-border: #2c2c34;
+  --code-text: #d4d4dc;
+  --th-bg: #1c1c22;
+  --divider: #26262d;
+  --accent-crimson: #f87171;
+  --accent-amber: #fbbf24;
+  --accent-teal: #5eead4;
 }
 
 @theme inline {
@@ -58,353 +83,388 @@
   --color-primary: var(--primary);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-literata), Georgia, Cambria, serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, SFMono-Regular, monospace;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Input reutilizável */
-.input-base {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid var(--input-border);
-  background: var(--input);
-  padding: 0.625rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--foreground);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.input-base::placeholder { color: var(--muted-foreground); }
-.input-base:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgb(59 130 246 / 0.2);
-}
-select.input-base { appearance: none; cursor: pointer; }
-
-/* Scrollbar fina */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
-
-/* Dot grid pattern */
-.dot-grid {
-  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 60%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Card hover lift */
-.card-hover {
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-}
-.card-hover:hover {
-  border-color: var(--card-hover-border) !important;
-  box-shadow: 0 0 32px rgba(37, 99, 235, 0.12);
-  transform: translateY(-3px);
-}
-
-/* Glow button */
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 0.625rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-  box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
-}
-.btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 0 32px rgba(37, 99, 235, 0.55);
-  transform: translateY(-1px);
-}
-
-/* Outline button */
-.btn-outline {
-  color: var(--muted-foreground);
-  font-weight: 600;
-  border-radius: 0.625rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  border: 1px solid var(--border);
-  transition: all 0.2s;
-  background: transparent;
-}
-.btn-outline:hover {
-  color: var(--foreground);
-  border-color: var(--input-border);
-  background: rgba(100,116,139,0.05);
-}
-
-/* Tag/badge */
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.tag-blue {
-  background: rgba(37, 99, 235, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(37, 99, 235, 0.25);
-}
-
-/* Section header */
-.section-eyebrow {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #3b82f6;
-}
-
-/* Article body typography */
-.article-body { color: var(--foreground); line-height: 1.85; font-size: 0.975rem; }
-.article-body h2 {
-  font-size: 1.3rem; font-weight: 700; color: var(--foreground);
-  margin-top: 3rem; margin-bottom: 1rem;
-  padding-bottom: 0.625rem;
-  border-bottom: 1px solid var(--border);
-}
-.article-body h3 {
-  font-size: 1.05rem; font-weight: 700; color: var(--foreground);
-  margin-top: 2rem; margin-bottom: 0.75rem;
-}
-.article-body h4 {
-  font-size: 0.9rem; font-weight: 700; color: var(--muted-foreground);
-  margin-top: 1.5rem; margin-bottom: 0.5rem;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.article-body p { margin-bottom: 1.25rem; }
-.article-body ul, .article-body ol {
-  margin-bottom: 1.25rem; padding-left: 1.5rem;
-}
-.article-body li { margin-bottom: 0.5rem; }
-.article-body ul li { list-style: disc; }
-.article-body ol li { list-style: decimal; }
-.article-body strong { color: var(--foreground); font-weight: 600; }
-.article-body em { color: #60a5fa; font-style: normal; font-weight: 500; }
-.article-body code {
-  font-family: var(--font-geist-mono), monospace;
-  background: var(--code-bg); border: 1px solid var(--code-border);
-  border-radius: 0.25rem; padding: 0.1rem 0.4rem;
-  font-size: 0.82rem; color: var(--code-text);
-}
-.article-body .callout {
-  background: rgba(37,99,235,0.07);
-  border: 1px solid rgba(37,99,235,0.2);
-  border-left: 3px solid #2563eb;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.article-body .callout strong { color: #3b82f6; }
-.article-body .callout-warning {
-  background: rgba(234,179,8,0.07);
-  border: 1px solid rgba(234,179,8,0.2);
-  border-left: 3px solid #eab308;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.article-body .callout-warning strong { color: #fbbf24; }
-.article-body table {
-  width: 100%; border-collapse: collapse;
-  margin: 1.5rem 0; font-size: 0.8rem;
-}
-.article-body th {
-  background: var(--th-bg); color: var(--muted-foreground);
-  padding: 0.625rem 0.875rem; text-align: left;
-  font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  border-bottom: 1px solid var(--border);
-}
-.article-body td {
-  padding: 0.625rem 0.875rem;
-  border-bottom: 1px solid var(--divider);
-  color: var(--muted-foreground);
-}
-.article-body td:first-child { color: var(--code-text); font-family: var(--font-geist-mono), monospace; }
-.article-body tr:hover td { background: rgba(125,125,125,0.04); }
-.article-body .divider {
-  height: 1px; background: var(--divider);
-  margin: 2.5rem 0;
-}
-
-/* ── Glassmorphism card ───────────────────────────────────────────────────── */
-.glass-card {
-  background: rgba(255, 255, 255, 0.025);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 1rem;
-}
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* ── Command center card hover ───────────────────────────────────────────── */
-.cc-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.cc-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-}
-
-/* ── Pulse dot animation (override) ─────────────────────────────────────── */
-@keyframes ping-slow {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.8); opacity: 0; }
-}
-.pulse-dot-slow { animation: ping-slow 2s ease-in-out infinite; }
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow { animation: spin-slow 3s linear infinite; }
-
-/* ── Standalone callouts (usáveis fora de .article-body) ─────────────────── */
-.callout {
-  background: rgba(37,99,235,0.07);
-  border: 1px solid rgba(37,99,235,0.2);
-  border-left: 3px solid #2563eb;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.callout strong { color: #3b82f6; }
-
-.callout-warning {
-  background: rgba(234,179,8,0.07);
-  border: 1px solid rgba(234,179,8,0.2);
-  border-left: 3px solid #eab308;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.callout-warning strong { color: #fbbf24; }
-
-.callout-danger {
-  background: rgba(239,68,68,0.07);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-left: 3px solid #ef4444;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.callout-danger strong { color: #f87171; }
-
-.callout-success {
-  background: rgba(16,185,129,0.07);
-  border: 1px solid rgba(16,185,129,0.2);
-  border-left: 3px solid #10b981;
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
-.callout-success strong { color: #34d399; }
-
-@media print {
-  /* Suppress browser-generated link URL annotations */
-  a[href]:after, a:after {
-    content: none !important;
-  }
-}
-
-/* ============================================================================
-   EDITORIAL CLEAN DESIGN SYSTEM — LEITURA CONFORTÁVEL, ALTO CONTRASTE & CLAREZA
-   Elimina fontes microscópicas cinzas e fundos pretos cansativos em todo o sistema
-   ============================================================================ */
 
 html {
   font-size: 16px;
 }
 
 body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   line-height: 1.6;
-  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 1. Escala Tipográfica Ampliada (Fim das fontes 10px/11px ilegíveis) */
-.text-\[8px\],
-.text-\[9px\],
-.text-\[10px\] {
-  font-size: 0.78rem !important; /* ~12.5px em vez de 10px */
-  line-height: 1.45 !important;
+/* Input reutilizável */
+.input-base {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid var(--input-border);
+  background: var(--input);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-base::placeholder {
+  color: var(--muted-foreground);
+}
+.input-base:focus {
+  outline: none;
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 2px rgb(34 34 37 / 0.12);
+}
+select.input-base {
+  appearance: none;
+  cursor: pointer;
 }
 
-.text-\[11px\] {
-  font-size: 0.84rem !important; /* ~13.5px em vez de 11px */
-  line-height: 1.5 !important;
+/* Scrollbar discreta */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
 }
 
-.text-xs {
-  font-size: 0.89rem !important; /* ~14.2px em vez de 12px */
-  line-height: 1.55 !important;
+/* Dot grid sutil (usado no Laboratório interativo) */
+.dot-grid {
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-.text-sm {
-  font-size: 0.96rem !important; /* ~15.4px em vez de 14px */
-  line-height: 1.62 !important;
+/* Cartão editorial com elevação sutil */
+.editorial-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.editorial-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-/* 2. Modo Escuro Suave: Contraste elevado (nunca cinza apagado sobre preto) */
+.card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+  border-color: var(--card-hover-border) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Botões sóbrios (grafite sólido — sem glow neon) */
+.btn-primary {
+  background: var(--action-bg);
+  color: var(--action-fg);
+  font-weight: 500;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-primary:hover {
+  background: var(--action-bg-hover);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  color: var(--foreground);
+  font-weight: 500;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-strong);
+  transition: background 0.15s ease, border-color 0.15s ease;
+  background: var(--card);
+}
+.btn-outline:hover {
+  background: var(--card-hover);
+  border-color: var(--foreground);
+}
+
+/* Rótulo de seção em mono */
+.section-eyebrow {
+  font-family: var(--font-dm-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Tag/badge editorial */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-family: var(--font-dm-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.tag-blue {
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+/* ============================================================================
+   TIPOGRAFIA DE ARTIGOS & NOTÍCIAS (LITERATA — LEITURA LONGA CONFORTÁVEL)
+   ============================================================================ */
+.article-body {
+  font-family: var(--font-literata), Georgia, serif;
+  color: var(--body-text);
+  line-height: 1.82;
+  font-size: 1.04rem;
+}
+.article-body h2 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 1.38rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.article-body h3 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  margin-top: 2rem;
+  margin-bottom: 0.65rem;
+}
+.article-body h4 {
+  font-family: var(--font-dm-mono), monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.article-body p {
+  margin-bottom: 1.25rem;
+  text-wrap: pretty;
+}
+.article-body ul,
+.article-body ol {
+  margin-bottom: 1.35rem;
+  padding-left: 1.4rem;
+}
+.article-body li {
+  margin-bottom: 0.5rem;
+}
+.article-body ul li {
+  list-style: disc;
+}
+.article-body ol li {
+  list-style: decimal;
+}
+.article-body strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.article-body em {
+  font-style: italic;
+}
+.article-body a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-strong);
+  transition: text-decoration-color 0.15s;
+}
+.article-body a:hover {
+  text-decoration-color: var(--foreground);
+}
+.article-body code {
+  font-family: var(--font-dm-mono), monospace;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 0.3rem;
+  padding: 0.12rem 0.38rem;
+  font-size: 0.84em;
+  color: var(--code-text);
+}
+.article-body .callout {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--foreground);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.75rem 0;
+  color: var(--body-text);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.article-body .callout strong {
+  color: var(--foreground);
+}
+.article-body .callout-warning {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-amber);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.75rem 0;
+  color: var(--body-text);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.article-body .callout-warning strong {
+  color: var(--accent-amber);
+}
+.article-body table {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.86rem;
+}
+.article-body th {
+  background: var(--th-bg);
+  color: var(--muted-foreground);
+  padding: 0.65rem 0.875rem;
+  text-align: left;
+  font-family: var(--font-dm-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.article-body td {
+  padding: 0.65rem 0.875rem;
+  border-bottom: 1px solid var(--divider);
+  color: var(--body-text);
+}
+.article-body td:first-child {
+  color: var(--foreground);
+  font-family: var(--font-dm-mono), monospace;
+  font-size: 0.82rem;
+}
+.article-body tr:hover td {
+  background: var(--card-hover);
+}
+.article-body .divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 2.5rem 0;
+}
+
+/* Standalone callouts */
+.callout {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--foreground);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--body-text);
+  font-size: 0.9rem;
+}
+.callout strong {
+  color: var(--foreground);
+}
+.callout-warning {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-amber);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--body-text);
+  font-size: 0.9rem;
+}
+.callout-warning strong {
+  color: var(--accent-amber);
+}
+.callout-danger {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-crimson);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--body-text);
+  font-size: 0.9rem;
+}
+.callout-danger strong {
+  color: var(--accent-crimson);
+}
+.callout-success {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-teal);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--body-text);
+  font-size: 0.9rem;
+}
+.callout-success strong {
+  color: var(--accent-teal);
+}
+
+/* Utilitários legados mantidos para rotas técnicas do Workbench */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+.cc-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.cc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+@media print {
+  a[href]:after,
+  a:after {
+    content: none !important;
+  }
+}
+
+/* ============================================================================
+   COMPATIBILIDADE COM PÁGINAS INTERNAS DO WORKBENCH NO MODO CLARO
+   Garante contraste limpo nas rotas técnicas (/compliance, /admin, /acervo...)
+   sem contaminar as páginas editoriais públicas.
+   ============================================================================ */
 html.dark .text-slate-400,
 html.dark .text-slate-500 {
-  color: #cbd5e1 !important;
+  color: #b4b4be !important;
 }
 html.dark .text-slate-300 {
-  color: #e2e8f0 !important;
+  color: #dcdce2 !important;
 }
 
-/* 3. Modo Editorial Claro (Padrão): Fundo claro elegante, cards brancos e tinta escura nítida */
-html:not(.dark) {
-  --background: #f6f7f9;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --border: #dce2ec;
-  --muted: #eef2f6;
-  --muted-foreground: #334155;
-}
-
-/* Fundos principais que antes eram pretos (#020617, #030711, slate-950) viram papel editorial claro */
 html:not(.dark) main.bg-\[\#020617\],
 html:not(.dark) main.bg-\[\#030711\],
 html:not(.dark) main.bg-\[\#060911\],
@@ -415,11 +475,10 @@ html:not(.dark) div.min-h-screen.bg-\[\#030711\],
 html:not(.dark) div.min-h-screen.bg-\[\#02050b\],
 html:not(.dark) div.min-h-screen.bg-\[\#060911\],
 html:not(.dark) div.min-h-screen.bg-slate-950 {
-  background-color: #f6f7f9 !important;
-  color: #0f172a !important;
+  background-color: #fafafa !important;
+  color: #222225 !important;
 }
 
-/* Cards e containers que usavam bg-slate-900 / bg-slate-950 viram cartões brancos/claros com sombra suave */
 html:not(.dark) .bg-slate-900\/70,
 html:not(.dark) .bg-slate-900\/80,
 html:not(.dark) .bg-slate-900\/90,
@@ -429,7 +488,7 @@ html:not(.dark) .bg-\[\#080f1e\],
 html:not(.dark) .bg-\[\#080d16\]\/95,
 html:not(.dark) .bg-\[\#0a101d\] {
   background-color: #ffffff !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 html:not(.dark) .bg-slate-950\/95,
@@ -445,30 +504,20 @@ html:not(.dark) .bg-black\/70,
 html:not(.dark) .bg-black\/40,
 html:not(.dark) .bg-black\/30,
 html:not(.dark) .bg-black\/25 {
-  background-color: #f8fafc !important;
+  background-color: #f5f5f7 !important;
 }
 
 html:not(.dark) .bg-slate-800\/90,
 html:not(.dark) .bg-slate-800 {
-  background-color: #eef2f6 !important;
+  background-color: #ededf0 !important;
 }
 
-/* Gradientes escuros viram gradientes claros editoriais */
-html:not(.dark) .from-slate-950,
-html:not(.dark) .via-slate-900\/95,
-html:not(.dark) .to-slate-950 {
-  --tw-gradient-from: #ffffff !important;
-  --tw-gradient-via: #f8fafc !important;
-  --tw-gradient-to: #f1f5f9 !important;
-}
-
-/* Tints coloridos (azul, esmeralda, âmbar, roxo, rosa) suaves e legíveis no modo claro */
 html:not(.dark) .bg-blue-950\/50,
 html:not(.dark) .bg-blue-950\/40,
 html:not(.dark) .bg-blue-950\/25,
 html:not(.dark) .bg-blue-950\/20,
 html:not(.dark) .bg-blue-950\/15 {
-  background-color: #eff6ff !important;
+  background-color: #eff4ff !important;
 }
 
 html:not(.dark) .bg-emerald-950\/60,
@@ -501,53 +550,52 @@ html:not(.dark) .bg-red-950\/30 {
   background-color: #fff1f2 !important;
 }
 
-/* Bordas limpas e definidas no modo claro */
 html:not(.dark) .border-slate-800\/90,
 html:not(.dark) .border-slate-800\/80,
 html:not(.dark) .border-slate-800\/70,
 html:not(.dark) .border-slate-800,
 html:not(.dark) .border-slate-700 {
-  border-color: #dce2ec !important;
+  border-color: #e4e4e7 !important;
 }
 
 html:not(.dark) .divide-slate-800 > :not([hidden]) ~ :not([hidden]),
 html:not(.dark) .divide-slate-800\/70 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #e2e8f0 !important;
+  border-color: #e4e4e7 !important;
 }
 
-/* Tipografia de Alto Contraste no Modo Claro */
-html:not(.dark) .text-white:not(.bg-blue-600):not(.bg-emerald-600):not(.bg-purple-600):not(.bg-amber-500):not(.bg-rose-600):not(.bg-indigo-600):not(.bg-blue-500) {
-  color: #0f172a !important;
+html:not(.dark) .text-white:not(.bg-blue-600):not(.bg-emerald-600):not(.bg-purple-600):not(.bg-amber-500):not(.bg-rose-600):not(.bg-indigo-600):not(.bg-blue-500):not(.bg-neutral-900):not(.bg-zinc-900):not(.bg-\[\#222225\]):not(.bg-\[\#1F3FE0\]) {
+  color: #222225 !important;
 }
 
-/* Garante que texto dentro de botões sólidos continue branco */
 html:not(.dark) .bg-blue-600,
 html:not(.dark) .bg-blue-600 .text-white,
 html:not(.dark) .bg-blue-600 span,
 html:not(.dark) .bg-emerald-600,
 html:not(.dark) .bg-emerald-600 .text-white,
 html:not(.dark) .bg-emerald-600 span,
-html:not(.dark) .bg-purple-600,
-html:not(.dark) .bg-purple-600 .text-white,
-html:not(.dark) .bg-purple-600 span {
+html:not(.dark) .bg-neutral-900,
+html:not(.dark) .bg-neutral-900 span,
+html:not(.dark) .bg-\[\#222225\],
+html:not(.dark) .bg-\[\#222225\] span,
+html:not(.dark) .bg-\[\#1F3FE0\],
+html:not(.dark) .bg-\[\#1F3FE0\] span {
   color: #ffffff !important;
 }
 
 html:not(.dark) .text-slate-100,
 html:not(.dark) .text-slate-200 {
-  color: #1e293b !important;
+  color: #222225 !important;
 }
 
 html:not(.dark) .text-slate-300 {
-  color: #334155 !important;
+  color: #3a3a40 !important;
 }
 
 html:not(.dark) .text-slate-400,
 html:not(.dark) .text-slate-500 {
-  color: #475569 !important;
+  color: #5a5a64 !important;
 }
 
-/* Cores de destaque legíveis sobre fundo claro */
 html:not(.dark) .text-blue-400,
 html:not(.dark) .text-blue-300,
 html:not(.dark) .text-blue-200 {
@@ -593,11 +641,6 @@ html:not(.dark) .bg-cyan-950\/30 {
   background-color: #ecfeff !important;
 }
 
-/* ============================================================================
-   WORKBENCH 2.0 — "PAPER & PRECISION" DESIGN TOKENS
-   - Números tabulares alinhados em tabelas financeiras e réguas de bytes
-   - Bloco de terminal escuro isolado (.dark-terminal) mesmo em páginas claras
-   ============================================================================ */
 table,
 .tabular-nums,
 code,
@@ -606,11 +649,7 @@ pre {
 }
 
 html:not(.dark) pre.dark-terminal {
-  background-color: #0f172a !important;
-  color: #38bdf8 !important;
-  border-color: #1e293b !important;
+  background-color: #18181b !important;
+  color: #e4e4e7 !important;
+  border-color: #27272a !important;
 }
-
-
-
-

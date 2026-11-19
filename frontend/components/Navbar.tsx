@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import {
-  Menu, X, Sun, Moon, Briefcase, FileDown, Mail,
-  ExternalLink, MessageCircle, Search
-} from "lucide-react";
+import { Menu, X, Sun, Moon, FileDown } from "lucide-react";
 import { useTheme } from "next-themes";
 
-const WORKBENCH_PREFIXES = [
+const PRIVATE_WORKBENCH_PREFIXES = [
   "/compliance",
   "/acervo",
   "/simulador",
@@ -21,11 +18,9 @@ const WORKBENCH_PREFIXES = [
   "/chargeback",
   "/trilhas",
   "/editor",
-  "/consultas",
   "/glossario",
   "/arquitetura",
   "/comparativo",
-  "/jornada",
   "/validador",
   "/comparador",
   "/inspecao-tecnica",
@@ -35,184 +30,159 @@ const WORKBENCH_PREFIXES = [
   "/scheme-fees",
 ];
 
-const NAV_LINKS = [
-  { href: "/#sobre", label: "Sobre" },
-  { href: "/#ecossistema", label: "Ecossistema" },
-  { href: "/#experiencia", label: "Trajetória" },
-  { href: "/#projetos", label: "Projetos" },
-  { href: "/#solucoes", label: "Especialidades" },
-  { href: "/#competencias", label: "Competências" },
+const HYBRID_PUBLIC_PREFIXES = ["/jornada", "/consultas"];
+
+const NAV_TABS = [
+  { href: "/", label: "Notícias", match: (p: string) => p === "/" || p.startsWith("/noticias") },
+  { href: "/curriculo", label: "Currículo", match: (p: string) => p === "/curriculo" || p === "/sobre" },
+  { href: "/artigos", label: "Artigos", match: (p: string) => p === "/artigos" || p.startsWith("/artigos/") },
+  { href: "/consultas", label: "Consultas", match: (p: string) => p === "/consultas" || p.startsWith("/consultas/") },
+  { href: "/jornada", label: "Laboratório", match: (p: string) => p === "/jornada" },
 ];
 
 export function Navbar() {
   const pathname = usePathname() || "/";
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const isWorkbenchRoute = WORKBENCH_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.top && window.self !== window.top) {
       window.top.location.href = window.location.href;
     }
-  }, []);
+    if (typeof document !== "undefined") {
+      setIsOwner(
+        document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"))
+      );
+    }
+  }, [pathname]);
 
-  if (isWorkbenchRoute) {
+  const isPrivateWorkbench = PRIVATE_WORKBENCH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+  const isHybridRoute = HYBRID_PUBLIC_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+
+  // Nas rotas privadas (ou híbridas quando o proprietário está logado), o PaymentsWorkbenchShell assume o topo
+  if (isPrivateWorkbench || (isHybridRoute && isOwner)) {
     return null;
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/85 backdrop-blur-md transition-colors">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-        
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            VS
-          </div>
-          <div>
-            <span className="text-sm font-black text-foreground tracking-tight block group-hover:text-blue-500 transition-colors">
-              Vinícius Sugamele
-            </span>
-            <span className="text-[10px] text-muted-foreground font-medium block">
-              Payments & Billing Specialist
-            </span>
-          </div>
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 h-16">
+        {/* Marca tipográfica limpa */}
+        <Link
+          href="/"
+          className="text-[15px] tracking-tight text-foreground hover:opacity-80 transition-opacity"
+        >
+          <span className="font-semibold">vinícius</span>
+          <span className="font-normal text-muted-foreground"> sugamele</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {/* Abas principais no desktop */}
+        <nav aria-label="Navegação principal" className="hidden md:flex items-center gap-1">
+          {NAV_TABS.map((tab) => {
+            const active = tab.match(pathname);
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
+                  active
+                    ? "bg-muted text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* Action Buttons & Theme */}
-        <div className="hidden sm:flex items-center gap-3">
-          <button
-            onClick={() => window.dispatchEvent(new Event("open-global-command-palette"))}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground border border-border transition-all"
-            title="Busca Global Instantânea (Ctrl+K)"
-          >
-            <Search size={13} className="text-blue-500" />
-            <span>Buscar</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono text-[10px] text-muted-foreground">
-              Ctrl+K
-            </kbd>
-          </button>
-
+        {/* Controles discretos à direita */}
+        <div className="hidden md:flex items-center gap-2.5">
           <a
             href="/Curriculo_Vinicius_Sugamele.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground border border-border transition-all"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
           >
-            <FileDown size={13} className="text-blue-500" />
-            <span>Currículo (PDF)</span>
-          </a>
-
-          <a
-            href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/30 transition-all"
-          >
-            <MessageCircle size={13} />
-            <span>WhatsApp</span>
-          </a>
-
-          <a
-            href="mailto:vsugamele@gmail.com"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm shadow-blue-600/30 transition-all"
-          >
-            <Mail size={13} />
-            <span>Fale Comigo</span>
+            <FileDown size={13} />
+            <span>CV (PDF)</span>
           </a>
 
           <button
+            type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Alternar tema"
+            className="size-9 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/40 flex items-center justify-center transition-colors"
+            aria-label="Alternar tema claro e escuro"
           >
-            <Sun size={15} className="hidden dark:block text-amber-400" />
-            <Moon size={15} className="block dark:hidden text-slate-700" />
+            <Sun size={15} className="hidden dark:block" />
+            <Moon size={15} className="block dark:hidden" />
           </button>
         </div>
 
-        {/* Mobile Menu Trigger */}
+        {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
           <button
+            type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+            className="size-9 rounded-full border border-border bg-card text-muted-foreground flex items-center justify-center"
+            aria-label="Alternar tema"
           >
-            <Sun size={15} className="hidden dark:block text-amber-400" />
-            <Moon size={15} className="block dark:hidden text-slate-700" />
+            <Sun size={15} className="hidden dark:block" />
+            <Moon size={15} className="block dark:hidden" />
           </button>
 
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+            type="button"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            className="size-9 rounded-full border border-border bg-card text-foreground flex items-center justify-center"
+            aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Dropdown mobile */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-border bg-background/95 backdrop-blur-lg px-6 py-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="flex flex-col space-y-3">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-foreground py-1"
-              >
-                {link.label}
-              </Link>
-            ))}
+        <div className="md:hidden border-b border-border bg-background px-6 py-4 space-y-3">
+          <div className="flex flex-col space-y-1">
+            {NAV_TABS.map((tab) => {
+              const active = tab.match(pathname);
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2 rounded-xl text-sm ${
+                    active
+                      ? "bg-muted text-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
           </div>
 
-          <div className="pt-3 border-t border-border flex flex-col gap-2.5">
+          <div className="pt-3 border-t border-border">
             <a
               href="/Curriculo_Vinicius_Sugamele.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-semibold bg-muted text-foreground border border-border"
+              className="btn-outline w-full inline-flex items-center justify-center gap-2 text-xs"
             >
-              <FileDown size={14} className="text-blue-500" />
-              <span>Baixar Currículo em PDF</span>
-            </a>
-
-            <a
-              href="https://wa.me/5511976546714?text=Ol%C3%A1%20Vin%C3%ADcius,%20vi%20seu%20perfil%20executivo%20e%20gostaria%20de%20conversar."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-            >
-              <MessageCircle size={14} />
-              <span>Falar no WhatsApp ((11) 97654-6714)</span>
-            </a>
-
-            <a
-              href="mailto:vsugamele@gmail.com"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white"
-            >
-              <Mail size={14} />
-              <span>Enviar E-mail</span>
+              <FileDown size={14} />
+              <span>Baixar currículo em PDF</span>
             </a>
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 }
