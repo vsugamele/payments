@@ -29,22 +29,23 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   "/scheme-fees",
 ];
 
-const HYBRID_PUBLIC_PREFIXES = ["/jornada", "/consultas", "/glossario"];
+const HYBRID_PUBLIC_PREFIXES = ["/jornada", "/consultas"];
 
 const NAV_TABS = [
   { href: "/", label: "Notícias", match: (p: string) => p === "/" || p.startsWith("/noticias") },
   { href: "/curriculo", label: "Currículo", match: (p: string) => p === "/curriculo" || p === "/sobre" },
+  { href: "/guia", label: "Guia", match: (p: string) => p === "/guia" },
   { href: "/artigos", label: "Artigos", match: (p: string) => p === "/artigos" || p.startsWith("/artigos/") },
   { href: "/glossario", label: "Glossário", match: (p: string) => p === "/glossario" },
-  { href: "/consultas", label: "Consultas", match: (p: string) => p === "/consultas" || p.startsWith("/consultas/") },
   { href: "/jornada", label: "Laboratório", match: (p: string) => p === "/jornada" },
 ];
 
 export function Navbar() {
   const pathname = usePathname() || "/";
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.top && window.self !== window.top) {
@@ -115,7 +116,7 @@ export function Navbar() {
 
           <button
             type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             className="size-9 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/40 flex items-center justify-center transition-colors"
             aria-label="Alternar tema claro e escuro"
           >
@@ -128,7 +129,7 @@ export function Navbar() {
         <div className="flex items-center gap-2 md:hidden">
           <button
             type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             className="size-9 rounded-full border border-border bg-card text-muted-foreground flex items-center justify-center"
             aria-label="Alternar tema"
           >

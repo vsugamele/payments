@@ -537,7 +537,7 @@ export default function ArtigoPasso() {
           ].map(([sigla, nome, desc]) => (
             <tr key={sigla}>
               <td>{sigla}</td>
-              <td style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-geist-sans)" }}>{nome}</td>
+              <td style={{ color: "var(--foreground)", fontFamily: "var(--font-inter)" }}>{nome}</td>
               <td style={{ color: "var(--muted-foreground)" }}>{desc}</td>
             </tr>
           ))}

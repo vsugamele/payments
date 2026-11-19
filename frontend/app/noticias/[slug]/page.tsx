@@ -54,6 +54,9 @@ export default async function NoticiaDetalhePage({
 
         {/* Cabeçalho da matéria */}
         <header className="pb-8 border-b border-border space-y-5">
+          {post.series && (
+            <p className="section-eyebrow">{post.series}</p>
+          )}
           <p className="font-mono text-xs text-muted-foreground">
             {post.category} · {post.dateFull} · {post.readTime} de leitura
           </p>

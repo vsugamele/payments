@@ -367,7 +367,7 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   '/scheme-fees',
 ];
 
-const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas', '/glossario'];
+const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas'];
 
 export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';

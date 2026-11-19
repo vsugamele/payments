@@ -68,22 +68,22 @@ export function OwnerBar() {
 
   return (
     <>
-      {/* Floating Owner Pill (shown on all pages so Ctrl+K is always 1 click away) */}
-      <div className="fixed bottom-4 left-4 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <div className="flex items-center gap-2 p-1.5 pl-3 rounded-full bg-slate-900/95 border border-emerald-500/40 backdrop-blur-md shadow-2xl text-xs text-white">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-bold text-[11px] text-emerald-300 font-mono hidden sm:inline">
+      {/* Floating Owner Pill (compacto no mobile para não cobrir leitura) */}
+      <div className="fixed bottom-3 left-3 sm:bottom-4 sm:left-4 z-40">
+        <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 pl-2.5 sm:pl-3 rounded-full bg-zinc-900/95 border border-zinc-700 backdrop-blur-md shadow-lg text-xs text-white">
+          <span className="size-2 rounded-full bg-emerald-400" />
+          <span className="font-semibold text-[11px] text-zinc-200 font-mono hidden sm:inline">
             Proprietário
           </span>
 
           <button
             onClick={() => setOpenPalette(true)}
-            className="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-[10px] flex items-center gap-1.5 transition-all"
+            className="px-2 sm:px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 font-medium text-[10px] flex items-center gap-1.5 transition-all"
             title="Busca Rápida Universal (Ctrl + K)"
           >
-            <Search size={11} className="text-blue-400" />
-            <span>Busca Rápida</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-950 text-[9px] font-mono text-slate-400 border border-slate-800">
+            <Search size={11} className="text-zinc-300" />
+            <span className="hidden sm:inline">Busca Rápida</span>
+            <kbd className="hidden sm:inline px-1.5 py-0.5 rounded bg-zinc-950 text-[9px] font-mono text-zinc-400 border border-zinc-800">
               Ctrl+K
             </kbd>
           </button>
@@ -91,20 +91,20 @@ export function OwnerBar() {
           {pathname !== "/editor" && (
             <Link
               href="/editor"
-              className="px-2.5 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center gap-1 transition-all"
+              className="hidden sm:flex px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 font-medium text-[10px] items-center gap-1 transition-all"
               title="Abrir Doc Studio (Editor de Documentos & Pareceres)"
             >
-              <span>Editor Docs</span>
+              <span>Editor</span>
             </Link>
           )}
 
           {pathname !== "/admin" && (
             <Link
               href="/admin"
-              className="px-2.5 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] flex items-center gap-1 transition-all"
+              className="px-2 sm:px-2.5 py-1 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 font-semibold text-[10px] flex items-center gap-1 transition-all"
             >
               <LayoutDashboard size={11} />
-              <span>Cockpit ({ALL_ADMIN_TOOLS.length})</span>
+              <span>Cockpit</span>
             </Link>
           )}
 

@@ -15,7 +15,8 @@ Resolver o sistema de cores (eliminando gradientes neon, glows e fundos escuros 
 
 ## Validação
 - `next typegen` e `tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0` (19/11/2026).
-- `next build` (produção Turbopack) executado em `frontend/` com `BUILD_EXIT=0` (`122/122` rotas estáticas/SSG geradas sem erros, incluindo `/`, `/curriculo`, `/sobre`, `/noticias`, `/noticias/[slug]`, `/artigos`, `/consultas` e `/jornada`).
+- `next build` (produção Turbopack) executado em `frontend/` com `BUILD_EXIT=0` (`130/130` rotas estáticas/SSG geradas sem avisos de `metadataBase`).
+- Auditoria visual ao vivo via browser em `http://localhost:3199` (1440×900 claro/escuro + 390×844 mobile) nas 7 rotas públicas principais (`/` + busca ao vivo, `/curriculo` + toggle `PT|EN`, `/guia`, `/noticias/aprovou-00-margem-sumiu-no-clearing`, `/artigos/intercambio-guia-completo` + TOC `Neste texto`, `/glossario`, `/leituras`): HTTP `200`, zero erros de rede/console, zero imagens quebradas. Correções pós-auditoria aplicadas: `overflow-x: auto` mobile em `.article-body table`, `/glossario` sempre com navbar editorial limpa, `resolvedTheme` no toggle de tema e `OwnerBar` compacto no mobile.
 
 ## Rodada 2 (19/11/2026 — Limpeza de Artigos, CV Bilíngue PT/EN, Glossário Público e Feed RSS)
 - `frontend/app/artigos/intercambio-guia-completo/page.tsx`: corrigido erro factual sobre teto BCB (teto de `0,50%` no débito e `0,70%` no pré-pago pelas Resoluções BCB 246/2022 e 304/2023 desde 01/04/2023; crédito em livre mercado), removidas cores azuis antigas e trocados links privados por rotas públicas.
@@ -24,6 +25,13 @@ Resolver o sistema de cores (eliminando gradientes neon, glows e fundos escuros 
 - `frontend/components/CurriculoView.tsx`: adicionado seletor `PT | EN` completo para alternar todo o currículo entre Português e Inglês.
 - `frontend/app/glossario/page.tsx` e `frontend/app/glossario/GlossarioClient.tsx`: redesign completo no tema papel/grafite, liberado para público em `middleware.ts`, `Navbar.tsx`, `PaymentsWorkbenchShell.tsx`, `HomeEditorialClient.tsx` e `Footer.tsx`.
 - `frontend/app/feed.xml/route.ts`: criado feed RSS 2.0 público das notícias e artigos.
+
+## Rodadas 3, 4 e 5 (19/11/2026 — Série "Na prática, por que quebrou?", `/guia`, `/leituras`, Sumário Lateral, SEO, JSON de Notícias e Conferência Visual)
+- `frontend/data/editorial-posts.ts`, `frontend/data/noticias-extras.json` e `docs/editorial/como-publicar-noticia.md`: adicionadas 3 notas autorais da série *"Na prática, por que quebrou?"* (downgrade silencioso no clearing, queda de aprovação pós-release e leitura de faturas MCBS/VSS + waivers) + fluxo simplificado de publicação via JSON sem editar TSX.
+- `frontend/data/guia-pagamentos.ts` e `frontend/app/guia/page.tsx`: Guia Geral de Pagamentos escrito em 6 capítulos (Cartão, Clearing/SLC/B3, Intercâmbio/MDR, Chargeback/CE 3.0, Pix/MED 2.0, Reforma 2027) com fontes oficiais e links diretos ao Laboratório `/jornada`.
+- `frontend/app/leituras/page.tsx`: curadoria em 3 prateleiras (Normas do BCB com links oficiais, Manuais técnicos das bandeiras e Livros de operação/liderança).
+- `frontend/components/ArticleToc.tsx`, `frontend/components/ArticleLayout.tsx`, `frontend/app/artigos/vdcap-taf-scof/page.tsx` e `frontend/app/artigos/passo-a-passo-transacao/page.tsx`: sumário lateral automático (`Neste texto`) nos artigos longos + remoção das últimas bordas `#0f172a` e fontes legadas.
+- `frontend/app/layout.tsx`, `frontend/app/sitemap.ts`, `frontend/app/robots.ts` e `frontend/middleware.ts`: `metadataBase` configurado (`https://vinicius-sugamele.com`), `sitemap.xml` e `robots.txt` expondo apenas rotas públicas (mantendo `/admin` e `/compliance/*` bloqueados para indexação).
 
 ## Limites e Próximo Passo
 - As notícias editoriais são estáticas em `frontend/data/editorial-posts.ts`, baseadas exclusivamente nas normas e consultas públicas já presentes no repositório. Para alimentação contínua de notícias externas no futuro, pode-se plugar um feed curado ou painel editorial no `/admin`.

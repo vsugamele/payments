@@ -46,8 +46,12 @@ export function middleware(request: NextRequest) {
     pathname === "/consultas" ||
     pathname.startsWith("/consultas/") ||
     pathname === "/glossario" ||
+    pathname === "/guia" ||
+    pathname === "/leituras" ||
     pathname === "/jornada" ||
     pathname === "/feed.xml" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
     pathname === "/admin" || // Permite abrir a tela de login do proprietário
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||

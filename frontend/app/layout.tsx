@@ -29,9 +29,15 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://vinicius-sugamele.com"),
   title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
   description:
     "Notícias comentadas, análises práticas e bastidores sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele, Head de Bandeiras com mais de 16 anos no setor.",
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
   openGraph: {
     title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
     description:

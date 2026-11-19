@@ -1,3 +1,5 @@
+import extraNewsRaw from "@/data/noticias-extras.json";
+
 export type EditorialCategory =
   | "Regulação"
   | "Bandeiras"
@@ -9,6 +11,7 @@ export interface EditorialNewsArticle {
   slug: string;
   href: string;
   kind: "noticia" | "artigo";
+  series?: string;
   category: EditorialCategory;
   dateISO: string;
   dateShort: string;
@@ -35,7 +38,7 @@ export interface EditorialNewsArticle {
   relatedLabLabel?: string;
 }
 
-export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
+const CORE_EDITORIAL_POSTS: EditorialNewsArticle[] = [
   {
     slug: "split-payment-reforma-tributaria-2027",
     href: "/noticias/split-payment-reforma-tributaria-2027",
@@ -94,6 +97,152 @@ export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
     relatedLabLabel: "Simular o Split Tributário 2027 no Laboratório",
   },
   {
+    slug: "aprovou-00-margem-sumiu-no-clearing",
+    href: "/noticias/aprovou-00-margem-sumiu-no-clearing",
+    kind: "noticia",
+    series: "Na prática, por que quebrou?",
+    category: "Intercâmbio",
+    dateISO: "2026-11-17",
+    dateShort: "17 nov",
+    dateFull: "17 de novembro de 2026",
+    year: "2026",
+    readTime: "5 min",
+    title: "A venda aprovou com 00, mas a margem sumiu no clearing",
+    summary:
+      "O caso clássico de quem olha só para a taxa de aprovação: a compra passa sem erro na autorização, o cliente leva o produto, mas no fechamento da semana a tarifa de intercâmbio veio 80 bps mais cara.",
+    sourceNote: "Visa Base II Clearing Specifications · Mastercard GCMS / IPM · Elo Serviço 10",
+    effectiveWindow: "Nota prática de operação · autorização × clearing",
+    keyTakeaways: [
+      "Autorização aprovada com código 00 nunca garante qualificação tarifária no clearing noturno.",
+      "Os três vazamentos mais frequentes são: perder o ECI/CAVV entre o gateway e o Outgoing, capturar fora da janela da bandeira ou mandar o identificador da transação (Transaction ID / Banknet Reference) desalinhado.",
+      "A conciliação de intercâmbio precisa cruzar o IRD/PID esperado contra o cobrado todo mês — sem isso o downgrade corre meses sem ninguém notar.",
+    ],
+    sections: [
+      {
+        heading: "O sintoma que só aparece no fechamento do mês",
+        paragraphs: [
+          "Em quase toda operação de adquirência ou subadquirência que acompanho, o alarme toca quando alguém do Financeiro compara a margem projetada com o extrato real de liquidação. O volume bate, a taxa de aprovação subiu, o lojista recebeu no prazo — e mesmo assim sobrou menos dinheiro na conta.",
+          "Quando você abre o arquivo de retorno da bandeira (o VSS-130 na Visa ou os relatórios de qualificação no GCMS da Mastercard), o motivo costuma ter nome curto: downgrade de intercâmbio.",
+        ],
+      },
+      {
+        heading: "Onde o campo se perde no meio do caminho",
+        paragraphs: [
+          "Na hora da venda online, o cliente passou pelo 3DS 2.2 sem atrito, o emissor devolveu um criptograma válido e a transação foi aprovada com RC 00. Até aí, tudo certo. O problema acontece horas depois, quando o motor de Outgoing monta o lote noturno para enviar à bandeira.",
+          "Se o sistema de captura grava os dados da autorização em uma tabela e o lote de clearing lê de outra sem replicar o ECI, o CAVV/UCAF ou o Transaction Identifier da autorização original, a bandeira olha para aquele registro e trata a compra como se nunca tivesse sido autenticada — ou pior, como se não batesse com a autorização.",
+        ],
+        bullets: [
+          "Perda de ECI / CAVV no Outgoing (TCR 5 na Visa ou DE 48 / PDS na Mastercard): derruba a venda para a faixa não autenticada.",
+          "Captura atrasada: autorizou na segunda e só apresentou no clearing na semana seguinte, estourando a janela de qualificação.",
+          "MCC genérico no credenciamento (como 5999) em vez do setor real do lojista: faz a operação perder faixas reduzidas em supermercados, combustíveis ou serviços.",
+        ],
+      },
+      {
+        heading: "O teste mais barato para achar o vazamento",
+        paragraphs: [
+          "Antes de abrir um projeto grande de refatoração, o caminho mais rápido é pegar uma amostra de 50 transações que caíram em tarifa padrão ou punitiva (EIRF / Standard) no último fechamento e colocar lado a lado o log da 0100/0110 e a linha correspondente do arquivo de clearing enviado.",
+          "Em mais da metade das vezes que fiz esse exercício com times de engenharia, a diferença estava em dois ou três campos que existiam na autorização e simplesmente não estavam sendo mapeados no lote noturno.",
+        ],
+        callout: {
+          label: "Na prática",
+          text: "Em um volume de R$ 50 milhões por mês, deixar 8% das vendas sofrerem um downgrade de 0,40% custa R$ 16 mil todos os meses — R$ 192 mil por ano saindo em silêncio sem nenhum erro aparecer na tela do cliente.",
+        },
+      },
+    ],
+    relatedLabHref: "/guia#intercambio",
+    relatedLabLabel: "Ler o capítulo de Intercâmbio no Guia de Pagamentos",
+  },
+  {
+    slug: "med-2-rastreio-multinivel",
+    href: "/noticias/med-2-rastreio-multinivel",
+    kind: "noticia",
+    category: "Pix & BCB",
+    dateISO: "2026-11-16",
+    dateShort: "16 nov",
+    dateFull: "16 de novembro de 2026",
+    year: "2026",
+    readTime: "5 min",
+    title: "MED 2.0: por que travar apenas a primeira conta deixou de resolver golpes no Pix",
+    summary:
+      "Com a Resolução BCB 493/2025 em vigor desde fevereiro de 2026, o rastreamento do Mecanismo Especial de Devolução avança sobre camadas seguintes de contas laranja e impõe autoatendimento padronizado nos apps.",
+    sourceNote: "Resolução BCB nº 493/2025 (MED 2.0) · Resoluções BCB nº 103/2021 e 147/2021",
+    effectiveWindow: "Em vigor desde 02/02/2026 com implantação escalonada 2026–2027",
+    keyTakeaways: [
+      "No MED original, o bloqueio alcançava apenas a 1ª conta recebedora — que fraudadores costumavam esvaziar em segundos.",
+      "O MED 2.0 cria o rastreio em grafo multinível para alcançar saldos pulverizados em contas de nível 2 e 3.",
+      "Todos os PSPs precisam oferecer botão padronizado de contestação direto no app, sem obrigar o pagador a abrir protocolo por telefone.",
+    ],
+    sections: [
+      {
+        heading: "A corrida de segundos depois de um golpe",
+        paragraphs: [
+          "Quem acompanha prevenção a fraudes no Pix sabe qual era o gargalo do MED original. Quando a vítima percebia que tinha caído em um golpe e acionava o banco, o dinheiro já não estava mais na conta que recebeu o Pix. Em menos de um minuto, o saldo tinha sido quebrado em três ou quatro transferências para outras contas laranja em instituições diferentes.",
+          "Como o mecanismo anterior só bloqueava a conta de destino imediata, a taxa de recuperação ficava baixa mesmo quando a fraude era confirmada rapidamente.",
+        ],
+      },
+      {
+        heading: "O que muda com o grafo multinível",
+        paragraphs: [
+          "A Resolução BCB nº 493/2025 ataca exatamente esse ponto. Com o MED 2.0, a notificação de infração e o pedido de bloqueio percorrem o rastro das transferências seguintes, permitindo bloquear valores que já pularam para contas de segundo e terceiro níveis no SPI.",
+          "Ao mesmo tempo, a contestação deixa de depender de fila de atendimento humano para começar: o botão de autoatendimento no extrato do app aciona o fluxo padronizado no DICT e dispara o bloqueio cautelar enquanto as instituições analisam as evidências.",
+        ],
+      },
+    ],
+    relatedLabHref: "/jornada?track=med_seguranca",
+    relatedLabLabel: "Acompanhar o fluxo do MED 2.0 passo a passo",
+  },
+  {
+    slug: "taxa-aprovacao-caiu-depois-do-release",
+    href: "/noticias/taxa-aprovacao-caiu-depois-do-release",
+    kind: "noticia",
+    series: "Na prática, por que quebrou?",
+    category: "Autorização & Risco",
+    dateISO: "2026-11-14",
+    dateShort: "14 nov",
+    dateFull: "14 de novembro de 2026",
+    year: "2026",
+    readTime: "6 min",
+    title: "Por que a taxa de aprovação cai de uma semana para outra depois de um release?",
+    summary:
+      "Ninguém mudou o motor antifraude e o emissor diz que está tudo normal, mas a conversão caiu 1,8 ponto percentual. Quase sempre a resposta está em um detalhe de mensageria ISO 8583 ou tokenização.",
+    sourceNote: "ISO 8583 · Visa / Mastercard / Elo Semi-Annual Releases · 3DS 2.2",
+    effectiveWindow: "Nota prática de operação · troubleshooting de autorização",
+    keyTakeaways: [
+      "Queda súbita de aprovação por BIN ou por bandeira quase nunca é comportamento do cliente — é sinal de mudança de regra, campo truncado ou chave criptográfica desatualizada.",
+      "Quebrar as recusas por código de retorno (DE 39), canal (DE 22) e bandeira isola a causa em horas em vez de semanas.",
+      "Em e-commerce recorrente, enviar cobrança com cartão salvo como se fosse digitação manual (DE 22 = 01 em vez de 10/81) derruba a aprovação na hora.",
+    ],
+    sections: [
+      {
+        heading: "A reunião da segunda-feira de manhã",
+        paragraphs: [
+          "A cena se repete em quase toda adquirente ou grande operação digital: na sexta-feira a aprovação estava em 91%, na segunda amanheceu em 89,2%. O time comercial liga perguntando se o antifraude apertou a régua, o time de risco jura que não tocou em nada, e o dashboard agregado só mostra mais códigos 05 (Não Autorizada).",
+          "Olhar para a taxa média geral esconde o problema. Quando você abre o recorte por bandeira, por emissor e por modo de entrada (DE 22), quase sempre aparece um desenho muito mais específico: a queda está concentrada em uma única bandeira, em transações tokenizadas ou em compras autenticadas com 3DS.",
+        ],
+      },
+      {
+        heading: "Os quatro culpados que mais vejo em campo",
+        paragraphs: [
+          "Nos últimos anos trabalhando entre bandeira, adquirente e emissores, quatro causas explicam a maioria dessas quedas silenciosas logo após viradas de release ou atualizações de gateway:",
+        ],
+        bullets: [
+          "DE 22 (POS Entry Mode) preenchido errado em recorrência ou token: o sistema manda a venda como digitação manual em vez de credencial salva ou token e-commerce, disparando recusa preventiva no emissor.",
+          "Indicadores CIT/MIT fora do padrão: cobrança recorrente enviada sem o identificador da transação inicial aprovada pelo portador.",
+          "Atualização criptográfica em 3DS ou chip (como a migração para CAVV v9 AES ou chaves CAPK vencidas no terminal): a mensagem sai montada, mas falha na validação do HSM ou do ACS.",
+          "Retentativas em cima de Hard Decline: insistir em cartão cancelado ou bloqueado piora o score do estabelecimento nos filtros dos emissores e gera encargo de retentativa excessiva.",
+        ],
+      },
+      {
+        heading: "Como encurtar o diagnóstico",
+        paragraphs: [
+          "Em vez de perguntar genericamente ao emissor por que ele está negando mais, leve três exemplos reais com NSU, data/hora, BIN mascarado, DE 22, DE 39 e os subcampos de autenticação enviados. Com três payloads completos na mesa, o time do emissor e o suporte técnico da bandeira conseguem apontar a linha exata da recusa no mesmo dia.",
+        ],
+      },
+    ],
+    relatedLabHref: "/jornada?track=cartao",
+    relatedLabLabel: "Injetar falhas de autorização no Laboratório",
+  },
+  {
     slug: "visa-tarifas-brl-cavv-v9",
     href: "/noticias/visa-tarifas-brl-cavv-v9",
     kind: "noticia",
@@ -140,6 +289,57 @@ export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
     relatedLabLabel: "Ver o fluxo 3DS 2.2 com CAVV v9 no Laboratório",
   },
   {
+    slug: "cobranca-nova-fatura-mcbs-vss-waiver",
+    href: "/noticias/cobranca-nova-fatura-mcbs-vss-waiver",
+    kind: "noticia",
+    series: "Na prática, por que quebrou?",
+    category: "Bandeiras",
+    dateISO: "2026-11-08",
+    dateShort: "08 nov",
+    dateFull: "8 de novembro de 2026",
+    year: "2026",
+    readTime: "6 min",
+    title: "De onde saiu essa cobrança nova na fatura da bandeira — e quando cabe waiver?",
+    summary:
+      "Faturas MCBS (Mastercard) e VSS (Visa) misturam tarifas de rede previsíveis com encargos de exceção e Data Integrity. Saber separar uma coisa da outra evita pagar duas vezes pelo mesmo erro técnico.",
+    sourceNote: "Mastercard Consolidated Billing System (MCBS) · Visa Settlement Service (VSS-110/120)",
+    effectiveWindow: "Nota prática de operação · auditoria de billing e waivers",
+    keyTakeaways: [
+      "Nunca leia a fatura da bandeira apenas pelo valor total mensal: separe sempre tarifa recorrente de volume (scheme fee normal) de encargo de não conformidade ou Data Integrity.",
+      "Encargo de Data Integrity raramente é pontual — se a causa na mensageria não for corrigida, a cobrança volta no mês seguinte e escala.",
+      "Pedido de waiver só ganha tração junto à bandeira quando traz causa raiz provada, data de correção em produção e evidência de que o problema parou de gerar erro.",
+    ],
+    sections: [
+      {
+        heading: "O susto no fechamento do MCBS e do VSS",
+        paragraphs: [
+          "Na maioria das empresas, a fatura consolidada das bandeiras chega para o Financeiro com centenas de códigos alfanuméricos — Service IDs no MCBS da Mastercard e Billing Lines no VSS da Visa. Se o total ficou perto do orçamento, ninguém abre linha por linha. O problema é que uma cobrança de exceção de R$ 25 mil some fácil no meio de uma fatura milionária, até virar R$ 150 mil no trimestre.",
+          "Por isso, a conferência de fatura precisa ser feita a quatro mãos entre Financeiro e o time técnico de Bandeiras. O Financeiro vê a variação de preço e câmbio; o time de Bandeiras reconhece em cinco minutos se aquele código é uma tarifa normal de processamento ou uma multa por campo incorreto no arquivo.",
+        ],
+      },
+      {
+        heading: "Três perguntas antes de pagar uma linha nova",
+        paragraphs: [
+          "Quando aparece um código novo ou um salto fora da curva no MCBS ou no VSS, vale passar por três checagens rápidas:",
+        ],
+        bullets: [
+          "A tarifa mudou de tabela ou de moeda naquela data? (Como aconteceu na virada da tabela Visa Brasil de USD para BRL em 01/05/2026.)",
+          "É uma cobrança de uso normal que cresceu por volume — como autorização, tokenização ou consulta AVS — ou é um encargo de Data Integrity / retentativa excessiva?",
+          "Se for encargo de exceção, a causa técnica no switch ou no Outgoing já foi corrigida?",
+        ],
+      },
+      {
+        heading: "Quando um pedido de waiver realmente funciona",
+        paragraphs: [
+          "Pedir dispensa ou redução de uma multa (waiver) funciona melhor quando a instituição trata a conversa com transparência técnica. Em vez de mandar um pedido genérico alegando impacto financeiro, monte um dossiê objetivo: qual foi o erro na mensageria, em que data começou, qual patch corrigiu em produção e o gráfico mostrando a queda dos eventos a zero depois da correção.",
+          "Mesmo quando o waiver é parcial, esse trabalho impede que a mesma linha continue drenando caixa pelos seis meses seguintes.",
+        ],
+      },
+    ],
+    relatedLabHref: "/guia#intercambio",
+    relatedLabLabel: "Ver a diferença entre Intercâmbio e Scheme Fees no Guia",
+  },
+  {
     slug: "mastercard-reg-2026-risco-credito",
     href: "/noticias/mastercard-reg-2026-risco-credito",
     kind: "noticia",
@@ -184,45 +384,6 @@ export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
     ],
     relatedLabHref: "/consultas/mastercard-regras-operacionais-2026",
     relatedLabLabel: "Ler o resumo executivo completo da consulta REG 2026.03",
-  },
-  {
-    slug: "med-2-rastreio-multinivel",
-    href: "/noticias/med-2-rastreio-multinivel",
-    kind: "noticia",
-    category: "Pix & BCB",
-    dateISO: "2026-11-16",
-    dateShort: "16 nov",
-    dateFull: "16 de novembro de 2026",
-    year: "2026",
-    readTime: "5 min",
-    title: "MED 2.0: por que travar apenas a primeira conta deixou de resolver golpes no Pix",
-    summary:
-      "Com a Resolução BCB 493/2025 em vigor desde fevereiro de 2026, o rastreamento do Mecanismo Especial de Devolução avança sobre camadas seguintes de contas laranja e impõe autoatendimento padronizado nos apps.",
-    sourceNote: "Resolução BCB nº 493/2025 (MED 2.0) · Resoluções BCB nº 103/2021 e 147/2021",
-    effectiveWindow: "Em vigor desde 02/02/2026 com implantação escalonada 2026–2027",
-    keyTakeaways: [
-      "No MED original, o bloqueio alcançava apenas a 1ª conta recebedora — que fraudadores costumavam esvaziar em segundos.",
-      "O MED 2.0 cria o rastreio em grafo multinível para alcançar saldos pulverizados em contas de nível 2 e 3.",
-      "Todos os PSPs precisam oferecer botão padronizado de contestação direto no app, sem obrigar o pagador a abrir protocolo por telefone.",
-    ],
-    sections: [
-      {
-        heading: "A corrida de segundos depois de um golpe",
-        paragraphs: [
-          "Quem acompanha prevenção a fraudes no Pix sabe qual era o gargalo do MED original. Quando a vítima percebia que tinha caído em um golpe e acionava o banco, o dinheiro já não estava mais na conta que recebeu o Pix. Em menos de um minuto, o saldo tinha sido quebrado em três ou quatro transferências para outras contas laranja em instituições diferentes.",
-          "Como o mecanismo anterior só bloqueava a conta de destino imediata, a taxa de recuperação ficava baixa mesmo quando a fraude era confirmada rapidamente.",
-        ],
-      },
-      {
-        heading: "O que muda com o grafo multinível",
-        paragraphs: [
-          "A Resolução BCB nº 493/2025 ataca exatamente esse ponto. Com o MED 2.0, a notificação de infração e o pedido de bloqueio percorrem o rastro das transferências seguintes, permitindo bloquear valores que já pularam para contas de segundo e terceiro níveis no SPI.",
-          "Ao mesmo tempo, a contestação deixa de depender de fila de atendimento humano para começar: o botão de autoatendimento no extrato do app aciona o fluxo padronizado no DICT e dispara o bloqueio cautelar enquanto as instituições analisam as evidências.",
-        ],
-      },
-    ],
-    relatedLabHref: "/jornada?track=med_seguranca",
-    relatedLabLabel: "Acompanhar o fluxo do MED 2.0 passo a passo",
   },
   {
     slug: "pix-automatico-e-aproximacao-jsr",
@@ -305,7 +466,7 @@ export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
     readTime: "10 min",
     title: "Compelling Evidence 3.0: como a Visa combate fraude amigável",
     summary:
-      "Critérios de elegibilidade, campos Base II, reason codes 10.4 e 13.1, comparativo com o CE 2.0 e o fluxo prático para reverter contestações com histórico de compras anteriores.",
+      "Critérios de elegibilidade, campos Base II, reason codes 10.4 e 13.1, comparativo com o CE 2.0 e fluxo prático de defesa.",
   },
   {
     slug: "passo-a-passo-transacao",
@@ -337,6 +498,24 @@ export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
   },
 ];
 
+type ExtraNewsInput = Omit<EditorialNewsArticle, "href" | "kind"> & {
+  href?: string;
+  kind?: "noticia" | "artigo";
+};
+
+const EXTRA_POSTS: EditorialNewsArticle[] = (
+  Array.isArray(extraNewsRaw) ? (extraNewsRaw as ExtraNewsInput[]) : []
+).map((item) => ({
+  ...item,
+  kind: "noticia" as const,
+  href: item.href || `/noticias/${item.slug}`,
+}));
+
+export const EDITORIAL_POSTS: EditorialNewsArticle[] = [
+  ...EXTRA_POSTS,
+  ...CORE_EDITORIAL_POSTS,
+].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+
 export const EDITORIAL_THEMES: {
   id: string;
   title: string;
@@ -348,12 +527,12 @@ export const EDITORIAL_THEMES: {
     id: "bandeiras",
     title: "Bandeiras & Releases",
     description:
-      "Mudanças de regra de Visa, Mastercard, Elo e Amex, Data Integrity, faturamento em BRL e consultas públicas.",
+      "Mudanças de regra de Visa, Mastercard, Elo e Amex, faturas MCBS/VSS, waivers e consultas públicas.",
     categoryFilter: "Bandeiras",
     slugs: [
       "visa-tarifas-brl-cavv-v9",
+      "cobranca-nova-fatura-mcbs-vss-waiver",
       "mastercard-reg-2026-risco-credito",
-      "vdcap-taf-scof",
     ],
   },
   {
@@ -372,9 +551,10 @@ export const EDITORIAL_THEMES: {
     id: "intercambio",
     title: "Intercâmbio & Tarifas",
     description:
-      "Como a cascata de qualificação forma o custo da compra, onde nasce o downgrade e como auditar faturas MCBS e VSS.",
+      "Como a cascata de qualificação forma o custo da compra, onde nasce o downgrade silencioso e como fechar a conta.",
     categoryFilter: "Intercâmbio",
     slugs: [
+      "aprovou-00-margem-sumiu-no-clearing",
       "intercambio-guia-completo",
       "visa-tarifas-brl-cavv-v9",
     ],
@@ -383,12 +563,12 @@ export const EDITORIAL_THEMES: {
     id: "autorizacao-risco",
     title: "Autorização, Clearing & Disputas",
     description:
-      "Mensageria ISO 8583, liquidação, defesa de chargeback com CE 3.0 e o repertório que os times precisam preservar.",
+      "Mensageria ISO 8583, quedas de aprovação pós-release, defesa de chargeback com CE 3.0 e repertório de time.",
     categoryFilter: "Autorização & Risco",
     slugs: [
-      "passo-a-passo-transacao",
+      "taxa-aprovacao-caiu-depois-do-release",
       "compelling-evidence-3-0",
-      "quando-a-ia-responde-quem-realmente-sabe",
+      "passo-a-passo-transacao",
     ],
   },
 ];

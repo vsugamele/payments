@@ -242,8 +242,8 @@ export default function ArtigoVdcap() {
               display: "flex",
               gap: "1rem",
               alignItems: "flex-start",
-              background: "var(--code-bg)",
-              border: "1px solid #0f172a",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
               borderRadius: "0.75rem",
               padding: "1rem 1.25rem",
             }}
@@ -253,14 +253,14 @@ export default function ArtigoVdcap() {
                 height: 28,
                 width: 28,
                 borderRadius: "50%",
-                background: "rgba(37,99,235,0.15)",
-                border: "1px solid rgba(37,99,235,0.3)",
+                background: "var(--muted)",
+                border: "1px solid var(--border-strong)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "0.75rem",
-                fontWeight: 800,
-                color: "var(--code-text)",
+                fontWeight: 600,
+                color: "var(--foreground)",
                 flexShrink: 0,
               }}
             >
@@ -304,7 +304,7 @@ export default function ArtigoVdcap() {
             ["Dispensa 3DS", "Sim, quando elegível", "Sim, quando elegível"],
           ].map(([aspecto, visa, mc]) => (
             <tr key={aspecto}>
-              <td style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-geist-sans)" }}>{aspecto}</td>
+              <td style={{ color: "var(--foreground)", fontFamily: "var(--font-inter)" }}>{aspecto}</td>
               <td style={{ color: "var(--muted-foreground)" }}>{visa}</td>
               <td style={{ color: "var(--muted-foreground)" }}>{mc}</td>
             </tr>

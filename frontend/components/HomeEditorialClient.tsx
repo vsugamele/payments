@@ -372,6 +372,11 @@ export function HomeEditorialClient({
                               {post.dateShort}
                             </span>
                             <div className="flex-1 min-w-0 space-y-1">
+                              {post.series && (
+                                <span className="block font-mono text-[10px] uppercase text-muted-foreground">
+                                  {post.series}
+                                </span>
+                              )}
                               <div className="text-[15px] font-semibold text-foreground group-hover:underline underline-offset-4 decoration-border leading-snug">
                                 {post.title}
                               </div>
@@ -647,6 +652,17 @@ export function HomeEditorialClient({
               <ul className="space-y-3 text-sm">
                 <li>
                   <Link
+                    href="/guia"
+                    className="font-semibold text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
+                  >
+                    Guia Geral de Pagamentos
+                  </Link>
+                  <span className="text-muted-foreground">
+                    {" "}— seis capítulos curtos sobre cartão, liquidação, intercâmbio, disputas, Pix e Reforma 2027.
+                  </span>
+                </li>
+                <li>
+                  <Link
                     href="/jornada"
                     className="font-semibold text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
                   >
@@ -681,13 +697,13 @@ export function HomeEditorialClient({
                 </li>
                 <li>
                   <Link
-                    href="/curriculo"
+                    href="/leituras"
                     className="font-semibold text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
                   >
-                    Currículo &amp; Trajetória (PT / EN)
+                    Leituras e Referências
                   </Link>
                   <span className="text-muted-foreground">
-                    {" "}— 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express, com versão em PDF.
+                    {" "}— normas do Banco Central, manuais das bandeiras e livros que realmente uso.
                   </span>
                 </li>
               </ul>
