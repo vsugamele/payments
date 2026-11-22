@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ExternalLink, Mail, FileDown, MessageCircle } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname() || "/";
+  if (pathname === "/admin" || pathname === "/editor") {
+    return null;
+  }
   return (
     <footer className="border-t border-border bg-background text-muted-foreground mt-16">
       <div className="mx-auto max-w-6xl px-6 py-12">

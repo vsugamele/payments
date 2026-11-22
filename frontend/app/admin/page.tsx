@@ -23,6 +23,7 @@ import {
   DollarSign,
   Search,
   Eye,
+  EyeOff,
   CheckCircle2,
   Filter,
   Command,
@@ -79,11 +80,12 @@ type AdminWorkspaceTab =
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Top-level 5 Boxes inside /admin
-  const [activeAdminTab, setActiveAdminTab] = useState<AdminWorkspaceTab>('teach_demo');
+  // Top-level 5 Boxes inside /admin (abre no Início Rápido & Catálogo para acesso imediato)
+  const [activeAdminTab, setActiveAdminTab] = useState<AdminWorkspaceTab>('modules_catalog');
 
   // Catalog Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -185,67 +187,136 @@ export default function AdminPage() {
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#030711] flex items-center justify-center text-slate-500 text-xs">
-        Carregando Cockpit...
+      <div className="min-h-dvh bg-background flex items-center justify-center text-muted-foreground text-xs font-mono">
+        Verificando acesso...
       </div>
     );
   }
 
-  // ── Tela de Autenticação para o Proprietário ──
+  // ── Tela de Autenticação 100% Isolada (Zero Vazamento de Menu ou Conteúdo Interno) ──
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-[#030711] flex items-center justify-center p-6">
-        <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#090e17] p-8 shadow-2xl relative overflow-hidden">
-          <div className="text-center space-y-3 mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center">
-              <Lock size={26} />
+      <main className="min-h-dvh bg-background text-foreground flex items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm space-y-6">
+          <div className="text-center space-y-2.5">
+            <div className="size-12 rounded-2xl bg-muted border border-border text-foreground mx-auto flex items-center justify-center">
+              <Lock size={20} />
             </div>
-            <h1 className="text-xl font-bold text-white">Cockpit do Proprietário</h1>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Área de acesso restrito de Vinícius Sugamele. O público externo visualiza apenas o seu currículo oficial.
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              Área Restrita
+            </p>
+            <h1 className="text-xl font-semibold text-foreground text-balance">
+              Acesso Administrativo
+            </h1>
+            <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
+              Digite sua chave pessoal para desbloquear o Cockpit de Ferramentas, o Doc Studio e o
+              Acervo Interno.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                Chave de Acesso Pessoal
+            <div className="space-y-1.5">
+              <label
+                htmlFor="admin-secret-key"
+                className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground block"
+              >
+                Chave de Acesso
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Digite sua chave secreta..."
-                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder:text-slate-600 text-sm outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/60 transition-all font-mono"
-                autoFocus
-              />
+              <div className="relative">
+                <input
+                  id="admin-secret-key"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errorMsg) setErrorMsg('');
+                  }}
+                  placeholder="Digite sua chave..."
+                  className="w-full px-4 py-3 pr-11 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground/60 text-sm outline-none focus:border-foreground transition-colors font-mono"
+                  autoFocus
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errorMsg && (
-                <p className="text-xs text-red-400 mt-2 font-medium">{errorMsg}</p>
+                <p className="text-xs text-red-600 dark:text-red-400 font-medium">{errorMsg}</p>
               )}
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-bold text-xs bg-[#1F3FE0] hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-md shadow-blue-600/30 transition-all"
+              className="w-full py-3 rounded-xl font-semibold text-xs bg-foreground text-background hover:opacity-90 flex items-center justify-center gap-2 transition-opacity cursor-pointer"
             >
               <Unlock size={14} />
-              <span>Desbloquear Cockpit</span>
+              <span>Entrar no Painel</span>
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">
+          <div className="pt-4 border-t border-border text-center">
             <Link
               href="/"
-              className="text-xs text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1.5"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
             >
-              <span>Voltar ao Currículo Público</span>
-              <ArrowRight size={12} />
+              <span>← Voltar ao site público</span>
             </Link>
           </div>
         </div>
       </main>
     );
   }
+
+  // ── Atalhos Diários 1-Clique (O que você mais usa no dia a dia) ──
+  const dailyShortcuts = [
+    {
+      href: '/editor',
+      icon: FileText,
+      label: 'Doc Studio',
+      sub: 'Pareceres, PDF & .DOCX',
+      tone: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      href: '/compliance/boletins',
+      icon: ShieldCheck,
+      label: 'Boletins & Releases',
+      sub: '385 itens + Planilha CSV',
+      tone: 'text-blue-600 dark:text-blue-400',
+    },
+    {
+      href: '/compliance/outgoing',
+      icon: Layers,
+      label: 'Outgoing & Clearing',
+      sub: 'Base II, IPM, Elo & QA Lab',
+      tone: 'text-indigo-600 dark:text-indigo-400',
+    },
+    {
+      href: '/simulador',
+      icon: Calculator,
+      label: 'Simulador IC & MDR',
+      sub: '2.103 regras + Downgrade',
+      tone: 'text-amber-600 dark:text-amber-400',
+    },
+    {
+      href: '/acervo',
+      icon: Database,
+      label: 'Acervo & SQLite',
+      sub: '40k PDFs · 17k Campos',
+      tone: 'text-purple-600 dark:text-purple-400',
+    },
+    {
+      href: '/jornada',
+      icon: Globe,
+      label: 'Lab 3D & Pix 2027',
+      sub: '10 trilhas interativas',
+      tone: 'text-cyan-600 dark:text-cyan-400',
+    },
+  ];
 
   // ── 5 Caixinhas Principais do Cockpit /admin ──
   const topBoxes: {
@@ -256,67 +327,77 @@ export default function AdminPage() {
     desc: string;
   }[] = [
     {
+      id: 'modules_catalog',
+      icon: '🧰',
+      badge: `${ALL_ADMIN_TOOLS.length} MÓDULOS`,
+      title: '1. Início & Catálogo Geral',
+      desc: 'Favoritos, busca rápida, menu por categoria à esquerda e ficha técnica completa à direita.',
+    },
+    {
       id: 'teach_demo',
       icon: '🎓',
       badge: 'ENSINAR ⇄ DEMONSTRAR',
-      title: '1. Jornada por Produto (Lado a Lado)',
-      desc: '6 caixinhas de produtos: explicação simples à esquerda e comparação Certo (✅) vs Errado (❌) à direita.',
+      title: '2. Jornada por Produto',
+      desc: '6 caixinhas de produtos: explicação simples à esquerda e Caso Certo vs Errado à direita.',
     },
     {
       id: 'lab_3d_pix',
       icon: '🌐',
       badge: '10 TRILHAS · 3D',
-      title: '2. O Pagamento por Dentro (3D, Pix & 2027)',
-      desc: 'Simulador 3D isométrico e sequência (ms): Cartão, Outgoing, Pix SPI, MED 2.0, Boleto e Split LC 214.',
+      title: '3. Lab 3D, Pix & 2027+',
+      desc: 'Simulador 3D e sequência (ms): Cartão, Outgoing, Pix SPI, MED 2.0, Boleto e Split LC 214.',
     },
     {
       id: 'topology_c4',
       icon: '🖥️',
       badge: '17 SERVIDORES',
-      title: '3. Topologia C4 (Servidores, HSM & Cabos)',
-      desc: 'Onde cada servidor passa, se conecta e traduz chaves nas 5 zonas PCI/RSFN + 10-Hop Packet Tracer.',
+      title: '4. Topologia C4 & HSM',
+      desc: 'Arquitetura de servidores nas 5 zonas PCI/RSFN + 10-Hop Packet Tracer.',
     },
     {
       id: 'product_atlas',
       icon: '🗺️',
       badge: '26 PRODUTOS',
-      title: '4. Mapa de Produtos (4 Bandeiras & BCB 304)',
-      desc: 'Visa PID × MC Brand Product × Elo × Amex, onde nasce no BIN (ARDEF/MPE) e modalidades.',
-    },
-    {
-      id: 'modules_catalog',
-      icon: '🧰',
-      badge: `${ALL_ADMIN_TOOLS.length} MÓDULOS`,
-      title: '5. Catálogo Geral de Ferramentas (Lado a Lado)',
-      desc: 'Menu por categoria à esquerda e ficha completa Ensinar + Simular de todas as ferramentas à direita.',
+      title: '5. Mapa de Produtos',
+      desc: 'Visa PID × MC Brand Product × Elo × Amex, BINs (ARDEF/MPE) e teto BCB 304.',
     },
   ];
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#030711] pb-24 text-slate-900 dark:text-slate-100">
-      {/* Header Limpo do Cockpit (Sem colisão sticky, com IA do Acervo integrada) */}
-      <section className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#080d16]">
+    <main className="min-h-dvh bg-background pb-24 text-foreground">
+      {/* Header Limpo do Cockpit */}
+      <section className="border-b border-border bg-card/70">
         <div className="mx-auto max-w-7xl px-6 py-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 font-mono text-[11px] font-black text-emerald-700 dark:text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                COMMAND CENTER PROPRIETÁRIO · {ALL_ADMIN_TOOLS.length} MÓDULOS ATIVOS
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 font-mono text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                Painel Administrativo · {ALL_ADMIN_TOOLS.length} módulos
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 font-mono text-[11px] font-bold text-[#1F3FE0] dark:text-blue-300">
-                40.129 Docs SQLite · 17.106 Campos · 454 Tarifas · 385 Boletins
+              <span className="px-2.5 py-0.5 rounded-full bg-muted border border-border font-mono text-[11px] text-muted-foreground">
+                40.129 Docs · 17.106 Campos · 454 Tarifas · 385 Boletins
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              Cockpit Executivo &amp; Laboratório Integrado de Pagamentos
+            <h1 className="text-xl sm:text-2xl font-semibold text-foreground text-balance">
+              Cockpit Executivo de Meios de Pagamento
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl">
-              Escolha uma das <strong>5 caixinhas abaixo</strong> para navegar por Produto (<em>Ensinar ⇄ Demonstrar</em>), rodar o Simulador 3D, inspecionar a Topologia de Servidores C4, consultar o Mapa de Produtos ou abrir qualquer uma das {ALL_ADMIN_TOOLS.length} ferramentas.
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-global-command-palette'))}
+              className="px-3 py-2 rounded-xl border border-border bg-background hover:border-foreground/40 text-xs font-medium text-foreground flex items-center gap-2 transition-colors cursor-pointer"
+            >
+              <Search size={13} className="text-muted-foreground" />
+              <span>Busca Rápida</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px] text-muted-foreground">
+                Ctrl+K
+              </kbd>
+            </button>
+
+            <button
+              type="button"
               onClick={() =>
                 window.dispatchEvent(
                   new CustomEvent('open-acervo-ai-drawer', {
@@ -324,32 +405,25 @@ export default function AdminPage() {
                   })
                 )
               }
-              className="px-3.5 py-2 rounded-full bg-[#1F3FE0] hover:bg-blue-700 text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
+              className="px-3.5 py-2 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs font-semibold flex items-center gap-1.5 transition-opacity cursor-pointer"
             >
-              <Sparkles size={14} />
-              <span>🧠 Abrir IA + Acervo (4 SQLites)</span>
+              <Sparkles size={13} />
+              <span>IA + Acervo (Alt+A)</span>
             </button>
 
             <Link
               href="/editor"
-              className="px-3.5 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
-              <FileText size={14} />
+              <FileText size={13} />
               <span>Doc Studio</span>
             </Link>
 
-            <Link
-              href="/sobre"
-              className="px-3.5 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:border-[#1F3FE0] text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition-all"
-            >
-              <Globe size={13} className="text-[#1F3FE0]" />
-              <span>Perfil (/sobre)</span>
-            </Link>
-
             <button
+              type="button"
               onClick={handleLogout}
-              className="px-3.5 py-2 rounded-full bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 border border-rose-200 dark:border-rose-500/30 text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5 transition-all"
-              title="Bloquear e voltar ao modo público"
+              className="px-3 py-2 rounded-xl border border-border bg-background hover:border-rose-500/40 hover:text-rose-600 text-xs font-medium text-muted-foreground flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Sair do modo administrativo"
             >
               <LogOut size={13} />
               <span>Sair</span>
@@ -360,6 +434,47 @@ export default function AdminPage() {
 
       {/* Corpo do Cockpit */}
       <div className="mx-auto max-w-7xl px-6 pt-6 space-y-6">
+        {/* Barra de Acesso Rápido 1-Clique (Tarefas do Dia) */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Acesso rápido — ferramentas do dia a dia
+            </span>
+            <Link
+              href="/"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Ver site público →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            {dailyShortcuts.map((item) => {
+              const IconComp = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group rounded-2xl border border-border bg-card hover:border-foreground/35 p-3.5 transition-colors flex flex-col justify-between gap-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <IconComp size={16} className={item.tone} />
+                    <ArrowRight
+                      size={12}
+                      className="text-muted-foreground/50 group-hover:text-foreground transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-foreground">{item.label}</div>
+                    <div className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                      {item.sub}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
         {/* =====================================================================
             AS 5 CAIXINHAS PRINCIPAIS DO COCKPIT /ADMIN (1 VISÃO LIMPA POR VEZ)
            ===================================================================== */}
@@ -368,32 +483,33 @@ export default function AdminPage() {
             const active = activeAdminTab === b.id;
             return (
               <button
+                type="button"
                 key={b.id}
                 onClick={() => setActiveAdminTab(b.id)}
-                className={`rounded-2xl p-4 text-left border transition-all flex flex-col justify-between gap-2 ${
+                className={`rounded-2xl p-4 text-left border transition-colors flex flex-col justify-between gap-2 cursor-pointer ${
                   active
-                    ? 'bg-[#1F3FE0] text-white border-[#1F3FE0] shadow-md shadow-blue-600/20'
-                    : 'bg-white dark:bg-slate-900/90 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-[#1F3FE0]'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                    : 'bg-card text-foreground border-border hover:border-foreground/35'
                 }`}
               >
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-1.5">
                     <span className="text-base">{b.icon}</span>
                     <span
-                      className={`px-2 py-0.5 rounded-full font-mono text-[9.5px] font-bold ${
+                      className={`px-2 py-0.5 rounded-full font-mono text-[9.5px] font-semibold ${
                         active
                           ? 'bg-white/20 text-white'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                          : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {b.badge}
                     </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-black leading-snug">{b.title}</div>
+                  <div className="text-xs sm:text-sm font-semibold leading-snug">{b.title}</div>
                 </div>
                 <p
                   className={`text-[11px] leading-snug ${
-                    active ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
+                    active ? 'text-primary-foreground/85' : 'text-muted-foreground'
                   }`}
                 >
                   {b.desc}

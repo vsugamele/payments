@@ -213,10 +213,10 @@ export default function DocStudioEditor() {
     ],
   });
 
-  // Table of Contents (Neste Documento) State
+  // Table of Contents (Neste Documento) State — começa recolhido em telas menores para dar respiro à folha A4
   const [tocList, setTocList] = useState<TocItem[]>([]);
   const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);
-  const [isTocOpen, setIsTocOpen] = useState<boolean>(true);
+  const [isTocOpen, setIsTocOpen] = useState<boolean>(false);
 
   // Selection & Floating AI Toolbar State
   const [selectedText, setSelectedText] = useState<string>("");
@@ -230,11 +230,13 @@ export default function DocStudioEditor() {
   const [showCardsMenu, setShowCardsMenu] = useState<boolean>(false);
   const [showTablesMenu, setShowTablesMenu] = useState<boolean>(false);
   const [showBadgesMenu, setShowBadgesMenu] = useState<boolean>(false);
+  const [showToolsMenu, setShowToolsMenu] = useState<boolean>(false);
   const [showImageModal, setShowImageModal] = useState<boolean>(false);
   const [imageUrlInput, setImageUrlInput] = useState<string>("");
+  const [isExportingDocx, setIsExportingDocx] = useState<boolean>(false);
 
-  // UI Modals & Sidebar State
-  const [isCopilotOpen, setIsCopilotOpen] = useState<boolean>(true);
+  // UI Modals & Sidebar State — Copilot começa fechado para foco total na escrita (abre em 1 clique)
+  const [isCopilotOpen, setIsCopilotOpen] = useState<boolean>(false);
   const [isDocManagerOpen, setIsDocManagerOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
@@ -272,6 +274,8 @@ export default function DocStudioEditor() {
     setShowCardsMenu(false);
     setShowTablesMenu(false);
     setShowBadgesMenu(false);
+    setShowToolsMenu(false);
+    setShowExportMenu(false);
   };
 
   // Extract Headings for Table of Contents with IDs
@@ -355,7 +359,7 @@ export default function DocStudioEditor() {
     setStats({ words, chars, readTimeMinutes, estimatedPages });
   }, []);
 
-  // Save Document to LocalStorage
+  // Save Document to LocalStorage (com proteção contra QuotaExceededError)
   const saveDocument = useCallback((html: string, title: string, id: string) => {
     const now = new Date().toISOString();
     setSavedDocs((prev) => {
@@ -367,7 +371,18 @@ export default function DocStudioEditor() {
       } else {
         updated = [{ id, title, content: html, updatedAt: now }, ...prev];
       }
-      localStorage.setItem("vs_saved_documents", JSON.stringify(updated));
+      try {
+        localStorage.setItem("vs_saved_documents", JSON.stringify(updated));
+      } catch {
+        // Fallback: mantém os 8 documentos mais recentes se o navegador atingir cota de armazenamento
+        try {
+          const trimmed = updated.slice(0, 8);
+          localStorage.setItem("vs_saved_documents", JSON.stringify(trimmed));
+          return trimmed;
+        } catch {
+          setCopiedNotification("Armazenamento local cheio — baixe .DOCX ou remova rascunhos antigos em Meus Docs.");
+        }
+      }
       return updated;
     });
     setIsSaved(true);
@@ -400,6 +415,11 @@ export default function DocStudioEditor() {
   // Initialize once on mount
   useEffect(() => {
     if (isInitializedRef.current) return;
+    isInitializedRef.current = true;
+    // Abre o sumário lateral automaticamente apenas em telas largas (>= 1440px)
+    if (typeof window !== "undefined" && window.innerWidth >= 1440) {
+      setIsTocOpen(true);
+    }
     // Check url params for read-only / public mode & requested document
     let queryDoc: string | null = null;
     if (typeof window !== "undefined") {
@@ -633,14 +653,45 @@ export default function DocStudioEditor() {
     }
   };
 
-  // Insert Custom Structured HTML at Cursor
-  const handleInsertCustomHtml = (htmlContent: string) => {
-    if (isReadOnly) return;
-    if (editorRef.current) {
-      editorRef.current.focus();
+  // Insert Custom Structured HTML reliably (restores cursor range or appends cleanly at end)
+  const handleInsertCustomHtml = (htmlContent: string, label?: string) => {
+    if (isReadOnly || !editorRef.current) return;
+    editorRef.current.focus();
+
+    let insertedViaRange = false;
+    try {
+      const saved = savedRangeRef.current;
+      if (saved && editorRef.current.contains(saved.commonAncestorContainer)) {
+        const sel = window.getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(saved);
+          insertedViaRange = document.execCommand("insertHTML", false, htmlContent);
+        }
+      }
+    } catch {
+      insertedViaRange = false;
     }
-    document.execCommand("insertHTML", false, htmlContent);
-    handleEditorInput();
+
+    if (!insertedViaRange) {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `${htmlContent}<p><br></p>`;
+      const frag = document.createDocumentFragment();
+      let lastInserted: ChildNode | null = null;
+      while (wrapper.firstChild) {
+        lastInserted = frag.appendChild(wrapper.firstChild);
+      }
+      editorRef.current.appendChild(frag);
+      if (lastInserted && lastInserted instanceof HTMLElement) {
+        lastInserted.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    extractTocFromDom();
+    updateStats(editorRef.current.innerText);
+    saveDocument(editorRef.current.innerHTML, docTitle, docId);
+    setBridgeToast(label ? `Inserido no documento: ${label}` : "Bloco inserido no documento com sucesso!");
+    setTimeout(() => setBridgeToast(null), 4000);
   };
 
   // Standalone Executive Clean HTML Exporter
@@ -1254,28 +1305,38 @@ export default function DocStudioEditor() {
   };
 
   const handleExportDocx = async () => {
-    if (!editorRef.current) return;
-    await exportHtmlToDocx(editorRef.current.innerHTML, docTitle, showBulletinCard ? bulletinMeta : null);
+    if (!editorRef.current || isExportingDocx) return;
+    setShowExportMenu(false);
+    setIsExportingDocx(true);
+    try {
+      await exportHtmlToDocx(
+        editorRef.current.innerHTML,
+        docTitle,
+        showBulletinCard ? bulletinMeta : null
+      );
+      setCopiedNotification("Arquivo Word (.docx) gerado e baixado com sucesso!");
+      setTimeout(() => setCopiedNotification(null), 3500);
+    } catch (err) {
+      console.error("Erro ao exportar DOCX:", err);
+      setCopiedNotification("Não foi possível gerar o .DOCX. Use 'Imprimir / PDF' ou 'HTML Limpo'.");
+      setTimeout(() => setCopiedNotification(null), 4500);
+    } finally {
+      setIsExportingDocx(false);
+    }
   };
 
   const handleCopyFormatted = () => {
     if (!editorRef.current) return;
+    setShowExportMenu(false);
     navigator.clipboard.writeText(editorRef.current.innerText);
     setCopiedNotification("Texto copiado para a área de transferência!");
     setTimeout(() => setCopiedNotification(null), 2500);
   };
 
-  const handleSharePublicLink = () => {
-    const url = `${window.location.origin}/editor?view=public`;
-    navigator.clipboard.writeText(url);
-    setCopiedNotification("Link público copiado! Aberto para leitura sem edição.");
-    setTimeout(() => setCopiedNotification(null), 3000);
-  };
-
   return (
     <div
       onClick={closeAllMenus}
-      className="flex flex-col h-[calc(100vh-64px)] bg-slate-100/60 dark:bg-background text-foreground overflow-hidden font-sans print:h-auto print:overflow-visible print:bg-white print:text-black print:m-0 print:p-0"
+      className="flex flex-col h-[calc(100dvh-52px)] bg-muted/40 dark:bg-background text-foreground overflow-hidden font-sans print:h-auto print:overflow-visible print:bg-white print:text-black print:m-0 print:p-0"
     >
       {/* Hidden file input for local image upload */}
       <input
@@ -1286,79 +1347,49 @@ export default function DocStudioEditor() {
         className="hidden"
       />
 
-      {/* ── Top Header Bar ──────────────────────────────────────────────────────── */}
-      <header className="h-14 border-b border-border bg-background/95 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-20 print:hidden">
-        
-        {/* Left: Document Info & Name */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          
-          {/* Toggle Outline / TOC */}
+      {/* ── Top Header Bar Limpa e Organizada em 3 Zonas (Zero Overcrowding) ──────── */}
+      <header className="h-14 border-b border-border bg-background/95 backdrop-blur-md px-3 sm:px-4 flex items-center justify-between gap-2 shrink-0 z-30 print:hidden">
+        {/* ZONA ESQUERDA: Sumário + Meus Docs + Título Editável + Status de Salvamento */}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <button
+            type="button"
             onClick={() => setIsTocOpen(!isTocOpen)}
-            className={`p-2 rounded-xl border transition-colors ${
-              isTocOpen ? "bg-purple-500/10 text-purple-600 border-purple-500/20" : "bg-muted/50 text-muted-foreground border-border"
+            aria-label={isTocOpen ? "Ocultar sumário" : "Mostrar sumário"}
+            className={`p-2 rounded-xl border transition-colors shrink-0 cursor-pointer ${
+              isTocOpen
+                ? "bg-primary/10 text-primary border-primary/25"
+                : "bg-card text-muted-foreground hover:text-foreground border-border"
             }`}
-            title={isTocOpen ? "Ocultar Sumário 'Neste Documento'" : "Mostrar Sumário 'Neste Documento'"}
+            title={isTocOpen ? "Ocultar Sumário" : "Mostrar Sumário (Neste Documento)"}
           >
-            {isTocOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+            {isTocOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
           </button>
 
           {!isReadOnly && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsDocManagerOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0"
-              >
-                <FolderOpen size={14} className="text-blue-500" />
-                <span className="hidden sm:inline">Meus Docs</span>
-              </button>
-
-              <button
-                onClick={() => setShowBulletinCard(!showBulletinCard)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all shrink-0 ${
-                  showBulletinCard
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-300 border-purple-500/30"
-                    : "bg-muted/40 text-muted-foreground hover:text-foreground border-border"
-                }`}
-                title="Mostrar ou ocultar ficha visual de metadados do boletim"
-              >
-                <Tag size={13} className="text-purple-500" />
-                <span className="hidden md:inline">Ficha do Boletim</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  handleNewDocument(MARKETPLACE_MASTER_TEMPLATE);
-                }}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600/15 to-teal-600/15 hover:from-emerald-600/25 hover:to-teal-600/25 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/30 transition-all shrink-0"
-                title="Carregar o Dossiê Mestre: Regras para Marketplaces & Subcredenciadores (Negócios, Técnica, Regulação, Custos & Multas)"
-              >
-                <Sparkles size={13} className="text-emerald-500" />
-                <span>🛒 Dossiê Marketplace</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  const tmpl = DOCUMENT_TEMPLATES.find((t) => t.id === "artigo_ia_conhecimento");
-                  if (tmpl) handleNewDocument(tmpl);
-                }}
-                className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-500/20 transition-all shrink-0"
-                title="Carregar o ensaio: 'Quando a IA responde, quem realmente sabe?'"
-              >
-                <Sparkles size={13} className="text-blue-500" />
-                <span>Artigo IA</span>
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDocManagerOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card hover:bg-muted text-xs font-semibold text-foreground border border-border transition-colors shrink-0 cursor-pointer"
+              title="Abrir seus rascunhos salvos e modelos executivos"
+            >
+              <FolderOpen size={14} className="text-primary" />
+              <span className="hidden sm:inline">Docs</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-muted font-mono text-[10px] text-muted-foreground tabular-nums">
+                {savedDocs.length}
+              </span>
+            </button>
           )}
 
-          <div className="h-4 w-px bg-border shrink-0" />
+          <div className="h-4 w-px bg-border shrink-0 hidden sm:block" />
 
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             {isReadOnly ? (
-              <span className="font-bold text-xs sm:text-sm text-foreground truncate">{docTitle}</span>
+              <span className="font-semibold text-xs sm:text-sm text-foreground truncate">
+                {docTitle}
+              </span>
             ) : (
               <input
                 type="text"
@@ -1370,171 +1401,290 @@ export default function DocStudioEditor() {
                 onBlur={() => {
                   if (editorRef.current) saveDocument(editorRef.current.innerHTML, docTitle, docId);
                 }}
-                className="font-bold text-xs sm:text-sm text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-blue-500 outline-none px-1 py-0.5 max-w-[200px] sm:max-w-md truncate"
-                placeholder="Nome do documento..."
+                className="font-semibold text-xs sm:text-sm text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary outline-none px-1 py-0.5 w-full max-w-sm truncate"
+                placeholder="Título do documento..."
               />
             )}
-            <span className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
+            <span className="text-[10px] text-muted-foreground hidden md:flex items-center gap-1 shrink-0 font-mono">
               {isSaved ? (
                 <>
                   <Check size={12} className="text-emerald-500" />
-                  <span className="hidden md:inline">Salvo {lastSavedTime}</span>
+                  <span>Salvo {lastSavedTime}</span>
                 </>
               ) : (
-                <span className="text-amber-500 font-medium">Salvando...</span>
+                <span className="text-amber-500 font-medium">Salvando…</span>
               )}
             </span>
           </div>
         </div>
 
-        {/* Right: Actions (ReadOnly toggle, Export PDF, DOCX, Settings, Copilot) */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          
-          {/* Read-Only / Edit Toggle Button */}
-          <button
-            onClick={() => setIsReadOnly(!isReadOnly)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-              isReadOnly
-                ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground border-border"
-            }`}
-            title={isReadOnly ? "Bloqueado para Leitura / Público. Clique para editar." : "Modo Edição Ativo. Clique para alternar para modo público/leitura."}
-          >
-            {isReadOnly ? <Lock size={13} className="text-amber-500" /> : <Unlock size={13} />}
-            <span className="hidden md:inline">{isReadOnly ? "Modo Leitura (Bloqueado)" : "Modo Edição"}</span>
-          </button>
-
-          {/* Share Public Link */}
-          <button
-            onClick={handleSharePublicLink}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors"
-            title="Copiar Link de Compartilhamento Público"
-          >
-            <Share2 size={15} />
-          </button>
-
+        {/* ZONA DIREITA: Inserir do Sistema + Exportar + Modo Leitura + Copilot IA */}
+        <div
+          className="flex items-center gap-1.5 sm:gap-2 shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Botão Novo Documento */}
           {!isReadOnly && (
             <button
-              onClick={() => handleNewDocument()}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-medium text-foreground transition-colors"
+              type="button"
+              onClick={() => handleNewDocument(DOCUMENT_TEMPLATES.find((t) => t.id === "blank") || DOCUMENT_TEMPLATES[0])}
+              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-card hover:bg-muted text-xs font-medium text-foreground border border-border transition-colors cursor-pointer"
               title="Criar novo documento em branco"
             >
               <Plus size={14} />
-              <span className="hidden lg:inline">Novo</span>
+              <span>Novo</span>
             </button>
           )}
 
-          {/* Release Diff Tool Button */}
+          {/* Menu Único Organizado: Inserir do Sistema & Modelos */}
+          {!isReadOnly && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowToolsMenu((p) => !p);
+                  setShowExportMenu(false);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
+                  showToolsMenu
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card hover:bg-muted text-foreground border-border"
+                }`}
+              >
+                <Sparkles size={13} className={showToolsMenu ? "" : "text-primary"} />
+                <span>Inserir</span>
+                <ChevronDown size={12} />
+              </button>
+
+              {showToolsMenu && (
+                <div className="absolute right-0 top-full mt-1.5 w-72 rounded-2xl border border-border bg-card shadow-xl p-2 z-50 space-y-1">
+                  <div className="px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Bases &amp; Motores do Workbench
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setIsAcervoModalOpen(true);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <Database size={15} className="text-amber-500 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">Citação do Acervo (PDFs)</div>
+                      <div className="text-[11px] text-muted-foreground">Insere citação oficial com página e SHA</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setIsQuickDbModalOpen(true);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <TableIcon size={15} className="text-cyan-500 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">Tarifas MCBS/VSS &amp; Campos</div>
+                      <div className="text-[11px] text-muted-foreground">Fichas de eventos de cobrança e campos ISO</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setIsSnippetsDrawerOpen(true);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <Layers size={15} className="text-purple-500 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">Blocos &amp; Snippets Executivos</div>
+                      <div className="text-[11px] text-muted-foreground">Cronogramas, tabelas ISO e quadros prontos</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setIsBehaviorModalOpen(true);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <Cpu size={15} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">Ficha de Campo ISO / Comportamento</div>
+                      <div className="text-[11px] text-muted-foreground">Matriz de impacto por papel (Emissor/Adquirente)</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setIsDiffModalOpen(true);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <GitCompare size={15} className="text-blue-500 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">Comparar Releases (PDF Diff)</div>
+                      <div className="text-[11px] text-muted-foreground">Extrai campos novos, alterados e prazos de PDFs</div>
+                    </div>
+                  </button>
+
+                  <div className="border-t border-border my-1 pt-1 px-2.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Metadados &amp; Modelos Prontos
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      setShowBulletinCard((p) => !p);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-center justify-between text-xs cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2 font-medium text-foreground">
+                      <Tag size={14} className="text-purple-500" />
+                      Ficha do Boletim (Topo)
+                    </span>
+                    <span className="font-mono text-[10px] text-muted-foreground">
+                      {showBulletinCard ? "Visível" : "Oculta"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowToolsMenu(false);
+                      handleNewDocument(MARKETPLACE_MASTER_TEMPLATE);
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-muted transition-colors flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer"
+                  >
+                    <FileText size={14} className="text-emerald-500" />
+                    <span>Carregar Dossiê Marketplace</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Menu Único Organizado: Exportar (PDF / DOCX / HTML / Copiar) */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setShowExportMenu((p) => !p);
+                setShowToolsMenu(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs font-semibold transition-opacity cursor-pointer"
+            >
+              <Download size={13} />
+              <span>{isExportingDocx ? "Gerando…" : "Exportar"}</span>
+              <ChevronDown size={12} />
+            </button>
+
+            {showExportMenu && (
+              <div className="absolute right-0 top-full mt-1.5 w-60 rounded-2xl border border-border bg-card shadow-xl p-2 z-50 space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowExportMenu(false);
+                    setTimeout(() => window.print(), 100);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-muted transition-colors flex items-center gap-2.5 text-xs font-medium text-foreground cursor-pointer"
+                >
+                  <Printer size={14} className="text-red-500" />
+                  <div>
+                    <div className="font-semibold">Imprimir / Salvar PDF (A4)</div>
+                    <div className="text-[10px] text-muted-foreground">Layout limpo pronto p/ diretoria</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleExportDocx}
+                  disabled={isExportingDocx}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-muted transition-colors flex items-center gap-2.5 text-xs font-medium text-foreground cursor-pointer disabled:opacity-50"
+                >
+                  <Download size={14} className="text-blue-500" />
+                  <div>
+                    <div className="font-semibold">Baixar Word (.DOCX)</div>
+                    <div className="text-[10px] text-muted-foreground">Editável no Microsoft Word / Docs</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleExportCleanHtml}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-muted transition-colors flex items-center gap-2.5 text-xs font-medium text-foreground cursor-pointer"
+                >
+                  <FileCode size={14} className="text-emerald-500" />
+                  <div>
+                    <div className="font-semibold">Baixar HTML Compartilhável</div>
+                    <div className="text-[10px] text-muted-foreground">Arquivo único p/ enviar por e-mail/WA</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyFormatted}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-muted transition-colors flex items-center gap-2.5 text-xs font-medium text-foreground cursor-pointer"
+                >
+                  <Copy size={14} className="text-muted-foreground" />
+                  <span>Copiar Texto Limpo</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Toggle Modo Leitura / Edição */}
           <button
-            onClick={() => setIsDiffModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/25 text-xs font-semibold transition-all shadow-2xs"
-            title="Comparador Automático de Releases e Boletins de Bandeira (Release Diff)"
+            type="button"
+            onClick={() => setIsReadOnly(!isReadOnly)}
+            aria-label={isReadOnly ? "Ativar edição" : "Ativar modo leitura"}
+            className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+              isReadOnly
+                ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                : "bg-card text-muted-foreground hover:text-foreground border-border"
+            }`}
+            title={isReadOnly ? "Modo Leitura ativo (clique para editar)" : "Travar em Modo Leitura"}
           >
-            <GitCompare size={14} />
-            <span className="hidden xl:inline">Diff Releases</span>
+            {isReadOnly ? <Lock size={14} /> : <Unlock size={14} />}
           </button>
 
-          {/* Behavior Engine Button */}
-          <button
-            onClick={() => setIsBehaviorModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-xs font-semibold transition-all shadow-2xs"
-            title="Motor de Comportamento de Campos ISO 8583 / IPM (Behavior Engine)"
-          >
-            <Cpu size={14} />
-            <span className="hidden xl:inline">Motor de Campos</span>
-          </button>
-
-          {/* Snippets & Blocks Button */}
-          <button
-            onClick={() => setIsSnippetsDrawerOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-xs font-semibold transition-all shadow-2xs"
-            title="Biblioteca de Blocos Prontos, Cronogramas e Tabelas ISO"
-          >
-            <Layers size={14} />
-            <span className="hidden xl:inline">Blocos & Snippets</span>
-          </button>
-
-          {/* Acervo RAG Search Button */}
-          <button
-            onClick={() => setIsAcervoModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-xs font-semibold transition-all shadow-2xs"
-            title="Consultar Acervo Oficial de 35.336 Manuais e Boletins (RAG Local)"
-          >
-            <Database size={14} />
-            <span className="hidden xl:inline">Acervo (35k Docs)</span>
-          </button>
-
-          {/* Quick Database Insert Button (13k Billing + 17k Campos) */}
-          <button
-            onClick={() => setIsQuickDbModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25 text-xs font-semibold transition-all shadow-2xs"
-            title="Inserir Ficha Técnica de Tarifas MCBS/VSS (13.181 eventos) ou Campos SQLite (17.106 campos)"
-          >
-            <TableIcon size={14} />
-            <span className="hidden xl:inline">Tarifas & Campos (30k)</span>
-          </button>
-
-          <div className="h-4 w-px bg-border hidden sm:block" />
-
-          {/* PDF Generation (Direct Print / Save PDF) */}
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold transition-all"
-            title="Gerar e Salvar em PDF Executivo (A4 Limpo sem URLs e sem rodapés)"
-          >
-            <Printer size={14} />
-            <span className="hidden sm:inline">Gerar PDF</span>
-          </button>
-
-          {/* Word Download */}
-          <button
-            onClick={handleExportDocx}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
-            title="Baixar em formato Microsoft Word (.docx)"
-          >
-            <Download size={14} />
-            <span className="hidden sm:inline">Baixar .DOCX</span>
-          </button>
-
-          {/* Clean HTML Export */}
-          <button
-            onClick={handleExportCleanHtml}
-            className="hidden 2xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold border border-border transition-all"
-            title="Exportar como Relatório HTML Autônomo com Estilos"
-          >
-            <FileCode size={14} />
-            <span>.HTML</span>
-          </button>
-
-          <div className="h-4 w-px bg-border" />
-
+          {/* Configurações de IA */}
           {!isReadOnly && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsSettingsOpen(true);
-              }}
-              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              aria-label="Configurações de IA"
+              className="p-2 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title="Configurações de IA Copilot"
             >
-              <Settings size={16} />
+              <Settings size={14} />
             </button>
           )}
 
           {/* Toggle Right Copilot */}
           <button
+            type="button"
             onClick={() => setIsCopilotOpen(!isCopilotOpen)}
-            className={`p-2 rounded-xl transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
               isCopilotOpen
-                ? "bg-blue-500/10 text-blue-500 border border-blue-500/20"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                ? "bg-primary/10 text-primary border-primary/30"
+                : "bg-card text-foreground hover:bg-muted border-border"
             }`}
-            title={isCopilotOpen ? "Ocultar Copilot Lateral" : "Abrir Copilot Lateral"}
+            title={isCopilotOpen ? "Fechar Copilot IA" : "Abrir Copilot IA"}
           >
-            {isCopilotOpen ? <PanelRightClose size={18} /> : <Bot size={18} />}
+            {isCopilotOpen ? <PanelRightClose size={14} /> : <Bot size={14} className="text-primary" />}
+            <span className="hidden lg:inline">Copilot IA</span>
           </button>
         </div>
-
       </header>
 
       {/* ── Main Workspace Body ─────────────────────────────────────────────────── */}
@@ -1614,11 +1764,17 @@ export default function DocStudioEditor() {
             </div>
           )}
 
-          {/* WYSIWYG Ribbon Toolbar (Hidden in Read-Only mode) */}
+          {/* WYSIWYG Ribbon Toolbar (Hidden in Read-Only mode) — onMouseDown preventDefault preserva seleção! */}
           {!isReadOnly && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border px-4 py-2 flex flex-wrap items-center gap-1 shadow-xs print:hidden"
+              onMouseDown={(e) => {
+                // Evita que clicar nos botões de formatação roube o foco e apague a seleção do texto
+                if ((e.target as HTMLElement).closest("button")) {
+                  e.preventDefault();
+                }
+              }}
+              className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border px-4 py-1.5 flex flex-wrap items-center gap-1 print:hidden"
             >
               
               {/* History */}
@@ -2168,35 +2324,13 @@ export default function DocStudioEditor() {
               </div>
 
               <button
+                type="button"
                 onClick={() => execCmd("insertHorizontalRule")}
                 className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
                 title="Linha Divisória"
               >
                 <Minus size={14} />
               </button>
-
-              <div className="h-4 w-px bg-border/80 mx-1" />
-
-              {/* Botão de Snippets Rápidos */}
-              <button
-                onClick={() => setIsSnippetsDrawerOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold transition-colors"
-                title="Abrir Biblioteca de Blocos & Snippets Executivos"
-              >
-                <Layers size={13} />
-                <span>+ Blocos Prontos</span>
-              </button>
-
-              {/* Botão de Motor de Comportamento */}
-              <button
-                onClick={() => setIsBehaviorModalOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors"
-                title="Inserir Ficha Técnica de Campo ISO / Comportamento"
-              >
-                <Cpu size={13} />
-                <span>+ Ficha de Campo</span>
-              </button>
-
             </div>
           )}
 
@@ -2397,13 +2531,18 @@ export default function DocStudioEditor() {
         onInsertHtml={handleInsertCustomHtml}
       />
 
-      {bridgeToast && (
-        <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-950/95 border border-emerald-500/40 text-emerald-200 text-xs font-semibold shadow-2xl animate-in fade-in slide-in-from-bottom-4">
-          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-          <span>{bridgeToast}</span>
+      {(bridgeToast || copiedNotification) && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-foreground text-background border border-border text-xs font-semibold shadow-xl">
+          <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+          <span>{bridgeToast || copiedNotification}</span>
           <button
-            onClick={() => setBridgeToast(null)}
-            className="ml-2 text-emerald-400/70 hover:text-white text-[11px] font-bold"
+            type="button"
+            onClick={() => {
+              setBridgeToast(null);
+              setCopiedNotification(null);
+            }}
+            aria-label="Fechar notificação"
+            className="ml-2 opacity-70 hover:opacity-100 text-[11px] font-bold cursor-pointer"
           >
             ✕
           </button>

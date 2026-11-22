@@ -384,14 +384,21 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
   const isHybridRoute = HYBRID_PUBLIC_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
-  const isWorkbenchRoute = isPrivateWorkbench || (isHybridRoute && isOwner);
+  // Segurança: o Workbench privado (barra superior + menu lateral administrativo)
+  // SÓ pode ser montado depois que o proprietário estiver autenticado (isOwner).
+  // Assim, a tela de senha em /admin nunca exibe nada de dentro do painel!
+  const isWorkbenchRoute = isOwner && (isPrivateWorkbench || isHybridRoute);
 
   // Carrega Bandeira, Papel e cookie de proprietário ao montar
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    setIsOwner(
-      document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
-    );
+    const hasOwnerCookie = document.cookie
+      .split(';')
+      .some((c) => c.trim().startsWith('vs_internal_pass=1'));
+    setIsOwner(hasOwnerCookie);
+    if (pathname === '/editor') {
+      setSidebarCollapsed(true);
+    }
     const savedBrand = localStorage.getItem('vs_workbench_brand') as GlobalBrandFilter | null;
     const savedRole = localStorage.getItem('vs_workbench_role') as GlobalRoleFilter | null;
     if (savedBrand && ['ALL', 'visa', 'mastercard', 'elo', 'amex'].includes(savedBrand)) {

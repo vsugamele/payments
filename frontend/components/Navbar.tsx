@@ -65,8 +65,9 @@ export function Navbar() {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
 
-  // Nas rotas privadas (ou híbridas quando o proprietário está logado), o PaymentsWorkbenchShell assume o topo
-  if (isPrivateWorkbench || (isHybridRoute && isOwner)) {
+  // Nas rotas privadas/híbridas com proprietário logado, o PaymentsWorkbenchShell assume o topo.
+  // Em /admin sem login, ocultamos a Navbar para que a tela de senha seja 100% limpa e isolada.
+  if (pathname === "/admin" || (isOwner && (isPrivateWorkbench || isHybridRoute))) {
     return null;
   }
 

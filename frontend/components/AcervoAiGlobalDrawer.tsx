@@ -173,6 +173,7 @@ export function AcervoAiGlobalDrawer() {
 
   const hideFloatingPill =
     pathname === '/editor' ||
+    pathname === '/admin' ||
     pathname === '/' ||
     pathname === '/curriculo' ||
     pathname === '/sobre' ||
