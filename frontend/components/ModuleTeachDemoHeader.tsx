@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -46,6 +46,16 @@ export function ModuleTeachDemoHeader({
   lab3dLabel = 'Ver no Lab 3D & Sequência',
   productTrackHref = '/trilhas',
 }: ModuleTeachDemoHeaderProps) {
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, []);
+
   const handleOpenAcervoAi = () => {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
@@ -86,7 +96,7 @@ export function ModuleTeachDemoHeader({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-95 transition-opacity shadow-xs cursor-pointer"
             >
               <Sparkles size={13} />
-              Consultar nos 4 Bancos SQLite do Acervo
+              {isOwner ? 'Consultar nos 4 Bancos SQLite do Acervo' : 'Perguntar à IA sobre esta regra'}
             </button>
             <Link
               href={lab3dHref}
@@ -183,7 +193,9 @@ export function ModuleTeachDemoHeader({
                 className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary hover:underline cursor-pointer"
               >
                 <Sparkles size={12} />
-                Auditar &ldquo;{acervoQuery}&rdquo; no SQLite →
+                {isOwner
+                  ? `Auditar “${acervoQuery}” no SQLite →`
+                  : 'Perguntar à IA sobre esta regra →'}
               </button>
 
               <Link

@@ -253,6 +253,93 @@ export function HomeEditorialClient({
           </div>
         </header>
 
+        {/* ── 3 Portas Interativas (Exploração Editorial + Prática) ───────── */}
+        <section className="py-10 border-b border-border">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+            <p className="section-eyebrow">Comece por aqui · Ensinar + Demonstrar</p>
+            <Link
+              href="/leituras"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Ver normas e leituras oficiais →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link
+              href="/jornada"
+              className="editorial-card group p-5 flex flex-col justify-between gap-4 hover:border-foreground/35 transition-colors"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span>01 · LABORATÓRIO INTERATIVO</span>
+                  <span className="px-2 py-0.5 rounded-full bg-muted text-foreground font-medium">
+                    10 trilhas
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
+                  O pagamento por dentro em 3D e milissegundos
+                </h2>
+                <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
+                  Cartão, Clearing SLC/B3, CE 3.0, Pix SPI, JSR, MED 2.0, Boleto NPC, BC Protege+ e
+                  simulador do Split Tributário 2027+.
+                </p>
+              </div>
+              <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
+                Abrir Laboratório <ArrowRight size={12} />
+              </span>
+            </Link>
+
+            <Link
+              href="/guia"
+              className="editorial-card group p-5 flex flex-col justify-between gap-4 hover:border-foreground/35 transition-colors"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span>02 · GUIA COMPLETO</span>
+                  <span className="px-2 py-0.5 rounded-full bg-muted text-foreground font-medium">
+                    9 capítulos
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
+                  Lado a lado: 1. Ensinar ⇄ 2. Demonstrar
+                </h2>
+                <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
+                  Explicação direta e normas oficiais à esquerda; pontos práticos de produção e
+                  atalhos de simulação à direita.
+                </p>
+              </div>
+              <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
+                Ler os 9 capítulos <ArrowRight size={12} />
+              </span>
+            </Link>
+
+            <Link
+              href="/trilhas"
+              className="editorial-card group p-5 flex flex-col justify-between gap-4 hover:border-foreground/35 transition-colors"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span>03 · POR PRODUTO</span>
+                  <span className="px-2 py-0.5 rounded-full bg-muted text-foreground font-medium">
+                    6 domínios
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
+                  Caso Certo vs. Caso com Erro na prática
+                </h2>
+                <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
+                  Escolha o produto (Presencial, Online/3DS, Clearing, Intercâmbio, Pix ou Reforma
+                  2027) e compare falhas reais campo a campo.
+                </p>
+              </div>
+              <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
+                Explorar por produto <ArrowRight size={12} />
+              </span>
+            </Link>
+          </div>
+        </section>
+
         {/* ── Em Destaque (3 cards editoriais de notícias) ────────────────── */}
         <section className="py-12 border-b border-border">
           <div className="flex items-center justify-between mb-6">

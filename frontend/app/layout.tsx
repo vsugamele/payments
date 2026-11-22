@@ -7,6 +7,7 @@ import RagChat from "@/components/RagChat";
 import { OwnerBar } from "@/components/OwnerBar";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import { PaymentsWorkbenchShell } from "@/components/PaymentsWorkbenchShell";
+import { AcervoAiGlobalDrawer } from "@/components/AcervoAiGlobalDrawer";
 import "./globals.css";
 
 const inter = Inter({
@@ -80,6 +81,7 @@ export default function RootLayout({
           </div>
           <Footer />
           <RagChat />
+          <AcervoAiGlobalDrawer />
           <OwnerBar />
         </ThemeProvider>
       </body>

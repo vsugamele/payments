@@ -26,13 +26,11 @@ export function OwnerBar() {
     checkCookie();
   }, [pathname]);
 
-  // Listen for Ctrl+K / Cmd+K or custom event "open-command-palette"
+  // Escuta apenas o evento legado "open-command-palette"; o atalho Ctrl+K único
+  // é tratado pelo GlobalCommandPalette para evitar abertura dupla de modais.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpenPalette((prev) => !prev);
-      } else if (e.key === "Escape") {
+      if (e.key === "Escape") {
         setOpenPalette(false);
       }
     };
@@ -77,8 +75,9 @@ export function OwnerBar() {
           </span>
 
           <button
-            onClick={() => setOpenPalette(true)}
-            className="px-2 sm:px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 font-medium text-[10px] flex items-center gap-1.5 transition-all"
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("open-global-command-palette"))}
+            className="px-2 sm:px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 font-medium text-[10px] flex items-center gap-1.5 transition-all cursor-pointer"
             title="Busca Rápida Universal (Ctrl + K)"
           >
             <Search size={11} className="text-zinc-300" />

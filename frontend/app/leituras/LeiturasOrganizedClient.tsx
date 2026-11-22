@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -20,6 +20,7 @@ interface BcbNormItem {
   note: string;
   url: string;
   demoHref: string;
+  publicDemoHref?: string;
   demoLabel: string;
   acervoQuery: string;
 }
@@ -40,7 +41,8 @@ const BCB_NORMS: BcbNormItem[] = [
     note: 'Leitura obrigatória para qualquer discussão de precificação ou MDR no Brasil. Define o limite que mudou a economia do débito e dos cartões pré-pagos.',
     url: 'https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=304',
     demoHref: '/simulador',
-    demoLabel: 'Testar teto 0,50% e 0,70% no Simulador de Intercâmbio',
+    publicDemoHref: '/jornada?track=cartao',
+    demoLabel: 'Simular teto 0,50% e divisão do MDR',
     acervoQuery: 'Resolução BCB 304/2023 teto intercâmbio débito 0,50% e pré-pago 0,70%',
   },
   {
@@ -86,7 +88,9 @@ interface ManualItem {
   title: string;
   note: string;
   demoHref: string;
+  publicDemoHref: string;
   demoLabel: string;
+  publicDemoLabel: string;
   acervoQuery: string;
 }
 
@@ -96,7 +100,9 @@ const TECHNICAL_MANUALS: ManualItem[] = [
     title: 'Visa Core Rules, Base II Clearing & VSS User Guide',
     note: 'O trio que resolve 90% dos incidentes de autorização, rejeição no clearing (.CTF de 168 bytes) e auditoria de faturas VSS-110/120.',
     demoHref: '/compliance/outgoing',
+    publicDemoHref: '/jornada?track=clearing_slc',
     demoLabel: 'Inspecionar registros TC05/TC33 e VSS no Outgoing & Lab',
+    publicDemoLabel: 'Ver Clearing Base II e Liquidação no Lab 3D',
     acervoQuery: 'Visa Base II TC05 TC33 168 bytes EP747 e relatórios VSS-110 VSS-120',
   },
   {
@@ -104,7 +110,9 @@ const TECHNICAL_MANUALS: ManualItem[] = [
     title: 'Transaction Processing Rules (TPR), GCMS IPM & MCBS',
     note: 'Onde ficam as regras de processamento, a estrutura TLV/PDS do IPM e o mapeamento de cobranças e eventos do Consolidated Billing System.',
     demoHref: '/mcbs',
+    publicDemoHref: '/guia#intercambio',
     demoLabel: 'Abrir Guia MCBS & Eventos MTI 1740 / IPM',
+    publicDemoLabel: 'Ler Intercâmbio, MCBS e Faturas no Guia',
     acervoQuery: 'Mastercard GCMS IPM DE048 PDS 0158 IRD T112 e eventos MCBS MTI 1740',
   },
   {
@@ -112,7 +120,9 @@ const TECHNICAL_MANUALS: ManualItem[] = [
     title: 'Manual de Autorização, Serviço 10 (Liquidação) e Guia TQS',
     note: 'Referência prática para certificação, leitura de registros de crítica (Reg 09 / TE01) e alinhamento entre emissores e credenciadores domésticos.',
     demoHref: '/compliance/outgoing',
+    publicDemoHref: '/trilhas',
     demoLabel: 'Testar layout Elo Serviço 10 (TE01/Reg 09) no Outgoing',
+    publicDemoLabel: 'Ver Caso Certo vs Erro de Clearing em Por Produto',
     acervoQuery: 'Elo Serviço 10 liquidação registro 00 01 02 09 crítica TE01 e tabela MCC',
   },
   {
@@ -120,7 +130,9 @@ const TECHNICAL_MANUALS: ManualItem[] = [
     title: 'EMV 3-D Secure 2.2, Book 3 (TVR Tag 95) & Tokenisation',
     note: 'Ajuda a entender o porquê de cada campo de autenticação (ECI, CAVV/TAVV, UCAF, TVR 5 bytes) em vez de decorar tabela sem contexto.',
     demoHref: '/compliance/3ds',
+    publicDemoHref: '/jornada?track=contestacao_ce3',
     demoLabel: 'Testar Matriz 3DS Liability Shift & Decodificador EMV',
+    publicDemoLabel: 'Ver 3DS, Liability Shift e CE 3.0 no Lab 3D',
     acervoQuery: 'EMV 3DS 2.2 Liability Shift ECI 05 02 CAVV AAV e EMV Book 3 TVR Tag 95',
   },
 ];
@@ -156,6 +168,15 @@ type ShelfFilter = 'ALL' | 'bcb' | 'manuais' | 'livros';
 
 export function LeiturasOrganizedClient() {
   const [shelf, setShelf] = useState<ShelfFilter>('ALL');
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, []);
 
   const openAcervoAi = (query: string) => {
     if (typeof window !== 'undefined') {
@@ -187,7 +208,7 @@ export function LeiturasOrganizedClient() {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-95 transition-opacity cursor-pointer"
         >
           <Sparkles size={13} />
-          Consultar Bibliografia no Acervo IA (SQLite)
+          {isOwner ? 'Consultar Bibliografia no Acervo IA (SQLite)' : 'Perguntar à IA sobre estas normas'}
         </button>
       </div>
 
@@ -371,7 +392,7 @@ export function LeiturasOrganizedClient() {
 
                   <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
                     <Link
-                      href={item.demoHref}
+                      href={isOwner ? item.demoHref : item.publicDemoHref || item.demoHref}
                       className="btn-primary inline-flex items-center justify-center gap-1.5 text-xs py-2 px-3"
                     >
                       <FlaskConical size={13} />
@@ -383,7 +404,7 @@ export function LeiturasOrganizedClient() {
                       className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-card text-foreground hover:border-primary/40 transition-colors cursor-pointer"
                     >
                       <Sparkles size={12} className="text-primary" />
-                      <span>Cruzar nos 4 SQLites do Acervo</span>
+                      <span>{isOwner ? 'Cruzar nos 4 SQLites do Acervo' : 'Perguntar à IA'}</span>
                     </button>
                   </div>
                 </div>
@@ -428,11 +449,11 @@ export function LeiturasOrganizedClient() {
 
                 <div className="pt-3 border-t border-border flex flex-col sm:flex-row gap-2">
                   <Link
-                    href={m.demoHref}
+                    href={isOwner ? m.demoHref : m.publicDemoHref}
                     className="flex-1 btn-primary inline-flex items-center justify-center gap-1.5 text-xs py-2 px-3"
                   >
                     <FlaskConical size={12} />
-                    <span>{m.demoLabel}</span>
+                    <span>{isOwner ? m.demoLabel : m.publicDemoLabel}</span>
                   </Link>
                   <button
                     type="button"
@@ -440,7 +461,7 @@ export function LeiturasOrganizedClient() {
                     className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border bg-background text-foreground hover:border-primary/40 transition-colors cursor-pointer"
                   >
                     <Sparkles size={12} className="text-primary" />
-                    <span>SQLite</span>
+                    <span>{isOwner ? 'SQLite' : 'IA'}</span>
                   </button>
                 </div>
               </div>

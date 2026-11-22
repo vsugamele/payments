@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -20,6 +20,15 @@ type GuiaBoxMode = 'capitulos_lado_a_lado' | 'bancada_por_produto';
 export function GuiaOrganizedClient() {
   const [boxMode, setBoxMode] = useState<GuiaBoxMode>('capitulos_lado_a_lado');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('ALL');
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, []);
 
   const visibleChapters: GuiaChapter[] =
     selectedChapterId === 'ALL'
@@ -56,7 +65,7 @@ export function GuiaOrganizedClient() {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-95 transition-opacity cursor-pointer"
         >
           <Sparkles size={13} />
-          Perguntar à IA do Acervo (4 SQLites)
+          {isOwner ? 'Perguntar à IA do Acervo (4 SQLites)' : 'Perguntar à IA sobre o Guia'}
         </button>
       </div>
 
@@ -226,7 +235,7 @@ export function GuiaOrganizedClient() {
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 transition-colors cursor-pointer"
                   >
                     <Sparkles size={13} />
-                    Auditar no Acervo SQLite
+                    {isOwner ? 'Auditar no Acervo SQLite' : 'Perguntar à IA'}
                   </button>
                   <Link
                     href={ch.labHref}
@@ -342,7 +351,7 @@ export function GuiaOrganizedClient() {
                         className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border border-border bg-background text-foreground hover:border-primary/40 transition-colors cursor-pointer"
                       >
                         <Sparkles size={12} className="text-primary" />
-                        <span>Consultar nos 4 SQLites</span>
+                        <span>{isOwner ? 'Consultar nos 4 SQLites' : 'Perguntar à IA'}</span>
                       </button>
 
                       {ch.relatedArticleHref && ch.relatedArticleLabel && (

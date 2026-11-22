@@ -13,7 +13,6 @@ import {
   FileText,
   Sparkles,
 } from 'lucide-react';
-import { AcervoAiGlobalDrawer } from './AcervoAiGlobalDrawer';
 
 export type GlobalBrandFilter = 'ALL' | 'visa' | 'mastercard' | 'elo' | 'amex';
 export type GlobalRoleFilter = 'ambos' | 'adquirente' | 'emissor';
@@ -354,7 +353,6 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   '/mdr',
   '/billing',
   '/chargeback',
-  '/trilhas',
   '/editor',
   '/arquitetura',
   '/comparativo',
@@ -367,7 +365,7 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   '/scheme-fees',
 ];
 
-const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas'];
+const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas', '/trilhas'];
 
 export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';
@@ -866,9 +864,6 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
         {/* Palco Central */}
         <div className="flex-1 min-w-0">{children}</div>
       </div>
-
-      {/* Drawer Global da IA Conectada ao Sistema de Acervo (acervo.sqlite3 + campos.sqlite3 + tarifas.sqlite3) */}
-      <AcervoAiGlobalDrawer />
     </div>
   );
 }

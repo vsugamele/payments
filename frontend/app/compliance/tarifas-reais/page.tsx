@@ -240,7 +240,7 @@ export default function TarifasReaisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
+    <div className="min-h-dvh bg-background text-foreground pb-24">
       <ModuleTeachDemoHeader
         backHref="/compliance"
         backLabel="Voltar para Operação & Simulação"
@@ -260,56 +260,46 @@ export default function TarifasReaisPage() {
         lab3dHref="/simulador"
         lab3dLabel="Testar no Simulador de Intercâmbio"
       />
-      {/* Header */}
-      <div className="border-b border-slate-800/80 bg-[#050b16]/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        <div className="rounded-3xl border border-slate-800 bg-[#050b16] text-slate-200 overflow-hidden shadow-sm">
+          {/* Console Metrics + Navigation Tabs */}
+          <div className="border-b border-slate-800/80 bg-[#070f1e]">
+            <div className="px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                  100% Extraído (`Tabelas/*.xlsx` + `tarifas.sqlite3`)
+                  100% Extraído (Tabelas/*.xlsx + tarifas.sqlite3)
                 </span>
                 <button
+                  type="button"
                   onClick={() => setActiveTab("downloads")}
-                  className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/40 hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                  className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/40 hover:bg-blue-500/30 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Download className="w-3 h-3" />
                   Central de Downloads ({stats?.totalArquivosDownload || 20} Planilhas .xlsx)
                 </button>
               </div>
-              <h1 className="text-lg md:text-xl font-bold text-white mt-0.5">
-                Motor Real de Tabelas de Intercâmbio (Visa, MC, Elo), Redução MCC, Scheme Fees & Downloads
-              </h1>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-slate-400">Regras Intercâmbio: </span>
-              <strong className="font-mono text-emerald-400">{stats?.totalIntercambioRows || 2103}</strong>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400">Regras Intercâmbio: </span>
+                  <strong className="font-mono text-emerald-400 tabular-nums">{stats?.totalIntercambioRows || 2103}</strong>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400">MCCs & Segmentos: </span>
+                  <strong className="font-mono text-cyan-300 tabular-nums">
+                    {(stats?.totalVisaMccCriterios || 326) + (stats?.totalMastercardMccSegmentos || 76) + (stats?.totalEloMccSegmentos || 21)}
+                  </strong>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400">Redução Fee Elo: </span>
+                  <strong className="font-mono text-amber-300 tabular-nums">{stats?.totalEloMccReducao || 381} MCCs · 311k CNPJs</strong>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400">Planilhas .xlsx: </span>
+                  <strong className="font-mono text-blue-300 tabular-nums">{stats?.totalArquivosDownload || 20}</strong>
+                </div>
+              </div>
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-slate-400">MCCs & Segmentos: </span>
-              <strong className="font-mono text-cyan-300">
-                {(stats?.totalVisaMccCriterios || 326) + (stats?.totalMastercardMccSegmentos || 76) + (stats?.totalEloMccSegmentos || 21)}
-              </strong>
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-slate-400">Redução Fee Elo: </span>
-              <strong className="font-mono text-amber-300">{stats?.totalEloMccReducao || 381} MCCs · 311k CNPJs</strong>
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-slate-400">Planilhas .xlsx: </span>
-              <strong className="font-mono text-blue-300">{stats?.totalArquivosDownload || 20}</strong>
-            </div>
-          </div>
-        </div>
 
         {/* Navigation Tabs */}
         <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 overflow-x-auto border-t border-slate-800/50 pt-2 pb-2">
@@ -387,7 +377,7 @@ export default function TarifasReaisPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pt-8">
+      <div className="px-6 py-8">
         {/* =====================================================
             TAB 1: 2.103 REGRAS REAIS DE INTERCÂMBIO
            ===================================================== */}
@@ -1469,6 +1459,8 @@ export default function TarifasReaisPage() {
             </div>
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );

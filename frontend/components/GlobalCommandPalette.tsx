@@ -185,14 +185,83 @@ const STATIC_ITEMS: CommandPaletteItem[] = [
   },
 ];
 
+const PUBLIC_ITEMS: CommandPaletteItem[] = [
+  {
+    id: 'pub-jornada',
+    category: 'Módulos & Ferramentas',
+    badge: '3D + PIX + 2027',
+    title: 'Laboratório Interativo — O Pagamento por Dentro (10 Trilhas)',
+    subtitle: 'Simulador 3D isométrico, diagrama de sequência em ms, Pix, MED 2.0, Boleto NPC e Split Tributário 2027+',
+    keywords: 'laboratorio 3d sequencia pix med 2.0 boleto split 2027 cartao',
+    href: '/jornada',
+  },
+  {
+    id: 'pub-guia',
+    category: 'Módulos & Ferramentas',
+    badge: '9 CAPÍTULOS',
+    title: 'Guia Geral de Meios de Pagamento (1. Ensinar ⇄ 2. Demonstrar)',
+    subtitle: 'Cartão, Clearing SLC/B3, Intercâmbio BCB 304, Disputas CE 3.0, Pix, Boleto, Open Finance, KYC e Reforma 2027',
+    keywords: 'guia capitulos ensinar demonstrar cartao pix bcb 304 reforma tributaria',
+    href: '/guia',
+  },
+  {
+    id: 'pub-trilhas',
+    category: 'Módulos & Ferramentas',
+    badge: '6 PRODUTOS',
+    title: 'Jornada por Produto — Caso Certo vs Caso com Erro',
+    subtitle: 'Compare lado a lado o fluxo normal e as falhas reais de produção por tipo de produto',
+    keywords: 'trilhas produto caixinhas ensinar demonstrar caso certo erro',
+    href: '/trilhas',
+  },
+  {
+    id: 'pub-leituras',
+    category: 'Módulos & Ferramentas',
+    badge: 'CURADORIA',
+    title: 'Leituras e Referências (Normas BCB, Manuais de Rede e Livros)',
+    subtitle: 'Lei 12.865, BCB 304, BCB 264, JSR 406, MED 2.0, LC 214/2025 e rulebooks oficiais',
+    keywords: 'leituras normas bcb livros manuais visa mastercard elo emvco',
+    href: '/leituras',
+  },
+  {
+    id: 'pub-glossario',
+    category: 'Módulos & Ferramentas',
+    badge: 'DICIONÁRIO',
+    title: 'Glossário de Pagamentos, Siglas & Normas',
+    subtitle: 'MDR, IRD, FPI, ECI, CAVV, ARQC, UR, SLC, SPI, DICT, MED 2.0 e Split Payment',
+    keywords: 'glossario siglas dicionario mdr ird eci cavv arqc',
+    href: '/glossario',
+  },
+  {
+    id: 'pub-curriculo',
+    category: 'Módulos & Ferramentas',
+    badge: 'PERFIL',
+    title: 'Vinícius Sugamele — Currículo e Trajetória (16+ anos)',
+    subtitle: 'EcommIT, Bandeira Elo, Getnet, Verifone / American Express — Head de Bandeiras & Compliance',
+    keywords: 'curriculo cv vinicius sugamele perfil experiencia',
+    href: '/curriculo',
+  },
+];
+
 export function GlobalCommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, [open]);
+
   const allItems = useMemo<CommandPaletteItem[]>(() => {
+    if (!isOwner) {
+      return PUBLIC_ITEMS;
+    }
     const dynamicTables: CommandPaletteItem[] = OUTGOING_TABLES.map((tb) => ({
       id: `tb-${tb.id}`,
       category: 'Tabelas de Outgoing',
@@ -235,8 +304,8 @@ export function GlobalCommandPalette() {
       href: '/compliance/outgoing',
     }));
 
-    return [...STATIC_ITEMS, ...dynamicTables, ...amexTables, ...dynamicFlows, ...downgradeItems];
-  }, []);
+    return [...PUBLIC_ITEMS, ...STATIC_ITEMS, ...dynamicTables, ...amexTables, ...dynamicFlows, ...downgradeItems];
+  }, [isOwner]);
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();

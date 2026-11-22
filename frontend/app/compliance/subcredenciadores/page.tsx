@@ -93,7 +93,7 @@ export default function SubcredenciadoresPage() {
   const exceedsMcThreshold = annualVolUsd > 1000000;
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100">
+    <div className="min-h-dvh bg-background text-foreground pb-20">
       <ModuleTeachDemoHeader
         backHref="/compliance"
         backLabel="Voltar para Operação & Simulação"
@@ -113,46 +113,29 @@ export default function SubcredenciadoresPage() {
         lab3dHref="/jornada?track=cartao"
         lab3dLabel="Ver Fluxo PayFac no Lab 3D"
       />
-      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-          <div>
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 mb-2 font-mono"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Voltar ao Cockpit do Proprietário
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-                  Arquitetura de Subcredenciadores (PayFac), Relatórios MCBS & Catálogo Master
-                </h1>
-                <p className="text-sm text-slate-400 mt-0.5">
-                  Regras de patrocínio (Sponsor/Acquirer), campos obrigatórios (`DE 48 SE 37`, `Dataset ID 56`, `Bit 43/58`), backlog `BACKLOG_MCBS_REPORTS.md` e `catalogo.xlsx` (35.336 SHA256).
-                </p>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        <div className="rounded-3xl border border-slate-800 bg-[#070b14] text-slate-100 p-5 sm:p-8 space-y-8 shadow-sm">
+          {/* Quick Links Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div className="flex items-center gap-2.5 text-xs font-mono text-slate-300">
+              <Building2 className="w-4 h-4 text-emerald-400" />
+              <span>Console PayFac · DE 48 SE 37 · Dataset ID 56 · catalogo.xlsx (35.336 SHA256)</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/compliance/governanca-acervo"
+                className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/20 transition"
+              >
+                Grafo FX & Governança →
+              </Link>
+              <Link
+                href="/compliance/conciliacao"
+                className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/20 transition"
+              >
+                Batimento CIP / SLC →
+              </Link>
             </div>
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/compliance/governanca-acervo"
-              className="px-3.5 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/20 transition"
-            >
-              Grafo FX & Governança →
-            </Link>
-            <Link
-              href="/compliance/conciliacao"
-              className="px-3.5 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/20 transition"
-            >
-              Batimento CIP / SLC →
-            </Link>
-          </div>
-        </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
@@ -681,6 +664,7 @@ export default function SubcredenciadoresPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

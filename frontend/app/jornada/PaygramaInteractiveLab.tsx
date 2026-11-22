@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { sendToDocStudio } from '@/lib/docStudioBridge';
 
 export type LabTrackId =
@@ -583,6 +584,7 @@ const TRACK_META: Record<
 };
 
 export function PaygramaInteractiveLab() {
+  const pathname = usePathname() || '/';
   const [activeTrack, setActiveTrack] = useState<LabTrackId>('cartao');
   const [amount, setAmount] = useState<number>(180.0);
   const [operation, setOperation] = useState<'compra' | 'estorno' | 'recorrencia' | 'crossborder'>('compra');
@@ -3625,9 +3627,10 @@ export function PaygramaInteractiveLab() {
       </section>
 
       {/* =====================================================================
-          ASSISTENTE CONTEXTUAL FLUTUANTE ("PERGUNTE AO WORKBENCH" — ESTILO PAYGRAMA)
+          ASSISTENTE CONTEXTUAL FLUTUANTE ("PERGUNTE AO WORKBENCH" — APENAS EM /jornada PARA NÃO COLIDIR COM O DRAWER GLOBAL NO /admin E /outgoing)
          ===================================================================== */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2">
+      {pathname === '/jornada' && (
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
         {showAssistantDrawer && (() => {
           const contextualQAs: Record<LabTrackId, { q: string; a: string; source: string }[]> = {
             cartao: [
@@ -3831,23 +3834,46 @@ export function PaygramaInteractiveLab() {
                   <button
                     type="submit"
                     disabled={askingRag}
-                    className="w-8 h-8 rounded-full bg-[#1F3FE0] text-white font-bold flex items-center justify-center shrink-0"
+                    aria-label="Enviar pergunta"
+                    className="size-8 rounded-full bg-[#1F3FE0] text-white font-bold flex items-center justify-center shrink-0 cursor-pointer"
                   >
                     {askingRag ? '…' : '↑'}
                   </button>
                 </form>
+
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-slate-500">
+                    Quer cruzar com normas e campos oficiais?
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAssistantDrawer(false);
+                      window.dispatchEvent(
+                        new CustomEvent('open-acervo-ai-drawer', {
+                          detail: { query: `${trackMeta.title} — ${trackMeta.subtitle}` },
+                        })
+                      );
+                    }}
+                    className="text-xs font-semibold text-[#1F3FE0] dark:text-blue-400 hover:underline shrink-0 cursor-pointer"
+                  >
+                    Abrir IA completa →
+                  </button>
+                </div>
               </div>
             </div>
           );
         })()}
 
         <button
+          type="button"
           onClick={() => setShowAssistantDrawer((p) => !p)}
-          className="px-4 py-2.5 rounded-full bg-[#222225] dark:bg-zinc-100 hover:opacity-90 text-white dark:text-zinc-900 text-xs font-semibold shadow-md flex items-center gap-2 transition-all"
+          className="px-4 py-2.5 rounded-full bg-[#222225] dark:bg-zinc-100 hover:opacity-90 text-white dark:text-zinc-900 text-xs font-semibold shadow-md flex items-center gap-2 transition-all cursor-pointer"
         >
           <span>{showAssistantDrawer ? '✕ Fechar Guia' : 'Guia e normas'}</span>
         </button>
       </div>
+      )}
     </div>
   );
 }

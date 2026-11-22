@@ -56,6 +56,7 @@ interface AcervoAiResponse {
 
 export function AcervoAiGlobalDrawer() {
   const pathname = usePathname() || '/';
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [query, setQuery] = useState<string>('TCR 0 Transaction ID DE 62.2 Downgrade');
   const [bandeira, setBandeira] = useState<string>('ALL');
@@ -68,6 +69,14 @@ export function AcervoAiGlobalDrawer() {
   >('parecer');
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<AcervoAiResponse | null>(null);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, [pathname]);
 
   const executeQuery = async (
     customQuery?: string,
@@ -162,59 +171,92 @@ export function AcervoAiGlobalDrawer() {
         'DE 22 POS Entry Mode 051 071 810 Network Token',
       ];
 
+  const hideFloatingPill =
+    pathname === '/editor' ||
+    pathname === '/' ||
+    pathname === '/curriculo' ||
+    pathname === '/sobre' ||
+    pathname === '/jornada';
+
   return (
     <>
-      {/* Botão Flutuante Global no Canto Inferior Esquerdo (para não colidir com outros botões à direita) */}
-      <button
-        onClick={() => {
-          setIsOpen(true);
-          if (!data) executeQuery();
-        }}
-        title="Abrir IA Conectada ao Sistema de Acervo (Alt+A)"
-        className="fixed bottom-5 left-5 z-50 px-4 py-2.5 rounded-full bg-slate-950 dark:bg-[#1F3FE0] hover:bg-blue-700 text-white border border-blue-400/40 text-xs font-black shadow-2xl flex items-center gap-2.5 transition-all"
-      >
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span>🧠 IA + Acervo (40k PDFs · 17k Campos)</span>
-        <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/15 font-mono text-[10px]">
-          Alt+A
-        </span>
-      </button>
+      {/* Botão Flutuante Único no Canto Inferior Direito (sem colisão com OwnerBar na esquerda) */}
+      {!hideFloatingPill && (
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(true);
+            if (!data) executeQuery();
+          }}
+          title={
+            isOwner
+              ? 'Abrir IA Conectada ao Sistema de Acervo (Alt+A)'
+              : 'Perguntar à IA sobre regras de pagamento e normas do BCB (Alt+A)'
+          }
+          aria-label={isOwner ? 'Abrir IA do Acervo' : 'Perguntar à IA'}
+          className="fixed bottom-5 right-5 z-40 px-4 py-2.5 rounded-full bg-foreground text-background hover:opacity-90 border border-border text-xs font-semibold shadow-lg flex items-center gap-2 transition-opacity cursor-pointer"
+        >
+          <span className="size-2 rounded-full bg-emerald-400 shrink-0" />
+          <span>{isOwner ? 'IA + Acervo' : 'Perguntar à IA'}</span>
+          {isOwner && (
+            <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-background/15 font-mono text-[10px]">
+              Alt+A
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Slide-Over Drawer da IA do Acervo */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[100] flex justify-end bg-slate-950/50 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex justify-end bg-black/45 backdrop-blur-[2px]"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="w-full max-w-[640px] h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+            className="w-full max-w-[640px] h-dvh bg-background border-l border-border shadow-2xl flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header do Drawer */}
-            <div className="px-5 py-4 bg-slate-950 text-white border-b border-slate-800 flex items-start justify-between gap-3">
+            <div className="px-5 py-4 bg-card text-foreground border-b border-border flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono text-[10px] font-black flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    {data?.liveEngineConnected
-                      ? 'SQLITE FTS5 AO VIVO CONECTADO'
-                      : 'ACERVO CANÔNICO PLUGADO'}
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    {isOwner
+                      ? data?.liveEngineConnected
+                        ? 'SQLITE FTS5 AO VIVO'
+                        : 'ACERVO CANÔNICO PLUGADO'
+                      : 'BASE NORMATIVA VERIFICADA'}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 font-mono text-[10px] font-bold">
-                    40.129 Ativos · 17.106 Campos · 454 Tarifas · 385 Boletins
+                  <span className="px-2 py-0.5 rounded-full bg-muted border border-border text-muted-foreground font-mono text-[10px]">
+                    {isOwner
+                      ? '40.129 Ativos · 17.106 Campos · 454 Tarifas · 385 Boletins'
+                      : 'Visa · Mastercard · Elo · Pix & BCB'}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-white">
-                  🧠 Cérebro da IA Conectado ao Sistema de Acervo
+                <h3 className="text-base sm:text-lg font-semibold text-foreground text-balance">
+                  {isOwner
+                    ? 'IA Conectada ao Sistema de Acervo'
+                    : 'Assistente Técnico de Meios de Pagamento'}
                 </h3>
-                <p className="text-xs text-slate-400">
-                  Consulta simultânea em <code>acervo.sqlite3</code> (FTS5), <code>campos.sqlite3</code> (17k campos), <code>tarifas.sqlite3</code> e boletins com governança de fontes.
+                <p className="text-xs text-muted-foreground text-pretty">
+                  {isOwner ? (
+                    <>
+                      Consulta simultânea em <code>acervo.sqlite3</code> (FTS5),{' '}
+                      <code>campos.sqlite3</code> (17k campos), <code>tarifas.sqlite3</code> e
+                      boletins com governança de fontes.
+                    </>
+                  ) : (
+                    'Tire dúvidas sobre regras de bandeiras, campos ISO 8583, Pix, MED 2.0, intercâmbio e Reforma Tributária 2027+ com fontes oficiais.'
+                  )}
                 </p>
               </div>
 
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 shrink-0"
+                aria-label="Fechar assistente de IA"
+                className="px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium text-foreground shrink-0 cursor-pointer"
               >
                 ✕ Fechar
               </button>

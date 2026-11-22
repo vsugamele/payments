@@ -357,7 +357,7 @@ export default function CentralArquivosPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-[#02050b] text-slate-200 pb-24">
+    <div className="min-h-dvh bg-background text-foreground pb-24">
       <ModuleTeachDemoHeader
         backHref="/compliance"
         backLabel="Voltar para Operação & Simulação"
@@ -377,57 +377,45 @@ export default function CentralArquivosPage() {
         lab3dHref="/compliance/outgoing"
         lab3dLabel="Abrir Outgoing & QA Lab Suite"
       />
-      {/* Top Header */}
-      <div className="border-b border-slate-800/80 bg-[#050b16]/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
-              title="Voltar ao Cockpit"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        <div className="rounded-3xl border border-slate-800 bg-[#050b16] text-slate-200 overflow-hidden shadow-sm">
+          {/* Console Metrics + Navigation Tabs */}
+          <div className="border-b border-slate-800/80 bg-[#070f1e]">
+            <div className="px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                  Engenharia de Arquivos & Faturamento
+                  Console GCMS · MPE · MCBS · Base II · VSS · Elo 26.2
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   SQLite + JSON Local Ativo
                 </span>
               </div>
-              <h1 className="text-lg md:text-xl font-bold text-white tracking-tight mt-0.5">
-                Sistema Completo: GCMS, MPE, MCBS, Base II, VSS & Elo 26.2
-              </h1>
-            </div>
-          </div>
 
-          {/* KPI Pills */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
-              <Database className="w-3.5 h-3.5 text-blue-400" />
-              <span className="text-slate-400">Campos:</span>
-              <span className="font-mono font-bold text-white">
-                {stats ? stats.totalCampos.toLocaleString("pt-BR") : "17.106"}
-              </span>
+              {/* KPI Pills */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+                  <Database className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-slate-400">Campos:</span>
+                  <span className="font-mono font-bold text-white tabular-nums">
+                    {stats ? stats.totalCampos.toLocaleString("pt-BR") : "17.106"}
+                  </span>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+                  <DollarSign className="w-3.5 h-3.5 text-purple-400" />
+                  <span className="text-slate-400">MCBS Brasil:</span>
+                  <span className="font-mono font-bold text-purple-300 tabular-nums">
+                    {stats ? stats.totalMcbsEvents.toLocaleString("pt-BR") : "2.267"} eventos
+                  </span>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+                  <Layers className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-slate-400">Visa Billing:</span>
+                  <span className="font-mono font-bold text-amber-300 tabular-nums">
+                    {stats ? stats.totalVisaBillingLines.toLocaleString("pt-BR") : "10.914"} linhas
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
-              <DollarSign className="w-3.5 h-3.5 text-purple-400" />
-              <span className="text-slate-400">MCBS Brasil:</span>
-              <span className="font-mono font-bold text-purple-300">
-                {stats ? stats.totalMcbsEvents.toLocaleString("pt-BR") : "2.267"} eventos
-              </span>
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-slate-400">Visa Billing:</span>
-              <span className="font-mono font-bold text-amber-300">
-                {stats ? stats.totalVisaBillingLines.toLocaleString("pt-BR") : "10.914"} linhas
-              </span>
-            </div>
-          </div>
-        </div>
 
         {/* Navigation Tabs */}
         <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 overflow-x-auto border-t border-slate-800/50 pt-2 pb-2">
@@ -497,7 +485,7 @@ export default function CentralArquivosPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 pt-8">
+      <div className="px-6 py-8">
         {/* =========================================================
             TAB 1: DECODIFICADOR POSICIONAL BYTE-A-BYTE (PARSER STUDIO)
            ========================================================= */}
@@ -2321,6 +2309,8 @@ export default function CentralArquivosPage() {
             TAB 4: VISA FEE SCHEDULE BRASIL (454 BLs · 148 VERSÕES · PREÇOS R$)
            ========================================================= */}
         {activeTab === "visa_schedule" && <VisaFeeScheduleBrPanel />}
+          </div>
+        </div>
       </div>
     </div>
   );

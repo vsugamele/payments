@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { sendToDocStudio } from '@/lib/docStudioBridge';
 
@@ -799,10 +799,46 @@ export const PRODUCT_TEACH_DEMO_CATEGORIES: ProductBoxCategory[] = [
   },
 ];
 
+const PUBLIC_FALLBACK_LINKS: Record<ProductBoxId, { label: string; href: string }[]> = {
+  cartao_presencial: [
+    { label: 'Ver Cartão Presencial em 3D no Laboratório', href: '/jornada?track=cartao' },
+    { label: 'Ler Capítulo 01 no Guia', href: '/guia#cartao' },
+  ],
+  cartao_online_tokens: [
+    { label: 'Simular Fluxo Online e 3DS no Laboratório 3D', href: '/jornada?track=cartao' },
+    { label: 'Ler Capítulo 04 (Disputas e 3DS) no Guia', href: '/guia#disputas' },
+  ],
+  clearing_liquidacao: [
+    { label: 'Ver Clearing, B3 e SLC em 3D no Laboratório', href: '/jornada?track=clearing_slc' },
+    { label: 'Ler Capítulo 02 (Clearing e SLC) no Guia', href: '/guia#clearing' },
+  ],
+  produtos_intercambio_faturas: [
+    { label: 'Simular Divisão do Dinheiro e MDR no Laboratório', href: '/jornada?track=cartao' },
+    { label: 'Ler Capítulo 03 (Intercâmbio e BCB 304) no Guia', href: '/guia#intercambio' },
+  ],
+  pix_boleto_openfinance: [
+    { label: 'Ver Pix SPI, JSR, MED 2.0 e Boleto no Laboratório 3D', href: '/jornada?track=pix_spi' },
+    { label: 'Ler Capítulos 05 a 07 no Guia', href: '/guia#pix' },
+  ],
+  disputas_releases_2027: [
+    { label: 'Ver Split Tributário 2027+ e CE 3.0 no Laboratório 3D', href: '/jornada?track=regras_2027_tempo' },
+    { label: 'Ler Capítulo 09 (Reforma 2027) no Guia', href: '/guia#reforma-2027' },
+  ],
+};
+
 export function TeachAndDemonstrateHub() {
   const [selectedBoxId, setSelectedBoxId] = useState<ProductBoxId>('cartao_presencial');
   const [selectedLessonIdx, setSelectedLessonIdx] = useState<number>(0);
   const [demoStateMode, setDemoStateMode] = useState<'normal' | 'error'>('normal');
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsOwner(
+        document.cookie.split(';').some((c) => c.trim().startsWith('vs_internal_pass=1'))
+      );
+    }
+  }, []);
 
   const activeCategory =
     PRODUCT_TEACH_DEMO_CATEGORIES.find((c) => c.id === selectedBoxId) ||
@@ -940,6 +976,7 @@ export function TeachAndDemonstrateHub() {
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() =>
                   window.dispatchEvent(
                     new CustomEvent('open-acervo-ai-drawer', {
@@ -950,9 +987,9 @@ export function TeachAndDemonstrateHub() {
                     })
                   )
                 }
-                className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 border border-blue-200 dark:border-blue-700 text-[11px] font-bold text-[#1F3FE0] dark:text-blue-300 transition-all"
+                className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 border border-blue-200 dark:border-blue-700 text-[11px] font-bold text-[#1F3FE0] dark:text-blue-300 transition-all cursor-pointer"
               >
-                🧠 Ver nos PDFs do Acervo
+                {isOwner ? '🧠 Ver nos PDFs do Acervo' : '✨ Perguntar à IA sobre esta regra'}
               </button>
             </div>
 
@@ -1034,35 +1071,38 @@ export function TeachAndDemonstrateHub() {
                 </span>
               </div>
 
-              <button
-                onClick={() => {
-                  sendToDocStudio({
-                    mode: 'append_html',
-                    title: `${activeLesson.stepBadge} — ${activeLesson.title}`,
-                    sourceModule: 'Guia Ensinar + Demonstrar',
-                    metadata: {
-                      brand: 'geral',
-                      brandName: activeCategory.badge,
-                      referenceId: activeLesson.id,
-                      category: activeCategory.title,
-                      effectiveDate: '2026 / 2027',
-                      riskLevel: 'Médio',
-                      executiveSummary: activeLesson.teach.whatItIsPlain,
-                      recommendedAction: activeLesson.teach.commonDanger,
-                    },
-                    html: `
-                      <h3>${activeLesson.stepBadge}: ${activeLesson.title}</h3>
-                      <p><strong>O que é:</strong> ${activeLesson.teach.whatItIsPlain}</p>
-                      <p><strong>Por que importa:</strong> ${activeLesson.teach.whyItMatters}</p>
-                      <p><strong>Erro comum a evitar:</strong> ${activeLesson.teach.commonDanger}</p>
-                      <p><strong>Fonte Oficial:</strong> ${activeLesson.teach.normativeSource}</p>
-                    `,
-                  });
-                }}
-                className="px-3 py-1 rounded-full bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold hover:opacity-90"
-              >
-                📝 Enviar p/ Doc Studio
-              </button>
+              {isOwner && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sendToDocStudio({
+                      mode: 'append_html',
+                      title: `${activeLesson.stepBadge} — ${activeLesson.title}`,
+                      sourceModule: 'Guia Ensinar + Demonstrar',
+                      metadata: {
+                        brand: 'geral',
+                        brandName: activeCategory.badge,
+                        referenceId: activeLesson.id,
+                        category: activeCategory.title,
+                        effectiveDate: '2026 / 2027',
+                        riskLevel: 'Médio',
+                        executiveSummary: activeLesson.teach.whatItIsPlain,
+                        recommendedAction: activeLesson.teach.commonDanger,
+                      },
+                      html: `
+                        <h3>${activeLesson.stepBadge}: ${activeLesson.title}</h3>
+                        <p><strong>O que é:</strong> ${activeLesson.teach.whatItIsPlain}</p>
+                        <p><strong>Por que importa:</strong> ${activeLesson.teach.whyItMatters}</p>
+                        <p><strong>Erro comum a evitar:</strong> ${activeLesson.teach.commonDanger}</p>
+                        <p><strong>Fonte Oficial:</strong> ${activeLesson.teach.normativeSource}</p>
+                      `,
+                    });
+                  }}
+                  className="px-3 py-1 rounded-full bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold hover:opacity-90 cursor-pointer"
+                >
+                  📝 Enviar p/ Doc Studio
+                </button>
+              )}
             </div>
 
             {/* Botões de Alternância 1-Clique: Caso Certo (✅) vs Caso com Erro (❌) */}
@@ -1172,7 +1212,10 @@ export function TeachAndDemonstrateHub() {
               Testar na ferramenta completa:
             </span>
             <div className="flex flex-wrap gap-2">
-              {activeLesson.demonstrate.deepDiveLinks.map((lnk) => (
+              {(isOwner
+                ? activeLesson.demonstrate.deepDiveLinks
+                : PUBLIC_FALLBACK_LINKS[activeCategory.id]
+              ).map((lnk) => (
                 <Link
                   key={lnk.href}
                   href={lnk.href}
