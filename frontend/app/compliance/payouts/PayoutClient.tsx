@@ -161,7 +161,7 @@ export default function PayoutClient() {
                  <p className="text-xs text-slate-400">{steps[step].desc}</p>
                  {step === 4 && (
                    <p className="text-[10px] text-emerald-400 font-bold mt-2 uppercase tracking-widest flex items-center gap-1">
-                     <ShieldCheck size={12} /> Mandato Fast Funds Cumprido
+                     <ShieldCheck size={12} /> Mandate Fast Funds Cumprido
                    </p>
                  )}
                </div>

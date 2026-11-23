@@ -81,6 +81,7 @@ type AdminWorkspaceTab =
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -99,10 +100,15 @@ export default function AdminPage() {
   );
 
   useEffect(() => {
-    const hasCookie = document.cookie
-      .split(';')
-      .some((c) => c.trim().startsWith('vs_internal_pass=1'));
-    setIsAuthenticated(hasCookie);
+    let active = true;
+    fetch('/api/auth/session', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (active) setIsAuthenticated(Boolean(data?.authenticated));
+      })
+      .catch(() => {
+        if (active) setIsAuthenticated(false);
+      });
     try {
       const savedPins = localStorage.getItem('vs_admin_pinned');
       if (savedPins) {
@@ -124,6 +130,7 @@ export default function AdminPage() {
     };
     window.addEventListener('workbench-context-change', onContextChange as EventListener);
     return () => {
+      active = false;
       window.removeEventListener('workbench-context-change', onContextChange as EventListener);
     };
   }, []);
@@ -144,21 +151,37 @@ export default function AdminPage() {
     });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.trim() === 'vs2026') {
-      document.cookie = 'vs_internal_pass=1; path=/; max-age=2592000; SameSite=Lax';
-      setIsAuthenticated(true);
-      setErrorMsg('');
-      window.location.href = '/admin';
-    } else {
-      setErrorMsg('Chave de acesso incorreta. Tente novamente.');
+    if (!password.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        setIsAuthenticated(true);
+        window.location.href = '/admin';
+      } else {
+        setErrorMsg(data.error || 'Chave de acesso incorreta. Tente novamente.');
+      }
+    } catch {
+      setErrorMsg('Erro de comunicação ao validar acesso. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleLogout = () => {
-    document.cookie =
-      'vs_internal_pass=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
     window.location.href = '/?logout=1';
   };
 
@@ -252,10 +275,11 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-semibold text-xs bg-foreground text-background hover:opacity-90 flex items-center justify-center gap-2 transition-opacity cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl font-semibold text-xs bg-foreground text-background hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity cursor-pointer"
             >
               <Unlock size={14} />
-              <span>Entrar no Painel</span>
+              <span>{isSubmitting ? 'Validando…' : 'Entrar no Painel'}</span>
             </button>
           </form>
 

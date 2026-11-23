@@ -87,6 +87,11 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
      - Corrigido `isInitializedRef.current = true` na montagem; salvamento `localStorage` blindado contra `QuotaExceededError`; `handleInsertCustomHtml` agora restaura o cursor ou anexa com scroll suave e toast; proteção `onMouseDown={(e) => e.preventDefault()}` na barra WYSIWYG para não perder seleção ao clicar em formatação; `copiedNotification` renderizado em tela; `handleExportDocx` com estado de carregamento e tratamento de erro.
      - Barra superior simplificada de 18 botões para 3 zonas limpas com menus **`Inserir`** e **`Exportar`**; sidebar do workbench recolhida automaticamente em `/editor` e `Copilot IA` fechado por padrão para liberar largura real para a folha A4.
      - `QuickDatabaseInsertModal.tsx` ganhou fallback automático para `/api/acervo/search` quando o SQLite local não está conectado (Vercel), além de tema claro/escuro adaptativo e pílulas de busca rápida no estado vazio.
+11. **Fechamento de Segurança (`HttpOnly` HMAC + Trava `/api/admin/*`), Terminologia `Mandate` & Backup `.json` do Doc Studio (23/11/2026)**:
+   - **Sessão Assinada Server-Side (`frontend/lib/ownerAuth.ts`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/session`, `proxy.ts`, `admin/page.tsx`)**: Removida a senha hardcoded do cliente (`admin/page.tsx`); criada validação server-side via `ADMIN_ACCESS_KEY` + cookie `vs_owner_session` (`HttpOnly`, `Secure`, `SameSite=Lax`, assinado em HMAC-SHA256 via Web Crypto API); rotas `/api/admin/*` e `/api/editor/*` agora retornam `401 Unauthorized` sem sessão válida e limpam cookies de UI forjados.
+   - **Paridade Vercel confirmada**: `mpe-forense`, `subcredenciadores` e `rag-status` já utilizam snapshots JSON embarcados em `@/data/` (sem dependência obrigatória de disco local na Vercel).
+   - **Terminologia `AGENTS.md`**: Corrigidos os últimos 5 usos do falso cognato `"Mandato"` para regras de bandeira em `PaygramaInteractiveLab.tsx`, `payouts/page.tsx` e `PayoutClient.tsx` (`Mandate` / `Obrigatório`).
+   - **Backup 1-clique no Doc Studio (`DocManagerModal.tsx` e `editor/page.tsx`)**: Exportação (`doc-studio-backup-YYYY-MM-DD.json`) e importação com mesclagem automática de documentos salvos.
 
 ## Validação
 - `npx next typegen` e `npx tsc --noEmit` executados em `frontend/` com `TSC_EXIT=0`.

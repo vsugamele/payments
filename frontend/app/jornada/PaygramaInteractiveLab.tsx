@@ -161,7 +161,7 @@ const REGULATORY_MILESTONES: RegulatoryMilestone[] = [
   {
     id: 'reg-med-20-2027',
     era: 'chegando_2027',
-    badge: 'MANDATO 2026/2027',
+    badge: 'OBRIGATÓRIO 2026/2027',
     effectiveDate: 'Implantação Completa 2026 ➔ 2027',
     normCode: 'Evolução do Regulamento Pix — MED 2.0 (Grafo Multinível)',
     title: 'MED 2.0: Autoatendimento 100% Digital & Rastreio Automático Além da 1ª Conta Laranja',
@@ -193,7 +193,7 @@ const REGULATORY_MILESTONES: RegulatoryMilestone[] = [
   {
     id: 'reg-click-to-pay-passkeys-2027',
     era: 'chegando_2027',
-    badge: 'MANDATO 2027',
+    badge: 'MANDATE 2027',
     effectiveDate: 'Releases 2026.2 ➔ 2027.2',
     normCode: 'Visa / Mastercard / Elo — Click to Pay + Biometria Passkeys (FIDO2) + Fim do PAN Manual',
     title: '100% Tokenização E-Commerce, Click to Pay & Autenticação Biométrica Nativa (Payment Passkeys)',
@@ -1791,7 +1791,7 @@ export function PaygramaInteractiveLab() {
             code: 'Credencial',
             name: 'Formato do Cartão/Meio',
             value: isPre2023Era ? 'FPAN 16 dígitos em aberto + CVV estático' : 'DPAN Network Token + TAVV + FIDO2 Passkey',
-            note: isPre2023Era ? 'Maior risco de fraude CNP' : 'Mandato E-Commerce 2027',
+            note: isPre2023Era ? 'Maior risco de fraude CNP' : 'Mandate E-Commerce 2027',
           },
           {
             code: 'Vínculo Fiscal',

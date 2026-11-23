@@ -52,7 +52,7 @@ export default function PayoutPage() {
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-slate-800">
                <Zap size={16} className="text-emerald-400" />
                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                 Mandato Fast Funds: &lt; 30 min
+                 Mandate Fast Funds: &lt; 30 min
                </span>
             </div>
           </div>

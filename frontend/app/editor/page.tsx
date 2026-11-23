@@ -2428,6 +2428,24 @@ export default function DocStudioEditor() {
         onSelectDoc={handleSelectDocument}
         onNewDoc={handleNewDocument}
         onDeleteDoc={handleDeleteDocument}
+        onImportDocs={(imported) => {
+          setSavedDocs((prev) => {
+            const byId = new Map<string, SavedDoc>();
+            for (const d of prev) byId.set(d.id, d);
+            for (const d of imported) byId.set(d.id, d);
+            const merged = Array.from(byId.values()).sort(
+              (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            );
+            try {
+              localStorage.setItem("vs_saved_documents", JSON.stringify(merged));
+            } catch {
+              // ignore quota
+            }
+            return merged;
+          });
+          setCopiedNotification(`Backup importado (${imported.length} documentos mesclados)!`);
+          setTimeout(() => setCopiedNotification(null), 3500);
+        }}
       />
 
       <AiSettingsModal

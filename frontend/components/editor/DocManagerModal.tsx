@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import {
   FileText,
   Plus,
   Trash2,
-  Copy,
+  Download,
+  Upload,
   Clock,
   X,
   Sparkles,
@@ -27,6 +28,7 @@ interface DocManagerModalProps {
   onSelectDoc: (doc: SavedDoc) => void;
   onNewDoc: (template?: DocumentTemplate) => void;
   onDeleteDoc: (id: string) => void;
+  onImportDocs?: (docs: SavedDoc[]) => void;
 }
 
 export default function DocManagerModal({
@@ -37,8 +39,53 @@ export default function DocManagerModal({
   onSelectDoc,
   onNewDoc,
   onDeleteDoc,
+  onImportDocs,
 }: DocManagerModalProps) {
+  const importInputRef = useRef<HTMLInputElement>(null);
+
   if (!isOpen) return null;
+
+  const handleExportBackup = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      source: "VS Payments Doc Studio",
+      count: savedDocs.length,
+      documents: savedDocs,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `doc-studio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImportDocs) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(String(ev.target?.result || "{}"));
+        const list = Array.isArray(parsed) ? parsed : parsed?.documents;
+        if (Array.isArray(list)) {
+          const valid: SavedDoc[] = list.filter(
+            (d: any) => d && typeof d.id === "string" && typeof d.content === "string"
+          );
+          if (valid.length > 0) {
+            onImportDocs(valid);
+          }
+        }
+      } catch {
+        // arquivo inválido ignorado com segurança
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
@@ -105,21 +152,52 @@ export default function DocManagerModal({
 
           {/* Section 2: Documentos Salvos Recentemente */}
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                 <Clock size={14} className="text-blue-500" />
                 Seus Documentos Salvos ({savedDocs.length})
               </h3>
-              <button
-                onClick={() => {
-                  onNewDoc();
-                  onClose();
-                }}
-                className="flex items-center gap-1 text-xs font-semibold text-blue-500 hover:underline"
-              >
-                <Plus size={13} />
-                Criar em Branco
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={handleExportBackup}
+                  disabled={savedDocs.length === 0}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-muted text-[11px] font-medium text-foreground disabled:opacity-40 cursor-pointer"
+                  title="Baixar backup .json de todos os seus documentos"
+                >
+                  <Download size={12} />
+                  <span>Backup .JSON</span>
+                </button>
+                {onImportDocs && (
+                  <button
+                    type="button"
+                    onClick={() => importInputRef.current?.click()}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-muted text-[11px] font-medium text-foreground cursor-pointer"
+                    title="Restaurar documentos a partir de um arquivo .json"
+                  >
+                    <Upload size={12} />
+                    <span>Importar</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onNewDoc();
+                    onClose();
+                  }}
+                  className="flex items-center gap-1 text-xs font-semibold text-blue-500 hover:underline cursor-pointer"
+                >
+                  <Plus size={13} />
+                  Criar em Branco
+                </button>
+              </div>
             </div>
 
             {savedDocs.length === 0 ? (
