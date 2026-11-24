@@ -98,3 +98,29 @@ Absorver a arquitetura visual, a organização didática e os padrões de intera
 
 ## Limites e Próximo Passo
 - As alíquotas de MDR e antecipação D+1 no Passo `③` são parâmetros interativos de simulação (respeitando o teto regulatório de `0,50%` da Resolução BCB 304 no débito); para auditoria linha a linha de contratos reais, utilizar `/compliance/tarifas-reais` e `/mcbs`.
+
+
+---
+
+## Atualização 24/11/2026 — Integração Nativa do Mapa Regulatório do Cartão (`/regulatorio`) + Segurança `/admin`
+
+### O que foi entregue
+1. **Rota interativa `/regulatorio` (202 atos normativos · corte 19/11/2026)**:
+   - Fonte local preservada intacta em `D:\AI\Bandeiras\Regulatorio\BCB e CMN\Mapa_Regulatorio_Cartao.html` (SHA256 `4358913C0CBB5FE8D2F582ACF24450B3FC45AA80D8272DEB94A6DE0E19588BE0`).
+   - Dataset estruturado extraído e higienizado em `frontend/data/mapa-regulatorio-cartao.json` (`202` atos: `137` BCB, `50` CMN, `7` BCB/CMN, `5` Congresso, `1` CGIBS, `1` Presidência, `1` RFB/CGIBS; `88` núcleo de cartões, `68` transversal, `16` contexto, `30` histórico; `69` ligados a regras de bandeira; `24` temas; zero menções a marcas internas/clientes).
+   - Interface nativa em `frontend/app/regulatorio/MapaRegulatorioClient.tsx` + `frontend/app/regulatorio/page.tsx`:
+     - **Modo 1 (Mapa Visual)**: árvore pan & zoom com curvas Bézier (Raiz → 24 temas → 202 atos), busca instantânea, filtros de escopo/vigência/órgão/bandeira, progresso salvo em `localStorage` e botão `Próximo ato →`.
+     - **Modo 2 (Caixinhas & Filtros)**: leitura rápida e mobile-friendly (auto-ativado em `< 900px`) com filtro por papel (`emissor`, `credenciador`, `subcredenciador`, `instituidor`, `registradora`, `IP`).
+     - **Painel lateral completo**: ementa, leitura técnica em uma frase, obrigações por papel, vigência/transição, cadeia normativa clicável (`Altera ↔ Alterada por`), ligação com regras de bandeira, ponto de atenção, link oficial BCB/Planalto, botão 1-clique `Perguntar à IA / Cruzar na IA + SQLite` (`open-acervo-ai-drawer`) e botão `Enviar p/ Doc Studio` (modo proprietário).
+2. **Navegação e descoberta completas**:
+   - `frontend/proxy.ts` (`/regulatorio` como rota pública híbrida).
+   - `frontend/components/Navbar.tsx`, `frontend/components/PaymentsWorkbenchShell.tsx`, `frontend/components/GlobalCommandPalette.tsx`, `frontend/components/HomeEditorialClient.tsx` (4ª porta em *Comece por aqui*), `frontend/components/Footer.tsx`, `frontend/app/sitemap.ts`, `frontend/app/leituras/LeiturasOrganizedClient.tsx`, `frontend/app/admin/page.tsx` e `frontend/lib/adminModulesCatalog.ts`.
+3. **Autenticação server-side e limpeza administrativa (commits `1d04e26` e `57dd203`)**:
+   - Cookie `HttpOnly` assinado via HMAC-SHA256 (`frontend/lib/ownerAuth.ts`, `/api/auth/{login,logout,session}`), bloqueio `HTTP 401` em `/api/admin/*` e `/api/editor/*`, tela de login isolada em `/admin` e correção das últimas ocorrências do falso cognato `Mandato`.
+
+### Validação
+- `npx next typegen && npx tsc --noEmit` em `frontend/`: `TSC_EXIT=0`.
+- Verificação de higienização (`EcommIT`, `E-card`, `Dock`, `PicPay`, `Mandato`): `0` ocorrências em `/regulatorio/*` e `mapa-regulatorio-cartao.json`.
+
+### Próximo passo sugerido
+- Avaliar integração do segundo HTML regulatório encontrado em Downloads (`SplitPayment-F1_CBS-IBS_6arranjos.html` — *Split Payment por dentro*, 6 arranjos CBS/IBS) como módulo dedicado ou integrado ao `/regulatorio` e `/jornada`.

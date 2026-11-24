@@ -111,6 +111,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/regulatorio" className="hover:text-foreground transition-colors">
+                  Mapa regulatório (202 atos)
+                </Link>
+              </li>
+              <li>
                 <a
                   href="/feed.xml"
                   target="_blank"

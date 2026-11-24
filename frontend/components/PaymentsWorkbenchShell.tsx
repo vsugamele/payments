@@ -271,6 +271,12 @@ const WORKBENCH_GROUPS: NavGroup[] = [
     subtitle: 'Boletins 2027 · 40k Docs · Waivers',
     items: [
       {
+        id: 'nav-mapa-regulatorio',
+        label: 'Mapa Regulatório do Cartão (202 Atos)',
+        badge: '202',
+        href: '/regulatorio',
+      },
+      {
         id: 'nav-boletins',
         label: 'Hub de Releases & Boletins (3 Lentes)',
         badge: '385',
@@ -365,7 +371,7 @@ const PRIVATE_WORKBENCH_PREFIXES = [
   '/scheme-fees',
 ];
 
-const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas', '/trilhas'];
+const HYBRID_PUBLIC_PREFIXES = ['/jornada', '/consultas', '/trilhas', '/regulatorio'];
 
 export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';
@@ -761,6 +767,7 @@ export function PaymentsWorkbenchShell({ children }: { children: React.ReactNode
                     teachHref: '/compliance/boletins',
                     demoHref: '/jornada?track=regras_2027_tempo&split2027=1',
                     tools: [
+                      { label: 'Mapa Regulatório BCB/CMN (202 Atos)', href: '/regulatorio' },
                       { label: 'Árvore Disputas & CE 3.0', href: '/compliance/outgoing?tab=disputes' },
                       { label: 'Doc Studio & Editor IA', href: '/editor' },
                     ],

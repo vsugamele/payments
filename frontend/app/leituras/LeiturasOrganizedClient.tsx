@@ -342,9 +342,13 @@ export function LeiturasOrganizedClient() {
                 Normas oficiais para manter nos favoritos (Ensinar ⇄ Demonstrar)
               </h2>
             </div>
-            <span className="font-mono text-xs text-muted-foreground">
-              Clique em &ldquo;Demonstrar&rdquo; para testar o efeito da norma na prática
-            </span>
+            <Link
+              href="/regulatorio"
+              className="inline-flex items-center gap-2 rounded-xl border border-teal-500/35 bg-teal-500/10 px-3.5 py-2 text-xs font-semibold text-teal-800 dark:text-teal-300 hover:bg-teal-500/15 transition-colors shrink-0"
+            >
+              <Scale size={14} />
+              <span>Abrir Mapa Regulatório Completo (202 Atos BCB/CMN) →</span>
+            </Link>
           </div>
 
           <div className="space-y-4">

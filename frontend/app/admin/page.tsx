@@ -61,6 +61,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 const DEFAULT_PINNED_IDS = [
+  'mapa-regulatorio-cartao',
   'paygrama-3d-lab',
   'teach-demonstrate-hub',
   'outgoing-eng-lab-suite',
@@ -334,6 +335,13 @@ export default function AdminPage() {
       tone: 'text-purple-600 dark:text-purple-400',
     },
     {
+      href: '/regulatorio',
+      icon: Scale,
+      label: 'Mapa Regulatório',
+      sub: '202 atos BCB & CMN',
+      tone: 'text-teal-600 dark:text-teal-400',
+    },
+    {
       href: '/jornada',
       icon: Globe,
       label: 'Lab 3D & Pix 2027',
@@ -471,7 +479,7 @@ export default function AdminPage() {
               Ver site público →
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
             {dailyShortcuts.map((item) => {
               const IconComp = item.icon;
               return (

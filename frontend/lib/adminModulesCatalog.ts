@@ -120,6 +120,25 @@ export const ADMIN_MODULE_CATEGORIES: ModuleCategoryMeta[] = [
         badge: "4 Mapas · 26 Produtos",
         iconName: "Layers",
         color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      },
+      {
+        id: "mapa-regulatorio-cartao",
+        title: "Mapa Regulatório do Cartão — 202 Atos (BCB, CMN, Leis & Bandeiras)",
+        desc: "Árvore visual interativa com pan & zoom + caixinhas filtráveis por papel (emissor, credenciador, subcredenciador, IP), vigência e cadeia normativa.",
+        whatItIs:
+          "Mapa interativo de 202 atos normativos brasileiros (137 BCB, 50 CMN, 7 BCB/CMN, 5 Congresso, CGIBS, RFB) agrupados em 24 temas, com 88 atos do núcleo de cartões e 69 ligados diretamente a regras de bandeira (Visa, Mastercard, Elo e Amex), conectado à IA do Acervo e ao Doc Studio.",
+        features: [
+          "Árvore visual interativa com Pan & Zoom, curvas Bézier e marcação de leitura salva localmente",
+          "Modo Caixinhas & Filtros com filtro por papel (emissor, credenciador, subcredenciador, instituidor, registradora, IP)",
+          "Cadeia normativa clicável (Altera ↔ Alterada por), ponto de atenção, cruzamento 1-clique na IA + SQLite e envio ao Doc Studio"
+        ],
+        dataSources: ["Banco Central do Brasil (137 atos)", "Conselho Monetário Nacional (50 atos)", "Leis Federais & LC 214/2025 (corte 19/11/2026)"],
+        roles: ["Adquirente", "Emissor", "Subcredenciador", "Backoffice", "Regulatório"],
+        keywords: ["regulatorio", "mapa", "bcb", "cmn", "202 atos", "resolucao 150", "resolucao 304", "resolucao 264", "lc 214", "split payment", "normas"],
+        url: "/regulatorio",
+        badge: "202 Atos · BCB/CMN",
+        iconName: "Scale",
+        color: "text-teal-400 bg-teal-500/10 border-teal-500/20"
       }
     ]
   },

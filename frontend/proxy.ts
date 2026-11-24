@@ -83,6 +83,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/leituras" ||
     pathname === "/jornada" ||
     pathname === "/trilhas" ||
+    pathname === "/regulatorio" ||
     pathname === "/feed.xml" ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||

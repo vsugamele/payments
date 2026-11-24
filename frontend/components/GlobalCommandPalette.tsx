@@ -214,6 +214,15 @@ const PUBLIC_ITEMS: CommandPaletteItem[] = [
     href: '/trilhas',
   },
   {
+    id: 'pub-regulatorio',
+    category: 'Módulos & Ferramentas',
+    badge: '202 ATOS',
+    title: 'Mapa Regulatório do Cartão (BCB, CMN, Leis & Bandeiras)',
+    subtitle: 'Árvore visual interativa + caixinhas por papel (emissor, credenciador, subcredenciador, IP), vigência e cadeia normativa',
+    keywords: 'regulatorio mapa bcb cmn resolucao 150 304 264 406 80 81 lei 12865 lc 214 split arvore atos normas',
+    href: '/regulatorio',
+  },
+  {
     id: 'pub-leituras',
     category: 'Módulos & Ferramentas',
     badge: 'CURADORIA',

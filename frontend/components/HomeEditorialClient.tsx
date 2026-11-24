@@ -253,7 +253,7 @@ export function HomeEditorialClient({
           </div>
         </header>
 
-        {/* ── 3 Portas Interativas (Exploração Editorial + Prática) ───────── */}
+        {/* ── 4 Portas Interativas (Exploração Editorial + Prática) ───────── */}
         <section className="py-10 border-b border-border">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
             <p className="section-eyebrow">Comece por aqui · Ensinar + Demonstrar</p>
@@ -265,24 +265,24 @@ export function HomeEditorialClient({
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/jornada"
               className="editorial-card group p-5 flex flex-col justify-between gap-4 hover:border-foreground/35 transition-colors"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-muted-foreground">
-                  <span>01 · LABORATÓRIO INTERATIVO</span>
+                  <span>01 · LABORATÓRIO</span>
                   <span className="px-2 py-0.5 rounded-full bg-muted text-foreground font-medium">
                     10 trilhas
                   </span>
                 </div>
                 <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
-                  O pagamento por dentro em 3D e milissegundos
+                  O pagamento por dentro em 3D e ms
                 </h2>
                 <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
                   Cartão, Clearing SLC/B3, CE 3.0, Pix SPI, JSR, MED 2.0, Boleto NPC, BC Protege+ e
-                  simulador do Split Tributário 2027+.
+                  Split Tributário 2027+.
                 </p>
               </div>
               <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
@@ -326,15 +326,39 @@ export function HomeEditorialClient({
                   </span>
                 </div>
                 <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
-                  Caso Certo vs. Caso com Erro na prática
+                  Caso Certo vs. Caso com Erro
                 </h2>
                 <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
                   Escolha o produto (Presencial, Online/3DS, Clearing, Intercâmbio, Pix ou Reforma
-                  2027) e compare falhas reais campo a campo.
+                  2027) e compare falhas campo a campo.
                 </p>
               </div>
               <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
                 Explorar por produto <ArrowRight size={12} />
+              </span>
+            </Link>
+
+            <Link
+              href="/regulatorio"
+              className="editorial-card group p-5 flex flex-col justify-between gap-4 hover:border-foreground/35 transition-colors"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span>04 · REGULATÓRIO</span>
+                  <span className="px-2 py-0.5 rounded-full bg-muted text-foreground font-medium">
+                    202 atos
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold text-foreground text-balance leading-snug group-hover:underline underline-offset-4 decoration-border">
+                  Mapa Regulatório do Cartão (BCB & CMN)
+                </h2>
+                <p className="font-serif text-sm text-muted-foreground leading-relaxed text-pretty">
+                  Árvore visual interativa com 202 normas, 24 temas, obrigações por papel e elo
+                  direto com regras de bandeira.
+                </p>
+              </div>
+              <span className="font-mono text-xs text-foreground/85 group-hover:text-foreground inline-flex items-center gap-1">
+                Explorar o mapa <ArrowRight size={12} />
               </span>
             </Link>
           </div>

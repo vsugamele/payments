@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/consultas`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/leituras`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.75 },
     { url: `${SITE_URL}/jornada`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
+    { url: `${SITE_URL}/trilhas`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
+    { url: `${SITE_URL}/regulatorio`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
   ];
 
   const guiaRoutes: MetadataRoute.Sitemap = GUIA_CHAPTERS.map((ch) => ({
