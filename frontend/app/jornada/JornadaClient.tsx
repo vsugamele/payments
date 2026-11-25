@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
-  CreditCard, Wifi, Building2, Activity, Landmark, ArrowRight,
-  CheckCircle2, XCircle, AlertTriangle, ChevronDown, ChevronUp,
-  Banknote, RotateCcw, Scale, Shield, Zap, Clock, BookOpen,
+  CreditCard, Building2, Activity, Landmark, ArrowRight,
+  CheckCircle2, XCircle, AlertTriangle,
+  Banknote, RotateCcw, Scale, Zap, Clock, BookOpen,
 } from "lucide-react";
 import TermTooltip from "@/components/TermTooltip";
 
@@ -18,14 +18,13 @@ const FASES = [
     title: "Apresentação",
     subtitulo: "Portador → Terminal",
     icon: CreditCard,
-    cor: "#3b82f6",
-    corBg: "rgba(59,130,246,0.08)",
-    corBorder: "rgba(59,130,246,0.2)",
+    cor: "#2563eb",
+    accentTextClass: "text-blue-700 dark:text-blue-400",
     tempo: "< 100ms",
     ator: "Portador & Terminal",
     descricao: (
       <>
-        O portador presenta o cartão ao terminal físico (POS) ou informa os dados online. Neste momento, o Canal determina o nível de segurança e o custo de <TermTooltip term="Intercâmbio" definition="Taxa base paga pelo Adquirente ao Banco Emissor para custear os benefícios e riscos do cartão." /> da transação.
+        O portador apresenta o cartão ao terminal físico (POS) ou informa os dados online. Neste momento, o Canal determina o nível de segurança e o custo de <TermTooltip term="Intercâmbio" definition="Taxa base paga pelo Adquirente ao Banco Emissor para custear os benefícios e riscos do cartão." /> da transação.
       </>
     ),
     canais: [
@@ -39,6 +38,10 @@ const FASES = [
     campos: ["DE 22: POS Entry Mode", "PAN / Token (DPAN ou FPAN)", "CVV / iCVV / CAVV"],
     alertas: ["Fallback Magstripe contorna segurança do chip. É sinalizado pelas Bandeiras.", "Apple Pay com autenticação biométrica ativa DAF e elimina necessidade de 3DS separado."],
     playbooks: [{ label: "DAF & Tokenização", href: "/compliance/tokenizacao" }],
+    publicPlaybooks: [
+      { label: "Artigo: Visa VDCAP & Mastercard TAF/SCOF", href: "/artigos/vdcap-taf-scof" },
+      { label: "Guia: Cartão Presencial & Online", href: "/guia/cartao" },
+    ],
   },
   {
     id: "gateway",
@@ -46,9 +49,8 @@ const FASES = [
     title: "Gateway",
     subtitulo: "Captura & ISO 8583",
     icon: Zap,
-    cor: "#8b5cf6",
-    corBg: "rgba(139,92,246,0.08)",
-    corBorder: "rgba(139,92,246,0.2)",
+    cor: "#7c3aed",
+    accentTextClass: "text-violet-700 dark:text-violet-400",
     tempo: "< 200ms",
     ator: "Gateway / Sub-Adquirente",
     descricao: (
@@ -70,6 +72,10 @@ const FASES = [
       "Campos DE 48/PDS incompletos causam downgrade de intercâmbio no Clearing.",
     ],
     playbooks: [{ label: "Lookup de Campos DE/PDS", href: "/compliance/campos" }],
+    publicPlaybooks: [
+      { label: "Artigo: Passo a Passo de uma Transação", href: "/artigos/passo-a-passo-transacao" },
+      { label: "Glossário: ISO 8583 & Campos", href: "/glossario" },
+    ],
   },
   {
     id: "adquirente",
@@ -77,9 +83,8 @@ const FASES = [
     title: "Adquirente",
     subtitulo: "Roteamento & Rede",
     icon: Building2,
-    cor: "#f59e0b",
-    corBg: "rgba(245,158,11,0.08)",
-    corBorder: "rgba(245,158,11,0.2)",
+    cor: "#b45309",
+    accentTextClass: "text-amber-700 dark:text-amber-400",
     tempo: "< 300ms",
     ator: "Adquirente",
     descricao: (
@@ -100,6 +105,10 @@ const FASES = [
       { label: "Programas de Monitoramento (VAMP/ECP)", href: "/compliance/programas" },
       { label: "Calculadora de Risco", href: "/compliance/risco" },
     ],
+    publicPlaybooks: [
+      { label: "Guia: Cartão, Adquirente & Subcredenciador", href: "/guia/cartao" },
+      { label: "Jornada por Produto: Caso Certo vs. Erro", href: "/trilhas" },
+    ],
   },
   {
     id: "bandeira",
@@ -107,9 +116,8 @@ const FASES = [
     title: "Bandeira",
     subtitulo: "Switch & STIP",
     icon: Activity,
-    cor: "#10b981",
-    corBg: "rgba(16,185,129,0.08)",
-    corBorder: "rgba(16,185,129,0.2)",
+    cor: "#047857",
+    accentTextClass: "text-emerald-700 dark:text-emerald-400",
     tempo: "< 500ms",
     ator: "Visa / Mastercard / Elo",
     descricao: (
@@ -125,9 +133,13 @@ const FASES = [
     ],
     alertas: [
       "STIP pode aprovar transações que o Emissor recusaria → risco de fraude aumenta.",
-      "Certos MCCs são bloqueados por algunas Bandeiras em determinadas regiões (ex: gambling em países específicos).",
+      "Certos MCCs são bloqueados por algumas Bandeiras em determinadas regiões (ex: gambling em países específicos).",
     ],
     playbooks: [{ label: "Lookup de Campos", href: "/compliance/campos" }],
+    publicPlaybooks: [
+      { label: "Artigo: Passo a Passo (Switch & STIP)", href: "/artigos/passo-a-passo-transacao" },
+      { label: "Glossário Técnico", href: "/glossario" },
+    ],
   },
   {
     id: "emissor",
@@ -135,9 +147,8 @@ const FASES = [
     title: "Emissor",
     subtitulo: "Decisão & Score",
     icon: Landmark,
-    cor: "#ec4899",
-    corBg: "rgba(236,72,153,0.08)",
-    corBorder: "rgba(236,72,153,0.2)",
+    cor: "#be185d",
+    accentTextClass: "text-pink-700 dark:text-pink-400",
     tempo: "< 1.000ms",
     ator: "Banco Emissor",
     descricao: (
@@ -166,6 +177,10 @@ const FASES = [
       "Soft Declines (RC 51, 96) podem ser retentados após intervalo mínimo definido pelas Bandeiras.",
     ],
     playbooks: [{ label: "Lookup de Campos / Response Codes", href: "/compliance/campos" }],
+    publicPlaybooks: [
+      { label: "Guia: Autorização & Response Codes", href: "/guia/cartao" },
+      { label: "Jornada por Produto: Online & 3DS 2.2", href: "/trilhas" },
+    ],
   },
   {
     id: "clearing",
@@ -173,9 +188,8 @@ const FASES = [
     title: "Clearing",
     subtitulo: "Compensação Noturna",
     icon: RotateCcw,
-    cor: "#06b6d4",
-    corBg: "rgba(6,182,212,0.08)",
-    corBorder: "rgba(6,182,212,0.2)",
+    cor: "#0e7490",
+    accentTextClass: "text-cyan-700 dark:text-cyan-400",
     tempo: "Processamento noturno",
     ator: "Bandeira (Câmara de Compensação)",
     descricao: (
@@ -194,6 +208,10 @@ const FASES = [
       "Transações não capturadas dentro do prazo (geralmente 3-7 dias) perdem a autorização.",
     ],
     playbooks: [{ label: "Lookup DE/PDS", href: "/compliance/campos" }, { label: "Simulador de Intercâmbio", href: "/simulador" }],
+    publicPlaybooks: [
+      { label: "Guia: Clearing, Outgoing & SLC/B3", href: "/guia/clearing" },
+      { label: "Artigo: Guia Completo de Intercâmbio", href: "/artigos/intercambio-guia-completo" },
+    ],
   },
   {
     id: "settlement",
@@ -201,9 +219,8 @@ const FASES = [
     title: "Liquidação",
     subtitulo: "O Dinheiro Muda de Mão",
     icon: Banknote,
-    cor: "#22c55e",
-    corBg: "rgba(34,197,94,0.08)",
-    corBorder: "rgba(34,197,94,0.2)",
+    cor: "#15803d",
+    accentTextClass: "text-green-700 dark:text-green-400",
     tempo: "D+1 Débito / D+2 Crédito",
     ator: "Bandeira + Bancos Liquidantes",
     descricao: (
@@ -212,17 +229,21 @@ const FASES = [
       </>
     ),
     equacao: [
-      { label: "Valor da Venda", valor: "R$ 100,00", cor: "#22c55e" },
-      { label: "(-) Intercâmbio (Emissor)", valor: "R$ 1,50", cor: "#ef4444" },
-      { label: "(-) Scheme Fee (Bandeira)", valor: "R$ 0,20", cor: "#f59e0b" },
-      { label: "(-) Spread Adquirente", valor: "R$ 0,30", cor: "#f59e0b" },
-      { label: "(=) Líquido ao Lojista (MDR net)", valor: "R$ 98,00", cor: "#22c55e" },
+      { label: "Valor da Venda", valor: "R$ 100,00", tom: "positivo" },
+      { label: "(-) Intercâmbio (Emissor)", valor: "R$ 1,50", tom: "negativo" },
+      { label: "(-) Scheme Fee (Bandeira)", valor: "R$ 0,20", tom: "alerta" },
+      { label: "(-) Spread Adquirente", valor: "R$ 0,30", tom: "alerta" },
+      { label: "(=) Líquido ao Lojista (MDR net)", valor: "R$ 98,00", tom: "positivo" },
     ],
     alertas: [
       "Chargebacks pós-liquidação forçam o Adquirente a devolver fundos já pagos. Cria risco de crédito.",
       "Crédito parcelado adia a liquidação → D+2 por parcela → lojista precisa de capital de giro.",
     ],
     playbooks: [{ label: "Simulador de Intercâmbio", href: "/simulador" }, { label: "Programas de Monitoramento", href: "/compliance/programas" }],
+    publicPlaybooks: [
+      { label: "Guia: Intercâmbio & Teto BCB 304", href: "/guia/intercambio" },
+      { label: "Artigo: Como a Margem Some no Clearing", href: "/noticias/aprovou-00-margem-sumiu-no-clearing" },
+    ],
   },
   {
     id: "disputa",
@@ -230,9 +251,8 @@ const FASES = [
     title: "Disputa",
     subtitulo: "Chargeback (se fraude/contestação)",
     icon: Scale,
-    cor: "#ef4444",
-    corBg: "rgba(239,68,68,0.08)",
-    corBorder: "rgba(239,68,68,0.2)",
+    cor: "#dc2626",
+    accentTextClass: "text-red-700 dark:text-red-400",
     tempo: "30-120 dias",
     ator: "Portador → Emissor → Adquirente → Lojista",
     descricao: (
@@ -241,11 +261,11 @@ const FASES = [
       </>
     ),
     fluxo: [
-      { step: "TC40 Report", desc: "Emissor declara fraude. Alimenta VAMP/EFM do Adquirente.", cor: "#f59e0b" },
-      { step: "First Chargeback", desc: "Emissor puxa o valor de volta da conta do Adquirente.", cor: "#ef4444" },
-      { step: "Representment", desc: "Adquirente/Lojista envia evidências defensoras via DMAS/VROL.", cor: "#3b82f6" },
-      { step: "Pre-Arbitration", desc: "Emissor rejeita as evidências. Último estágio antes da Bandeira.", cor: "#f59e0b" },
-      { step: "Arbitration", desc: "Bandeira decide. USD 150 (filing) + USD 250 (fee do perdedor).", cor: "#ef4444" },
+      { step: "TC40 Report", desc: "Emissor declara fraude. Alimenta VAMP/EFM do Adquirente.", cor: "#b45309" },
+      { step: "First Chargeback", desc: "Emissor puxa o valor de volta da conta do Adquirente.", cor: "#dc2626" },
+      { step: "Representment", desc: "Adquirente/Lojista envia evidências defensoras via DMAS/VROL.", cor: "#2563eb" },
+      { step: "Pre-Arbitration", desc: "Emissor rejeita as evidências. Último estágio antes da Bandeira.", cor: "#b45309" },
+      { step: "Arbitration", desc: "Bandeira decide. USD 150 (filing) + USD 250 (fee do perdedor).", cor: "#dc2626" },
     ],
     alertas: [
       "TC40 impacta o índice VAMP antes de qualquer chargeback formal. Merchants com muitos TC40 podem ser monitorados antes de agirem.",
@@ -256,198 +276,253 @@ const FASES = [
       { label: "Programas VAMP / ECP", href: "/compliance/programas" },
       { label: "Calculadora de Risco", href: "/compliance/risco" },
     ],
+    publicPlaybooks: [
+      { label: "Artigo: Compelling Evidence 3.0 (Visa)", href: "/artigos/compelling-evidence-3-0" },
+      { label: "Guia: Disputas & Chargebacks", href: "/guia/disputas" },
+    ],
   },
 ];
 
+function getRiscoBadgeClass(risco: string) {
+  if (risco === "Mínimo") {
+    return "bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25";
+  }
+  if (risco === "Baixo") {
+    return "bg-teal-500/12 text-teal-800 dark:text-teal-300 border border-teal-500/25";
+  }
+  if (risco === "Médio") {
+    return "bg-amber-500/14 text-amber-900 dark:text-amber-300 border border-amber-500/30";
+  }
+  return "bg-red-500/12 text-red-800 dark:text-red-300 border border-red-500/25";
+}
+
+function getEquacaoTomClass(tom: string) {
+  if (tom === "positivo") return "text-emerald-700 dark:text-emerald-400";
+  if (tom === "negativo") return "text-red-700 dark:text-red-400";
+  return "text-amber-700 dark:text-amber-400";
+}
+
 // ─── Componente ───────────────────────────────────────────────────────────────
+
+const subscribeNoop = () => () => {};
+const getOwnerSnapshot = () =>
+  typeof document !== "undefined" &&
+  document.cookie.split(";").some((c) => c.trim().startsWith("vs_internal_pass=1"));
+const getServerOwnerSnapshot = () => false;
 
 export default function JornadaClient() {
   const [faseAtiva, setFaseAtiva] = useState<string>("apresentacao");
+  const isOwner = useSyncExternalStore(subscribeNoop, getOwnerSnapshot, getServerOwnerSnapshot);
 
-  const fase = FASES.find((f) => f.id === faseAtiva)!;
+  const faseIndex = FASES.findIndex((f) => f.id === faseAtiva);
+  const fase = FASES[faseIndex] ?? FASES[0];
   const Icon = fase.icon;
+  const activePlaybooks = isOwner ? fase.playbooks : fase.publicPlaybooks;
 
   return (
-    <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem 6rem" }}>
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 pb-20">
 
       {/* ── Linha do Tempo ── */}
-      <div style={{ marginBottom: "2.5rem" }}>
-        {/* Desktop: horizontal scroll */}
-        <div style={{
-          display: "flex",
-          gap: "0",
-          overflowX: "auto",
-          paddingBottom: "0.5rem",
-          scrollbarWidth: "thin",
-        }}>
+      <div className="mb-8">
+        <div
+          className="flex items-center gap-0.5 overflow-x-auto pb-2"
+          style={{ scrollbarWidth: "thin" }}
+        >
           {FASES.map((f, i) => {
             const FIcon = f.icon;
             const isActive = faseAtiva === f.id;
             const isLast = i === FASES.length - 1;
             return (
-              <div key={f.id} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <div key={f.id} className="flex items-center shrink-0">
                 <button
+                  type="button"
                   onClick={() => setFaseAtiva(f.id)}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.875rem 1rem",
-                    background: isActive ? f.corBg : "transparent",
-                    border: `1px solid ${isActive ? f.cor : "transparent"}`,
-                    borderRadius: "0.875rem",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                    minWidth: 90,
-                  }}
+                  className={`group flex flex-col items-center gap-2 px-3.5 py-3 rounded-xl border transition-colors cursor-pointer min-w-[92px] ${
+                    isActive
+                      ? "bg-card shadow-xs"
+                      : "bg-transparent border-transparent hover:bg-muted/70"
+                  }`}
+                  style={
+                    isActive
+                      ? {
+                          borderColor: `color-mix(in srgb, ${f.cor} 45%, var(--border))`,
+                          backgroundColor: `color-mix(in srgb, ${f.cor} 7%, var(--card))`,
+                        }
+                      : undefined
+                  }
                 >
-                  <div style={{
-                    width: 40, height: 40,
-                    borderRadius: "50%",
-                    background: isActive ? f.cor : "rgba(255,255,255,0.05)",
-                    border: `2px solid ${isActive ? f.cor : "rgba(255,255,255,0.08)"}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.15s",
-                  }}>
-                    <FIcon size={18} style={{ color: isActive ? "white" : "#475569" }} />
+                  <div
+                    className={`size-10 rounded-full flex items-center justify-center transition-colors border-2 ${
+                      isActive ? "" : "bg-muted border-border text-muted-foreground group-hover:text-foreground"
+                    }`}
+                    style={
+                      isActive
+                        ? {
+                            backgroundColor: f.cor,
+                            borderColor: f.cor,
+                            color: "#ffffff",
+                          }
+                        : undefined
+                    }
+                  >
+                    <FIcon size={18} />
                   </div>
-                  <div>
-                    <div style={{
-                      fontSize: "0.65rem",
-                      fontWeight: 700,
-                      color: isActive ? f.cor : "#475569",
-                      textAlign: "center",
-                      lineHeight: 1.2,
-                    }}>
+                  <div className="text-center">
+                    <div
+                      className={`font-mono text-[11px] font-semibold leading-tight tabular-nums ${
+                        isActive ? f.accentTextClass : "text-muted-foreground"
+                      }`}
+                    >
                       {f.numero}
                     </div>
-                    <div style={{
-                      fontSize: "0.7rem",
-                      fontWeight: 600,
-                      color: isActive ? "#f1f5f9" : "#64748b",
-                      textAlign: "center",
-                      whiteSpace: "nowrap",
-                    }}>
+                    <div
+                      className={`text-xs font-semibold whitespace-nowrap ${
+                        isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      }`}
+                    >
                       {f.title}
                     </div>
                   </div>
                 </button>
                 {!isLast && (
-                  <ArrowRight size={14} style={{ color: "#1e293b", flexShrink: 0, margin: "0 -2px" }} />
+                  <ArrowRight size={14} className="text-muted-foreground/45 shrink-0 mx-0.5" />
                 )}
               </div>
             );
           })}
         </div>
+
         {/* Linha de progresso */}
-        <div style={{ height: 2, background: "rgba(255,255,255,0.04)", borderRadius: 1, marginTop: "0.5rem" }}>
-          <div style={{
-            height: "100%",
-            background: fase.cor,
-            borderRadius: 1,
-            width: `${((FASES.findIndex(f => f.id === faseAtiva) + 1) / FASES.length) * 100}%`,
-            transition: "width 0.3s ease",
-          }} />
+        <div className="h-1 bg-border rounded-full mt-2 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              backgroundColor: fase.cor,
+              width: `${((faseIndex + 1) / FASES.length) * 100}%`,
+            }}
+          />
         </div>
       </div>
 
       {/* ── Painel de Detalhe ── */}
-      <div style={{
-        background: "rgba(0,0,0,0.4)",
-        border: `1px solid ${fase.corBorder}`,
-        borderRadius: "1.25rem",
-        overflow: "hidden",
-      }}>
+      <div
+        className="bg-card border border-border rounded-2xl overflow-hidden shadow-xs"
+        style={{
+          borderTopWidth: "3px",
+          borderTopColor: fase.cor,
+        }}
+      >
         {/* Header da fase */}
-        <div style={{
-          padding: "1.75rem 2rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-          background: fase.corBg,
-        }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{
-                width: 52, height: 52,
-                borderRadius: "0.875rem",
-                background: fase.cor,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}>
-                <Icon size={26} style={{ color: "white" }} />
+        <div
+          className="px-6 py-6 sm:px-8 sm:py-7 border-b border-border"
+          style={{
+            backgroundColor: `color-mix(in srgb, ${fase.cor} 5%, var(--card))`,
+          }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div
+                className="size-12 sm:size-13 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                style={{ backgroundColor: fase.cor, color: "#ffffff" }}
+              >
+                <Icon size={24} />
               </div>
               <div>
-                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: fase.cor, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.2rem" }}>
+                <div className={`font-mono text-[11px] font-semibold uppercase tracking-wider mb-1 ${fase.accentTextClass}`}>
                   Fase {fase.numero} — {fase.subtitulo}
                 </div>
-                <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f1f5f9", lineHeight: 1 }}>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-tight tracking-tight text-balance">
                   {fase.title}
                 </h2>
               </div>
             </div>
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "0.65rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>Timing</div>
-                <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#94a3b8" }}>{fase.tempo}</div>
+
+            <div className="flex flex-wrap gap-6 sm:text-right">
+              <div>
+                <div className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Timing
+                </div>
+                <div className="text-sm font-semibold text-foreground tabular-nums mt-0.5">
+                  {fase.tempo}
+                </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "0.65rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>Ator</div>
-                <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#94a3b8" }}>{fase.ator}</div>
+              <div>
+                <div className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Ator
+                </div>
+                <div className="text-sm font-semibold text-foreground mt-0.5">
+                  {fase.ator}
+                </div>
               </div>
             </div>
           </div>
 
-          <p style={{ marginTop: "1.25rem", fontSize: "0.9rem", color: "#94a3b8", lineHeight: 1.75, maxWidth: 780 }}>
+          <p className="mt-5 text-[0.94rem] text-[var(--body-text)] leading-relaxed max-w-3xl text-pretty">
             {fase.descricao}
           </p>
         </div>
 
         {/* Body */}
-        <div style={{ padding: "1.75rem 2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }} className="grid-cols-1 md:grid-cols-2">
+        <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
 
-          {/* Campos / Canal / Fluxo / Equação */}
+          {/* Coluna Esquerda: Canal / Fluxo / Equação / Response Codes / Campos Críticos */}
           <div>
-            {"canais" in fase && (
+            {"canais" in fase && fase.canais && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Impacto por Canal
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {fase.canais!.map((c) => (
-                    <div key={c.nome} style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
-                      borderRadius: "0.5rem", padding: "0.625rem 0.875rem",
-                    }}>
-                      <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 600 }}>{c.nome}</span>
-                      <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                        <span style={{ fontSize: "0.65rem", background: c.risco === "Mínimo" ? "rgba(34,197,94,0.1)" : c.risco === "Baixo" ? "rgba(34,197,94,0.07)" : c.risco === "Médio" ? "rgba(234,179,8,0.1)" : "rgba(239,68,68,0.1)", color: c.risco === "Mínimo" || c.risco === "Baixo" ? "#4ade80" : c.risco === "Médio" ? "#fbbf24" : "#f87171", padding: "0.1rem 0.4rem", borderRadius: "0.25rem", fontWeight: 600 }}>
-                          {c.risco}
-                        </span>
+                <div className="flex flex-col gap-2">
+                  {fase.canais.map((c) => (
+                    <div
+                      key={c.nome}
+                      className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 border border-border px-3.5 py-2.5"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-foreground leading-snug">
+                          {c.nome}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                          {c.intercambio}
+                        </div>
                       </div>
+                      <span
+                        className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-md ${getRiscoBadgeClass(c.risco)}`}
+                      >
+                        {c.risco}
+                      </span>
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {"fluxo" in fase && (
+            {"fluxo" in fase && fase.fluxo && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Ciclo de Disputa
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-                  {fase.fluxo!.map((step, i) => (
-                    <div key={step.step} style={{ display: "flex", gap: "0.875rem" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: step.cor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <span style={{ fontSize: "0.65rem", fontWeight: 800, color: "white" }}>{i + 1}</span>
+                <div className="flex flex-col">
+                  {fase.fluxo.map((step, i) => (
+                    <div key={step.step} className="flex gap-3.5">
+                      <div className="flex flex-col items-center shrink-0">
+                        <div
+                          className="size-7 rounded-full flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: step.cor, color: "#ffffff" }}
+                        >
+                          <span className="font-mono text-xs font-bold tabular-nums">{i + 1}</span>
                         </div>
-                        {i < fase.fluxo!.length - 1 && <div style={{ width: 2, flex: 1, background: "rgba(255,255,255,0.06)", minHeight: 20, margin: "2px 0" }} />}
+                        {i < fase.fluxo!.length - 1 && (
+                          <div className="w-0.5 flex-1 bg-border min-h-[20px] my-1" />
+                        )}
                       </div>
-                      <div style={{ paddingBottom: "1rem" }}>
-                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.2rem" }}>{step.step}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#64748b", lineHeight: 1.5 }}>{step.desc}</div>
+                      <div className="pb-4">
+                        <div className="text-sm font-semibold text-foreground mb-0.5">
+                          {step.step}
+                        </div>
+                        <div className="text-xs text-muted-foreground leading-relaxed text-pretty">
+                          {step.desc}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -455,49 +530,92 @@ export default function JornadaClient() {
               </section>
             )}
 
-            {"equacao" in fase && (
+            {"equacao" in fase && fase.equacao && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Equação MDR
                 </h3>
-                <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "0.875rem", padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {fase.equacao!.map((item, i) => (
-                    <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: i === fase.equacao!.length - 2 ? "0.625rem" : 0, borderBottom: i === fase.equacao!.length - 2 ? "1px solid rgba(255,255,255,0.08)" : "none" }}>
-                      <span style={{ fontSize: "0.8rem", color: "#64748b" }}>{item.label}</span>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: item.cor, fontFamily: "var(--font-geist-mono)" }}>{item.valor}</span>
-                    </div>
-                  ))}
+                <div className="bg-muted/60 border border-border rounded-xl p-4 sm:p-5 flex flex-col gap-2.5">
+                  {fase.equacao.map((item, i) => {
+                    const isBeforeTotal = i === fase.equacao!.length - 2;
+                    const isTotal = i === fase.equacao!.length - 1;
+                    return (
+                      <div
+                        key={item.label}
+                        className={`flex justify-between items-center gap-3 ${
+                          isBeforeTotal ? "pb-2.5 border-b border-border" : ""
+                        }`}
+                      >
+                        <span
+                          className={`text-sm ${
+                            isTotal ? "font-semibold text-foreground" : "text-[var(--body-text)]"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        <span
+                          className={`font-mono text-sm font-semibold tabular-nums shrink-0 ${getEquacaoTomClass(item.tom)}`}
+                        >
+                          {item.valor}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}
 
-            {"respostaCodes" in fase && (
+            {"respostaCodes" in fase && fase.respostaCodes && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Response Codes Principais (DE 39)
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  {fase.respostaCodes!.map((rc) => (
-                    <div key={rc.code} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      {rc.tipo === "sucesso" ? <CheckCircle2 size={14} style={{ color: "#4ade80", flexShrink: 0 }} /> : rc.tipo === "erro" ? <XCircle size={14} style={{ color: "#f87171", flexShrink: 0 }} /> : <AlertTriangle size={14} style={{ color: "#fbbf24", flexShrink: 0 }} />}
-                      <code style={{ fontSize: "0.72rem", fontWeight: 800, color: rc.tipo === "sucesso" ? "#4ade80" : rc.tipo === "erro" ? "#f87171" : "#fbbf24", background: "rgba(255,255,255,0.04)", padding: "0.1rem 0.4rem", borderRadius: "0.25rem", flexShrink: 0 }}>RC {rc.code}</code>
-                      <span style={{ fontSize: "0.78rem", color: "#64748b" }}>{rc.desc}</span>
+                <div className="flex flex-col gap-2">
+                  {fase.respostaCodes.map((rc) => (
+                    <div
+                      key={rc.code}
+                      className="flex items-center gap-2.5 rounded-lg bg-muted/60 border border-border px-3 py-2"
+                    >
+                      {rc.tipo === "sucesso" ? (
+                        <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      ) : rc.tipo === "erro" ? (
+                        <XCircle size={15} className="text-red-600 dark:text-red-400 shrink-0" />
+                      ) : (
+                        <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                      )}
+                      <code
+                        className={`font-mono text-xs font-bold px-1.5 py-0.5 rounded shrink-0 tabular-nums ${
+                          rc.tipo === "sucesso"
+                            ? "bg-emerald-500/12 text-emerald-800 dark:text-emerald-300"
+                            : rc.tipo === "erro"
+                            ? "bg-red-500/12 text-red-800 dark:text-red-300"
+                            : "bg-amber-500/14 text-amber-900 dark:text-amber-300"
+                        }`}
+                      >
+                        RC {rc.code}
+                      </code>
+                      <span className="text-sm text-[var(--body-text)]">{rc.desc}</span>
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {!("canais" in fase) && !("fluxo" in fase) && !("equacao" in fase) && !("respostaCodes" in fase) && "campos" in fase && (
+            {!("canais" in fase) && !("fluxo" in fase) && !("equacao" in fase) && !("respostaCodes" in fase) && "campos" in fase && fase.campos && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Campos Críticos
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  {fase.campos!.map((c) => (
-                    <div key={c} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem" }}>
-                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: fase.cor, flexShrink: 0, marginTop: "0.45rem" }} />
-                      <code style={{ fontSize: "0.78rem", color: "#94a3b8", lineHeight: 1.5 }}>{c}</code>
+                <div className="flex flex-col gap-2">
+                  {fase.campos.map((c) => (
+                    <div key={c} className="flex items-start gap-2.5">
+                      <span
+                        className="size-1.5 rounded-full shrink-0 mt-2"
+                        style={{ backgroundColor: fase.cor }}
+                      />
+                      <code className="font-mono text-xs sm:text-[0.8125rem] text-foreground leading-relaxed">
+                        {c}
+                      </code>
                     </div>
                   ))}
                 </div>
@@ -505,19 +623,24 @@ export default function JornadaClient() {
             )}
           </div>
 
-          {/* Direita: campos (se não mostrou à esquerda) + alertas + links */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          {/* Coluna Direita: campos (se não mostrou à esquerda) + alertas + links */}
+          <div className="flex flex-col gap-6">
 
-            {"campos" in fase && ("canais" in fase || "fluxo" in fase || "equacao" in fase || "respostaCodes" in fase) && (
+            {"campos" in fase && fase.campos && ("canais" in fase || "fluxo" in fase || "equacao" in fase || "respostaCodes" in fase) && (
               <section>
-                <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+                <h3 className="section-eyebrow mb-3.5">
                   Campos / Mensagens
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  {fase.campos!.map((c) => (
-                    <div key={c} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem" }}>
-                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: fase.cor, flexShrink: 0, marginTop: "0.45rem" }} />
-                      <code style={{ fontSize: "0.78rem", color: "#94a3b8", lineHeight: 1.5, fontFamily: "var(--font-geist-mono)" }}>{c}</code>
+                <div className="flex flex-col gap-2">
+                  {fase.campos.map((c) => (
+                    <div key={c} className="flex items-start gap-2.5">
+                      <span
+                        className="size-1.5 rounded-full shrink-0 mt-2"
+                        style={{ backgroundColor: fase.cor }}
+                      />
+                      <code className="font-mono text-xs sm:text-[0.8125rem] text-foreground leading-relaxed">
+                        {c}
+                      </code>
                     </div>
                   ))}
                 </div>
@@ -526,21 +649,20 @@ export default function JornadaClient() {
 
             {/* Alertas */}
             <section>
-              <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
-                <Clock size={12} style={{ display: "inline", marginRight: 4 }} />
+              <h3 className="section-eyebrow mb-3.5 flex items-center gap-1.5">
+                <Clock size={12} className="shrink-0" />
                 Pontos de Atenção
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+              <div className="flex flex-col gap-2.5">
                 {fase.alertas.map((a, i) => (
-                  <div key={i} style={{
-                    display: "flex", gap: "0.75rem", alignItems: "flex-start",
-                    background: "rgba(234,179,8,0.05)",
-                    border: "1px solid rgba(234,179,8,0.15)",
-                    borderRadius: "0.625rem",
-                    padding: "0.75rem 1rem",
-                  }}>
-                    <AlertTriangle size={13} style={{ color: "#fbbf24", flexShrink: 0, marginTop: 2 }} />
-                    <p style={{ fontSize: "0.8rem", color: "#a16207", lineHeight: 1.65 }}>{a}</p>
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 rounded-xl bg-amber-500/8 dark:bg-amber-500/12 border border-amber-500/25 px-4 py-3"
+                  >
+                    <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <p className="text-sm text-amber-950 dark:text-amber-100 leading-relaxed text-pretty">
+                      {a}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -548,49 +670,36 @@ export default function JornadaClient() {
 
             {/* Links */}
             <section>
-              <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.875rem" }}>
+              <h3 className="section-eyebrow mb-3.5">
                 Ir mais fundo
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {fase.playbooks.map((p) => (
+              <div className="flex flex-col gap-2">
+                {activePlaybooks.map((p) => (
                   <Link
                     key={p.href}
                     href={p.href}
+                    className="group flex items-center justify-between gap-2 rounded-lg border px-3.5 py-2.5 transition-opacity hover:opacity-85"
                     style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      background: fase.corBg,
-                      border: `1px solid ${fase.corBorder}`,
-                      borderRadius: "0.5rem",
-                      padding: "0.625rem 0.875rem",
-                      textDecoration: "none",
-                      transition: "opacity 0.15s",
+                      backgroundColor: `color-mix(in srgb, ${fase.cor} 7%, var(--card))`,
+                      borderColor: `color-mix(in srgb, ${fase.cor} 28%, var(--border))`,
                     }}
-                    className="hover:opacity-80"
                   >
-                    <span style={{ fontSize: "0.8rem", fontWeight: 600, color: fase.cor }}>{p.label}</span>
-                    <ArrowRight size={14} style={{ color: fase.cor }} />
+                    <span className={`text-sm font-semibold ${fase.accentTextClass}`}>
+                      {p.label}
+                    </span>
+                    <ArrowRight size={15} className={`${fase.accentTextClass} shrink-0 transition-transform group-hover:translate-x-0.5`} />
                   </Link>
                 ))}
-                {/* Deep Link Acervo Normativo */}
+                {/* Deep Link Acervo (owner) ou Mapa Regulatório (público) */}
                 <Link
-                  href="/acervo"
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px dashed rgba(255, 255, 255, 0.2)",
-                    borderRadius: "0.5rem",
-                    padding: "0.625rem 0.875rem",
-                    textDecoration: "none",
-                    transition: "all 0.15s",
-                    marginTop: "0.5rem",
-                  }}
-                  className="hover:bg-white/10 hover:border-white/30 group"
+                  href={isOwner ? "/acervo" : "/regulatorio"}
+                  className="group flex items-center justify-between gap-2 rounded-lg bg-muted/60 border border-dashed border-[var(--border-strong)] px-3.5 py-2.5 transition-colors hover:bg-muted hover:border-foreground/40 mt-1"
                 >
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", fontWeight: 600, color: "#e2e8f0" }}>
-                    <BookOpen size={14} className="text-indigo-400" />
-                    Manuais no Acervo
+                  <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <BookOpen size={15} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+                    {isOwner ? "Manuais no Acervo" : "Mapa Regulatório (202 Atos BCB/CMN)"}
                   </span>
-                  <ArrowRight size={14} style={{ color: "#94a3b8" }} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={15} className="text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                 </Link>
               </div>
             </section>
@@ -599,28 +708,33 @@ export default function JornadaClient() {
       </div>
 
       {/* ── Navegação entre fases ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.25rem", gap: "1rem" }}>
-        {FASES.findIndex(f => f.id === faseAtiva) > 0 ? (
+      <div className="flex items-center justify-between mt-5 gap-4">
+        {faseIndex > 0 ? (
           <button
-            onClick={() => setFaseAtiva(FASES[FASES.findIndex(f => f.id === faseAtiva) - 1].id)}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#64748b", background: "none", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "0.5rem", padding: "0.5rem 1rem", cursor: "pointer" }}
+            type="button"
+            onClick={() => setFaseAtiva(FASES[faseIndex - 1].id)}
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground bg-card border border-border hover:bg-muted rounded-lg px-4 py-2 transition-colors cursor-pointer"
           >
             ← Fase Anterior
           </button>
         ) : <div />}
-        {FASES.findIndex(f => f.id === faseAtiva) < FASES.length - 1 ? (
+
+        {faseIndex < FASES.length - 1 ? (
           <button
-            onClick={() => setFaseAtiva(FASES[FASES.findIndex(f => f.id === faseAtiva) + 1].id)}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#f1f5f9", background: fase.cor, border: "none", borderRadius: "0.5rem", padding: "0.5rem 1.25rem", cursor: "pointer", fontWeight: 600 }}
+            type="button"
+            onClick={() => setFaseAtiva(FASES[faseIndex + 1].id)}
+            className="inline-flex items-center gap-2 text-sm font-semibold rounded-lg px-5 py-2 transition-opacity hover:opacity-90 cursor-pointer"
+            style={{ backgroundColor: fase.cor, color: "#ffffff" }}
           >
             Próxima Fase →
           </button>
         ) : (
           <Link
-            href="/compliance/disputas"
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#f1f5f9", background: "#ef4444", borderRadius: "0.5rem", padding: "0.5rem 1.25rem", fontWeight: 600, textDecoration: "none" }}
+            href={isOwner ? "/compliance/disputas" : "/guia/disputas"}
+            className="inline-flex items-center gap-2 text-sm font-semibold rounded-lg px-5 py-2 transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#dc2626", color: "#ffffff" }}
           >
-            Ver Playbook Completo de Disputas →
+            {isOwner ? "Ver Playbook Completo de Disputas →" : "Ler Guia Completo de Disputas →"}
           </Link>
         )}
       </div>
