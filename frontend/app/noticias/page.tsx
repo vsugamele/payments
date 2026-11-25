@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { EDITORIAL_POSTS } from "@/data/editorial-posts";
+import { JsonLd } from "@/components/JsonLd";
+import { buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Notícias e Notas — Vinícius Sugamele",
+export const metadata = buildPageMetadata({
+  title: "Notícias de Meios de Pagamento e BCB | Vinícius Sugamele",
   description:
     "Radar editorial sobre mudanças de regras de Visa, Mastercard, Elo, Amex, Pix e Banco Central com foco no impacto operacional e financeiro.",
-};
+  path: "/noticias",
+});
 
 export default function NoticiasPage() {
   const noticias = EDITORIAL_POSTS.filter((p) => p.kind === "noticia");
@@ -14,6 +17,12 @@ export default function NoticiasPage() {
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Início", path: "/" },
+          { name: "Notícias e Notas", path: "/noticias" },
+        ])}
+      />
       <div className="mx-auto max-w-4xl px-6">
         <header className="pt-14 pb-10 border-b border-border space-y-4">
           <p className="section-eyebrow">Radar do setor</p>

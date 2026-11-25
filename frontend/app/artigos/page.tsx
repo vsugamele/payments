@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { JsonLd } from "@/components/JsonLd";
+import { buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
 const ARTICLES = [
   {
@@ -54,17 +56,24 @@ const ARTICLES = [
   },
 ];
 
-export const metadata = {
-  title: "Artigos — Vinícius Sugamele",
+export const metadata = buildPageMetadata({
+  title: "Artigos Técnicos de Pagamentos | Vinícius Sugamele",
   description:
-    "Guias e artigos técnicos sobre meios de pagamento, intercâmbio, ISO 8583, EMV, tokenização e chargeback.",
-};
+    "Guias técnicos aprofundados sobre intercâmbio, ISO 8583, EMV, tokenização VDCAP/TAF, Compelling Evidence 3.0 e operação de bandeiras.",
+  path: "/artigos",
+});
 
 export default function ArtigosPage() {
   const [featured, ...rest] = ARTICLES;
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Início", path: "/" },
+          { name: "Artigos Técnicos", path: "/artigos" },
+        ])}
+      />
       <div className="mx-auto max-w-4xl px-6">
         <header className="pt-14 pb-10 border-b border-border space-y-4">
           <p className="section-eyebrow">Arquivo técnico</p>

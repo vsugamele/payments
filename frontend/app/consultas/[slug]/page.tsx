@@ -2,6 +2,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Clock, AlertTriangle, FileText } from "lucide-react";
 import consultas from "@/data/consultas-publicas.json";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildArticleJsonLd,
+  buildArticleTitle,
+  buildBreadcrumbJsonLd,
+  buildPageMetadata,
+} from "@/lib/seo";
 
 function diasRestantes(vigencia: string): number {
   const hoje = new Date();
@@ -31,10 +38,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const consulta = consultas.find((c) => c.slug === slug);
   if (!consulta) return {};
-  return {
-    title: `${consulta.titulo} — Vinícius Sugamele`,
-    description: consulta.resumo.replace(/\n/g, " ").substring(0, 200),
-  };
+  return buildPageMetadata({
+    title: buildArticleTitle(`${consulta.bandeira}: ${consulta.titulo}`),
+    description: consulta.resumo.replace(/\n/g, " "),
+    path: `/consultas/${consulta.slug}`,
+    type: "article",
+    publishedTime: `${consulta.publicacao}T12:00:00Z`,
+    section: `Consulta Pública · ${consulta.bandeira}`,
+  });
 }
 
 function ResumoBody({ text }: { text: string }) {
@@ -99,6 +110,22 @@ export default async function ConsultaDetalhePage({
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: `${consulta.bandeira} — ${consulta.titulo}`,
+            description: consulta.resumo.replace(/\n/g, " "),
+            path: `/consultas/${consulta.slug}`,
+            datePublished: `${consulta.publicacao}T12:00:00Z`,
+            section: `Consulta Pública · ${consulta.bandeira}`,
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Consultas Públicas", path: "/consultas" },
+            { name: consulta.titulo, path: `/consultas/${consulta.slug}` },
+          ]),
+        ]}
+      />
       <article className="mx-auto max-w-3xl px-6">
         <div className="pt-8 pb-6">
           <Link

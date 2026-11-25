@@ -14,7 +14,7 @@ export function ShareArticleBar({
 
   const getFullUrl = () => {
     if (typeof window === "undefined") {
-      return `https://vinicius-sugamele.com${path || ""}`;
+      return `https://www.vinicius-sugamele.com${path || ""}`;
     }
     return path ? `${window.location.origin}${path}` : window.location.href;
   };

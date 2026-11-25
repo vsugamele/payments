@@ -1,16 +1,40 @@
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { JsonLd } from "@/components/JsonLd";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Intercâmbio: Guia Completo para Adquirentes e Sub-adquirentes | VS Payments",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Intercâmbio: Guia para Adquirentes e Sub | Vinícius Sugamele",
   description:
-    "Entenda como as taxas de intercâmbio funcionam, a cascata de 5 decisões, quais produtos custam mais, como evitar downgrades e como verificar se você está pagando o correto.",
-};
+    "Como funciona a tarifa de intercâmbio, a cascata de 5 decisões, causas de downgrade silencioso no clearing e como auditar se a conta fecha.",
+  path: "/artigos/intercambio-guia-completo",
+  type: "article",
+  publishedTime: "2026-04-28T12:00:00Z",
+  section: "Intercâmbio",
+});
 
 export default function ArtigoIntercambio() {
   return (
-    <ArticleLayout
+    <>
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: "Intercâmbio: Guia Completo para Adquirentes e Sub-adquirentes",
+            description:
+              "Como funciona a tarifa de intercâmbio, a cascata de 5 decisões, causas de downgrade silencioso no clearing e como auditar se a conta fecha.",
+            path: "/artigos/intercambio-guia-completo",
+            datePublished: "2026-04-28T12:00:00Z",
+            section: "Intercâmbio",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Artigos", path: "/artigos" },
+            { name: "Intercâmbio: Guia Completo", path: "/artigos/intercambio-guia-completo" },
+          ]),
+        ]}
+      />
+      <ArticleLayout
       title="Intercâmbio: Guia Completo para Adquirentes e Sub-adquirentes"
       tag="Técnico"
       tagColor="rgba(59,130,246,0.12)"
@@ -364,6 +388,7 @@ export default function ArtigoIntercambio() {
         de quem opera nessa cadeia.
       </p>
 
-    </ArticleLayout>
+      </ArticleLayout>
+    </>
   );
 }

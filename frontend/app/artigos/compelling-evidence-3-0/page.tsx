@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { JsonLd } from "@/components/JsonLd";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Compelling Evidence 3.0: Como a Visa Combate Fraude Amigável | VS Payments",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Compelling Evidence 3.0 Visa: Guia Técnico | Vinícius Sugamele",
   description:
-    "Guia técnico completo do Compelling Evidence 3.0 da Visa: critérios de elegibilidade, campos BASE II (DE 60 / PDS), reason codes 10.4 e 13.1, comparativo com CE 2.0 e fluxo prático de submissão.",
-};
+    "Critérios do Visa Compelling Evidence 3.0, campos Base II, reason codes 10.4 e 13.1, comparativo com CE 2.0 e fluxo prático de defesa de chargeback.",
+  path: "/artigos/compelling-evidence-3-0",
+  type: "article",
+  publishedTime: "2026-04-28T12:00:00Z",
+  section: "Disputas",
+});
 
 /* ─── Inline style helpers ───────────────────────────────────────────────── */
 
@@ -157,7 +163,25 @@ const ERROS_COMUNS = [
 
 export default function CE30Page() {
   return (
-    <ArticleLayout
+    <>
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: "Compelling Evidence 3.0: Como a Visa Combate Fraude Amigável",
+            description:
+              "Critérios do Visa Compelling Evidence 3.0, campos Base II, reason codes 10.4 e 13.1, comparativo com CE 2.0 e fluxo prático de defesa de chargeback.",
+            path: "/artigos/compelling-evidence-3-0",
+            datePublished: "2026-04-28T12:00:00Z",
+            section: "Disputas",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Artigos", path: "/artigos" },
+            { name: "Compelling Evidence 3.0", path: "/artigos/compelling-evidence-3-0" },
+          ]),
+        ]}
+      />
+      <ArticleLayout
       title="Compelling Evidence 3.0: Como a Visa Combate Fraude Amigável"
       tag="Técnico"
       tagColor="rgba(59,130,246,0.12)"
@@ -519,6 +543,7 @@ export default function CE30Page() {
         </div>
       </section>
 
-    </ArticleLayout>
+      </ArticleLayout>
+    </>
   );
 }

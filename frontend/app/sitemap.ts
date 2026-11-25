@@ -2,23 +2,21 @@ import type { MetadataRoute } from "next";
 import { EDITORIAL_POSTS } from "@/data/editorial-posts";
 import { GUIA_CHAPTERS } from "@/data/guia-pagamentos";
 import consultas from "@/data/consultas-publicas.json";
-
-const SITE_URL = "https://vinicius-sugamele.com";
+import { SITE_URL } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/curriculo`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
-    { url: `${SITE_URL}/sobre`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/noticias`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/artigos`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${SITE_URL}/guia`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
+    { url: `${SITE_URL}/artigos`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
+    { url: `${SITE_URL}/guia`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/jornada`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/regulatorio`, lastModified: new Date("2026-11-24T12:00:00Z"), changeFrequency: "weekly", priority: 0.95 },
+    { url: `${SITE_URL}/trilhas`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
     { url: `${SITE_URL}/glossario`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/consultas`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/leituras`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.75 },
-    { url: `${SITE_URL}/jornada`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
-    { url: `${SITE_URL}/trilhas`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
-    { url: `${SITE_URL}/regulatorio`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
   ];
 
   const guiaRoutes: MetadataRoute.Sitemap = GUIA_CHAPTERS.map((ch) => ({

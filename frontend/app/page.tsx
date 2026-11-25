@@ -1,11 +1,13 @@
 import consultas from "@/data/consultas-publicas.json";
 import { HomeEditorialClient, type ConsultaResumoItem } from "@/components/HomeEditorialClient";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+export const metadata = buildPageMetadata({
+  title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e BCB",
   description:
-    "Notícias comentadas, análises técnicas e bastidores sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele, Head de Bandeiras com mais de 16 anos no setor.",
-};
+    "Notícias comentadas, guia prático, laboratório 3D e mapa regulatório sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele.",
+  path: "/",
+});
 
 export default function HomePage() {
   const consultasRecentes: ConsultaResumoItem[] = consultas.slice(0, 4).map((c) => ({

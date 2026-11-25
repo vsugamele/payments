@@ -2,12 +2,19 @@ import Link from "next/link";
 import { ArrowLeft, Route, Layers, Clock, Shield } from "lucide-react";
 import JornadaClient from "./JornadaClient";
 import { PaygramaInteractiveLab } from "./PaygramaInteractiveLab";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildBreadcrumbJsonLd,
+  buildPageMetadata,
+  buildWebApplicationJsonLd,
+} from "@/lib/seo";
 
-export const metadata = {
-  title: "O Pagamento por Dentro — Laboratório Interativo | Vinícius Sugamele",
+export const metadata = buildPageMetadata({
+  title: "O Pagamento por Dentro (Lab 3D & Pix) | Vinícius Sugamele",
   description:
-    "Simulador passo a passo com diagrama isométrico e sequência em milissegundos: Cartão (4 Bandeiras), Liquidação SLC/B3, Disputas CE 3.0, Pix, Pix Automático, MED 2.0, Boleto, Open Finance e Reforma Tributária 2027.",
-};
+    "Simulador interativo em 3D e milissegundos: Cartão (4 bandeiras), SLC/B3, CE 3.0, Pix SPI, MED 2.0, Boleto NPC, Open Finance e Split Tributário 2027+.",
+  path: "/jornada",
+});
 
 const PILARES = [
   { icon: Route, label: "10 trilhas interativas", desc: "Cartão, Outgoing, Pix, MED 2.0, Boleto e 2027+" },
@@ -19,6 +26,25 @@ const PILARES = [
 export default function JornadaPage() {
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={[
+          buildWebApplicationJsonLd({
+            name: "O Pagamento por Dentro — Laboratório Interativo 3D",
+            description:
+              "Simulador passo a passo de meios de pagamento no Brasil com projeção isométrica 3D, diagrama de sequência em ms, injeção de falhas e simulador de Split Payment 2027.",
+            path: "/jornada",
+            featureList: [
+              "10 trilhas interativas (Cartão, Outgoing SLC/B3, CE 3.0, Pix SPI, Pix Automático/NFC, MED 2.0, Open Finance JSR, Boleto NPC, BC Protege+ e Split Tributário LC 214/2025)",
+              "Alternância entre projeção isométrica 3D e diagrama de sequência cronometrado",
+              "Injeção de falhas reais e decomposição de ARN, EndToEndId e código de barras",
+            ],
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Laboratório (O Pagamento por Dentro)", path: "/jornada" },
+          ]),
+        ]}
+      />
       {/* ── Cabeçalho Editorial do Laboratório ── */}
       <section className="dot-grid border-b border-border py-12 px-6">
         <div className="mx-auto max-w-6xl space-y-6">

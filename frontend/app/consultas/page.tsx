@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, Clock, AlertTriangle } from "lucide-react";
 import consultas from "@/data/consultas-publicas.json";
+import { JsonLd } from "@/components/JsonLd";
+import { buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Consultas Públicas das Bandeiras — Vinícius Sugamele",
+export const metadata = buildPageMetadata({
+  title: "Consultas Públicas das Bandeiras | Vinícius Sugamele",
   description:
-    "Resumos executivos e pontos de atenção das consultas públicas de Visa, Mastercard e Elo submetidas no Brasil.",
-};
+    "Resumos executivos e pontos de atenção das consultas públicas de Visa, Mastercard e Elo submetidas ao mercado brasileiro.",
+  path: "/consultas",
+});
 
 function diasRestantes(vigencia: string): number {
   const hoje = new Date();
@@ -52,6 +55,12 @@ export default function ConsultasPage() {
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Início", path: "/" },
+          { name: "Consultas Públicas", path: "/consultas" },
+        ])}
+      />
       <div className="mx-auto max-w-4xl px-6">
         <header className="pt-14 pb-10 border-b border-border space-y-4">
           <p className="section-eyebrow">Regulatório · Bandeiras</p>

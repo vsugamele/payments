@@ -1,14 +1,38 @@
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { JsonLd } from "@/components/JsonLd";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Visa VDCAP e Mastercard TAF/SCOF: A engenharia da autenticação silenciosa com token — VS Payments",
+export const metadata = buildPageMetadata({
+  title: "Visa VDCAP e Mastercard TAF/SCOF com Token | Vinícius Sugamele",
   description:
-    "Como Visa e Mastercard implementam autenticação silenciosa baseada em token, dispensando 3DS sem abrir mão da segurança. VDCAP, TAF e SCOF explicados.",
-};
+    "Como Visa VDCAP e Mastercard TAF/SCOF usam Network Tokens e credenciais salvas para autenticação silenciosa no e-commerce sem fricção 3DS.",
+  path: "/artigos/vdcap-taf-scof",
+  type: "article",
+  publishedTime: "2025-04-12T12:00:00Z",
+  section: "Autorização",
+});
 
 export default function ArtigoVdcap() {
   return (
-    <ArticleLayout
+    <>
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: "Visa VDCAP e Mastercard TAF/SCOF: autenticação silenciosa com token",
+            description:
+              "Como Visa VDCAP e Mastercard TAF/SCOF usam Network Tokens e credenciais salvas para autenticação silenciosa no e-commerce sem fricção 3DS.",
+            path: "/artigos/vdcap-taf-scof",
+            datePublished: "2025-04-12T12:00:00Z",
+            section: "Autorização",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Artigos", path: "/artigos" },
+            { name: "Visa VDCAP e Mastercard TAF/SCOF", path: "/artigos/vdcap-taf-scof" },
+          ]),
+        ]}
+      />
+      <ArticleLayout
       title="Visa VDCAP e Mastercard TAF/SCOF: A engenharia da autenticação silenciosa com token"
       tag="Técnico"
       tagColor="rgba(37,99,235,0.15)"
@@ -319,6 +343,7 @@ export default function ArtigoVdcap() {
         autenticação silenciosa, aprovação mais alta, menos fraude — mas pela perspectiva
         técnica, os campos e responsabilidades são distintos.
       </div>
-    </ArticleLayout>
+      </ArticleLayout>
+    </>
   );
 }

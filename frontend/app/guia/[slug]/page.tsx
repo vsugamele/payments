@@ -3,6 +3,13 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { GUIA_CHAPTERS, getGuiaChapterBySlug } from "@/data/guia-pagamentos";
 import { ShareArticleBar } from "@/components/ShareArticleBar";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildArticleJsonLd,
+  buildArticleTitle,
+  buildBreadcrumbJsonLd,
+  buildPageMetadata,
+} from "@/lib/seo";
 
 export async function generateStaticParams() {
   return GUIA_CHAPTERS.map((ch) => ({ slug: ch.id }));
@@ -16,10 +23,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const chapter = getGuiaChapterBySlug(slug);
   if (!chapter) return {};
-  return {
-    title: `${chapter.title} — Guia de Pagamentos | Vinícius Sugamele`,
+  return buildPageMetadata({
+    title: buildArticleTitle(`${chapter.shortTitle} — Guia de Pagamentos`),
     description: chapter.summary,
-  };
+    path: `/guia/${chapter.id}`,
+    type: "article",
+    section: "Guia de Pagamentos",
+  });
 }
 
 export default async function GuiaCapituloPage({
@@ -38,6 +48,22 @@ export default async function GuiaCapituloPage({
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: chapter.title,
+            description: chapter.summary,
+            path: `/guia/${chapter.id}`,
+            datePublished: "2026-11-19T12:00:00Z",
+            section: "Guia de Meios de Pagamento",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Guia", path: "/guia" },
+            { name: chapter.shortTitle, path: `/guia/${chapter.id}` },
+          ]),
+        ]}
+      />
       <article className="mx-auto max-w-3xl px-6">
         <div className="pt-8 pb-6 flex items-center justify-between gap-4">
           <Link

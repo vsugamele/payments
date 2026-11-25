@@ -1,6 +1,5 @@
 import { EDITORIAL_POSTS } from "@/data/editorial-posts";
-
-const SITE_URL = "https://vinicius-sugamele.com";
+import { SITE_URL } from "@/lib/seo";
 
 function escapeXml(str: string): string {
   return str

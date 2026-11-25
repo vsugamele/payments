@@ -8,6 +8,8 @@ import { OwnerBar } from "@/components/OwnerBar";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import { PaymentsWorkbenchShell } from "@/components/PaymentsWorkbenchShell";
 import { AcervoAiGlobalDrawer } from "@/components/AcervoAiGlobalDrawer";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL, SITE_NAME, buildGlobalGraphJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,29 +32,43 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://vinicius-sugamele.com"),
-  title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+  metadataBase: new URL(SITE_URL),
+  title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e BCB",
   description:
-    "Notícias comentadas, análises práticas e bastidores sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele, Head de Bandeiras com mais de 16 anos no setor.",
+    "Notícias comentadas, guia prático, laboratório 3D e mapa regulatório sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central — por Vinícius Sugamele.",
+  authors: [{ name: SITE_NAME, url: `${SITE_URL}/curriculo` }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   alternates: {
     types: {
-      "application/rss+xml": "/feed.xml",
+      "application/rss+xml": `${SITE_URL}/feed.xml`,
     },
   },
   openGraph: {
-    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e BCB",
     description:
-      "Notícias comentadas, guia prático e bastidores de meios de pagamento. Trajetória de 16+ anos em EcommIT, Bandeira Elo, Getnet e Verifone / American Express.",
-    url: "https://vinicius-sugamele.com",
-    siteName: "Vinícius Sugamele",
+      "Notícias comentadas, guia prático, laboratório 3D e mapa regulatório sobre Visa, Mastercard, Elo, Amex, Pix e Banco Central.",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "pt_BR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e Regulação",
+    title: "Vinícius Sugamele — Meios de Pagamento, Bandeiras e BCB",
     description:
-      "Notícias comentadas, guia prático em 9 capítulos e bastidores de Visa, Mastercard, Elo, Amex, Pix e Banco Central.",
+      "Notícias comentadas, guia prático em 9 capítulos, laboratório 3D e mapa regulatório de meios de pagamento.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
   },
 };
 
@@ -68,6 +84,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <JsonLd data={buildGlobalGraphJsonLd()} />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

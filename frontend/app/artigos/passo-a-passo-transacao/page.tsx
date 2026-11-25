@@ -1,14 +1,38 @@
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { JsonLd } from "@/components/JsonLd";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Passo a Passo de uma Transação de Pagamento — VS Payments",
+export const metadata = buildPageMetadata({
+  title: "Passo a Passo de uma Transação de Pagamento | Vinícius Sugamele",
   description:
-    "Do credenciamento do lojista até a liquidação: fluxo completo de uma transação Mastercard, com ISO 8583, EMV, clearing e chargeback.",
-};
+    "Do credenciamento do lojista à liquidação: ISO 8583, chip EMV, Dual Message, clearing noturno e chargeback explicados do zero.",
+  path: "/artigos/passo-a-passo-transacao",
+  type: "article",
+  publishedTime: "2026-02-08T12:00:00Z",
+  section: "Infraestrutura",
+});
 
 export default function ArtigoPasso() {
   return (
-    <ArticleLayout
+    <>
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: "Passo a Passo de uma Transação de Pagamento",
+            description:
+              "Do credenciamento do lojista à liquidação: ISO 8583, chip EMV, Dual Message, clearing noturno e chargeback explicados do zero.",
+            path: "/artigos/passo-a-passo-transacao",
+            datePublished: "2026-02-08T12:00:00Z",
+            section: "Infraestrutura",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Artigos", path: "/artigos" },
+            { name: "Passo a Passo de uma Transação", path: "/artigos/passo-a-passo-transacao" },
+          ]),
+        ]}
+      />
+      <ArticleLayout
       title="Passo a Passo de uma Transação de Pagamento"
       tag="Educacional"
       tagColor="rgba(34,197,94,0.12)"
@@ -543,6 +567,7 @@ export default function ArtigoPasso() {
           ))}
         </tbody>
       </table>
-    </ArticleLayout>
+      </ArticleLayout>
+    </>
   );
 }

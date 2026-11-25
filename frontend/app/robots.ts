@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -12,6 +13,8 @@ export default function robots(): MetadataRoute.Robots {
           "/noticias",
           "/artigos",
           "/guia",
+          "/trilhas",
+          "/regulatorio",
           "/glossario",
           "/consultas",
           "/leituras",
@@ -28,13 +31,13 @@ export default function robots(): MetadataRoute.Robots {
           "/simulador",
           "/mapa",
           "/arquitetura",
-          "/trilhas",
           "/billing",
           "/chargeback",
           "/mdr",
         ],
       },
     ],
-    sitemap: "https://vinicius-sugamele.com/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

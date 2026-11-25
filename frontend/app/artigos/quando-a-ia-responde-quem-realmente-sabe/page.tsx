@@ -1,17 +1,44 @@
 import type { Metadata } from "next";
 import { ArticleLayout } from "@/components/ArticleLayout";
 import { LinkedInCarouselViewer } from "@/components/LinkedInCarouselViewer";
+import { JsonLd } from "@/components/JsonLd";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 import { AlertTriangle, ShieldAlert, CheckCircle2, ExternalLink } from "lucide-react";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Quando a IA responde, quem realmente sabe? | Vinícius Sugamele",
   description:
     "A perda do atrito cognitivo, a ilusão de competência técnica e a urgência de governança de conhecimento em meios de pagamento.",
-};
+  path: "/artigos/quando-a-ia-responde-quem-realmente-sabe",
+  type: "article",
+  publishedTime: "2026-09-24T12:00:00Z",
+  section: "Análise",
+});
 
 export default function ArtigoQuandoAIARespondePage() {
   return (
-    <ArticleLayout
+    <>
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: "Quando a IA responde, quem realmente sabe?",
+            description:
+              "A perda do atrito cognitivo, a ilusão de competência técnica e a urgência de governança de conhecimento em meios de pagamento.",
+            path: "/artigos/quando-a-ia-responde-quem-realmente-sabe",
+            datePublished: "2026-09-24T12:00:00Z",
+            section: "Análise",
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Artigos", path: "/artigos" },
+            {
+              name: "Quando a IA responde, quem realmente sabe?",
+              path: "/artigos/quando-a-ia-responde-quem-realmente-sabe",
+            },
+          ]),
+        ]}
+      />
+      <ArticleLayout
       title="Quando a IA responde, quem realmente sabe?"
       tag="Análise"
       date="24 Set 2026"
@@ -324,6 +351,7 @@ export default function ArtigoQuandoAIARespondePage() {
           </div>
         </div>
       </section>
-    </ArticleLayout>
+      </ArticleLayout>
+    </>
   );
 }

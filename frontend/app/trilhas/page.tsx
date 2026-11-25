@@ -3,12 +3,15 @@ import { ArrowLeft, GraduationCap, Compass } from "lucide-react";
 import trilhasData from "@/data/trilhas.json";
 import { TrilhaCard } from "@/components/TrilhasClient";
 import { TeachAndDemonstrateHub } from "@/components/TeachAndDemonstrateHub";
+import { JsonLd } from "@/components/JsonLd";
+import { buildBreadcrumbJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Trilhas de Aprendizado — VS Payments",
+export const metadata = buildPageMetadata({
+  title: "Jornada por Produto & Trilhas | Vinícius Sugamele",
   description:
-    "Currículo estruturado em meios de pagamento. Do ecossistema ao intercâmbio técnico, compliance e risco — aprenda no seu ritmo com trilhas progressivas.",
-};
+    "Aprenda meios de pagamento por produto (Presencial, Online/3DS, Clearing, Intercâmbio, Pix e Reforma 2027) comparando Caso Certo vs. Erro real.",
+  path: "/trilhas",
+});
 
 const NIVEL_ORDER = ["Iniciante", "Intermediário", "Avançado"];
 
@@ -19,6 +22,12 @@ export default function TrilhasPage() {
 
   return (
     <main className="bg-background min-h-screen pb-24">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Início", path: "/" },
+          { name: "Jornada por Produto & Trilhas", path: "/trilhas" },
+        ])}
+      />
       {/* Hero */}
       <section
         className="dot-grid"

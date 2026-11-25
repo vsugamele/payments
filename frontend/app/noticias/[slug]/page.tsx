@@ -3,6 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, FileDown } from "lucide-react";
 import { ShareArticleBar } from "@/components/ShareArticleBar";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildArticleJsonLd,
+  buildArticleTitle,
+  buildBreadcrumbJsonLd,
+  buildPageMetadata,
+} from "@/lib/seo";
 import {
   EDITORIAL_POSTS,
   getAllNewsPosts,
@@ -21,10 +28,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getNewsPostBySlug(slug);
   if (!post) return {};
-  return {
-    title: `${post.title} — Vinícius Sugamele`,
+  return buildPageMetadata({
+    title: buildArticleTitle(post.title),
     description: post.summary,
-  };
+    path: `/noticias/${post.slug}`,
+    type: "article",
+    publishedTime: `${post.dateISO}T12:00:00Z`,
+    section: post.category,
+  });
 }
 
 export default async function NoticiaDetalhePage({
@@ -40,6 +51,23 @@ export default async function NoticiaDetalhePage({
 
   return (
     <main className="bg-background min-h-dvh pb-24">
+      <JsonLd
+        data={[
+          buildArticleJsonLd({
+            title: post.title,
+            description: post.summary,
+            path: `/noticias/${post.slug}`,
+            datePublished: `${post.dateISO}T12:00:00Z`,
+            section: post.category,
+            isNews: true,
+          }),
+          buildBreadcrumbJsonLd([
+            { name: "Início", path: "/" },
+            { name: "Notícias", path: "/noticias" },
+            { name: post.title, path: `/noticias/${post.slug}` },
+          ]),
+        ]}
+      />
       <article className="mx-auto max-w-3xl px-6">
         {/* Voltar */}
         <div className="pt-8 pb-6">
